@@ -196,28 +196,89 @@
 
         .brand-logo {
             display: flex;
-            align-items: baseline;
-            gap: 4px;
+            align-items: center;
+            gap: 8px;
             text-decoration: none;
             color: var(--ink-primary);
+            transition: transform 0.25s ease;
         }
 
-        .brand-title {
-            font-family: var(--font-hand);
-            font-size: 34px;
-            line-height: 0.85;
+        .brand-logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .brand-the {
+            font-family: var(--font-serif);
+            font-size: 14px;
+            font-weight: 600;
+            font-style: italic;
+            color: var(--ink-muted);
+            line-height: 1;
+        }
+
+        .brand-img {
+            height: 28px;
+            width: auto;
+            display: block;
+            filter: drop-shadow(0 1px 3px rgba(35, 30, 20, 0.12));
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .brand-logo:hover .brand-img {
+            transform: scale(1.05) rotate(-1deg);
+        }
+
+        .brand-bookclub-tag {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            margin-left: 2px;
+        }
+
+        .brand-bookclub-text {
+            font-family: var(--font-serif);
+            font-size: 10px;
             font-weight: 700;
-            letter-spacing: -0.5px;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--forest-green);
+            background: rgba(39, 64, 51, 0.08);
+            padding: 2px 6px;
+            border-radius: 6px;
+            line-height: 1.1;
+        }
+
+        [data-theme="dark"] .brand-bookclub-text {
+            color: var(--accent-sage);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .brand-vol-text {
+            font-size: 7.5px;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            color: var(--ink-muted);
+            text-transform: uppercase;
         }
 
         .brand-dot {
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
             background-color: var(--accent-sage);
             display: inline-block;
             margin-left: 2px;
+            flex-shrink: 0;
         }
+
+        /* Light / Dark brand image switching */
+        .light-brand { display: block; }
+        .dark-brand { display: none; }
+
+        [data-theme="dark"] .light-brand { display: none; }
+        [data-theme="dark"] .dark-brand { display: block; }
 
         .brand-taglines {
             display: flex;
@@ -1552,8 +1613,16 @@
              ==================================================================== -->
         <header>
             <div class="brand-container">
-                <a href="#" class="brand-logo" title="Wabi Sabi">
-                    <span class="brand-title">wabi sabi</span>
+                <a href="#" class="brand-logo" title="The Wabi Sabi Bookclub • Vol. 1">
+                    <span class="brand-the">The</span>
+                    <div class="brand-logo-wrap">
+                        <img src="assets/wabi_sabi_horizontal.png" alt="Wabi Sabi" class="brand-img light-brand">
+                        <img src="assets/wabi_sabi_horizontal_dark.png" alt="Wabi Sabi" class="brand-img dark-brand">
+                    </div>
+                    <div class="brand-bookclub-tag">
+                        <span class="brand-bookclub-text">Bookclub</span>
+                        <span class="brand-vol-text">VOL. 1</span>
+                    </div>
                     <span class="brand-dot"></span>
                 </a>
                 <div class="brand-taglines">
@@ -1650,7 +1719,7 @@
         <main class="main-content">
             <!-- Left Typography Hero Statement -->
             <div class="hero-statement">
-                <div class="hero-eyebrow">Same Stories • Different People</div>
+                <div class="hero-eyebrow">The Wabi Sabi Bookclub • Vol. 1 • Same Stories, Different People</div>
                 <h1 class="hero-headline">
                     Read<br>
                     Watch<br>
