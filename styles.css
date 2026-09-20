@@ -471,58 +471,145 @@ body {
 }
 
 /* ========================================
-   Category Cards
+   Category Cards - Orbital Composition
    ======================================== */
-.category-cards {
+.category-cards-orbital {
     position: absolute;
-    right: -100px;
+    right: -50px;
+    top: 40px;
+    width: 600px;
+    height: 520px;
+    perspective: 1000px;
+}
+
+/* Orbital Border SVG - sits behind cards */
+.orbital-border {
+    position: absolute;
     top: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
 }
 
-.card {
-    width: 220px;
-    padding: 24px;
-    border-radius: 16px;
-    position: relative;
+.orbital-path {
+    stroke-dasharray: 1800;
+    stroke-dashoffset: 0;
+    animation: drawOrbital 3s ease-out forwards;
+}
+
+@keyframes drawOrbital {
+    from { stroke-dashoffset: 1800; }
+    to { stroke-dashoffset: 0; }
+}
+
+/* Waypoint dots with subtle pulse */
+.waypoint-dot {
+    opacity: 0;
+    animation: fadeInDot 0.5s ease-out forwards;
+}
+
+.waypoint-green-1 { animation-delay: 2.2s; }
+.waypoint-lavender { animation-delay: 2.4s; }
+.waypoint-peach { animation-delay: 2.6s; }
+.waypoint-green-2 { animation-delay: 2.8s; }
+
+@keyframes fadeInDot {
+    to { opacity: 1; }
+}
+
+/* Clover mark */
+.clover-mark {
+    opacity: 0;
+    transform-origin: center;
+    animation: fadeInClover 0.6s ease-out 3s forwards;
+}
+
+@keyframes fadeInClover {
+    to { opacity: 0.9; }
+}
+
+/* Ink doodle */
+.ink-doodle {
+    opacity: 0;
+    animation: fadeInDoodle 0.5s ease-out 3.2s forwards;
+}
+
+@keyframes fadeInDoodle {
+    to { opacity: 1; }
+}
+
+/* Base Card Styles - Paper-like appearance */
+.category-cards-orbital .card {
+    position: absolute;
+    width: 180px;
+    padding: 20px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 
-        0 8px 24px rgba(16, 16, 16, 0.08),
-        0 2px 8px rgba(16, 16, 16, 0.04);
+        0 12px 32px rgba(16, 16, 16, 0.08),
+        0 4px 12px rgba(16, 16, 16, 0.04),
+        0 1px 3px rgba(16, 16, 16, 0.02);
+    z-index: 10;
+    overflow: hidden;
 }
 
-.card:hover {
-    transform: translateY(-8px) rotate(var(--hover-rotation, 0deg)) scale(1.02);
-    box-shadow: 
-        0 16px 40px rgba(16, 16, 16, 0.12),
-        0 4px 12px rgba(16, 16, 16, 0.06);
+/* Paper texture overlay on cards */
+.card-paper-texture {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0.5;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paperNoise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paperNoise)' opacity='0.05'/%3E%3C/svg%3E");
+    mix-blend-mode: multiply;
 }
 
-.card-books {
+/* Hover effect - card lifts and tilts */
+.category-cards-orbital .card:hover {
+    transform: translateY(-10px) scale(1.03) rotate(var(--hover-rotation, 0deg));
+    box-shadow: 
+        0 20px 48px rgba(16, 16, 16, 0.12),
+        0 8px 20px rgba(16, 16, 16, 0.06),
+        0 2px 6px rgba(16, 16, 16, 0.03);
+    z-index: 20;
+}
+
+/* Card positioning in orbital layout */
+.card-books-orbital {
     background: var(--mint);
-    transform: rotate(2deg);
-    --hover-rotation: -1deg;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) rotate(3deg);
+    --hover-rotation: -2deg;
 }
 
-.card-films {
+.card-films-orbital {
     background: var(--lavender);
-    transform: rotate(-1deg);
-    --hover-rotation: 1deg;
+    top: 140px;
+    right: 20px;
+    transform: rotate(-4deg);
+    --hover-rotation: 3deg;
 }
 
-.card-discussions {
+.card-discussions-orbital {
     background: var(--soft-peach);
-    transform: rotate(1.5deg);
-    --hover-rotation: -0.5deg;
+    top: 180px;
+    left: 30px;
+    transform: rotate(-6deg);
+    --hover-rotation: 4deg;
 }
 
-.card-community {
+.card-community-orbital {
     background: var(--warm-sand);
-    transform: rotate(-0.5deg);
-    --hover-rotation: 0.5deg;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) rotate(2deg);
+    --hover-rotation: -2deg;
 }
 
 .card-icon {
@@ -575,27 +662,71 @@ body {
     transform: scale(1.1) rotate(45deg);
 }
 
-/* Navigation Line */
-.nav-line-container {
+/* ========================================
+   Explore Annotation
+   ======================================== */
+.explore-annotation {
     position: absolute;
-    right: -180px;
-    top: 50%;
-    transform: translateY(-50%);
-    text-align: center;
+    top: -20px;
+    left: 80px;
+    z-index: 30;
+    pointer-events: none;
 }
 
-.nav-line {
+.handwritten-explore {
+    font-family: var(--font-handwritten);
+    font-size: 24px;
+    line-height: 1.3;
+    display: block;
+    transform: rotate(-8deg);
+}
+
+.explore-arrow {
+    position: absolute;
+    top: 35px;
+    left: 50px;
     width: 80px;
-    height: 200px;
-    margin: 0 auto 16px;
+    height: 60px;
+    transform: rotate(-5deg);
 }
 
-.nav-line-text {
-    font-size: 10px;
+/* ========================================
+   Stamp Seal
+   ======================================== */
+.stamp-seal {
+    position: absolute;
+    top: 120px;
+    right: -40px;
+    width: 140px;
+    height: 140px;
+    z-index: 25;
+}
+
+.stamp-seal svg {
+    width: 100%;
+    height: 100%;
+    opacity: 0.7;
+}
+
+.stamp-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.stamp-text span {
+    font-family: var(--font-sans);
+    font-size: 9px;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    line-height: 1.8;
+    color: var(--ink-black);
     opacity: 0.7;
+    white-space: nowrap;
 }
 
 /* ========================================

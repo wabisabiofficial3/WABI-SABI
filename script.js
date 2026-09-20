@@ -6,11 +6,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // ========================================
-    // Card Tilt Effect (3D on mouse move)
+    // Card Tilt Effect (3D on mouse move) - Orbital Cards
     // ========================================
-    const cards = document.querySelectorAll('.card[data-tilt]');
+    const orbitalCards = document.querySelectorAll('.category-cards-orbital .card[data-tilt]');
     
-    cards.forEach(card => {
+    orbitalCards.forEach(card => {
         card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -19,18 +19,22 @@ document.addEventListener('DOMContentLoaded', function() {
             const centerX = rect.width / 2;
             const centerY = rect.height / 2;
             
-            const rotateX = (y - centerY) / 10;
-            const rotateY = (centerX - x) / 10;
+            const rotateX = (y - centerY) / 8;
+            const rotateY = (centerX - x) / 8;
             
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px) scale(1.02)`;
+            // Get the base rotation from CSS custom property
+            const hoverRotation = getComputedStyle(card).getPropertyValue('--hover-rotation').trim() || '0deg';
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px) scale(1.03) rotate(${hoverRotation})`;
         });
         
         card.addEventListener('mouseleave', () => {
-            const baseRotation = card.classList.contains('card-books') ? '2deg' :
-                                card.classList.contains('card-films') ? '-1deg' :
-                                card.classList.contains('card-discussions') ? '1.5deg' : '-0.5deg';
+            const baseRotation = card.classList.contains('card-books-orbital') ? 'translateX(-50%) rotate(3deg)' :
+                                card.classList.contains('card-films-orbital') ? 'rotate(-4deg)' :
+                                card.classList.contains('card-discussions-orbital') ? 'rotate(-6deg)' : 
+                                card.classList.contains('card-community-orbital') ? 'translateX(-50%) rotate(2deg)' : 'rotate(0deg)';
             
-            card.style.transform = `perspective(1000px) rotate(${baseRotation}) translateY(0) scale(1)`;
+            card.style.transform = `perspective(1000px) ${baseRotation} translateY(0) scale(1)`;
         });
     });
     
