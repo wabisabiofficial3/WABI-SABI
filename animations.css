@@ -1,0 +1,344 @@
+/* ========================================
+   WABI SABI — Dashboard Animations
+   Organic, editorial interactions
+   ======================================== */
+
+/* Card tilt effect on hover */
+.card[data-tilt] {
+    transform-style: preserve-3d;
+}
+
+.card[data-tilt]:hover {
+    z-index: 10;
+}
+
+/* Smooth entrance animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(var(--rotation, 0deg));
+    }
+    50% {
+        transform: translateY(-5px) rotate(var(--rotation, 0deg));
+    }
+}
+
+@keyframes highlightPulse {
+    0%, 100% {
+        opacity: 0.7;
+        transform: rotate(-2deg) scale(1);
+    }
+    50% {
+        opacity: 0.85;
+        transform: rotate(-2deg) scale(1.02);
+    }
+}
+
+@keyframes handwrittenDraw {
+    from {
+        stroke-dashoffset: 100;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes gentleWave {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(10px);
+    }
+}
+
+/* Apply entrance animations */
+.hero {
+    animation: fadeInUp 1s ease-out 0.2s both;
+}
+
+.category-cards {
+    animation: fadeInUp 1s ease-out 0.4s both;
+}
+
+.quote-panel {
+    animation: fadeInUp 1s ease-out 0.6s both;
+}
+
+.community-section {
+    animation: fadeInUp 1s ease-out 0.8s both;
+}
+
+/* Highlight marker subtle animation */
+.highlight-mark {
+    animation: highlightPulse 3s ease-in-out infinite;
+}
+
+/* Handwritten notes gentle movement */
+.handwritten-note {
+    animation: float 6s ease-in-out infinite;
+}
+
+.note-left {
+    --rotation: -5deg;
+    animation-delay: 0s;
+}
+
+.note-center {
+    --rotation: 2deg;
+    animation-delay: 1s;
+}
+
+.note-right {
+    --rotation: 3deg;
+    animation-delay: 2s;
+}
+
+.note-bottom {
+    --rotation: -2deg;
+    animation-delay: 0.5s;
+}
+
+/* Annotation arrow drawing effect */
+.annotation-arrow path {
+    stroke-dasharray: 50;
+    stroke-dashoffset: 0;
+    animation: handwrittenDraw 2s ease-out 1s both;
+}
+
+/* Sun icon rotation on theme toggle */
+.sun-icon {
+    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Progress bar animation */
+.progress-fill {
+    animation: progressFill 1.5s ease-out 1s both;
+}
+
+@keyframes progressFill {
+    from {
+        width: 0%;
+    }
+}
+
+/* Reading card subtle lift */
+.reading-card {
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.reading-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+        0 12px 32px rgba(16, 16, 16, 0.2),
+        0 4px 12px rgba(16, 16, 16, 0.1);
+}
+
+/* Circular progress indicator animation */
+.progress-indicator circle:last-child {
+    animation: progressCircle 1.5s ease-out 1s both;
+}
+
+@keyframes progressCircle {
+    from {
+        stroke-dashoffset: 100;
+    }
+}
+
+/* Community cards staggered hover */
+.comm-card:nth-child(1):hover {
+    transition-delay: 0ms;
+}
+
+.comm-card:nth-child(2):hover {
+    transition-delay: 50ms;
+}
+
+.comm-card:nth-child(3):hover {
+    transition-delay: 100ms;
+}
+
+.comm-card:nth-child(4):hover {
+    transition-delay: 150ms;
+}
+
+/* Button press effect */
+.btn-primary:active,
+.join-btn:active,
+.card-arrow:active {
+    transform: scale(0.96);
+}
+
+/* Search field focus glow */
+.search-field {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-field:focus-within {
+    background: rgba(233, 231, 225, 0.9);
+}
+
+/* Nav item slide effect */
+.nav-item {
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(16, 16, 16, 0.04), transparent);
+    transition: left 0.5s ease;
+}
+
+.nav-item:hover::before {
+    left: 100%;
+}
+
+/* Quote panel quote mark pulse */
+.quote-mark {
+    animation: float 4s ease-in-out infinite;
+    animation-delay: 0.3s;
+}
+
+/* Wave background subtle movement */
+.community-wave {
+    animation: gentleWave 8s ease-in-out infinite;
+}
+
+/* Category card icon bounce on hover */
+.card:hover .card-icon {
+    animation: float 1s ease-in-out;
+}
+
+/* Arrow button spin on card hover */
+.card:hover .card-arrow {
+    animation: none; /* Override default hover, use CSS transform instead */
+}
+
+/* Play button pulse in hero */
+.btn-secondary svg {
+    animation: playPulse 2s ease-in-out infinite;
+}
+
+@keyframes playPulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+/* Sidebar nav items stagger */
+.sidebar-nav .nav-item {
+    animation: fadeIn 0.5s ease both;
+}
+
+.sidebar-nav .nav-item:nth-child(1) { animation-delay: 0.1s; }
+.sidebar-nav .nav-item:nth-child(2) { animation-delay: 0.15s; }
+.sidebar-nav .nav-item:nth-child(3) { animation-delay: 0.2s; }
+.sidebar-nav .nav-item:nth-child(4) { animation-delay: 0.25s; }
+.sidebar-nav .nav-item:nth-child(5) { animation-delay: 0.3s; }
+.sidebar-nav .nav-item:nth-child(6) { animation-delay: 0.35s; }
+
+/* Logo reveal */
+.logo {
+    animation: fadeIn 1s ease-out both;
+}
+
+.main-nav {
+    animation: fadeIn 1s ease-out 0.2s both;
+}
+
+/* Search field slide in */
+.search-container {
+    animation: fadeIn 1s ease-out 0.3s both;
+}
+
+/* Join button entrance */
+.theme-control {
+    animation: fadeIn 1s ease-out 0.4s both;
+}
+
+/* Community section header line draw */
+.header-line {
+    position: relative;
+    overflow: hidden;
+}
+
+.header-line::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(16, 16, 16, 0.3), transparent);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: lineDraw 1s ease-out 1s both;
+}
+
+@keyframes lineDraw {
+    to {
+        transform: scaleX(1);
+    }
+}
+
+/* Loading state for images */
+.comm-image {
+    background-color: rgba(16, 16, 16, 0.05);
+    background-size: cover;
+    background-position: center;
+    transition: background-image 0.5s ease;
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Focus states for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--ink-black);
+    outline-offset: 2px;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
