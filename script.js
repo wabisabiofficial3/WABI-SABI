@@ -347,5 +347,72 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 30000);
     
+    // ========================================
+    // Interactive Cat Character
+    // ========================================
+    const cat = document.getElementById('interactiveCat');
+    
+    if (cat) {
+        // Blink animation on random intervals
+        function triggerBlink() {
+            cat.classList.add('blink');
+            setTimeout(() => cat.classList.remove('blink'), 200);
+            
+            // Schedule next blink (random between 2-6 seconds)
+            setTimeout(triggerBlink, 2000 + Math.random() * 4000);
+        }
+        
+        // Start blinking
+        setTimeout(triggerBlink, 2000);
+        
+        // Look at cursor position
+        cat.addEventListener('mousemove', (e) => {
+            const rect = cat.getBoundingClientRect();
+            const catCenterX = rect.left + rect.width / 2;
+            const catCenterY = rect.top + rect.height / 2;
+            
+            const deltaX = e.clientX - catCenterX;
+            const deltaY = e.clientY - catCenterY;
+            
+            // Remove previous look directions
+            cat.classList.remove('look-left', 'look-right', 'look-up', 'look-down');
+            
+            // Determine look direction based on cursor position
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX > 20) {
+                    cat.classList.add('look-right');
+                } else if (deltaX < -20) {
+                    cat.classList.add('look-left');
+                }
+            } else {
+                if (deltaY > 20) {
+                    cat.classList.add('look-down');
+                } else if (deltaY < -20) {
+                    cat.classList.add('look-up');
+                }
+            }
+        });
+        
+        // Reset eye position when mouse leaves
+        cat.addEventListener('mouseleave', () => {
+            cat.classList.remove('look-left', 'look-right', 'look-up', 'look-down');
+        });
+        
+        // Purr on click
+        cat.addEventListener('click', () => {
+            cat.classList.add('purring');
+            
+            // Add a little jump
+            cat.style.transform = 'scale(1.1) translateY(-5px)';
+            
+            setTimeout(() => {
+                cat.classList.remove('purring');
+                cat.style.transform = 'scale(1) translateY(0)';
+            }, 1000);
+        });
+        
+        // Hover effect already handled in CSS
+    }
+    
     console.log('Wabi Sabi Dashboard initialized ✨');
 });
