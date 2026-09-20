@@ -95,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 5. About Us Full Story Reading Modal
     const openAboutBtn = document.getElementById('openAboutStoryBtn');
+    const footerTurnBtn = document.getElementById('footerTurnPageBtn');
     const closeAboutBtn = document.getElementById('closeAboutStoryBtn');
     const storyModal = document.getElementById('aboutStoryModal');
 
@@ -107,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (openAboutBtn) openAboutBtn.addEventListener('click', openStoryModal);
+    if (footerTurnBtn) footerTurnBtn.addEventListener('click', openStoryModal);
     if (closeAboutBtn) closeAboutBtn.addEventListener('click', closeStoryModal);
     if (storyModal) {
         storyModal.addEventListener('click', (e) => {

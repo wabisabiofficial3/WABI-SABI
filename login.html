@@ -55,81 +55,274 @@
         </header>
 
         <!-- Main Auth Split Stage (About Us + Sign In) -->
-        <main class="auth-stage">
-            <!-- Left Side: The "About Us" Editorial Journal Spread (Master Context Prompt) -->
-            <section class="auth-editorial-col about-journal-spread" aria-label="About Wabi Sabi">
-                <div class="about-chapter-mark">
-                    <span>Chapter 00 • An Introduction</span>
-                </div>
+        <!-- Main Auth Split Stage: Studio Corkboard Moodboard + Login Card -->
+        <main class="auth-stage studio-board-layout">
+            <!-- Left Side: Editorial Corkboard & Desk Moodboard -->
+            <section class="moodboard-col" aria-label="Wabi Sabi Editorial Moodboard">
+                <!-- Top Row of Pinned Elements -->
+                <div class="mood-top-row">
+                    <!-- Taped Note: Same stories. Different people. -->
+                    <div class="pinned-scrap scrap-stories-people">
+                        <div class="washi-tape tape-angle-left"></div>
+                        <p class="scrap-hand-text">Same<br>stories.<br>Different<br>people.</p>
+                    </div>
 
-                <h1 class="about-headline">
-                    So... what is Wabi Sabi?
-                </h1>
+                    <!-- Polaroid: Window Reading Scene -->
+                    <div class="mood-polaroid polaroid-window">
+                        <div class="washi-tape tape-polaroid-top"></div>
+                        <div class="polaroid-photo window-photo-frame">
+                            <div class="window-silhouette-art">
+                                <svg viewBox="0 0 100 120" class="window-svg">
+                                    <rect width="100" height="120" fill="#2E2822"/>
+                                    <rect x="18" y="15" width="64" height="85" fill="#C5B396" opacity="0.6"/>
+                                    <line x1="50" y1="15" x2="50" y2="100" stroke="#1C1814" stroke-width="2"/>
+                                    <line x1="18" y1="55" x2="82" y2="55" stroke="#1C1814" stroke-width="2"/>
+                                    <!-- Warm silhouette of reader -->
+                                    <circle cx="58" cy="68" r="10" fill="#1C1814"/>
+                                    <path d="M48 95 C 48 78, 68 78, 68 95 Z" fill="#1C1814"/>
+                                    <ellipse cx="64" cy="85" rx="8" ry="4" fill="#E8DEC8" opacity="0.8"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="polaroid-caption">Good<br>books<br>worse<br>people<br>better<br>conversations.</p>
+                    </div>
 
-                <p class="about-lead-prose">
-                    You finish a book at midnight, or walk out of a film with ten questions spinning in your head, and immediately want to talk about it. Not to post a star rating or fight in a comments section—just to sit down with someone curious and ask: <em>“Wait, did you see what happened there?”</em> That’s what this circle is for.
-                </p>
+                    <!-- Taped Question Note with Red Highlight Oval -->
+                    <div class="pinned-scrap scrap-question-card">
+                        <div class="washi-tape tape-center-top"></div>
+                        <p class="question-text">Why do we love stories that hurt? <span class="arrow-glyph">→</span></p>
+                        <div class="circled-answer-container">
+                            <svg class="drawn-oval-svg" viewBox="0 0 190 56" preserveAspectRatio="none">
+                                <ellipse cx="95" cy="28" rx="90" ry="24" fill="none" stroke="#D15545" stroke-width="2" transform="rotate(-3 95 28)"/>
+                                <ellipse cx="95" cy="28" rx="92" ry="26" fill="none" stroke="#D15545" stroke-width="1.2" opacity="0.6" transform="rotate(-1 95 28)"/>
+                            </svg>
+                            <span class="circled-answer-text">Maybe because they make us feel less alone.</span>
+                        </div>
+                    </div>
 
-                <!-- Tactile Inset Philosophy Card -->
-                <div class="about-philosophy-card">
-                    <div class="about-washi-tape-mini"></div>
-                    <div class="about-premise-tag">The Philosophy</div>
-                    <div class="about-core-statement">Same stories. Different people. Different perspectives.</div>
-                    <p class="about-core-desc">
-                        A book is the same book. A film is the same film. But the person sitting next to you experienced it completely differently. That’s where things get interesting.
-                    </p>
+                    <!-- Pinned Forest Green Swatch -->
+                    <div class="pinned-swatch-badge">
+                        <div class="brass-pushpin"></div>
+                        <div class="swatch-list">
+                            <span>PEOPLE</span>
+                            <span>BOOKS</span>
+                            <span>FILMS</span>
+                            <span>IDEAS</span>
+                            <span>YOU</span>
+                        </div>
+                    </div>
 
-                    <!-- Overheard Salon Dialogues (Marginalia) -->
-                    <div class="about-dialogue-strip" title="Overheard in our circles">
-                        <span class="about-quote-pill">“I read this.”</span>
-                        <span class="about-quote-pill">“I completely disagree.”</span>
-                        <span class="about-quote-pill">“Wait, explain that.”</span>
-                        <span class="about-quote-pill">“I never thought about it that way.”</span>
+                    <!-- Polaroid: Moon -->
+                    <div class="mood-polaroid polaroid-moon">
+                        <div class="washi-tape tape-corner-right"></div>
+                        <div class="polaroid-photo moon-photo-frame">
+                            <div class="moon-sky">
+                                <div class="moon-circle"></div>
+                            </div>
+                        </div>
+                        <p class="polaroid-caption-sm">Same moon.<br>Different stories.</p>
                     </div>
                 </div>
 
-                <!-- The Four Rhythms -->
-                <div class="about-rhythms-grid">
-                    <div class="about-rhythm-item">
-                        <span class="about-rhythm-title">📖 Read</span>
-                        <span class="about-rhythm-desc">Stories that make you pause and wonder.</span>
+                <!-- Middle Row: Marginalia + HERO TORN MANIFESTO CARD + Cat & Bust -->
+                <div class="mood-mid-row">
+                    <!-- Left Marginalia Chant -->
+                    <div class="marginalia-vertical">
+                        <span>Read</span>
+                        <span>Watch</span>
+                        <span>Discuss</span>
+                        <span>Exist</span>
+                        <span>Repeat</span>
+                        <div class="marginalia-line"></div>
                     </div>
-                    <div class="about-rhythm-item">
-                        <span class="about-rhythm-title">📽️ Watch</span>
-                        <span class="about-rhythm-desc">Films & adaptations worth debating.</span>
+
+                    <!-- CENTER HERO DECKLE-EDGE TORN PARCHMENT CARD -->
+                    <div class="hero-manifesto-parchment">
+                        <div class="washi-tape tape-deckle-top"></div>
+                        <h1 class="hero-manifesto-heading">
+                            For people who<br>
+                            <em class="manifesto-italic-accent">don’t quite fit</em><br>
+                            the usual<br>
+                            conversation.
+                        </h1>
+                        <div class="manifesto-dash-sep"></div>
+                        <button type="button" class="manifesto-trigger-link" id="openAboutStoryBtn" title="Explore Wabi Sabi Philosophy">
+                            <span>Come find a better one.</span>
+                            <span class="manifesto-btn-arrow">→</span>
+                        </button>
                     </div>
-                    <div class="about-rhythm-item">
-                        <span class="about-rhythm-title">🕯️ Discuss</span>
-                        <span class="about-rhythm-desc">Quiet rooms where disagreeing isn’t fighting.</span>
-                    </div>
-                    <div class="about-rhythm-item">
-                        <span class="about-rhythm-title">🌿 Grow</span>
-                        <span class="about-rhythm-desc">Learning why someone sees it another way.</span>
+
+                    <!-- Right Cluster: Cat Polaroid & Classical Bust -->
+                    <div class="mood-right-cluster">
+                        <!-- Cat on books polaroid -->
+                        <div class="mood-polaroid polaroid-cat">
+                            <div class="washi-tape tape-cat-corner"></div>
+                            <div class="polaroid-photo cat-photo-frame">
+                                <img src="assets/cat_sit.png" alt="Cat on books" class="cat-polaroid-art">
+                                <div class="cat-caption-overlay">
+                                    <span>Different</span>
+                                    <span>minds</span>
+                                    <span>brighter</span>
+                                    <span>talks.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Classical Statue Bust & Kindness Quote -->
+                        <div class="statue-bust-wrapper">
+                            <div class="statue-bust-art">
+                                <svg viewBox="0 0 70 90" class="statue-svg">
+                                    <path d="M35 15 C 25 15, 20 25, 20 35 C 20 45, 28 50, 30 60 L 25 75 L 45 75 L 40 60 C 42 50, 50 45, 50 35 C 50 25, 45 15, 35 15 Z" fill="#D5CEBE" stroke="#484237" stroke-width="1.5"/>
+                                    <circle cx="28" cy="20" r="5" fill="#484237"/>
+                                    <circle cx="35" cy="18" r="5" fill="#484237"/>
+                                    <circle cx="42" cy="20" r="5" fill="#484237"/>
+                                    <circle cx="24" cy="26" r="4.5" fill="#484237"/>
+                                    <circle cx="46" cy="26" r="4.5" fill="#484237"/>
+                                    <circle cx="22" cy="33" r="4" fill="#484237"/>
+                                    <path d="M37 28 L 39 38 L 35 40" fill="none" stroke="#484237" stroke-width="1.2"/>
+                                    <line x1="33" y1="32" x2="36" y2="32" stroke="#484237" stroke-width="1.2"/>
+                                    <line x1="35" y1="44" x2="40" y2="44" stroke="#484237" stroke-width="1.2"/>
+                                    <path d="M22 75 L 48 75 L 45 85 L 25 85 Z" fill="#B8AF9E" stroke="#484237" stroke-width="1.2"/>
+                                </svg>
+                            </div>
+                            <div class="statue-kindness-quote">
+                                Curious<br>people<br>build<br>kinder<br>worlds.
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Footer & Full Manifesto Modal Trigger -->
-                <div class="about-footer-row">
-                    <button type="button" class="about-manifesto-btn" id="openAboutStoryBtn" title="Read the full story of Wabi Sabi">
-                        <span>Read our full story</span>
-                        <span>↗</span>
-                    </button>
-                    <span class="about-footnote-text">Vol. 1 • A calmer internet for curious minds.</span>
+                <!-- Bottom Row: Paper Scraps + Desk Surface (Books Stack, Open Journal, Coffee Mug) -->
+                <div class="mood-bottom-desk">
+                    <!-- Taped scraps strip -->
+                    <div class="desk-scraps-row">
+                        <div class="mini-scrap scrap-movie">
+                            <div class="washi-tape tape-mini-1"></div>
+                            <span>I hated this movie.<br>...until the ending.</span>
+                        </div>
+                        <div class="mini-scrap scrap-page147">
+                            <span>Page 147.<br>Read it again.</span>
+                        </div>
+                        <div class="mini-scrap scrap-disagree">
+                            <span>I don’t agree.<br>Explain.</span>
+                        </div>
+                        <div class="mini-scrap scrap-photo-stay">
+                            <div class="washi-tape tape-mini-2"></div>
+                            <span>Good stories<br>stay.</span>
+                        </div>
+                    </div>
+
+                    <!-- The Desk Objects Row -->
+                    <div class="desk-items-shelf">
+                        <!-- Horizontal Stack of Classic Book Spines -->
+                        <div class="book-stack-container" title="Wabi Sabi Library Stack">
+                            <div class="book-spine spine-sapiens">
+                                <span class="spine-gold-emboss">Sapiens</span>
+                                <span class="spine-author">Harari</span>
+                            </div>
+                            <div class="book-spine spine-normal-people">
+                                <span>Normal People</span>
+                                <span class="spine-author">Rooney</span>
+                            </div>
+                            <div class="book-spine spine-dune">
+                                <span>Dune</span>
+                                <span class="spine-author">Herbert</span>
+                            </div>
+                            <div class="book-spine spine-midnight-lib">
+                                <span>The Midnight Library</span>
+                                <span class="spine-author">Haig</span>
+                            </div>
+                            <div class="book-spine spine-before-sunrise">
+                                <span>Before Sunrise</span>
+                                <span class="spine-author">Linklater</span>
+                            </div>
+                            <div class="book-spine spine-little-life">
+                                <span>A Little Life</span>
+                                <span class="spine-author">Yanagihara</span>
+                            </div>
+                        </div>
+
+                        <!-- Open Journal with Fountain Pen -->
+                        <div class="open-journal-desk" title="Reader's Open Journal">
+                            <div class="journal-crease"></div>
+                            <div class="journal-page journal-page-left">
+                                <p class="journal-hand-entry">Same question.<br>Different answers.<br>That’s the point.</p>
+                            </div>
+                            <div class="journal-page journal-page-right">
+                                <div class="fountain-pen-art">
+                                    <div class="pen-body"></div>
+                                    <div class="pen-nib"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ceramic Coffee Mug -->
+                        <div class="ceramic-mug-desk" title="Fresh brew for deep reading">
+                            <div class="mug-steam">
+                                <span></span><span></span>
+                            </div>
+                            <div class="mug-body">
+                                <span class="mug-quote">Ideas taste<br>better here.</span>
+                            </div>
+                            <div class="mug-handle"></div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            <!-- Right Side: Tactile "Enter Wabi Sabi." Paper Card -->
-            <div class="auth-form-col">
-                <div class="auth-paper-card">
-                    <!-- Top Pinned Note with Washi Tape -->
-                    <div class="auth-pinned-note">
-                        <div class="auth-pinned-tape"></div>
-                        <span>Welcome back.</span>
-                    </div>
+            <!-- Right Side: The Pinned Accents + Clean Wabi Sabi Login Card -->
+            <div class="auth-form-column">
+                <!-- Pinned scrap top right -->
+                <div class="right-scrap-bookclub">
+                    <div class="brass-tack"></div>
+                    <p class="scrap-club-txt">A<br>different<br>kind of<br>bookclub.</p>
+                    <p class="scrap-eyes-txt">Same<br>places.<br>New<br>eyes.</p>
+                </div>
 
+                <!-- Filmstrip accent -->
+                <div class="right-filmstrip-accent">
+                    <div class="filmstrip-sprockets"></div>
+                    <div class="filmstrip-window">
+                        <svg viewBox="0 0 60 40" class="mountain-svg">
+                            <rect width="60" height="40" fill="#3D4B54"/>
+                            <polygon points="0,40 18,18 36,40" fill="#586A75"/>
+                            <polygon points="20,40 42,12 60,40" fill="#758894"/>
+                            <polygon points="38,18 42,12 46,18" fill="#DDE4E8"/>
+                        </svg>
+                    </div>
+                    <div class="filmstrip-sprockets"></div>
+                </div>
+
+                <!-- Pressed Wildflower Accent -->
+                <div class="right-pressed-flower">
+                    <div class="washi-tape tape-stem"></div>
+                    <svg viewBox="0 0 30 65" class="flower-svg">
+                        <line x1="15" y1="18" x2="15" y2="60" stroke="#7D745E" stroke-width="1.8"/>
+                        <!-- Dried daisy head -->
+                        <circle cx="15" cy="18" r="5" fill="#D49942"/>
+                        <circle cx="15" cy="10" r="3.5" fill="#E8DFC8" opacity="0.9"/>
+                        <circle cx="15" cy="26" r="3.5" fill="#E8DFC8" opacity="0.9"/>
+                        <circle cx="7" cy="18" r="3.5" fill="#E8DFC8" opacity="0.9"/>
+                        <circle cx="23" cy="18" r="3.5" fill="#E8DFC8" opacity="0.9"/>
+                        <circle cx="9" cy="12" r="3" fill="#E8DFC8" opacity="0.8"/>
+                        <circle cx="21" cy="12" r="3" fill="#E8DFC8" opacity="0.8"/>
+                        <circle cx="9" cy="24" r="3" fill="#E8DFC8" opacity="0.8"/>
+                        <circle cx="21" cy="24" r="3" fill="#E8DFC8" opacity="0.8"/>
+                    </svg>
+                </div>
+
+                <!-- Torn Sage Scrap: Not just readers. Overthinkers. Welcome. -->
+                <div class="right-scrap-readers">
+                    <p class="scrap-readers-top">Not<br>just<br>readers.</p>
+                    <p class="scrap-readers-mid">Overthinkers.<br>Questioners.<br>Daydreamers.</p>
+                    <p class="scrap-readers-bottom">Welcome.</p>
+                </div>
+
+                <!-- THE MAIN LOGIN PAPER CARD -->
+                <div class="auth-paper-card">
                     <div class="auth-card-header">
-                        <h2 class="auth-card-title">Enter Wabi Sabi.</h2>
-                        <p class="auth-card-sub">— Your stories, your people, your place.</p>
+                        <h2 class="auth-card-title">You found<br>your way back.</h2>
+                        <p class="auth-card-sub">Good. We were getting interesting without you.</p>
                     </div>
 
                     <!-- Error Alert Banner -->
@@ -137,19 +330,18 @@
 
                     <form id="authLoginForm" class="auth-form">
                         <div class="auth-field-group">
-                            <label for="authEmailInput" class="auth-label">Email Address</label>
+                            <label for="authEmailInput" class="auth-label">EMAIL ADDRESS</label>
                             <div class="auth-input-wrapper">
                                 <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                                     <polyline points="22,6 12,13 2,6"></polyline>
-                                
                                 </svg>
-                                <input type="email" id="authEmailInput" class="auth-input" placeholder="your.email@domain.com" autocomplete="email" required>
+                                <input type="email" id="authEmailInput" class="auth-input" placeholder="you@example.com" autocomplete="email" required>
                             </div>
                         </div>
 
                         <div class="auth-field-group">
-                            <label for="authPasswordInput" class="auth-label">Password</label>
+                            <label for="authPasswordInput" class="auth-label">PASSWORD</label>
                             <div class="auth-input-wrapper">
                                 <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -157,7 +349,7 @@
                                 </svg>
                                 <input type="password" id="authPasswordInput" class="auth-input" placeholder="••••••••" autocomplete="current-password" required>
                                 <button type="button" id="authTogglePasswordBtn" class="auth-eye-btn" title="Toggle password visibility" aria-label="Toggle password visibility">
-                                    <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" r="3"></circle></svg>
                                     <svg class="eye-closed" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
                                 </button>
                             </div>
@@ -172,13 +364,19 @@
                         </div>
 
                         <button type="submit" id="authSubmitBtn" class="auth-submit-btn">
-                            <span>Enter</span>
+                            <span>Enter Wabi Sabi</span>
                             <span class="btn-arrow">→</span>
                         </button>
                     </form>
 
+                    <div class="auth-divider-line-wrap">
+                        <span class="auth-divider-line"></span>
+                        <span class="auth-divider-text">New here?</span>
+                        <span class="auth-divider-line"></span>
+                    </div>
+
                     <div class="auth-switch-circle">
-                        New to Wabi Sabi? <a href="join.html" class="auth-circle-link">Join the Circle →</a>
+                        <a href="join.html" class="auth-circle-link">Join the Circle →</a>
                     </div>
 
                     <!-- Quick Testing / Reviewer Demo Pills -->
@@ -196,6 +394,18 @@
                 </div>
             </div>
         </main>
+
+        <!-- Footer Bar: VOL. 01 — Turn the page → -->
+        <footer class="auth-footer-bar">
+            <div class="footer-vol-label">
+                <span>VOL. 01</span>
+                <span class="footer-vol-dash">——————</span>
+            </div>
+            <button type="button" class="footer-turn-link" id="footerTurnPageBtn" title="Read the Wabi Sabi story">
+                <span>Turn the page</span>
+                <span class="footer-turn-arrow">→</span>
+            </button>
+        </footer>
     </div>
 
     <!-- Full Manifesto Reading Sheet Modal (Master Context Prompt) -->
