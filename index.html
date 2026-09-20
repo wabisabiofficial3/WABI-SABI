@@ -148,9 +148,45 @@
             </div>
         </section>
 
-        <!-- Floating Category Cards -->
-        <section class="category-cards">
-            <div class="card card-books" data-tilt>
+        <!-- Floating Category Cards - Orbital Composition -->
+        <section class="category-cards-orbital">
+            <!-- Hand-drawn orbital border (behind cards) -->
+            <svg class="orbital-border" viewBox="0 0 600 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Main orbital path - hand-drawn imperfect curve -->
+                <path class="orbital-path" d="M300 30 
+                         C420 35, 520 80, 560 150
+                         C590 210, 585 280, 550 340
+                         C510 410, 440 455, 350 468
+                         C260 475, 170 460, 100 420
+                         C45 385, 15 330, 20 270
+                         C25 200, 60 130, 120 80
+                         C170 40, 235 28, 300 30Z" 
+                      stroke="#101010" stroke-width="1.2" fill="none" 
+                      stroke-linecap="round" stroke-linejoin="round"/>
+                
+                <!-- Waypoint dots -->
+                <circle class="waypoint-dot waypoint-green-1" cx="380" cy="55" r="5" fill="#8BC34A"/>
+                <circle class="waypoint-dot waypoint-lavender" cx="520" cy="180" r="5" fill="#BDB5F5"/>
+                <circle class="waypoint-dot waypoint-peach" cx="90" cy="290" r="5" fill="#F7B8AD"/>
+                <circle class="waypoint-dot waypoint-green-2" cx="280" cy="455" r="5" fill="#8BC34A"/>
+                
+                <!-- Four-lobed clover/flower mark (upper right) -->
+                <g class="clover-mark" transform="translate(470, 100)">
+                    <path d="M0 -12 C6 -12, 12 -6, 12 0 C12 6, 6 12, 0 12 C-6 12, -12 6, -12 0 C-12 -6, -6 -12, 0 -12Z" 
+                          fill="#101010" opacity="0.9"/>
+                    <path d="M0 -12 C-6 -12, -12 -6, -12 0" stroke="#101010" stroke-width="0.8" fill="none"/>
+                </g>
+                
+                <!-- Bottom ink doodle/splash -->
+                <g class="ink-doodle" transform="translate(300, 445)">
+                    <path d="M-8 3 Q-4 -2, 0 2 Q4 -3, 8 1" stroke="#101010" stroke-width="1" fill="none" stroke-linecap="round"/>
+                    <circle cx="-5" cy="5" r="2" fill="#8BC34A" opacity="0.6"/>
+                </g>
+            </svg>
+            
+            <!-- Card: Books (Top) -->
+            <div class="card card-books-orbital" data-tilt>
+                <div class="card-paper-texture"></div>
                 <div class="card-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#101010" stroke-width="1.5">
                         <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
@@ -168,7 +204,9 @@
                 </button>
             </div>
             
-            <div class="card card-films" data-tilt>
+            <!-- Card: Films (Right) -->
+            <div class="card card-films-orbital" data-tilt>
+                <div class="card-paper-texture"></div>
                 <div class="card-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#101010" stroke-width="1.5">
                         <rect x="2" y="2" width="20" height="20" rx="2.18"/>
@@ -186,7 +224,9 @@
                 </button>
             </div>
             
-            <div class="card card-discussions" data-tilt>
+            <!-- Card: Discussions (Left) -->
+            <div class="card card-discussions-orbital" data-tilt>
+                <div class="card-paper-texture"></div>
                 <div class="card-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#101010" stroke-width="1.5">
                         <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
@@ -203,7 +243,9 @@
                 </button>
             </div>
             
-            <div class="card card-community" data-tilt>
+            <!-- Card: Community (Bottom) -->
+            <div class="card card-community-orbital" data-tilt>
+                <div class="card-paper-texture"></div>
                 <div class="card-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#101010" stroke-width="1.5">
                         <circle cx="12" cy="7" r="4"/>
@@ -221,14 +263,33 @@
                 </button>
             </div>
             
-            <!-- Hand-drawn navigation line -->
-            <div class="nav-line-container">
-                <svg class="nav-line" viewBox="0 0 100 200" fill="none">
-                    <path d="M20 20 Q40 60 30 100 Q20 140 50 180" stroke="#101010" stroke-width="1" fill="none"/>
-                    <circle cx="30" cy="100" r="3" fill="#101010"/>
+            <!-- Explore Your Way Annotation -->
+            <div class="explore-annotation">
+                <span class="handwritten-explore">Explore<br>Your Way</span>
+                <svg class="explore-arrow" viewBox="0 0 80 60" fill="none">
+                    <path d="M10 10 Q30 35, 65 45" stroke="#101010" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                    <path d="M58 40 L65 45 L60 52" stroke="#101010" stroke-width="1.5" fill="none" stroke-linecap="round"/>
                 </svg>
-                <div class="nav-line-text">
-                    EXPLORE<br>AT YOUR OWN<br>PACE<br>—
+            </div>
+            
+            <!-- Circular Handwritten Stamp -->
+            <div class="stamp-seal">
+                <svg viewBox="0 0 140 140" fill="none">
+                    <!-- Outer circle -->
+                    <circle cx="70" cy="70" r="65" stroke="#101010" stroke-width="1.2" fill="none" opacity="0.8"/>
+                    <!-- Inner circle -->
+                    <circle cx="70" cy="70" r="58" stroke="#101010" stroke-width="0.8" fill="none" opacity="0.5"/>
+                    <!-- Center leaf symbol -->
+                    <g transform="translate(70, 70)">
+                        <ellipse cx="0" cy="-8" rx="4" ry="10" fill="#101010" opacity="0.7"/>
+                        <ellipse cx="0" cy="8" rx="4" ry="10" fill="#101010" opacity="0.7"/>
+                    </g>
+                </svg>
+                <div class="stamp-text">
+                    <span class="stamp-line-1">SAME</span>
+                    <span class="stamp-line-2">HUMANS</span>
+                    <span class="stamp-line-3">DIFFERENT</span>
+                    <span class="stamp-line-4">PERSPECTIVES</span>
                 </div>
             </div>
         </section>
