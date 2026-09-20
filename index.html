@@ -1258,6 +1258,281 @@
                 gap: 36px;
             }
         }
+    
+        /* ==========================================================================
+           10. THE HIDDEN MOTIVE: CRUMPLED PAPER & ORIGAMI PAPER ROCKET
+           - Scrambled paper tossed near the cat
+           - Cat swats it, unfolds into an origami rocket that flies freely & disappears
+           - Happens randomly, sometimes, without disturbing the user experience
+           ========================================================================== */
+        .scrambled-paper-ball {
+            position: fixed;
+            bottom: 16px;
+            width: 36px;
+            height: 36px;
+            z-index: 104;
+            pointer-events: none;
+            opacity: 0;
+            transform: scale(0.2) rotate(0deg);
+            filter: drop-shadow(0 6px 12px rgba(35, 30, 20, 0.28));
+        }
+
+        .scrambled-paper-ball.tossed {
+            opacity: 1;
+            animation: tossPaperIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes tossPaperIn {
+            0% {
+                transform: translate(-30px, -140px) scale(0.4) rotate(-220deg);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(12px, 0px) scale(1.1) rotate(25deg);
+                opacity: 1;
+            }
+            75% {
+                transform: translate(6px, -18px) scale(0.95) rotate(12deg);
+            }
+            100% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .scrambled-paper-ball.unfolding {
+            animation: unfoldOrigami 0.5s ease-out forwards;
+        }
+
+        @keyframes unfoldOrigami {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            45% { transform: scale(1.35) rotate(35deg); opacity: 0.9; filter: drop-shadow(0 0 14px var(--highlight-lime)); }
+            100% { transform: scale(0.1) rotate(90deg); opacity: 0; }
+        }
+
+        /* Flying Paper Rocket / Airplane */
+        .flying-paper-rocket {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 68px;
+            height: 68px;
+            z-index: 250;
+            pointer-events: none;
+            opacity: 0;
+            will-change: transform, opacity;
+            filter: drop-shadow(0 12px 22px rgba(30, 25, 20, 0.22));
+        }
+
+        .flying-paper-rocket.flying {
+            opacity: 1;
+            animation: rocketFlight 6.5s cubic-bezier(0.22, 0.1, 0.25, 1) forwards;
+        }
+
+        @keyframes rocketFlight {
+            0% {
+                transform: translate(var(--start-x), var(--start-y)) scale(0.55) rotate(-35deg);
+                opacity: 0;
+            }
+            5% {
+                transform: translate(calc(var(--start-x) + 40px), calc(var(--start-y) - 70px)) scale(0.85) rotate(-28deg);
+                opacity: 1;
+            }
+            22% {
+                transform: translate(calc(var(--start-x) + 180px), calc(var(--start-y) - 240px)) scale(1.1) rotate(-38deg);
+            }
+            40% {
+                /* Gentle bank & glide through center opening */
+                transform: translate(calc(var(--start-x) + 360px), calc(var(--start-y) - 380px)) scale(1.15) rotate(-16deg);
+            }
+            58% {
+                /* Sweeping loop toward sky */
+                transform: translate(calc(var(--start-x) + 540px), calc(var(--start-y) - 520px)) scale(1.05) rotate(-42deg);
+            }
+            76% {
+                transform: translate(calc(var(--start-x) + 720px), calc(var(--start-y) - 680px)) scale(0.9) rotate(-28deg);
+                opacity: 0.95;
+            }
+            90% {
+                transform: translate(calc(var(--start-x) + 920px), calc(var(--start-y) - 860px)) scale(0.75) rotate(-20deg);
+                opacity: 0.6;
+            }
+            100% {
+                /* Smoothly disappears past top-right */
+                transform: translate(calc(var(--start-x) + 1150px), calc(var(--start-y) - 1050px)) scale(0.6) rotate(-15deg);
+                opacity: 0;
+            }
+        }
+
+        /* Taskbar Subtle Rocket Trigger Button */
+        .taskbar-rocket-btn {
+            position: fixed;
+            bottom: 8px;
+            right: 24px;
+            background: transparent;
+            border: 1px dashed rgba(140, 135, 125, 0.4);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 11px;
+            color: var(--ink-muted);
+            cursor: pointer;
+            z-index: 105;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-hand);
+            transition: all 0.25s ease;
+            opacity: 0.6;
+        }
+
+        .taskbar-rocket-btn:hover {
+            opacity: 1;
+            border-color: var(--ink-primary);
+            color: var(--ink-primary);
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        [data-theme="dark"] .taskbar-rocket-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ==========================================================================
+           9. RESPONSIVE BREAKPOINTS (Zoom 100%+ or - Protection)
+           ========================================================================== */
+        @media (max-width: 1140px) {
+            .dashboard {
+                grid-template-columns: 72px minmax(0, 1fr) 280px;
+                gap: 14px 18px;
+            }
+            .hero-headline {
+                font-size: clamp(34px, 3.8vw, 48px);
+            }
+        }
+
+        @media (max-width: 960px) {
+            .dashboard {
+                grid-template-columns: 68px 1fr;
+                grid-template-rows: auto auto auto;
+            }
+            aside.right-panel {
+                grid-column: 2 / 3;
+                border-left: none;
+                border-top: 1px solid rgba(140, 135, 125, 0.2);
+                padding-left: 0;
+                padding-top: 24px;
+            }
+            main.main-content {
+                grid-template-columns: 1fr;
+                gap: 36px;
+            }
+        }
+    
+        /* ==========================================================================
+           10. THE HIDDEN MOTIVE: CRUMPLED PAPER & ORIGAMI PAPER ROCKET
+           - Scrambled paper thrown near the cat
+           - Cat swats it, unfolds into an origami rocket that flies freely & disappears
+           - Happens randomly, sometimes, without disturbing the user experience
+           ========================================================================== */
+        .scrambled-paper-ball {
+            position: fixed;
+            bottom: 22px;
+            width: 28px;
+            height: 28px;
+            z-index: 101;
+            pointer-events: none;
+            opacity: 0;
+            transform: scale(0.2) rotate(0deg);
+            filter: drop-shadow(0 4px 8px rgba(35, 30, 20, 0.25));
+            transition: opacity 0.3s ease;
+        }
+
+        .scrambled-paper-ball.tossed {
+            opacity: 1;
+            animation: tossPaperIn 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes tossPaperIn {
+            0% {
+                transform: translate(-40px, -120px) scale(0.4) rotate(-180deg);
+                opacity: 0;
+            }
+            60% {
+                transform: translate(10px, 0px) scale(1.1) rotate(20deg);
+                opacity: 1;
+            }
+            80% {
+                transform: translate(4px, -12px) scale(0.95) rotate(10deg);
+            }
+            100% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .scrambled-paper-ball.unfolding {
+            animation: unfoldOrigami 0.45s ease-out forwards;
+        }
+
+        @keyframes unfoldOrigami {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.3) rotate(45deg); opacity: 0.8; filter: drop-shadow(0 0 12px var(--highlight-lime)); }
+            100% { transform: scale(0.2) rotate(90deg); opacity: 0; }
+        }
+
+        /* Flying Paper Rocket / Airplane */
+        .flying-paper-rocket {
+            position: fixed;
+            width: 52px;
+            height: 52px;
+            z-index: 150;
+            pointer-events: none;
+            opacity: 0;
+            will-change: transform, opacity;
+            filter: drop-shadow(0 10px 18px rgba(30, 25, 20, 0.18));
+        }
+
+        .flying-paper-rocket.flying {
+            opacity: 1;
+            animation: rocketFlight 6.2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+        }
+
+        @keyframes rocketFlight {
+            0% {
+                transform: translate(var(--start-x), var(--start-y)) scale(0.5) rotate(var(--angle-0));
+                opacity: 0;
+            }
+            6% {
+                transform: translate(calc(var(--start-x) + 40px), calc(var(--start-y) - 60px)) scale(0.85) rotate(-28deg);
+                opacity: 1;
+            }
+            22% {
+                transform: translate(calc(var(--start-x) + 160px), calc(var(--start-y) - 220px)) scale(1.05) rotate(-38deg);
+            }
+            38% {
+                /* Gentle bank & swoop across center stage */
+                transform: translate(calc(var(--start-x) + 300px), calc(var(--start-y) - 340px)) scale(1.1) rotate(-15deg);
+            }
+            52% {
+                /* Floating loop / glide */
+                transform: translate(calc(var(--start-x) + 450px), calc(var(--start-y) - 420px)) scale(1.0) rotate(-45deg);
+            }
+            70% {
+                /* Gliding upward toward sky */
+                transform: translate(calc(var(--start-x) + 640px), calc(var(--start-y) - 580px)) scale(0.9) rotate(-30deg);
+                opacity: 0.95;
+            }
+            88% {
+                transform: translate(calc(var(--start-x) + 840px), calc(var(--start-y) - 780px)) scale(0.75) rotate(-22deg);
+                opacity: 0.7;
+            }
+            100% {
+                /* Disappears cleanly outside frame */
+                transform: translate(calc(var(--start-x) + 1050px), calc(var(--start-y) - 980px)) scale(0.6) rotate(-20deg);
+                opacity: 0;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -1590,6 +1865,47 @@
     <!-- ==========================================================================
          REACTIVE JAVASCRIPT: DATA STORE, THEME, AUDIO, WRITABLE STICKY NOTES & CAT
          ========================================================================== -->
+    
+    <!-- ====================================================================
+         THE HIDDEN MOTIVE: SCRAMBLED PAPER BALL & FLYING ORIGAMI ROCKET
+         ==================================================================== -->
+    <div class="scrambled-paper-ball" id="scrambledPaperBall" aria-hidden="true">
+        <svg viewBox="0 0 36 36" width="36" height="36">
+            <polygon points="18,4 27,9 33,18 26,29 14,32 5,22 8,9" fill="#F7F2E9" stroke="#CFC5B4" stroke-width="1"/>
+            <polygon points="18,4 21,15 8,9" fill="#EAE1D1"/>
+            <polygon points="21,15 27,9 33,18" fill="#FFFFFF"/>
+            <polygon points="21,15 33,18 26,29" fill="#E0D6C4"/>
+            <polygon points="21,15 26,29 14,32" fill="#FAF6ED"/>
+            <polygon points="21,15 14,32 5,22" fill="#E6DDCB"/>
+            <polygon points="21,15 5,22 8,9" fill="#F2EBE0"/>
+            <line x1="18" y1="4" x2="21" y2="15" stroke="#BFB5A2" stroke-width="0.8"/>
+            <line x1="21" y1="15" x2="26" y2="29" stroke="#BFB5A2" stroke-width="0.8"/>
+        </svg>
+    </div>
+
+    <div class="flying-paper-rocket" id="flyingPaperRocket" aria-hidden="true">
+        <svg viewBox="0 0 68 68" width="68" height="68">
+            <g transform="rotate(45 34 34)">
+                <!-- Soft realistic shadow beneath the aircraft -->
+                <polygon points="34,4 10,60 34,48 58,60" fill="rgba(35,30,20,0.14)" transform="translate(4, 7) scale(0.92)"/>
+                <!-- Left wing (shaded) -->
+                <polygon points="34,4 8,60 34,46" fill="#EDE6D8" stroke="#D3C9B8" stroke-width="0.9"/>
+                <!-- Right wing (lit) -->
+                <polygon points="34,4 60,60 34,46" fill="#FFFFFF" stroke="#D8CEC0" stroke-width="0.9"/>
+                <!-- Center fold line -->
+                <line x1="34" y1="4" x2="34" y2="46" stroke="#AEA495" stroke-width="1.3"/>
+                <!-- Subtle Easter egg note on the wing -->
+                <text x="37" y="34" font-family="'Caveat', cursive" font-size="5.6" fill="#7A7264" transform="rotate(74 37 34)">✦ for the wonderfully weird</text>
+            </g>
+        </svg>
+    </div>
+
+    <!-- Minimal Secret Trigger Button on Taskbar -->
+    <button class="taskbar-rocket-btn" id="launchRocketBtn" title="Launch a paper airplane ✦">
+        <span>✈</span>
+        <span>paper thought</span>
+    </button>
+
     <script>
         /**
          * State Layer
@@ -1871,9 +2187,103 @@
             }
         }
 
+        
+        // ======================================================================
+        // THE HIDDEN MOTIVE ENGINE: SCRAMBLED PAPER -> ORIGAMI ROCKET
+        // "bring all the weird people and make them feel normal"
+        // Randomly tosses a crumpled paper near the cat, cat swats it,
+        // launches an origami rocket that glides gracefully out of frame!
+        // ======================================================================
+        class HiddenMotiveRocketEngine {
+            constructor(catEngine) {
+                this.cat = catEngine;
+                this.paperBall = document.getElementById('scrambledPaperBall');
+                this.rocket = document.getElementById('flyingPaperRocket');
+                this.triggerBtn = document.getElementById('launchRocketBtn');
+                this.isSequenceActive = false;
+
+                // Manual click trigger for testing / immediate enjoyment
+                if (this.triggerBtn) {
+                    this.triggerBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.triggerEvent();
+                    });
+                }
+
+                // Initial subtle launch after 12 seconds
+                setTimeout(() => {
+                    this.triggerEvent();
+                }, 12000);
+
+                // Periodic random occurrences (every 35s to 60s)
+                this.scheduleNextRandomEvent();
+            }
+
+            scheduleNextRandomEvent() {
+                const nextDelay = 35000 + Math.random() * 25000;
+                setTimeout(() => {
+                    this.triggerEvent();
+                    this.scheduleNextRandomEvent();
+                }, nextDelay);
+            }
+
+            triggerEvent() {
+                if (this.isSequenceActive || this.cat.isInteracting) return;
+                this.isSequenceActive = true;
+
+                // Calculate landing spot 70px ahead of the cat's current position
+                const catX = this.cat.x;
+                const dir = this.cat.direction;
+                const tossDistance = dir === 1 ? 95 : -70;
+                const targetX = Math.max(90, Math.min(window.innerWidth - 220, catX + tossDistance));
+
+                this.paperBall.style.left = `${targetX}px`;
+                this.paperBall.className = 'scrambled-paper-ball tossed';
+
+                // Cat pauses and notices the scrambled paper
+                setTimeout(() => {
+                    this.cat.isInteracting = true;
+                    this.cat.sprite.src = this.cat.poses.look;
+
+                    // Cat swats the paper ball
+                    setTimeout(() => {
+                        this.paperBall.className = 'scrambled-paper-ball unfolding';
+
+                        // Origami transformation into the paper rocket!
+                        setTimeout(() => {
+                            this.launchRocket(targetX, window.innerHeight - 70);
+                            this.paperBall.className = 'scrambled-paper-ball';
+
+                            // Cat sits and watches the rocket soar away
+                            this.cat.sprite.src = this.cat.poses.sit;
+
+                            setTimeout(() => {
+                                this.cat.isInteracting = false;
+                                this.isSequenceActive = false;
+                            }, 3200);
+                        }, 400);
+
+                    }, 850);
+
+                }, 900);
+            }
+
+            launchRocket(startX, startY) {
+                this.rocket.style.setProperty('--start-x', `${startX}px`);
+                this.rocket.style.setProperty('--start-y', `${startY}px`);
+
+                this.rocket.className = 'flying-paper-rocket flying';
+
+                setTimeout(() => {
+                    this.rocket.className = 'flying-paper-rocket';
+                }, 6500);
+            }
+        }
+
         // Initialize Resident Cat
         window.addEventListener('DOMContentLoaded', () => {
             window.wabiSabiCat = new TaskbarCatEngine();
+            window.wabiSabiRocket = new HiddenMotiveRocketEngine(window.wabiSabiCat);
         });
     </script>
 </body>
