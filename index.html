@@ -15,9 +15,6 @@
 
     <!-- Paper Texture Overlay & Accents -->
     <div class="paper-grain-overlay"></div>
-    <div class="organic-top-drip"></div>
-    <div class="organic-left-wave"></div>
-
     <div class="auth-viewport">
         <!-- Top Editorial Header Bar -->
         <header class="auth-header">
@@ -57,27 +54,69 @@
             </div>
         </header>
 
-        <!-- Main Auth Split Stage (Matching reference image media_1789904484588.jpg) -->
+        <!-- Main Auth Split Stage (About Us + Sign In) -->
         <main class="auth-stage">
-            <!-- Left Side: Editorial Art & Manifesto -->
-            <div class="auth-editorial-col">
-                <div class="auth-polaroid-frame">
-                    <div class="auth-washi-tape"></div>
-                    <div class="auth-photo-wrapper">
-                        <img src="assets/auth_still_life.jpg" alt="Wabi Sabi Books, Tea and Solitude" class="auth-photo-img">
+            <!-- Left Side: The "About Us" Editorial Journal Spread (Master Context Prompt) -->
+            <section class="auth-editorial-col about-journal-spread" aria-label="About Wabi Sabi">
+                <div class="about-chapter-mark">
+                    <span>Chapter 00 • An Introduction</span>
+                </div>
+
+                <h1 class="about-headline">
+                    So... what is Wabi Sabi?
+                </h1>
+
+                <p class="about-lead-prose">
+                    You finish a book at midnight, or walk out of a film with ten questions spinning in your head, and immediately want to talk about it. Not to post a star rating or fight in a comments section—just to sit down with someone curious and ask: <em>“Wait, did you see what happened there?”</em> That’s what this circle is for.
+                </p>
+
+                <!-- Tactile Inset Philosophy Card -->
+                <div class="about-philosophy-card">
+                    <div class="about-washi-tape-mini"></div>
+                    <div class="about-premise-tag">The Philosophy</div>
+                    <div class="about-core-statement">Same stories. Different people. Different perspectives.</div>
+                    <p class="about-core-desc">
+                        A book is the same book. A film is the same film. But the person sitting next to you experienced it completely differently. That’s where things get interesting.
+                    </p>
+
+                    <!-- Overheard Salon Dialogues (Marginalia) -->
+                    <div class="about-dialogue-strip" title="Overheard in our circles">
+                        <span class="about-quote-pill">“I read this.”</span>
+                        <span class="about-quote-pill">“I completely disagree.”</span>
+                        <span class="about-quote-pill">“Wait, explain that.”</span>
+                        <span class="about-quote-pill">“I never thought about it that way.”</span>
                     </div>
-                    <div class="auth-photo-caption">Same stories, different people.</div>
                 </div>
 
-                <div class="auth-editorial-text">
-                    <h1 class="auth-headline">Good Ideas Are Better Together.</h1>
-                    <p class="auth-description">A space for books, films, conversations and people who see the world a little differently.</p>
+                <!-- The Four Rhythms -->
+                <div class="about-rhythms-grid">
+                    <div class="about-rhythm-item">
+                        <span class="about-rhythm-title">📖 Read</span>
+                        <span class="about-rhythm-desc">Stories that make you pause and wonder.</span>
+                    </div>
+                    <div class="about-rhythm-item">
+                        <span class="about-rhythm-title">📽️ Watch</span>
+                        <span class="about-rhythm-desc">Films & adaptations worth debating.</span>
+                    </div>
+                    <div class="about-rhythm-item">
+                        <span class="about-rhythm-title">🕯️ Discuss</span>
+                        <span class="about-rhythm-desc">Quiet rooms where disagreeing isn’t fighting.</span>
+                    </div>
+                    <div class="about-rhythm-item">
+                        <span class="about-rhythm-title">🌿 Grow</span>
+                        <span class="about-rhythm-desc">Learning why someone sees it another way.</span>
+                    </div>
                 </div>
 
-                <div class="auth-footnote">
-                    <span>01 / 01</span> — <span>Turn the page to a kinder internet.</span>
+                <!-- Footer & Full Manifesto Modal Trigger -->
+                <div class="about-footer-row">
+                    <button type="button" class="about-manifesto-btn" id="openAboutStoryBtn" title="Read the full story of Wabi Sabi">
+                        <span>Read our full story</span>
+                        <span>↗</span>
+                    </button>
+                    <span class="about-footnote-text">Vol. 1 • A calmer internet for curious minds.</span>
                 </div>
-            </div>
+            </section>
 
             <!-- Right Side: Tactile "Enter Wabi Sabi." Paper Card -->
             <div class="auth-form-col">
@@ -156,6 +195,58 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Full Manifesto Reading Sheet Modal (Master Context Prompt) -->
+    <div id="aboutStoryModal" class="story-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="storyModalTitle">
+        <div class="story-modal-sheet">
+            <button type="button" class="story-modal-close" id="closeAboutStoryBtn" aria-label="Close story">✕</button>
+            
+            <div class="story-modal-header">
+                <div class="story-modal-tag">Community Manifesto • Vol. 1</div>
+                <h2 class="story-modal-title" id="storyModalTitle">Come sit down. We were talking about this.</h2>
+            </div>
+
+            <div class="story-prose-section">
+                <p>
+                    <strong>Wabi Sabi is a community where books, films, ideas and people come together so different perspectives can turn ordinary stories into better conversations.</strong>
+                </p>
+                
+                <p>
+                    It didn't start as a startup pitch, a corporate ecosystem, or a gamified reading tracker. It started with a simple observation: we are surrounded by feeds that reduce everyone to labels, reward certainty, and turn every disagreement into an argument.
+                </p>
+
+                <h4>What we actually do</h4>
+                <p>
+                    Each week, we choose a book or an adapted film. We talk about it, debate it, listen to people with wildly different life experiences, and gradually develop things that are difficult to build alone:
+                </p>
+
+                <div class="story-dialogue-box">
+                    <span>✦ Communication without posturing</span>
+                    <span>✦ Confidence in expressing half-formed thoughts</span>
+                    <span>✦ The discipline to listen before reacting</span>
+                    <span>✦ The rare art of disagreeing without turning everything into a fight</span>
+                </div>
+
+                <h4>Curiosity over certainty</h4>
+                <p>
+                    We will never tell you what to think. We will never give you "the correct opinions." 
+                    We simply put something worth thinking about on the table.
+                </p>
+
+                <p>
+                    A book is the same collection of ink on paper for everyone who buys it. A film is the same sequence of 24 frames per second. But the person sitting next to you may have lived through something that makes those same words mean something completely different.
+                </p>
+
+                <p>
+                    That’s not a conflict to resolve. That’s where the human magic begins.
+                </p>
+                
+                <p style="font-style: italic; color: var(--ink-muted); margin-top: 8px;">
+                    Welcome to a calmer internet for curious minds.
+                </p>
+            </div>
+        </div>
     </div>
 
     <!-- Modular Scripts -->

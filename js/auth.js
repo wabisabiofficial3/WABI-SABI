@@ -92,4 +92,28 @@ document.addEventListener('DOMContentLoaded', () => {
             handleLogin('curator@wabisabi.club', 'curator123');
         });
     }
+
+    // 5. About Us Full Story Reading Modal
+    const openAboutBtn = document.getElementById('openAboutStoryBtn');
+    const closeAboutBtn = document.getElementById('closeAboutStoryBtn');
+    const storyModal = document.getElementById('aboutStoryModal');
+
+    function openStoryModal() {
+        if (storyModal) storyModal.style.display = 'flex';
+    }
+
+    function closeStoryModal() {
+        if (storyModal) storyModal.style.display = 'none';
+    }
+
+    if (openAboutBtn) openAboutBtn.addEventListener('click', openStoryModal);
+    if (closeAboutBtn) closeAboutBtn.addEventListener('click', closeStoryModal);
+    if (storyModal) {
+        storyModal.addEventListener('click', (e) => {
+            if (e.target === storyModal) closeStoryModal();
+        });
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeStoryModal();
+    });
 });
