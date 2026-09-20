@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wabi Sabi — People, Stories, Perspectives</title>
     
-    <!-- Editorial Typography -->
+    <!-- Editorial & Aesthetic Handwriting Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Manrope:wght@300;400;500;600;700&family=Caveat:wght@400;500;600&family=Reenie+Beanie&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Manrope:wght@300;400;500;600;700&family=Reenie+Beanie&family=Kalam:wght@300;400&display=swap" rel="stylesheet">
 
     <style>
         /* ==========================================================================
@@ -26,10 +26,18 @@
             --ink-faint: #C8C5BC;
 
             /* Four Realistic Sticky Note Paper Hues */
-            --sticky-books: #D9ECDC;          /* Mint Paper */
-            --sticky-films: #DFDAF5;          /* Lavender Paper */
-            --sticky-discuss: #F8DDD7;        /* Soft Coral Paper */
-            --sticky-community: #F1E9D7;      /* Warm Sand Cream Paper */
+            --sticky-books-bg: #D8EDD9;       /* Pastel Mint */
+            --sticky-books-border: #C1E0C3;
+            --sticky-films-bg: #E2DCF7;       /* Soft Lavender */
+            --sticky-films-border: #CFC5EE;
+            --sticky-discuss-bg: #FBDCD4;     /* Soft Coral Blush */
+            --sticky-discuss-border: #F3C3B8;
+            --sticky-community-bg: #FAF0D7;   /* Warm Cream Canary */
+            --sticky-community-border: #ECDCBA;
+
+            /* Handwriting Ink Color */
+            --hand-ink: #1C1A17;
+            --hand-ink-placeholder: rgba(28, 26, 23, 0.45);
 
             /* Accent & Organic Elements */
             --forest-green: #274033;
@@ -39,9 +47,9 @@
             --accent-lavender: #A199CF;
             --highlight-lime: #DCF263;
 
-            /* Tactile Paper Shadows for Realistic Sticky Notes */
-            --shadow-sticky: 0 16px 36px rgba(45, 38, 28, 0.08), 0 3px 10px rgba(45, 38, 28, 0.04);
-            --shadow-sticky-hover: 0 24px 48px rgba(45, 38, 28, 0.14), 0 8px 18px rgba(45, 38, 28, 0.06);
+            /* Tactile Physical Paper Drop Shadows (Realistic Post-It Depth) */
+            --shadow-sticky: 0 10px 22px rgba(45, 38, 28, 0.09), 0 2px 6px rgba(45, 38, 28, 0.04);
+            --shadow-sticky-hover: 0 18px 36px rgba(45, 38, 28, 0.15), 0 4px 10px rgba(45, 38, 28, 0.06);
             --shadow-card: 0 6px 20px rgba(35, 30, 20, 0.06);
             --shadow-float: 0 16px 36px rgba(35, 30, 20, 0.10);
             --cat-shadow: rgba(30, 25, 20, 0.35);
@@ -49,7 +57,8 @@
             /* Typography */
             --font-serif: 'Cormorant Garamond', Georgia, serif;
             --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-hand: 'Caveat', 'Reenie Beanie', cursive;
+            --font-hand: 'Caveat', 'Kalam', cursive;
+            --font-script: 'Reenie Beanie', cursive;
         }
 
         [data-theme="dark"] {
@@ -63,11 +72,18 @@
             --ink-muted: #807E77;
             --ink-faint: #4E4C46;
 
-            /* Muted Dark Sticky Notes */
-            --sticky-books: #213526;
-            --sticky-films: #2C2843;
-            --sticky-discuss: #3F2723;
-            --sticky-community: #353026;
+            /* Muted Deep Parchment Sticky Notes */
+            --sticky-books-bg: #213526;
+            --sticky-books-border: #2D4734;
+            --sticky-films-bg: #2A2642;
+            --sticky-films-border: #3A355A;
+            --sticky-discuss-bg: #3D2722;
+            --sticky-discuss-border: #52352E;
+            --sticky-community-bg: #352F22;
+            --sticky-community-border: #4A4230;
+
+            --hand-ink: #EDE8DE;
+            --hand-ink-placeholder: rgba(237, 232, 222, 0.45);
 
             --forest-green: #1C2E24;
             --forest-dark: #121E18;
@@ -76,15 +92,16 @@
             --accent-lavender: #706899;
             --highlight-lime: #4A6337;
 
-            --shadow-sticky: 0 16px 36px rgba(0, 0, 0, 0.45);
-            --shadow-sticky-hover: 0 24px 48px rgba(0, 0, 0, 0.65);
+            --shadow-sticky: 0 12px 28px rgba(0, 0, 0, 0.45);
+            --shadow-sticky-hover: 0 20px 42px rgba(0, 0, 0, 0.65);
             --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.4);
             --shadow-float: 0 16px 36px rgba(0, 0, 0, 0.55);
             --cat-shadow: rgba(0, 0, 0, 0.65);
         }
 
         /* ==========================================================================
-           2. RESET & 100VH SINGLE VIEWPORT CONTAINER
+           2. RESET & ZOOM-RESILIENT VIEWPORT CONTAINER
+           - Uses min-height & responsive layout so 100%+ or - zoom stays perfectly aligned!
            ========================================================================== */
         *, *::before, *::after {
             box-sizing: border-box;
@@ -93,15 +110,15 @@
         }
 
         html, body {
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden; /* Strict single viewport: no scrolling */
+            min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
+            overflow-y: auto; /* Gracefully scrolls if zoom level makes content taller than window */
             background-color: var(--bg-paper);
             color: var(--ink-primary);
             font-family: var(--font-sans);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            user-select: none;
             transition: background-color 0.4s ease, color 0.4s ease;
         }
 
@@ -115,7 +132,7 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
         }
 
-        /* Organic Torn Paper Accents from Reference */
+        /* Organic Torn Paper Accents */
         .organic-top-drip {
             position: absolute;
             top: 0;
@@ -141,18 +158,21 @@
         }
 
         /* ==========================================================================
-           3. MASTER DASHBOARD GRID
+           3. MASTER DASHBOARD GRID (Fluid, Zoom-Resilient)
            ========================================================================== */
         .dashboard {
             position: relative;
             z-index: 1;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            max-width: 1520px;
+            margin: 0 auto;
+            min-height: 100vh;
             display: grid;
-            grid-template-columns: 88px 1fr 340px;
+            grid-template-columns: clamp(68px, 6vw, 84px) minmax(0, 1fr) minmax(280px, 320px);
             grid-template-rows: 64px 1fr;
-            padding: 16px 28px 56px 28px;
-            gap: 16px 28px;
+            padding: 16px clamp(16px, 2vw, 28px) 68px clamp(16px, 2vw, 28px);
+            gap: 16px clamp(18px, 2vw, 28px);
+            box-sizing: border-box;
         }
 
         /* ==========================================================================
@@ -163,13 +183,15 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 6px;
+            padding: 0 4px;
+            gap: 16px;
         }
 
         .brand-container {
             display: flex;
             align-items: center;
-            gap: 22px;
+            gap: 20px;
+            flex-shrink: 0;
         }
 
         .brand-logo {
@@ -184,7 +206,7 @@
             font-family: var(--font-hand);
             font-size: 34px;
             line-height: 0.85;
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: -0.5px;
         }
 
@@ -202,13 +224,13 @@
             flex-direction: column;
             gap: 1px;
             border-left: 1px solid rgba(140, 135, 125, 0.25);
-            padding-left: 16px;
+            padding-left: 14px;
         }
 
         .brand-taglines span {
             font-size: 8.5px;
             text-transform: uppercase;
-            letter-spacing: 2.2px;
+            letter-spacing: 2px;
             font-weight: 600;
             color: var(--ink-muted);
             line-height: 1.25;
@@ -218,6 +240,7 @@
         .search-pill-container {
             flex: 0 1 480px;
             position: relative;
+            min-width: 220px;
         }
 
         .search-pill {
@@ -227,7 +250,7 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(140, 135, 125, 0.25);
             border-radius: 30px;
-            padding: 0 46px 0 42px;
+            padding: 0 44px 0 40px;
             font-family: var(--font-sans);
             font-size: 13px;
             color: var(--ink-primary);
@@ -254,7 +277,7 @@
 
         .search-icon {
             position: absolute;
-            left: 16px;
+            left: 15px;
             top: 50%;
             transform: translateY(-50%);
             stroke: var(--ink-muted);
@@ -263,7 +286,7 @@
 
         .search-doodle {
             position: absolute;
-            right: 18px;
+            right: 16px;
             top: 50%;
             transform: translateY(-50%);
             stroke: var(--ink-muted);
@@ -275,7 +298,8 @@
         .header-controls {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
+            flex-shrink: 0;
         }
 
         .theme-btn {
@@ -304,14 +328,14 @@
 
         .header-divider {
             width: 1px;
-            height: 22px;
+            height: 20px;
             background-color: rgba(140, 135, 125, 0.25);
         }
 
         .join-pill {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             background-color: var(--ink-primary);
             color: var(--bg-paper);
             padding: 8px 18px;
@@ -323,6 +347,7 @@
             border: 1px solid var(--ink-primary);
             box-shadow: var(--shadow-card);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            white-space: nowrap;
         }
 
         .join-pill:hover {
@@ -362,7 +387,7 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0 24px 0;
+            padding: 8px 0 20px 0;
             position: relative;
             z-index: 5;
         }
@@ -371,10 +396,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 18px;
+            gap: 16px;
             background: rgba(255, 255, 255, 0.55);
             backdrop-filter: blur(12px);
-            padding: 16px 10px;
+            padding: 14px 8px;
             border-radius: 40px;
             border: 1px solid rgba(255, 255, 255, 0.8);
             box-shadow: var(--shadow-card);
@@ -392,18 +417,18 @@
             gap: 4px;
             text-decoration: none;
             color: var(--ink-secondary);
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 500;
             padding: 8px 6px;
             border-radius: 20px;
             transition: all 0.25s ease;
-            width: 58px;
+            width: 54px;
             text-align: center;
         }
 
         .dock-item svg {
-            width: 20px;
-            height: 20px;
+            width: 19px;
+            height: 19px;
             stroke-width: 1.6;
         }
 
@@ -423,20 +448,15 @@
             stroke: #FFFFFF;
         }
 
-        .dock-item span {
-            font-size: 10px;
-            font-weight: 500;
-        }
-
-        /* Calmer Internet Tagline */
+        /* Calmer Internet Editorial Tagline */
         .calmer-tagline {
             font-family: var(--font-serif);
-            font-size: 13.5px;
+            font-size: 13px;
             font-style: italic;
             line-height: 1.25;
             color: var(--ink-muted);
             text-align: left;
-            width: 76px;
+            width: 72px;
             margin-top: auto;
         }
 
@@ -448,15 +468,15 @@
         }
 
         /* ==========================================================================
-           6. MAIN CENTER EDITORIAL STAGE (Spacious & Clean)
+           6. MAIN CENTER EDITORIAL STAGE (Fluid, Zoom-Resilient)
            ========================================================================== */
         main.main-content {
             grid-column: 2 / 3;
             grid-row: 2 / 3;
             display: grid;
-            grid-template-columns: 1.05fr 1fr;
+            grid-template-columns: minmax(280px, 1fr) minmax(360px, 1.25fr);
             align-items: center;
-            gap: 20px;
+            gap: clamp(16px, 2.5vw, 36px);
             position: relative;
             z-index: 2;
         }
@@ -470,16 +490,16 @@
         }
 
         .hero-eyebrow {
-            font-size: 10px;
+            font-size: 9.5px;
             text-transform: uppercase;
-            letter-spacing: 2.4px;
+            letter-spacing: 2.2px;
             font-weight: 700;
             color: var(--ink-muted);
         }
 
         .hero-headline {
             font-family: var(--font-serif);
-            font-size: clamp(44px, 4.4vw, 68px);
+            font-size: clamp(38px, 4.2vw, 64px);
             line-height: 0.96;
             font-weight: 500;
             color: var(--ink-primary);
@@ -497,7 +517,7 @@
             left: 0;
             bottom: 4px;
             width: 100%;
-            height: 12px;
+            height: 11px;
             background-color: var(--highlight-lime);
             opacity: 0.65;
             z-index: -1;
@@ -505,7 +525,7 @@
         }
 
         .hero-tagline {
-            font-size: 14.5px;
+            font-size: 14px;
             line-height: 1.45;
             color: var(--ink-secondary);
             max-width: 360px;
@@ -514,21 +534,22 @@
         .hero-ctas {
             display: flex;
             align-items: center;
-            gap: 16px;
-            margin-top: 4px;
+            gap: 14px;
+            margin-top: 2px;
         }
 
         .btn-cta-primary {
             background-color: var(--ink-primary);
             color: var(--bg-paper);
             border: 1px solid var(--ink-primary);
-            padding: 12px 26px;
+            padding: 11px 24px;
             border-radius: 36px;
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 600;
             cursor: pointer;
             box-shadow: var(--shadow-card);
             transition: all 0.25s ease;
+            white-space: nowrap;
         }
 
         .btn-cta-primary:hover {
@@ -543,12 +564,13 @@
             background: transparent;
             color: var(--ink-primary);
             border: none;
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 600;
             cursor: pointer;
-            padding: 10px 14px;
+            padding: 8px 12px;
             border-radius: 30px;
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
 
         .btn-cta-secondary:hover {
@@ -556,14 +578,15 @@
         }
 
         /* --------------------------------------------------------------------------
-           CENTRAL ORBITAL COMPOSITION WITH FOUR REALISTIC STICKY NOTES
+           CENTRAL ORBITAL STAGE (Aspect-Ratio Scaled & Zoom-Proof)
            -------------------------------------------------------------------------- */
         .orbital-stage {
             position: relative;
             width: 100%;
-            height: 480px;
-            display: grid;
-            place-items: center;
+            max-width: 500px;
+            aspect-ratio: 500 / 440;
+            min-height: 380px;
+            margin: 0 auto;
         }
 
         .orbital-ink-svg {
@@ -586,37 +609,39 @@
         /* Handwritten Editorial Doodles */
         .hand-anno-more {
             position: absolute;
-            top: 26%;
-            left: 2%;
+            top: 25%;
+            left: 1%;
             font-family: var(--font-hand);
-            font-size: 21px;
+            font-size: 20px;
             line-height: 1.05;
             color: var(--ink-primary);
             transform: rotate(-10deg);
             pointer-events: none;
             z-index: 4;
+            white-space: nowrap;
         }
 
         .hand-anno-explore {
             position: absolute;
-            top: 3%;
-            right: 14%;
+            top: 2%;
+            right: 12%;
             font-family: var(--font-hand);
-            font-size: 20px;
+            font-size: 19px;
             line-height: 1.05;
             color: var(--ink-primary);
             transform: rotate(4deg);
             pointer-events: none;
             z-index: 4;
+            white-space: nowrap;
         }
 
         /* Circular Stamp Seal */
         .stamp-botanical-seal {
             position: absolute;
-            right: 4%;
-            bottom: 24%;
-            width: 74px;
-            height: 74px;
+            right: 2%;
+            bottom: 22%;
+            width: 70px;
+            height: 70px;
             border: 1px dashed var(--ink-muted);
             border-radius: 50%;
             display: flex;
@@ -631,7 +656,7 @@
         }
 
         .stamp-text {
-            font-size: 8px;
+            font-size: 7.5px;
             text-transform: uppercase;
             letter-spacing: 1.2px;
             line-height: 1.2;
@@ -640,165 +665,225 @@
         }
 
         .stamp-icon {
-            margin: 2px 0;
+            margin: 1px 0;
             color: var(--forest-green);
         }
 
-        /* --------------------------------------------------------------------------
-           REALISTIC STICKY NOTE PAPERS (Pebble Organic Cutout + Tactile Depth)
-           -------------------------------------------------------------------------- */
+        /* ==========================================================================
+           REALISTIC TACTILE STICKY NOTES WITH INTERACTIVE HANDWRITING
+           - Genuine 3D curled paper shadow
+           - Semi-translucent top adhesive strip
+           - Clickable & Editable handwritten note area (user writes their own thoughts!)
+           - Auto-saved to localStorage
+           ========================================================================== */
         .sticky-note-card {
             position: absolute;
-            padding: 18px 20px 20px 20px;
+            width: clamp(170px, 36%, 192px);
+            min-height: 148px;
             box-shadow: var(--shadow-sticky);
-            cursor: pointer;
+            cursor: text;
             z-index: 3;
-            transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease;
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            padding: 12px 14px 14px 14px;
+            border-radius: 3px 4px 18px 3px / 4px 3px 16px 4px; /* Organic paper peel corner */
         }
 
-        /* Subtle Sticky Note Adhesive Strip Highlight at Top */
+        /* The Famous 3M Post-It Curled Corner Bottom Shadow */
+        .sticky-note-card::after {
+            content: '';
+            position: absolute;
+            right: 8px;
+            bottom: 6px;
+            width: 65%;
+            height: 18px;
+            box-shadow: 0 10px 16px rgba(35, 25, 15, 0.16);
+            transform: skew(5deg) rotate(4deg);
+            z-index: -1;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .sticky-note-card::after {
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Top Translucent Adhesive Band */
         .sticky-note-card::before {
             content: '';
             position: absolute;
             top: 0;
-            left: 10%;
-            right: 10%;
-            height: 6px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.05) 100%);
-            border-radius: 4px;
+            left: 0;
+            right: 0;
+            height: 22px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.12) 80%, transparent 100%);
+            border-radius: 3px 4px 0 0;
             pointer-events: none;
         }
 
-        /* 1. BOOKS STICKY NOTE (Top Mint Pebble) */
+        /* 1. BOOKS STICKY NOTE (Pastel Mint) */
         .sticky-books {
-            top: 6%;
-            left: 36%;
-            width: 178px;
-            height: 140px;
-            background-color: var(--sticky-books);
-            border-radius: 28px 24px 30px 22px / 24px 30px 22px 28px;
-            transform: rotate(3deg);
+            top: 2%;
+            left: 33%;
+            background-color: var(--sticky-books-bg);
+            border: 1px solid var(--sticky-books-border);
+            transform: rotate(2.8deg);
         }
 
-        .sticky-books:hover {
-            transform: rotate(3deg) translateY(-8px) scale(1.05);
+        .sticky-books:hover, .sticky-books:focus-within {
+            transform: rotate(2.8deg) translateY(-8px) scale(1.04);
             box-shadow: var(--shadow-sticky-hover);
-            z-index: 6;
+            z-index: 8;
         }
 
-        /* 2. FILMS STICKY NOTE (Right Lavender Pebble) */
+        /* 2. FILMS STICKY NOTE (Soft Lavender) */
         .sticky-films {
-            top: 26%;
-            right: 4%;
-            width: 182px;
-            height: 146px;
-            background-color: var(--sticky-films);
-            border-radius: 24px 32px 22px 30px / 30px 22px 28px 24px;
-            transform: rotate(-5deg);
+            top: 22%;
+            right: 2%;
+            background-color: var(--sticky-films-bg);
+            border: 1px solid var(--sticky-films-border);
+            transform: rotate(-4.5deg);
         }
 
-        .sticky-films:hover {
-            transform: rotate(-5deg) translateY(-8px) scale(1.05);
+        .sticky-films:hover, .sticky-films:focus-within {
+            transform: rotate(-4.5deg) translateY(-8px) scale(1.04);
             box-shadow: var(--shadow-sticky-hover);
-            z-index: 6;
+            z-index: 8;
         }
 
-        /* 3. DISCUSSIONS STICKY NOTE (Left Coral Pebble) */
+        /* 3. DISCUSSIONS STICKY NOTE (Soft Coral Blush) */
         .sticky-discuss {
-            bottom: 12%;
-            left: 12%;
-            width: 184px;
-            height: 146px;
-            background-color: var(--sticky-discuss);
-            border-radius: 30px 22px 28px 24px / 22px 30px 24px 28px;
-            transform: rotate(2.5deg);
+            bottom: 8%;
+            left: 8%;
+            background-color: var(--sticky-discuss-bg);
+            border: 1px solid var(--sticky-discuss-border);
+            transform: rotate(2deg);
         }
 
-        .sticky-discuss:hover {
-            transform: rotate(2.5deg) translateY(-8px) scale(1.05);
+        .sticky-discuss:hover, .sticky-discuss:focus-within {
+            transform: rotate(2deg) translateY(-8px) scale(1.04);
             box-shadow: var(--shadow-sticky-hover);
-            z-index: 6;
+            z-index: 8;
         }
 
-        /* 4. COMMUNITY STICKY NOTE (Bottom Cream Pebble) */
+        /* 4. COMMUNITY STICKY NOTE (Warm Canary Cream) */
         .sticky-community {
-            bottom: 10%;
-            right: 18%;
-            width: 178px;
-            height: 142px;
-            background-color: var(--sticky-community);
-            border-radius: 24px 28px 22px 32px / 28px 24px 30px 22px;
-            transform: rotate(-2.5deg);
+            bottom: 5%;
+            right: 14%;
+            background-color: var(--sticky-community-bg);
+            border: 1px solid var(--sticky-community-border);
+            transform: rotate(-2.2deg);
         }
 
-        .sticky-community:hover {
-            transform: rotate(-2.5deg) translateY(-8px) scale(1.05);
+        .sticky-community:hover, .sticky-community:focus-within {
+            transform: rotate(-2.2deg) translateY(-8px) scale(1.04);
             box-shadow: var(--shadow-sticky-hover);
-            z-index: 6;
+            z-index: 8;
         }
 
-        .sticky-header-row {
+        /* Sticky Note Top Header (Icon, Category & Action) */
+        .sticky-top-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px dashed rgba(60, 50, 40, 0.15);
+            pointer-events: auto;
+        }
+
+        [data-theme="dark"] .sticky-top-bar {
+            border-bottom-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .sticky-category-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-serif);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink-primary);
+            letter-spacing: 0.2px;
         }
 
         .sticky-icon {
-            width: 22px;
-            height: 22px;
+            width: 14px;
+            height: 14px;
             stroke: var(--ink-primary);
             fill: none;
-            stroke-width: 1.6;
+            stroke-width: 1.8;
         }
 
-        .sticky-arrow-circle {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 1.2px solid var(--ink-primary);
-            display: grid;
-            place-items: center;
-            font-size: 13px;
-            line-height: 1;
+        .sticky-pencil-indicator {
+            font-size: 11px;
+            opacity: 0.55;
             color: var(--ink-primary);
-            transition: all 0.25s ease;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            cursor: pointer;
         }
 
-        .sticky-note-card:hover .sticky-arrow-circle {
-            background-color: var(--ink-primary);
-            color: var(--bg-paper);
+        .sticky-note-card:hover .sticky-pencil-indicator {
+            opacity: 1;
+            transform: scale(1.15);
         }
 
-        .sticky-title {
-            font-family: var(--font-serif);
-            font-size: 22px;
-            font-weight: 600;
-            line-height: 1.1;
-            margin-bottom: 4px;
-            color: var(--ink-primary);
+        /* Aesthetic Handwriting Editable Note Area */
+        .sticky-handwriting {
+            flex: 1;
+            width: 100%;
+            outline: none;
+            font-family: var(--font-hand);
+            font-size: 19px;
+            line-height: 1.35;
+            font-weight: 500;
+            color: var(--hand-ink);
+            cursor: text;
+            word-break: break-word;
+            min-height: 80px;
+            letter-spacing: 0.2px;
+            position: relative;
         }
 
-        .sticky-desc {
-            font-size: 12px;
-            line-height: 1.3;
-            color: var(--ink-secondary);
+        /* Handwriting Placeholder */
+        .sticky-handwriting:empty::before {
+            content: attr(data-placeholder);
+            color: var(--hand-ink-placeholder);
+            pointer-events: none;
+            font-style: italic;
+        }
+
+        /* Subtitle Note Hint */
+        .sticky-footer-hint {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--ink-muted);
+            margin-top: 6px;
+            padding-top: 4px;
+            opacity: 0.7;
+            font-family: var(--font-sans);
+        }
+
+        .sticky-footer-hint span {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
         }
 
         /* ==========================================================================
-           7. RIGHT INFORMATION PANEL
+           7. RIGHT INFORMATION PANEL (Fluid & Centered)
            ========================================================================== */
         aside.right-panel {
             grid-column: 3 / 4;
             grid-row: 2 / 3;
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 16px;
             border-left: 1px solid rgba(140, 135, 125, 0.2);
-            padding-left: 22px;
+            padding-left: clamp(16px, 1.8vw, 24px);
             position: relative;
             z-index: 3;
             min-height: 0;
@@ -808,15 +893,15 @@
         /* Editorial Serif Quote */
         .quote-container {
             position: relative;
-            padding-top: 4px;
+            padding-top: 2px;
         }
 
         .quote-mark {
             position: absolute;
             top: -14px;
-            left: -12px;
+            left: -10px;
             font-family: var(--font-serif);
-            font-size: 48px;
+            font-size: 44px;
             line-height: 1;
             color: var(--ink-primary);
             opacity: 0.25;
@@ -825,7 +910,7 @@
 
         .editorial-quote {
             font-family: var(--font-serif);
-            font-size: clamp(21px, 1.9vw, 26px);
+            font-size: clamp(20px, 1.8vw, 25px);
             line-height: 1.15;
             font-weight: 400;
             color: var(--ink-primary);
@@ -837,7 +922,7 @@
             width: 24px;
             height: 1px;
             background-color: var(--ink-muted);
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         /* Side Cards */
@@ -845,8 +930,8 @@
             background: rgba(255, 255, 255, 0.55);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.8);
-            border-radius: 16px;
-            padding: 14px 16px;
+            border-radius: 14px;
+            padding: 12px 14px;
             box-shadow: var(--shadow-card);
             transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
@@ -865,12 +950,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: 1.8px;
+            letter-spacing: 1.6px;
             font-weight: 700;
             color: var(--ink-muted);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .header-tag {
@@ -880,19 +965,19 @@
         }
 
         .header-arrow {
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .pick-body {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .pick-thumb {
-            width: 44px;
-            height: 60px;
+            width: 40px;
+            height: 56px;
             border-radius: 6px;
             overflow: hidden;
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
@@ -913,19 +998,19 @@
 
         .pick-title {
             font-family: var(--font-serif);
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             line-height: 1.1;
             color: var(--ink-primary);
         }
 
         .pick-author {
-            font-size: 11.5px;
+            font-size: 11px;
             color: var(--ink-secondary);
         }
 
         .pick-quote {
-            font-size: 11.5px;
+            font-size: 11px;
             font-style: italic;
             color: var(--ink-muted);
             margin-top: 2px;
@@ -935,7 +1020,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 11px;
+            font-size: 10.5px;
             color: var(--ink-muted);
             font-weight: 500;
         }
@@ -946,8 +1031,8 @@
         }
 
         .avatar-cluster span {
-            width: 18px;
-            height: 18px;
+            width: 17px;
+            height: 17px;
             border-radius: 50%;
             border: 1.5px solid var(--bg-paper);
             margin-left: -5px;
@@ -969,14 +1054,14 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .date-badge {
-            width: 44px;
-            height: 48px;
+            width: 40px;
+            height: 44px;
             background: rgba(39, 64, 51, 0.08);
-            border-radius: 10px;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -991,7 +1076,7 @@
         }
 
         .date-month {
-            font-size: 9px;
+            font-size: 8.5px;
             text-transform: uppercase;
             font-weight: 700;
             letter-spacing: 1px;
@@ -1004,7 +1089,7 @@
 
         .date-day {
             font-family: var(--font-serif);
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
             line-height: 1;
             color: var(--ink-primary);
@@ -1018,28 +1103,28 @@
 
         .event-title {
             font-weight: 600;
-            font-size: 13.5px;
+            font-size: 13px;
             color: var(--ink-primary);
         }
 
         .event-detail {
-            font-size: 11px;
+            font-size: 10.5px;
             color: var(--ink-muted);
         }
 
         /* ==========================================================================
-           8. CLEAN BOTTOM TASKBAR & AUTONOMOUS WALKING RESIDENT CAT
-           - No cards, no clutter, no text in bottom area ("just the Cat")
-           - Smooth, continuous walking along the bottom taskbar
-           - Click / touch triggers slow Meow (assets/meow.mp3) + speech bubble
+           8. CLEAN BOTTOM TASKBAR & AUTONOMOUS WALKING CAT
+           - No cards, no clutter, no text ("just the Cat")
+           - Walks calmly along the bottom taskbar with smooth continuous cadence
+           - Touch/click triggers slow Meow (assets/meow.mp3) + speech bubble
            ========================================================================== */
         .bottom-taskbar {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 48px;
-            background: rgba(246, 243, 236, 0.75);
+            height: 46px;
+            background: rgba(246, 243, 236, 0.78);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
             border-top: 1px solid rgba(140, 135, 125, 0.2);
@@ -1054,13 +1139,13 @@
             border-top-color: rgba(255, 255, 255, 0.08);
         }
 
-        /* The Enlarged Walking Cat on the Taskbar */
+        /* The Enlarged Walking Cat on the Taskbar (Fluid Scaled) */
         .living-cat-actor {
             position: fixed;
             bottom: 6px; /* Paws walk directly on the taskbar ledge */
             left: 100px;
-            width: 235px; /* Noticeably enlarged as requested */
-            height: 175px;
+            width: clamp(190px, 16vw, 240px);
+            height: clamp(140px, 12vw, 180px);
             pointer-events: auto;
             cursor: pointer;
             z-index: 102;
@@ -1071,11 +1156,11 @@
         /* Dynamic Soft Ground Shadow beneath Paws */
         .cat-contact-shadow {
             position: absolute;
-            bottom: 12px;
+            bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
-            width: 175px;
-            height: 16px;
+            width: 75%;
+            height: 14px;
             background: radial-gradient(ellipse at center, var(--cat-shadow) 0%, rgba(0,0,0,0.08) 55%, transparent 75%);
             border-radius: 50%;
             pointer-events: none;
@@ -1104,7 +1189,7 @@
             color: var(--ink-primary);
             padding: 6px 14px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 600;
             font-family: var(--font-hand), cursive;
             white-space: nowrap;
@@ -1141,6 +1226,37 @@
 
         [data-theme="dark"] .cat-speech-bubble::after {
             border-color: #252822 transparent;
+        }
+
+        /* ==========================================================================
+           9. RESPONSIVE BREAKPOINTS (Zoom 100%+ or - Protection)
+           ========================================================================== */
+        @media (max-width: 1140px) {
+            .dashboard {
+                grid-template-columns: 72px minmax(0, 1fr) 280px;
+                gap: 14px 18px;
+            }
+            .hero-headline {
+                font-size: clamp(34px, 3.8vw, 48px);
+            }
+        }
+
+        @media (max-width: 960px) {
+            .dashboard {
+                grid-template-columns: 68px 1fr;
+                grid-template-rows: auto auto auto;
+            }
+            aside.right-panel {
+                grid-column: 2 / 3;
+                border-left: none;
+                border-top: 1px solid rgba(140, 135, 125, 0.2);
+                padding-left: 0;
+                padding-top: 24px;
+            }
+            main.main-content {
+                grid-template-columns: 1fr;
+                gap: 36px;
+            }
         }
     </style>
 </head>
@@ -1254,7 +1370,7 @@
         </aside>
 
         <!-- ====================================================================
-             CENTER MAIN EDITORIAL STAGE (Spacious & Clean)
+             CENTER MAIN EDITORIAL STAGE (Fluid & Open)
              ==================================================================== -->
         <main class="main-content">
             <!-- Left Typography Hero Statement -->
@@ -1281,18 +1397,18 @@
                 </div>
             </div>
 
-            <!-- Central Orbital Composition with Four Realistic Sticky Notes -->
+            <!-- Central Orbital Composition with Four Interactive Sticky Notes -->
             <div class="orbital-stage">
 
                 <!-- Connecting Ink Constellation Path -->
-                <svg class="orbital-ink-svg" viewBox="0 0 460 420" preserveAspectRatio="none">
-                    <path class="orbital-ink-path" d="M 60 210 Q 110 55 230 65 Q 380 75 390 210 Q 400 350 230 360 Q 90 370 60 210" />
-                    <circle cx="110" cy="95" r="4.5" fill="var(--accent-sage)" />
-                    <circle cx="340" cy="95" r="4.5" fill="var(--accent-lavender)" />
-                    <circle cx="90" cy="250" r="4.5" fill="var(--accent-peach)" />
-                    <circle cx="270" cy="345" r="4.5" fill="var(--ink-primary)" />
+                <svg class="orbital-ink-svg" viewBox="0 0 500 440" preserveAspectRatio="none">
+                    <path class="orbital-ink-path" d="M 70 220 Q 120 55 250 65 Q 410 75 420 220 Q 430 370 250 380 Q 100 390 70 220" />
+                    <circle cx="120" cy="95" r="4.5" fill="var(--accent-sage)" />
+                    <circle cx="370" cy="95" r="4.5" fill="var(--accent-lavender)" />
+                    <circle cx="100" cy="260" r="4.5" fill="var(--accent-peach)" />
+                    <circle cx="290" cy="365" r="4.5" fill="var(--ink-primary)" />
                     <!-- Clover Glyph -->
-                    <g transform="translate(325, 80) scale(0.9)" fill="var(--ink-primary)">
+                    <g transform="translate(355, 80) scale(0.9)" fill="var(--ink-primary)">
                         <circle cx="0" cy="-6" r="3.8"/>
                         <circle cx="6" cy="0" r="3.8"/>
                         <circle cx="0" cy="6" r="3.8"/>
@@ -1315,52 +1431,68 @@
                     <span class="stamp-text">Different Perspectives</span>
                 </div>
 
-                <!-- 1. BOOKS STICKY NOTE (Mint Paper Pebble) -->
-                <div class="sticky-note-card sticky-books" data-category="books" title="Explore Books">
-                    <div>
-                        <div class="sticky-header-row">
+                <!-- 1. BOOKS STICKY NOTE (Mint Paper) -->
+                <div class="sticky-note-card sticky-books" data-note-id="books" title="Click to write your note">
+                    <div class="sticky-top-bar">
+                        <div class="sticky-category-title">
                             <svg class="sticky-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                            <span class="sticky-arrow-circle">→</span>
+                            <span>Books</span>
                         </div>
-                        <div class="sticky-title">Books</div>
+                        <span class="sticky-pencil-indicator" title="Editable handwriting">✎</span>
                     </div>
-                    <div class="sticky-desc">Ideas that stay with you.</div>
+                    <div class="sticky-handwriting" contenteditable="true" spellcheck="false" data-category="books" data-placeholder="Write your reflection here...">Ideas that take root and stay with you for years.</div>
+                    <div class="sticky-footer-hint">
+                        <span>Click to write</span>
+                        <span>01</span>
+                    </div>
                 </div>
 
-                <!-- 2. FILMS STICKY NOTE (Lavender Paper Pebble) -->
-                <div class="sticky-note-card sticky-films" data-category="films" title="Explore Films">
-                    <div>
-                        <div class="sticky-header-row">
+                <!-- 2. FILMS STICKY NOTE (Lavender Paper) -->
+                <div class="sticky-note-card sticky-films" data-note-id="films" title="Click to write your note">
+                    <div class="sticky-top-bar">
+                        <div class="sticky-category-title">
                             <svg class="sticky-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"></polygon></svg>
-                            <span class="sticky-arrow-circle">→</span>
+                            <span>Films</span>
                         </div>
-                        <div class="sticky-title">Films</div>
+                        <span class="sticky-pencil-indicator" title="Editable handwriting">✎</span>
                     </div>
-                    <div class="sticky-desc">Stories that open minds.</div>
+                    <div class="sticky-handwriting" contenteditable="true" spellcheck="false" data-category="films" data-placeholder="Write your reflection here...">Quiet frames that open unexpected rooms in the mind.</div>
+                    <div class="sticky-footer-hint">
+                        <span>Click to write</span>
+                        <span>02</span>
+                    </div>
                 </div>
 
-                <!-- 3. DISCUSSIONS STICKY NOTE (Soft Coral Paper Pebble) -->
-                <div class="sticky-note-card sticky-discuss" data-category="discussions" title="Explore Discussions">
-                    <div>
-                        <div class="sticky-header-row">
+                <!-- 3. DISCUSSIONS STICKY NOTE (Coral Paper) -->
+                <div class="sticky-note-card sticky-discuss" data-note-id="discussions" title="Click to write your note">
+                    <div class="sticky-top-bar">
+                        <div class="sticky-category-title">
                             <svg class="sticky-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                            <span class="sticky-arrow-circle">→</span>
+                            <span>Discussions</span>
                         </div>
-                        <div class="sticky-title">Discussions</div>
+                        <span class="sticky-pencil-indicator" title="Editable handwriting">✎</span>
                     </div>
-                    <div class="sticky-desc">Conversations without judgement.</div>
+                    <div class="sticky-handwriting" contenteditable="true" spellcheck="false" data-category="discussions" data-placeholder="Write your reflection here...">Conversations held with patience, without judgment.</div>
+                    <div class="sticky-footer-hint">
+                        <span>Click to write</span>
+                        <span>03</span>
+                    </div>
                 </div>
 
-                <!-- 4. COMMUNITY STICKY NOTE (Warm Cream Paper Pebble) -->
-                <div class="sticky-note-card sticky-community" data-category="community" title="Explore Community">
-                    <div>
-                        <div class="sticky-header-row">
+                <!-- 4. COMMUNITY STICKY NOTE (Cream Paper) -->
+                <div class="sticky-note-card sticky-community" data-note-id="community" title="Click to write your note">
+                    <div class="sticky-top-bar">
+                        <div class="sticky-category-title">
                             <svg class="sticky-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                            <span class="sticky-arrow-circle">→</span>
+                            <span>Community</span>
                         </div>
-                        <div class="sticky-title">Community</div>
+                        <span class="sticky-pencil-indicator" title="Editable handwriting">✎</span>
                     </div>
-                    <div class="sticky-desc">People who get it.</div>
+                    <div class="sticky-handwriting" contenteditable="true" spellcheck="false" data-category="community" data-placeholder="Write your reflection here...">Kindred souls who feel the quiet rhythm of life.</div>
+                    <div class="sticky-footer-hint">
+                        <span>Click to write</span>
+                        <span>04</span>
+                    </div>
                 </div>
 
             </div>
@@ -1456,7 +1588,7 @@
     </div>
 
     <!-- ==========================================================================
-         REACTIVE JAVASCRIPT: DATA STORE, THEME, AUDIO & TASKBAR WALKING CAT
+         REACTIVE JAVASCRIPT: DATA STORE, THEME, AUDIO, WRITABLE STICKY NOTES & CAT
          ========================================================================== -->
     <script>
         /**
@@ -1526,6 +1658,36 @@
         hydrateDashboard(WabiSabiState);
 
         // ======================================================================
+        // INTERACTIVE USER-WRITABLE STICKY NOTES WITH LOCALSTORAGE PERSISTENCE
+        // ======================================================================
+        function initWritableStickyNotes() {
+            const writingPads = document.querySelectorAll('.sticky-handwriting');
+
+            writingPads.forEach(pad => {
+                const category = pad.getAttribute('data-category');
+                const storageKey = `wabisabi_sticky_${category}`;
+                
+                // Load previously saved user writing if available
+                const savedText = localStorage.getItem(storageKey);
+                if (savedText && savedText.trim().length > 0) {
+                    pad.textContent = savedText;
+                }
+
+                // Save user typing in real-time
+                pad.addEventListener('input', () => {
+                    localStorage.setItem(storageKey, pad.textContent);
+                });
+
+                // Prevent hotkey defaults and stop bubble propagation to parent cards
+                pad.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            });
+        }
+
+        initWritableStickyNotes();
+
+        // ======================================================================
         // CAT SOUND SYSTEM: USER-UPLOADED MEOW AUDIO
         // ======================================================================
         class CatSoundSystem {
@@ -1585,10 +1747,7 @@
         }
 
         // ======================================================================
-        // STEADY AUTONOMOUS TASKBAR WALKING CAT
-        // - Walks continuously along the bottom taskbar with natural paws cadence
-        // - Turns around at boundaries
-        // - Clicking/touching triggers slow Meow sound & speech bubble
+        // STEADY AUTONOMOUS TASKBAR WALKING CAT (Zoom-Adaptive)
         // ======================================================================
         class TaskbarCatEngine {
             constructor() {
@@ -1606,20 +1765,26 @@
 
                 this.x = 120;
                 this.direction = 1; // 1 = right, -1 = left
-                this.speed = 1.35;  // calm, steady stride
+                this.speed = 1.35;  // steady stride
                 this.walkFrame = 0;
                 this.stepTimer = 0;
                 this.isInteracting = false;
                 this.isTurning = false;
 
-                this.minX = 100;
-                this.maxX = window.innerWidth - 270;
+                this.updateBoundaries();
 
                 window.addEventListener('resize', () => {
-                    this.maxX = window.innerWidth - 270;
+                    this.updateBoundaries();
                 });
 
                 this.init();
+            }
+
+            updateBoundaries() {
+                this.minX = Math.max(70, window.innerWidth * 0.05);
+                const catWidth = this.container.offsetWidth || 210;
+                this.maxX = Math.max(this.minX + 200, window.innerWidth - catWidth - 40);
+                if (this.x > this.maxX) this.x = this.maxX;
             }
 
             init() {
@@ -1658,14 +1823,14 @@
                 this.isTurning = true;
                 this.sprite.src = this.poses.look;
 
-                // Brief natural pause at boundary before turning around
+                // Pause before turning
                 setTimeout(() => {
                     this.direction = newDir;
                     this.sprite.style.transform = `scaleX(${this.direction})`;
                     setTimeout(() => {
                         this.isTurning = false;
                     }, 400);
-                }, 850);
+                }, 800);
             }
 
             startWalkLoop() {
