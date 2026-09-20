@@ -1,0 +1,1959 @@
+        /* ==========================================================================
+           1. DESIGN TOKENS & COLOR PALETTE
+           ========================================================================== */
+        :root {
+            /* Warm Paper Light Mode (Clean, Warm, No Grid) */
+            --bg-paper: #F6F3EC;
+            --bg-paper-alt: #EFE9DE;
+            --paper-grain-opacity: 0.04;
+            
+            --ink-primary: #181916;
+            --ink-secondary: #484742;
+            --ink-muted: #7E7C75;
+            --ink-faint: #C8C5BC;
+
+            /* Four Realistic Sticky Note Paper Hues */
+            --sticky-books-bg: #D8EDD9;       /* Pastel Mint */
+            --sticky-books-border: #C1E0C3;
+            --sticky-films-bg: #E2DCF7;       /* Soft Lavender */
+            --sticky-films-border: #CFC5EE;
+            --sticky-discuss-bg: #FBDCD4;     /* Soft Coral Blush */
+            --sticky-discuss-border: #F3C3B8;
+            --sticky-community-bg: #FAF0D7;   /* Warm Cream Canary */
+            --sticky-community-border: #ECDCBA;
+
+            /* Handwriting Ink Color */
+            --hand-ink: #1C1A17;
+            --hand-ink-placeholder: rgba(28, 26, 23, 0.45);
+
+            /* Accent & Organic Elements */
+            --forest-green: #274033;
+            --forest-dark: #1A2E24;
+            --accent-sage: #8EA891;
+            --accent-peach: #E59F8E;
+            --accent-lavender: #A199CF;
+            --highlight-lime: #DCF263;
+
+            /* Tactile Physical Paper Drop Shadows (Realistic Post-It Depth) */
+            --shadow-sticky: 0 10px 22px rgba(45, 38, 28, 0.09), 0 2px 6px rgba(45, 38, 28, 0.04);
+            --shadow-sticky-hover: 0 18px 36px rgba(45, 38, 28, 0.15), 0 4px 10px rgba(45, 38, 28, 0.06);
+            --shadow-card: 0 6px 20px rgba(35, 30, 20, 0.06);
+            --shadow-float: 0 16px 36px rgba(35, 30, 20, 0.10);
+            --cat-shadow: rgba(30, 25, 20, 0.35);
+
+            /* Typography */
+            --font-serif: 'Cormorant Garamond', Georgia, serif;
+            --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-hand: 'Caveat', 'Kalam', cursive;
+            --font-script: 'Reenie Beanie', cursive;
+        }
+
+        [data-theme="dark"] {
+            /* Warm Antique Dark Mahogany & Walnut Library (Cozy, Non-Creepy) */
+            --bg-paper: #191614;
+            --bg-paper-alt: #221E1A;
+            --paper-grain-opacity: 0.04;
+
+            --ink-primary: #F5EFE6;
+            --ink-secondary: #CBBFB0;
+            --ink-muted: #968B7C;
+            --ink-faint: #4E463E;
+
+            /* Cozy Illuminated Parchment Sticky Notes under Warm Reading Lamp */
+            --sticky-books-bg: #D4E3D5;
+            --sticky-books-border: #B7CBB8;
+            --sticky-films-bg: #DED8EA;
+            --sticky-films-border: #C2B8D5;
+            --sticky-discuss-bg: #EDDBD2;
+            --sticky-discuss-border: #D8BCB2;
+            --sticky-community-bg: #F3EAD5;
+            --sticky-community-border: #DFCEAF;
+
+            --hand-ink: #231E19;
+            --hand-ink-placeholder: rgba(35, 30, 25, 0.45);
+
+            --forest-green: #2B4533;
+            --forest-dark: #1A2E21;
+            --accent-sage: #96B299;
+            --accent-peach: #D99585;
+            --accent-lavender: #B2A7D2;
+            --highlight-lime: #7D9761;
+
+            --shadow-sticky: 0 14px 32px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.25);
+            --shadow-sticky-hover: 0 22px 46px rgba(0, 0, 0, 0.65), 0 4px 12px rgba(0, 0, 0, 0.35);
+            --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.35);
+            --shadow-float: 0 18px 40px rgba(0, 0, 0, 0.5);
+            --cat-shadow: rgba(0, 0, 0, 0.65);
+        }
+
+        /* ==========================================================================
+           2. RESET & ZOOM-RESILIENT VIEWPORT CONTAINER
+           - Uses min-height & responsive layout so 100%+ or - zoom stays perfectly aligned!
+           ========================================================================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            zoom: 1.1;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden; /* Fits screen perfectly with zero unwanted scrolling */
+            background-color: var(--bg-paper);
+            color: var(--ink-primary);
+            font-family: var(--font-sans);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Organic Fine Paper Grain Texture (NO GRID) */
+        .paper-grain-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 99;
+            opacity: var(--paper-grain-opacity);
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* Organic Torn Paper Accents */
+        .organic-top-drip {
+            position: absolute;
+            top: 0;
+            left: 23%;
+            width: 48px;
+            height: 92px;
+            background: rgba(226, 219, 203, 0.5);
+            border-radius: 0 0 24px 24px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .organic-left-wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 180px;
+            height: 150px;
+            background: radial-gradient(circle at bottom left, rgba(142, 168, 145, 0.3) 0%, transparent 70%);
+            border-radius: 0 100% 0 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ==========================================================================
+           3. MASTER DASHBOARD GRID (Fits Screen Perfectly Without Scrolling)
+           ========================================================================== */
+        .dashboard {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1520px;
+            margin: 0 auto;
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: clamp(68px, 6vw, 84px) minmax(0, 1fr) minmax(280px, 320px);
+            grid-template-rows: 52px 1fr;
+            padding: clamp(8px, 1.2vh, 16px) clamp(16px, 2vw, 28px) 52px clamp(16px, 2vw, 28px);
+            gap: clamp(8px, 1.2vh, 16px) clamp(18px, 2vw, 28px);
+            box-sizing: border-box;
+        }
+
+        /* ==========================================================================
+           4. TOP HEADER
+           ========================================================================== */
+        header {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4px;
+            gap: 16px;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--ink-primary);
+            transition: transform 0.25s ease;
+        }
+
+        .brand-logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .brand-the {
+            font-family: var(--font-serif);
+            font-size: 14px;
+            font-weight: 600;
+            font-style: italic;
+            color: var(--ink-muted);
+            line-height: 1;
+        }
+
+        .brand-img {
+            height: 28px;
+            width: auto;
+            display: block;
+            filter: drop-shadow(0 1px 3px rgba(35, 30, 20, 0.12));
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .brand-logo:hover .brand-img {
+            transform: scale(1.05) rotate(-1deg);
+        }
+
+        .brand-bookclub-tag {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            margin-left: 2px;
+        }
+
+        .brand-bookclub-text {
+            font-family: var(--font-serif);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--forest-green);
+            background: rgba(39, 64, 51, 0.08);
+            padding: 2px 6px;
+            border-radius: 6px;
+            line-height: 1.1;
+        }
+
+        [data-theme="dark"] .brand-bookclub-text {
+            color: var(--accent-sage);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .brand-vol-text {
+            font-size: 7.5px;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            color: var(--ink-muted);
+            text-transform: uppercase;
+        }
+
+        .brand-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: var(--accent-sage);
+            display: inline-block;
+            margin-left: 2px;
+            flex-shrink: 0;
+        }
+
+        /* Light / Dark brand image switching */
+        .light-brand { display: block; }
+        .dark-brand { display: none; }
+
+        [data-theme="dark"] .light-brand { display: none; }
+        [data-theme="dark"] .dark-brand { display: block; }
+
+        .brand-taglines {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            border-left: 1px solid rgba(140, 135, 125, 0.25);
+            padding-left: 14px;
+        }
+
+        .brand-taglines span {
+            font-size: 8.5px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            color: var(--ink-muted);
+            line-height: 1.25;
+        }
+
+        /* Search Pill Bar */
+        .search-pill-container {
+            flex: 0 1 480px;
+            position: relative;
+            min-width: 220px;
+        }
+
+        .search-pill {
+            width: 100%;
+            height: 42px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(140, 135, 125, 0.25);
+            border-radius: 30px;
+            padding: 0 44px 0 40px;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            color: var(--ink-primary);
+            outline: none;
+            box-shadow: var(--shadow-card);
+            transition: all 0.25s ease;
+        }
+
+        [data-theme="dark"] .search-pill {
+            background: rgba(32, 36, 31, 0.7);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .search-pill:focus {
+            background: #FFFFFF;
+            border-color: var(--ink-primary);
+            box-shadow: var(--shadow-float);
+        }
+
+        [data-theme="dark"] .search-pill:focus {
+            background: #252A24;
+            border-color: var(--accent-sage);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            stroke: var(--ink-muted);
+            pointer-events: none;
+        }
+
+        .search-doodle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            stroke: var(--ink-muted);
+            opacity: 0.65;
+            pointer-events: none;
+        }
+
+        /* Header Right Controls */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+
+        .theme-btn {
+            background: transparent;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            color: var(--ink-primary);
+            transition: transform 0.3s ease, background-color 0.2s ease;
+        }
+
+        .theme-btn:hover {
+            transform: rotate(20deg) scale(1.08);
+            background-color: rgba(60, 50, 40, 0.05);
+        }
+
+        .theme-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 1.7;
+        }
+
+        .header-divider {
+            width: 1px;
+            height: 20px;
+            background-color: rgba(140, 135, 125, 0.25);
+        }
+
+        .join-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--ink-primary);
+            color: var(--bg-paper);
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            border: 1px solid var(--ink-primary);
+            box-shadow: var(--shadow-card);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .join-pill:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-float);
+        }
+
+        .user-avatar-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 1.5px solid rgba(60, 50, 40, 0.15);
+            box-shadow: var(--shadow-card);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .user-avatar-btn:hover {
+            transform: scale(1.06);
+        }
+
+        .user-avatar-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ==========================================================================
+           5. LEFT NAVIGATION DOCK
+           ========================================================================== */
+        aside.nav-dock {
+            grid-column: 1 / 2;
+            grid-row: 2 / 3;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0 20px 0;
+            position: relative;
+            z-index: 5;
+        }
+
+        .dock-capsule {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(12px);
+            padding: 14px 8px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: var(--shadow-card);
+        }
+
+        [data-theme="dark"] .dock-capsule {
+            background: rgba(25, 28, 25, 0.55);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .dock-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: var(--ink-secondary);
+            font-size: 9.5px;
+            font-weight: 500;
+            padding: 8px 6px;
+            border-radius: 20px;
+            transition: all 0.25s ease;
+            width: 54px;
+            text-align: center;
+        }
+
+        .dock-item svg {
+            width: 19px;
+            height: 19px;
+            stroke-width: 1.6;
+        }
+
+        .dock-item:hover {
+            color: var(--ink-primary);
+            background-color: rgba(255, 255, 255, 0.6);
+            transform: scale(1.05);
+        }
+
+        .dock-item.active {
+            background-color: var(--forest-green);
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(39, 64, 51, 0.25);
+        }
+
+        .dock-item.active svg {
+            stroke: #FFFFFF;
+        }
+
+        /* Calmer Internet Editorial Tagline */
+        .calmer-tagline {
+            font-family: var(--font-serif);
+            font-size: 13px;
+            font-style: italic;
+            line-height: 1.25;
+            color: var(--ink-muted);
+            text-align: left;
+            width: 72px;
+            margin-top: auto;
+        }
+
+        .calmer-tagline::after {
+            content: '—';
+            display: block;
+            margin-top: 4px;
+            font-style: normal;
+        }
+
+        /* ==========================================================================
+           6. MAIN CENTER EDITORIAL STAGE (Fluid, Zoom-Resilient)
+           ========================================================================== */
+        main.main-content {
+            grid-column: 2 / 3;
+            grid-row: 2 / 3;
+            display: grid;
+            grid-template-columns: minmax(280px, 1fr) minmax(380px, 1.35fr);
+            align-items: center;
+            gap: clamp(16px, 2.5vw, 36px);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Typography & Left Editorial Hero */
+        .hero-statement {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 440px;
+        }
+
+        .hero-eyebrow {
+            font-size: 9.5px;
+            text-transform: uppercase;
+            letter-spacing: 2.2px;
+            font-weight: 700;
+            color: var(--ink-muted);
+        }
+
+        .hero-headline {
+            font-family: var(--font-serif);
+            font-size: clamp(38px, 4.2vw, 64px);
+            line-height: 0.96;
+            font-weight: 500;
+            color: var(--ink-primary);
+            letter-spacing: -0.8px;
+        }
+
+        .word-grow {
+            position: relative;
+            display: inline-block;
+        }
+
+        .word-grow::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 4px;
+            width: 100%;
+            height: 11px;
+            background-color: var(--highlight-lime);
+            opacity: 0.65;
+            z-index: -1;
+            border-radius: 2px;
+        }
+
+        .hero-tagline {
+            font-size: 14px;
+            line-height: 1.45;
+            color: var(--ink-secondary);
+            max-width: 360px;
+        }
+
+        .hero-ctas {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 2px;
+        }
+
+        .btn-cta-primary {
+            background-color: var(--ink-primary);
+            color: var(--bg-paper);
+            border: 1px solid var(--ink-primary);
+            padding: 11px 24px;
+            border-radius: 36px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow-card);
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .btn-cta-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-float);
+        }
+
+        .btn-cta-secondary {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            color: var(--ink-primary);
+            border: none;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 30px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-cta-secondary:hover {
+            background-color: rgba(60, 50, 40, 0.05);
+        }
+
+        /* --------------------------------------------------------------------------
+           CENTRAL ORBITAL STAGE (Aspect-Ratio Scaled & Zoom-Proof)
+           -------------------------------------------------------------------------- */
+        .orbital-stage {
+            position: relative;
+            width: 100%;
+            max-width: 560px;
+            min-height: 450px;
+            margin: 0 auto;
+        }
+
+        /* Warm Ambient Desk Spotlight / Paper Glow */
+        .paper-desk-lighting {
+            position: absolute;
+            inset: -40px -50px -50px -50px;
+            background: radial-gradient(circle at 48% 40%, rgba(255, 250, 238, 0.9) 0%, rgba(246, 240, 230, 0.45) 50%, rgba(244, 238, 226, 0) 75%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(16px);
+        }
+
+        [data-theme="dark"] .paper-desk-lighting {
+            background: radial-gradient(circle at 48% 40%, rgba(255, 205, 130, 0.22) 0%, rgba(230, 160, 80, 0.08) 45%, rgba(25, 22, 19, 0) 75%);
+        }
+
+        .orbital-ink-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .orbital-ink-path {
+            stroke: var(--ink-primary);
+            stroke-width: 1.2;
+            fill: none;
+            opacity: 0.65;
+            stroke-linecap: round;
+        }
+
+        /* Handwritten Editorial Doodles */
+        .hand-anno-more {
+            position: absolute;
+            top: 48%;
+            left: -4%;
+            font-family: var(--font-hand);
+            font-size: 18px;
+            line-height: 1.05;
+            color: var(--ink-primary);
+            transform: rotate(-10deg);
+            pointer-events: none;
+            z-index: 4;
+            white-space: nowrap;
+        }
+
+        .hand-anno-explore {
+            position: absolute;
+            top: -34px;
+            right: 6%;
+            font-family: var(--font-hand);
+            font-size: 19px;
+            line-height: 1.05;
+            color: var(--ink-primary);
+            transform: rotate(5deg);
+            pointer-events: none;
+            z-index: 4;
+            white-space: nowrap;
+        }
+
+        /* Circular Stamp Seal */
+        .stamp-botanical-seal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(8deg);
+            width: 84px;
+            height: 84px;
+            border: 1px dashed var(--ink-muted);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .stamp-text {
+            font-size: 7.5px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            line-height: 1.2;
+            color: var(--ink-muted);
+            font-weight: 600;
+        }
+
+        .stamp-icon {
+            margin: 1px 0;
+            color: var(--forest-green);
+        }
+
+        /* ==========================================================================
+           REALISTIC TACTILE STICKY NOTES WITH INTERACTIVE HANDWRITING & HEADINGS
+           - Genuine 3D curled paper shadow
+           - Semi-translucent top adhesive strip & washi tape accent
+           - Micro paper texture grain & top specular highlight
+           - Editable headings and handwritten note area (auto-saved to localStorage)
+           ========================================================================== */
+        .sticky-note-card {
+            position: absolute;
+            width: clamp(170px, 37%, 200px);
+            min-height: 154px;
+            box-shadow: var(--shadow-sticky);
+            cursor: text;
+            z-index: 3;
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            padding: 14px 15px 14px 15px;
+            border-radius: 3px 4px 18px 3px / 4px 3px 16px 4px; /* Organic paper peel corner */
+            background-image: 
+                linear-gradient(145deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.08) 45%, transparent 100%),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            background-blend-mode: overlay, normal;
+        }
+
+        /* Frosted Semi-Translucent Washi Tape Strip */
+        .washi-tape-strip {
+            position: absolute;
+            top: -9px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 46px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.68);
+            backdrop-filter: blur(4px);
+            border-left: 1.5px dashed rgba(160, 150, 135, 0.45);
+            border-right: 1.5px dashed rgba(160, 150, 135, 0.45);
+            box-shadow: 0 1px 3px rgba(35, 30, 20, 0.08);
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0.88;
+        }
+
+        [data-theme="dark"] .washi-tape-strip {
+            background: rgba(255, 255, 255, 0.14);
+            border-left-color: rgba(255, 255, 255, 0.22);
+            border-right-color: rgba(255, 255, 255, 0.22);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        /* The Famous 3M Post-It Curled Corner Bottom Shadow */
+        .sticky-note-card::after {
+            content: '';
+            position: absolute;
+            right: 8px;
+            bottom: 5px;
+            width: 65%;
+            height: 18px;
+            box-shadow: 0 12px 20px rgba(35, 25, 15, 0.18);
+            transform: skew(5deg) rotate(4deg);
+            z-index: -1;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .sticky-note-card::after {
+            box-shadow: 0 14px 24px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Top Translucent Adhesive Band */
+        .sticky-note-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 22px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.12) 80%, transparent 100%);
+            border-radius: 3px 4px 0 0;
+            pointer-events: none;
+        }
+
+        /* 1. BOOKS STICKY NOTE (Pastel Mint) */
+        .sticky-books {
+            top: 2%;
+            left: 3%;
+            background-color: var(--sticky-books-bg);
+            border: 1px solid var(--sticky-books-border);
+            transform: rotate(-2deg);
+        }
+
+        .sticky-books:hover, .sticky-books:focus-within {
+            transform: rotate(-2deg) translateY(-8px) scale(1.03);
+            box-shadow: var(--shadow-sticky-hover);
+            z-index: 8;
+        }
+
+        /* 2. FILMS STICKY NOTE (Soft Lavender) */
+        .sticky-films {
+            top: 2%;
+            right: 3%;
+            background-color: var(--sticky-films-bg);
+            border: 1px solid var(--sticky-films-border);
+            transform: rotate(2.4deg);
+        }
+
+        .sticky-films:hover, .sticky-films:focus-within {
+            transform: rotate(2.4deg) translateY(-8px) scale(1.03);
+            box-shadow: var(--shadow-sticky-hover);
+            z-index: 8;
+        }
+
+        /* 3. DISCUSSIONS STICKY NOTE (Soft Coral Blush) */
+        .sticky-discuss {
+            bottom: 4%;
+            left: 4%;
+            background-color: var(--sticky-discuss-bg);
+            border: 1px solid var(--sticky-discuss-border);
+            transform: rotate(1.8deg);
+        }
+
+        .sticky-discuss:hover, .sticky-discuss:focus-within {
+            transform: rotate(1.8deg) translateY(-8px) scale(1.03);
+            box-shadow: var(--shadow-sticky-hover);
+            z-index: 8;
+        }
+
+        /* 4. COMMUNITY STICKY NOTE (Warm Canary Cream) */
+        .sticky-community {
+            bottom: 4%;
+            right: 4%;
+            background-color: var(--sticky-community-bg);
+            border: 1px solid var(--sticky-community-border);
+            transform: rotate(-1.5deg);
+        }
+
+        .sticky-community:hover, .sticky-community:focus-within {
+            transform: rotate(-1.5deg) translateY(-8px) scale(1.03);
+            box-shadow: var(--shadow-sticky-hover);
+            z-index: 8;
+        }
+
+        /* Sticky Note Top Header (Icon, Category & Action) */
+        .sticky-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px dashed rgba(60, 50, 40, 0.15);
+            pointer-events: auto;
+        }
+
+        [data-theme="dark"] .sticky-top-bar {
+            border-bottom-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .sticky-category-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-serif);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink-primary);
+            letter-spacing: 0.2px;
+        }
+
+        .sticky-title-text {
+            outline: none;
+            border-bottom: 1px dashed transparent;
+            padding: 0 2px;
+            border-radius: 2px;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+            cursor: text;
+            color: var(--ink-primary);
+        }
+
+        .sticky-title-text:hover {
+            border-bottom-color: var(--ink-muted);
+        }
+
+        .sticky-title-text:focus {
+            border-bottom-color: var(--ink-primary);
+            background-color: rgba(255, 255, 255, 0.35);
+        }
+
+        [data-theme="dark"] .sticky-note-card {
+            color: #231E19;
+        }
+
+        [data-theme="dark"] .sticky-top-bar {
+            border-bottom-color: rgba(35, 30, 25, 0.16);
+        }
+
+        [data-theme="dark"] .sticky-category-title,
+        [data-theme="dark"] .sticky-title-text,
+        [data-theme="dark"] .sticky-pencil-indicator {
+            color: #231E19;
+        }
+
+        [data-theme="dark"] .sticky-title-text:hover {
+            border-bottom-color: rgba(35, 30, 25, 0.4);
+        }
+
+        [data-theme="dark"] .sticky-title-text:focus {
+            background-color: rgba(255, 255, 255, 0.55);
+            border-bottom-color: #231E19;
+        }
+
+        [data-theme="dark"] .sticky-icon {
+            stroke: #231E19;
+        }
+
+        [data-theme="dark"] .sticky-handwriting {
+            color: #231E19;
+        }
+
+        [data-theme="dark"] .sticky-handwriting:empty::before {
+            color: rgba(35, 30, 25, 0.45);
+        }
+
+        [data-theme="dark"] .sticky-footer-hint {
+            color: rgba(35, 30, 25, 0.65);
+        }
+
+        .sticky-icon {
+            width: 14px;
+            height: 14px;
+            stroke: var(--ink-primary);
+            fill: none;
+            stroke-width: 1.8;
+        }
+
+        .sticky-pencil-indicator {
+            font-size: 11px;
+            opacity: 0.55;
+            color: var(--ink-primary);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        .sticky-note-card:hover .sticky-pencil-indicator {
+            opacity: 1;
+            transform: scale(1.15);
+        }
+
+        /* Aesthetic Handwriting Editable Note Area */
+        .sticky-handwriting {
+            flex: 1;
+            width: 100%;
+            outline: none;
+            font-family: var(--font-hand);
+            font-size: 19px;
+            line-height: 1.35;
+            font-weight: 500;
+            color: var(--hand-ink);
+            cursor: text;
+            word-break: break-word;
+            min-height: 80px;
+            letter-spacing: 0.2px;
+            position: relative;
+        }
+
+        /* Handwriting Placeholder */
+        .sticky-handwriting:empty::before {
+            content: attr(data-placeholder);
+            color: var(--hand-ink-placeholder);
+            pointer-events: none;
+            font-style: italic;
+        }
+
+        /* Subtitle Note Hint */
+        .sticky-footer-hint {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--ink-muted);
+            margin-top: 6px;
+            padding-top: 4px;
+            opacity: 0.7;
+            font-family: var(--font-sans);
+        }
+
+        .sticky-footer-hint span {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        /* ==========================================================================
+           7. RIGHT INFORMATION PANEL (Fluid & Centered)
+           ========================================================================== */
+        aside.right-panel {
+            grid-column: 3 / 4;
+            grid-row: 2 / 3;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            border-left: 1px solid rgba(140, 135, 125, 0.2);
+            padding-left: clamp(16px, 1.8vw, 24px);
+            position: relative;
+            z-index: 3;
+            min-height: 0;
+            justify-content: center;
+        }
+
+        /* Editorial Serif Quote */
+        .quote-container {
+            position: relative;
+            padding-top: 2px;
+        }
+
+        .quote-mark {
+            position: absolute;
+            top: -14px;
+            left: -10px;
+            font-family: var(--font-serif);
+            font-size: 44px;
+            line-height: 1;
+            color: var(--ink-primary);
+            opacity: 0.25;
+            pointer-events: none;
+        }
+
+        .editorial-quote {
+            font-family: var(--font-serif);
+            font-size: clamp(20px, 1.8vw, 25px);
+            line-height: 1.15;
+            font-weight: 400;
+            color: var(--ink-primary);
+            font-style: italic;
+        }
+
+        .quote-dash {
+            display: block;
+            width: 24px;
+            height: 1px;
+            background-color: var(--ink-muted);
+            margin-top: 6px;
+        }
+
+        /* Side Cards */
+        .side-card {
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 14px;
+            padding: 12px 14px;
+            box-shadow: var(--shadow-card);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        [data-theme="dark"] .side-card {
+            background: rgba(25, 28, 25, 0.6);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .side-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-float);
+        }
+
+        .card-meta-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.6px;
+            font-weight: 700;
+            color: var(--ink-muted);
+            margin-bottom: 10px;
+        }
+
+        .header-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-arrow {
+            font-size: 12px;
+        }
+
+        .pick-body {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .pick-thumb {
+            width: 40px;
+            height: 56px;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+        }
+
+        .pick-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pick-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .pick-title {
+            font-family: var(--font-serif);
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.1;
+            color: var(--ink-primary);
+        }
+
+        .pick-author {
+            font-size: 11px;
+            color: var(--ink-secondary);
+        }
+
+        .pick-quote {
+            font-size: 11px;
+            font-style: italic;
+            color: var(--ink-muted);
+            margin-top: 2px;
+        }
+
+        .social-readers {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10.5px;
+            color: var(--ink-muted);
+            font-weight: 500;
+        }
+
+        .avatar-cluster {
+            display: flex;
+            align-items: center;
+        }
+
+        .avatar-cluster span {
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            border: 1.5px solid var(--bg-paper);
+            margin-left: -5px;
+            background-color: var(--accent-sage);
+            display: inline-block;
+        }
+
+        .avatar-cluster span:first-child {
+            margin-left: 0;
+            background-color: var(--accent-peach);
+        }
+
+        .avatar-cluster span:last-child {
+            background-color: var(--accent-lavender);
+        }
+
+        /* Event Body */
+        .event-body {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .date-badge {
+            width: 40px;
+            height: 44px;
+            background: rgba(39, 64, 51, 0.08);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1px solid rgba(39, 64, 51, 0.15);
+        }
+
+        [data-theme="dark"] .date-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .date-month {
+            font-size: 8.5px;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--forest-green);
+        }
+
+        [data-theme="dark"] .date-month {
+            color: var(--accent-sage);
+        }
+
+        .date-day {
+            font-family: var(--font-serif);
+            font-size: 17px;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--ink-primary);
+        }
+
+        .event-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .event-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--ink-primary);
+        }
+
+        .event-detail {
+            font-size: 10.5px;
+            color: var(--ink-muted);
+        }
+
+        /* ==========================================================================
+           8. CLEAN BOTTOM TASKBAR & AUTONOMOUS WALKING CAT
+           - No cards, no clutter, no text ("just the Cat")
+           - Walks calmly along the bottom taskbar with smooth continuous cadence
+           - Touch/click triggers slow Meow (assets/meow.mp3) + speech bubble
+           ========================================================================== */
+        .bottom-taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 46px;
+            background: rgba(246, 243, 236, 0.78);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-top: 1px solid rgba(140, 135, 125, 0.2);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        [data-theme="dark"] .bottom-taskbar {
+            background: rgba(22, 24, 21, 0.85);
+            border-top-color: rgba(255, 255, 255, 0.08);
+        }
+
+        /* The Enlarged Walking Cat on the Taskbar (Fluid Scaled) */
+        .living-cat-actor {
+            position: fixed;
+            bottom: 6px; /* Paws walk directly on the taskbar ledge */
+            left: 100px;
+            width: clamp(190px, 16vw, 240px);
+            height: clamp(140px, 12vw, 180px);
+            pointer-events: auto;
+            cursor: pointer;
+            z-index: 102;
+            will-change: left;
+            user-select: none;
+        }
+
+        /* Dynamic Soft Ground Shadow beneath Paws */
+        .cat-contact-shadow {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 75%;
+            height: 14px;
+            background: radial-gradient(ellipse at center, var(--cat-shadow) 0%, rgba(0,0,0,0.08) 55%, transparent 75%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Cat Sprite Display */
+        .cat-sprite {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: bottom center;
+            display: block;
+            filter: drop-shadow(0 6px 14px rgba(45, 35, 25, 0.12));
+            transform-origin: bottom center;
+            transition: transform 0.25s ease;
+        }
+
+        /* Feline Speech Bubble */
+        .cat-speech-bubble {
+            position: absolute;
+            top: -34px;
+            left: 50%;
+            transform: translateX(-50%) translateY(6px);
+            background: #FFFFFF;
+            color: var(--ink-primary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13.5px;
+            font-weight: 600;
+            font-family: var(--font-hand), cursive;
+            white-space: nowrap;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            z-index: 105;
+        }
+
+        [data-theme="dark"] .cat-speech-bubble {
+            background: #252822;
+            color: #FFFFFF;
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .cat-speech-bubble.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .cat-speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px 6px 0;
+            border-style: solid;
+            border-color: #FFFFFF transparent;
+        }
+
+        [data-theme="dark"] .cat-speech-bubble::after {
+            border-color: #252822 transparent;
+        }
+
+        /* ==========================================================================
+           9. RESPONSIVE BREAKPOINTS (Zoom 100%+ or - Protection)
+           ========================================================================== */
+        @media (max-width: 1140px) {
+            .dashboard {
+                grid-template-columns: 72px minmax(0, 1fr) 280px;
+                gap: 14px 18px;
+            }
+            .hero-headline {
+                font-size: clamp(34px, 3.8vw, 48px);
+            }
+        }
+
+        @media (max-width: 960px) {
+            .dashboard {
+                grid-template-columns: 68px 1fr;
+                grid-template-rows: auto auto auto;
+            }
+            aside.right-panel {
+                grid-column: 2 / 3;
+                border-left: none;
+                border-top: 1px solid rgba(140, 135, 125, 0.2);
+                padding-left: 0;
+                padding-top: 24px;
+            }
+            main.main-content {
+                grid-template-columns: 1fr;
+                gap: 36px;
+            }
+        }
+    
+        /* ==========================================================================
+           10. THE HIDDEN MOTIVE: CRUMPLED PAPER & ORIGAMI PAPER ROCKET
+           - Scrambled paper tossed near the cat
+           - Cat swats it, unfolds into an origami rocket that flies freely & disappears
+           - Happens randomly, sometimes, without disturbing the user experience
+           ========================================================================== */
+        .scrambled-paper-ball {
+            position: fixed;
+            bottom: 16px;
+            width: 36px;
+            height: 36px;
+            z-index: 104;
+            pointer-events: none;
+            opacity: 0;
+            transform: scale(0.2) rotate(0deg);
+            filter: drop-shadow(0 6px 12px rgba(35, 30, 20, 0.28));
+        }
+
+        .scrambled-paper-ball.tossed {
+            opacity: 1;
+            animation: tossPaperIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes tossPaperIn {
+            0% {
+                transform: translate(-30px, -140px) scale(0.4) rotate(-220deg);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(12px, 0px) scale(1.1) rotate(25deg);
+                opacity: 1;
+            }
+            75% {
+                transform: translate(6px, -18px) scale(0.95) rotate(12deg);
+            }
+            100% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .scrambled-paper-ball.unfolding {
+            animation: unfoldOrigami 0.5s ease-out forwards;
+        }
+
+        @keyframes unfoldOrigami {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            45% { transform: scale(1.35) rotate(35deg); opacity: 0.9; filter: drop-shadow(0 0 14px var(--highlight-lime)); }
+            100% { transform: scale(0.1) rotate(90deg); opacity: 0; }
+        }
+
+        /* Flying Paper Rocket / Airplane */
+        .flying-paper-rocket {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 68px;
+            height: 68px;
+            z-index: 250;
+            pointer-events: none;
+            opacity: 0;
+            will-change: transform, opacity;
+            filter: drop-shadow(0 12px 22px rgba(30, 25, 20, 0.22));
+        }
+
+        .flying-paper-rocket.flying {
+            opacity: 1;
+            animation: rocketFlight 6.5s cubic-bezier(0.22, 0.1, 0.25, 1) forwards;
+        }
+
+        @keyframes rocketFlight {
+            0% {
+                transform: translate(var(--start-x), var(--start-y)) scale(0.55) rotate(-35deg);
+                opacity: 0;
+            }
+            5% {
+                transform: translate(calc(var(--start-x) + 40px), calc(var(--start-y) - 70px)) scale(0.85) rotate(-28deg);
+                opacity: 1;
+            }
+            22% {
+                transform: translate(calc(var(--start-x) + 180px), calc(var(--start-y) - 240px)) scale(1.1) rotate(-38deg);
+            }
+            40% {
+                /* Gentle bank & glide through center opening */
+                transform: translate(calc(var(--start-x) + 360px), calc(var(--start-y) - 380px)) scale(1.15) rotate(-16deg);
+            }
+            58% {
+                /* Sweeping loop toward sky */
+                transform: translate(calc(var(--start-x) + 540px), calc(var(--start-y) - 520px)) scale(1.05) rotate(-42deg);
+            }
+            76% {
+                transform: translate(calc(var(--start-x) + 720px), calc(var(--start-y) - 680px)) scale(0.9) rotate(-28deg);
+                opacity: 0.95;
+            }
+            90% {
+                transform: translate(calc(var(--start-x) + 920px), calc(var(--start-y) - 860px)) scale(0.75) rotate(-20deg);
+                opacity: 0.6;
+            }
+            100% {
+                /* Smoothly disappears past top-right */
+                transform: translate(calc(var(--start-x) + 1150px), calc(var(--start-y) - 1050px)) scale(0.6) rotate(-15deg);
+                opacity: 0;
+            }
+        }
+
+        /* Taskbar Subtle Rocket Trigger Button */
+        .taskbar-rocket-btn {
+            position: fixed;
+            bottom: 8px;
+            right: 24px;
+            background: transparent;
+            border: 1px dashed rgba(140, 135, 125, 0.4);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 11px;
+            color: var(--ink-muted);
+            cursor: pointer;
+            z-index: 105;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-hand);
+            transition: all 0.25s ease;
+            opacity: 0.6;
+        }
+
+        .taskbar-rocket-btn:hover {
+            opacity: 1;
+            border-color: var(--ink-primary);
+            color: var(--ink-primary);
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        [data-theme="dark"] .taskbar-rocket-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ==========================================================================
+           9. RESPONSIVE BREAKPOINTS (Zoom 100%+ or - Protection)
+           ========================================================================== */
+        @media (max-width: 1140px) {
+            .dashboard {
+                grid-template-columns: 72px minmax(0, 1fr) 280px;
+                gap: 14px 18px;
+            }
+            .hero-headline {
+                font-size: clamp(34px, 3.8vw, 48px);
+            }
+        }
+
+        @media (max-width: 960px) {
+            .dashboard {
+                grid-template-columns: 68px 1fr;
+                grid-template-rows: auto auto auto;
+            }
+            aside.right-panel {
+                grid-column: 2 / 3;
+                border-left: none;
+                border-top: 1px solid rgba(140, 135, 125, 0.2);
+                padding-left: 0;
+                padding-top: 24px;
+            }
+            main.main-content {
+                grid-template-columns: 1fr;
+                gap: 36px;
+            }
+        }
+    
+        /* ==========================================================================
+           10. THE HIDDEN MOTIVE: CRUMPLED PAPER & ORIGAMI PAPER ROCKET
+           - Scrambled paper thrown near the cat
+           - Cat swats it, unfolds into an origami rocket that flies freely & disappears
+           - Happens randomly, sometimes, without disturbing the user experience
+           ========================================================================== */
+        .scrambled-paper-ball {
+            position: fixed;
+            bottom: 22px;
+            width: 28px;
+            height: 28px;
+            z-index: 101;
+            pointer-events: none;
+            opacity: 0;
+            transform: scale(0.2) rotate(0deg);
+            filter: drop-shadow(0 4px 8px rgba(35, 30, 20, 0.25));
+            transition: opacity 0.3s ease;
+        }
+
+        .scrambled-paper-ball.tossed {
+            opacity: 1;
+            animation: tossPaperIn 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes tossPaperIn {
+            0% {
+                transform: translate(-40px, -120px) scale(0.4) rotate(-180deg);
+                opacity: 0;
+            }
+            60% {
+                transform: translate(10px, 0px) scale(1.1) rotate(20deg);
+                opacity: 1;
+            }
+            80% {
+                transform: translate(4px, -12px) scale(0.95) rotate(10deg);
+            }
+            100% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .scrambled-paper-ball.unfolding {
+            animation: unfoldOrigami 0.45s ease-out forwards;
+        }
+
+        @keyframes unfoldOrigami {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.3) rotate(45deg); opacity: 0.8; filter: drop-shadow(0 0 12px var(--highlight-lime)); }
+            100% { transform: scale(0.2) rotate(90deg); opacity: 0; }
+        }
+
+        /* Flying Paper Rocket / Airplane */
+        .flying-paper-rocket {
+            position: fixed;
+            width: 52px;
+            height: 52px;
+            z-index: 150;
+            pointer-events: none;
+            opacity: 0;
+            will-change: transform, opacity;
+            filter: drop-shadow(0 10px 18px rgba(30, 25, 20, 0.18));
+        }
+
+        .flying-paper-rocket.flying {
+            opacity: 1;
+            animation: rocketFlight 6.2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+        }
+
+        @keyframes rocketFlight {
+            0% {
+                transform: translate(var(--start-x), var(--start-y)) scale(0.5) rotate(var(--angle-0));
+                opacity: 0;
+            }
+            6% {
+                transform: translate(calc(var(--start-x) + 40px), calc(var(--start-y) - 60px)) scale(0.85) rotate(-28deg);
+                opacity: 1;
+            }
+            22% {
+                transform: translate(calc(var(--start-x) + 160px), calc(var(--start-y) - 220px)) scale(1.05) rotate(-38deg);
+            }
+            38% {
+                /* Gentle bank & swoop across center stage */
+                transform: translate(calc(var(--start-x) + 300px), calc(var(--start-y) - 340px)) scale(1.1) rotate(-15deg);
+            }
+            52% {
+                /* Floating loop / glide */
+                transform: translate(calc(var(--start-x) + 450px), calc(var(--start-y) - 420px)) scale(1.0) rotate(-45deg);
+            }
+            70% {
+                /* Gliding upward toward sky */
+                transform: translate(calc(var(--start-x) + 640px), calc(var(--start-y) - 580px)) scale(0.9) rotate(-30deg);
+                opacity: 0.95;
+            }
+            88% {
+                transform: translate(calc(var(--start-x) + 840px), calc(var(--start-y) - 780px)) scale(0.75) rotate(-22deg);
+                opacity: 0.7;
+            }
+            100% {
+                /* Disappears cleanly outside frame */
+                transform: translate(calc(var(--start-x) + 1050px), calc(var(--start-y) - 980px)) scale(0.6) rotate(-20deg);
+                opacity: 0;
+            }
+        }
+
+        /* ==========================================================================
+           11. COMMUNITY SPACE HEADER & PROFILE EXTENSIONS
+           ========================================================================== */
+        #headerRoleActionSlot {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reader-handle-badge {
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--forest-green);
+            background: rgba(39, 64, 51, 0.08);
+            border: 1px solid rgba(39, 64, 51, 0.18);
+            padding: 6px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        [data-theme="dark"] .reader-handle-badge {
+            color: var(--accent-sage);
+            background: rgba(150, 178, 153, 0.12);
+            border-color: rgba(150, 178, 153, 0.25);
+        }
+
+        .curator-desk-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--forest-green);
+            color: #FAF6ED;
+            border: 1px solid var(--forest-dark);
+            padding: 7px 16px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(39, 64, 51, 0.25);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        [data-theme="dark"] .curator-desk-pill {
+            background: #31513D;
+            border-color: #4A7A5C;
+        }
+
+        .curator-desk-pill:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(39, 64, 51, 0.35);
+        }
+
+        /* Reader Profile Modal */
+        .profile-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(25, 22, 19, 0.55);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeInModal 0.2s ease;
+        }
+
+        @keyframes fadeInModal {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .profile-modal-sheet {
+            position: relative;
+            background: #FFFDF8;
+            border: 1px solid rgba(140, 135, 125, 0.28);
+            border-radius: 14px;
+            padding: 32px 28px 24px 28px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 48px rgba(35, 30, 20, 0.22);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        [data-theme="dark"] .profile-modal-sheet {
+            background: #221D19;
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 24px 56px rgba(0, 0, 0, 0.7);
+        }
+
+        .profile-modal-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: var(--ink-muted);
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .profile-modal-close:hover {
+            color: var(--ink-primary);
+        }
+
+        .profile-washi-tape {
+            position: absolute;
+            top: -11px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 20px;
+            background: rgba(220, 242, 99, 0.5);
+            border: 1px solid rgba(200, 220, 80, 0.35);
+        }
+
+        .profile-modal-avatar-wrap {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--forest-green);
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-card);
+        }
+
+        [data-theme="dark"] .profile-modal-avatar-wrap {
+            border-color: var(--accent-sage);
+        }
+
+        .profile-modal-avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-modal-name {
+            font-family: var(--font-serif);
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--ink-primary);
+        }
+
+        .profile-modal-handle-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            justify-content: center;
+            margin: 3px 0 8px 0;
+        }
+
+        .profile-modal-handle {
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--forest-green);
+        }
+
+        [data-theme="dark"] .profile-modal-handle {
+            color: var(--accent-sage);
+        }
+
+        .handle-immutable-pill {
+            font-size: 10px;
+            background: rgba(140, 135, 125, 0.15);
+            padding: 2px 7px;
+            border-radius: 10px;
+            color: var(--ink-muted);
+        }
+
+        .profile-modal-role-badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 12px;
+            border-radius: 12px;
+            margin-bottom: 6px;
+            background: rgba(140, 135, 125, 0.12);
+            color: var(--ink-secondary);
+        }
+
+        .profile-modal-since {
+            font-size: 12px;
+            color: var(--ink-muted);
+            margin-bottom: 14px;
+        }
+
+        .profile-interests-section {
+            width: 100%;
+            padding-top: 14px;
+            border-top: 1px dashed rgba(140, 135, 125, 0.25);
+            margin-bottom: 16px;
+        }
+
+        .profile-section-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--ink-muted);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .profile-interests-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .card-mini-chip {
+            font-size: 11.5px;
+            background: rgba(140, 135, 125, 0.12);
+            padding: 3px 10px;
+            border-radius: 12px;
+            color: var(--ink-secondary);
+        }
+
+        .profile-modal-actions {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .profile-curator-desk-btn {
+            background: var(--forest-green);
+            color: #FAF6ED;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            transition: all 0.2s ease;
+        }
+
+        .profile-curator-desk-btn:hover {
+            opacity: 0.9;
+        }
+
+        .profile-signout-btn {
+            background: transparent;
+            border: 1px solid rgba(156, 51, 34, 0.35);
+            color: #9C3322;
+            border-radius: 8px;
+            padding: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="dark"] .profile-signout-btn {
+            color: #FFAAA0;
+            border-color: rgba(255, 170, 160, 0.3);
+        }
+
+        .profile-signout-btn:hover {
+            background: rgba(156, 51, 34, 0.08);
+        }
+

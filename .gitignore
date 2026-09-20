@@ -1,4 +1,6 @@
-```
+# Scratch & test scripts
+scratch/
+
 # Compiled and binary files
 *.pyc
 *.class
@@ -67,4 +69,3 @@ htmlcov/
 *.tar.bz2
 *.tar.xz
 *.tar.zst
-```

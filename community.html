@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wabi Sabi — Community Space</title>
+    
+    <!-- Editorial & Aesthetic Handwriting Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Manrope:wght@300;400;500;600;700&family=Reenie+Beanie&family=Kalam:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+
+    <!-- Paper Texture Overlay (No Grid Lines) -->
+    <div class="paper-grain-overlay"></div>
+
+    <!-- Organic Background Paper Accents -->
+    <div class="organic-top-drip"></div>
+    <div class="organic-left-wave"></div>
+
+    <!-- Master Dashboard Viewport -->
+    <div class="dashboard">
+
+        <!-- ====================================================================
+             TOP HEADER BAR
+             ==================================================================== -->
+        <header>
+            <div class="brand-container">
+                <a href="#" class="brand-logo" title="The Wabi Sabi Bookclub • Vol. 1">
+                    <span class="brand-the">The</span>
+                    <div class="brand-logo-wrap">
+                        <img src="assets/wabi_sabi_horizontal.png" alt="Wabi Sabi" class="brand-img light-brand">
+                        <img src="assets/wabi_sabi_horizontal_dark.png" alt="Wabi Sabi" class="brand-img dark-brand">
+                    </div>
+                    <div class="brand-bookclub-tag">
+                        <span class="brand-bookclub-text">Bookclub</span>
+                        <span class="brand-vol-text">VOL. 1</span>
+                    </div>
+                    <span class="brand-dot"></span>
+                </a>
+                <div class="brand-taglines">
+                    <span>People</span>
+                    <span>Stories</span>
+                    <span>Perspectives</span>
+                </div>
+            </div>
+
+            <!-- Search Pill -->
+            <div class="search-pill-container">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" class="search-pill" placeholder="Search books, films, people, ideas..." aria-label="Search">
+                <svg class="search-doodle" width="28" height="12" viewBox="0 0 40 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M 2 8 C 10 2, 14 14, 22 8 C 30 2, 34 14, 38 8"></path>
+                </svg>
+            </div>
+
+            <!-- Header Right Controls -->
+            <div class="header-controls">
+                <!-- Dark / Light Theme Toggle -->
+                <button class="theme-btn" id="themeToggleBtn" title="Toggle Light / Dark Theme" aria-label="Toggle Theme">
+                    <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+
+                <div class="header-divider"></div>
+
+                <!-- Role / Handle / Curator Action Slot -->
+                <div id="headerRoleActionSlot" style="display: flex; align-items: center; gap: 10px;">
+                    <span class="reader-handle-badge" id="headerHandleBadge">@quietreader</span>
+                    <a href="curator.html" class="curator-desk-pill" id="headerCuratorDeskBtn" style="display: none;">
+                        <span>Curator's Desk</span>
+                        <span>↗</span>
+                    </a>
+                </div>
+
+                <!-- User Profile -->
+                <div class="user-avatar-btn" id="userProfileBtn" title="View Profile">
+                    <img src="assets/user_avatar.jpg" alt="Profile photo" id="headerUserAvatarImg">
+                </div>
+            </div>
+        </header>
+
+        <!-- ====================================================================
+             LEFT NAVIGATION DOCK
+             ==================================================================== -->
+        <aside class="nav-dock" aria-label="Main Navigation">
+            <div class="dock-capsule">
+                <a href="#home" class="dock-item active" title="Home">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <span>Home</span>
+                </a>
+                <a href="#library" class="dock-item" title="Library">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    <span>Library</span>
+                </a>
+                <a href="#watch" class="dock-item" title="Watch Together">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    <span>Watch</span>
+                </a>
+                <a href="#discuss" class="dock-item" title="Discussions">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <span>Discuss</span>
+                </a>
+                <a href="#events" class="dock-item" title="Events">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span>Events</span>
+                </a>
+                <a href="#community" class="dock-item" title="Community">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <span>Community</span>
+                </a>
+            </div>
+
+            <!-- Calmer Internet Editorial Tagline -->
+            <div class="calmer-tagline">
+                A calmer internet for curious minds.
+            </div>
+        </aside>
+
+        <!-- ====================================================================
+             CENTER MAIN EDITORIAL STAGE (Fluid & Open)
+             ==================================================================== -->
+        <main class="main-content">
+            <!-- Left Typography Hero Statement -->
+            <div class="hero-statement">
+                <div class="hero-eyebrow">The Wabi Sabi Bookclub • Vol. 1 • Same Stories, Different People</div>
+                <h1 class="hero-headline">
+                    Read<br>
+                    Watch<br>
+                    Discuss<br>
+                    <span class="word-grow">Grow —</span>
+                </h1>
+                <p class="hero-tagline" id="heroTagline">
+                    Books, films, conversations and people who see the world a little differently.
+                </p>
+                <div class="hero-ctas">
+                    <button class="btn-cta-primary" id="getStartedBtn">Get Started →</button>
+                    <button class="btn-cta-secondary" id="watchIntroBtn">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polygon points="10 8 16 12 10 16 10 8" fill="currentColor"></polygon>
+                        </svg>
+                        <span>Watch Intro</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Central Orbital Composition with Four Interactive Sticky Notes -->
+            <div class="orbital-stage">
+
+                <!-- Warm Ambient Paper Desk Spotlight Glow -->
+                <div class="paper-desk-lighting"></div>
+
+                <!-- Connecting Ink Constellation Path -->
+                <svg class="orbital-ink-svg" viewBox="0 0 560 450" preserveAspectRatio="none">
+                    <path class="orbital-ink-path" d="M 90 200 C 110 90, 440 90, 470 200 C 490 300, 460 380, 390 395 C 280 415, 140 400, 100 330 C 80 270, 85 230, 90 200" />
+                    <circle cx="100" cy="110" r="4.5" fill="var(--accent-sage)" />
+                    <circle cx="460" cy="110" r="4.5" fill="var(--accent-lavender)" />
+                    <circle cx="100" cy="340" r="4.5" fill="var(--accent-peach)" />
+                    <circle cx="420" cy="370" r="4.5" fill="var(--ink-primary)" />
+                    <!-- Clover Glyph -->
+                    <g transform="translate(470, 80) scale(0.9)" fill="var(--ink-primary)">
+                        <circle cx="0" cy="-6" r="3.8"/>
+                        <circle cx="6" cy="0" r="3.8"/>
+                        <circle cx="0" cy="6" r="3.8"/>
+                        <circle cx="-6" cy="0" r="3.8"/>
+                    </g>
+                </svg>
+
+                <!-- Handwritten Annotations -->
+                <div class="hand-anno-more">
+                    More<br>than just<br>reading! ↗
+                </div>
+                <div class="hand-anno-explore">
+                    Explore<br>Your Way ↴
+                </div>
+
+                <!-- Circular Botanical Stamp Seal (Framed in open center) -->
+                <div class="stamp-botanical-seal">
+                    <span class="stamp-text">Wabi Sabi</span>
+                    <span class="stamp-icon">📖</span>
+                    <span class="stamp-text">Bookclub • Vol. 1</span>
+                </div>
+
+                <!-- 1. BOOKS STICKY NOTE (Mint Paper) -->
+                <div class="sticky-note-card sticky-books" data-note-id="books" title="Click to write your note">
+                    <div class="washi-tape-strip"></div>
+                    <div class="sticky-top-bar">
+                        <div class="sticky-category-title">
+                            <svg class="sticky-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                            <span class="sticky-title-text" contenteditable="true" spellcheck="false" data-category="books" title="Click to edit heading">Books</span>
+                        </div>
+                        <span class="sticky-pencil-indicator" title="Click to edit heading or reflection">✎</span>
+                    </div>
+                    <div class="sticky-handwriting" contenteditable="true" spellcheck="false" data-category="books" data-placeholder="Write your reflection here...">Ideas that take root and stay with you for years.</div>
+                    <div class="sticky-footer-hint">
+                        <span>Click to write</span>
+                        <span>01</span>
+                    </div>
+                </div>
+
+                <!-- 2. FILMS STICKY NOTE (Lavender Paper) -->
+                <div class="sticky-note-card sticky-films" data-note-id="films" title="Click to write your note">
+                    <div class="washi-tape-strip"></div>
+                    <div class="sticky-top-bar">
+                        <div class="sticky-category-title">
+                            <svg class="sticky-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"></polygon></svg>
+                            <span class="sticky-title-text" contenteditable="true" spellcheck="false" data-category="films" title="Click to edit heading">Films</span>
+                        </div>
+                        <span class="sticky-pencil-indicator" title="Click to edit heading or reflection">✎</span>
+                    </div>
+                    <div class="sticky-handwriting" contenteditable="true" spellcheck="false" data-category="films" data-placeholder="Write your reflection here...">Quiet frames that open unexpected rooms in the mind.</div>
+                    <div class="sticky-footer-hint">
+                        <span>Click to write</span>
+                        <span>02</span>
+                    </div>
+                </div>
+
+                <!-- 3. DISCUSSIONS STICKY NOTE (Coral Paper) -->
+                <div class="sticky-note-card sticky-discuss" data-note-id="discussions" title="Click to write your note">
+                    <div class="washi-tape-strip"></div>
+                    <div class="sticky-top-bar">
+                        <div class="sticky-category-title">
+                            <svg class="sticky-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            <span class="sticky-title-text" contenteditable="true" spellcheck="false" data-category="discussions" title="Click to edit heading">Discussions</span>
+                        </div>
+                        <span class="sticky-pencil-indicator" title="Click to edit heading or reflection">✎</span>
+                    </div>
+                    <div class="sticky-handwriting" contenteditable="true" spellcheck="false" data-category="discussions" data-placeholder="Write your reflection here...">Conversations held with patience, without judgment.</div>
+                    <div class="sticky-footer-hint">
+                        <span>Click to write</span>
+                        <span>03</span>
+                    </div>
+                </div>
+
+                <!-- 4. COMMUNITY STICKY NOTE (Cream Paper) -->
+                <div class="sticky-note-card sticky-community" data-note-id="community" title="Click to write your note">
+                    <div class="washi-tape-strip"></div>
+                    <div class="sticky-top-bar">
+                        <div class="sticky-category-title">
+                            <svg class="sticky-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            <span class="sticky-title-text" contenteditable="true" spellcheck="false" data-category="community" title="Click to edit heading">Community</span>
+                        </div>
+                        <span class="sticky-pencil-indicator" title="Click to edit heading or reflection">✎</span>
+                    </div>
+                    <div class="sticky-handwriting" contenteditable="true" spellcheck="false" data-category="community" data-placeholder="Write your reflection here...">Kindred souls who feel the quiet rhythm of life.</div>
+                    <div class="sticky-footer-hint">
+                        <span>Click to write</span>
+                        <span>04</span>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- ====================================================================
+             RIGHT INFORMATION PANEL
+             ==================================================================== -->
+        <aside class="right-panel">
+            <!-- Editorial Quote -->
+            <div class="quote-container">
+                <div class="quote-mark">“</div>
+                <blockquote class="editorial-quote">
+                    Good Books<br>Find Better<br>People.
+                </blockquote>
+                <div class="quote-dash"></div>
+            </div>
+
+            <!-- Bookclub Pick Card -->
+            <div class="side-card" id="todaysPickCard">
+                <div class="card-meta-header">
+                    <span class="header-tag">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <span>Bookclub Pick</span>
+                    </span>
+                    <span class="header-arrow">↗</span>
+                </div>
+
+                <div class="pick-body">
+                    <div class="pick-thumb">
+                        <img src="assets/atomic_habits_cover.jpg" alt="Atomic Habits book cover" id="featuredBookCover">
+                    </div>
+                    <div class="pick-info">
+                        <div class="pick-title" id="featuredBookTitle">Atomic Habits</div>
+                        <div class="pick-author" id="featuredBookAuthor">James Clear</div>
+                        <div class="pick-quote" id="featuredBookQuote">"Small habits, quiet evenings, a brighter you."</div>
+                    </div>
+                </div>
+
+                <div class="social-readers">
+                    <div class="avatar-cluster">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span id="readersCount">+1.2K reading together</span>
+                </div>
+            </div>
+
+            <!-- Bookclub Gathering Card -->
+            <div class="side-card" id="happeningSoonCard">
+                <div class="card-meta-header">
+                    <span class="header-tag">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        <span>Bookclub Salon</span>
+                    </span>
+                    <span class="header-arrow">→</span>
+                </div>
+
+                <div class="event-body">
+                    <div class="date-badge">
+                        <span class="date-month">Sep</span>
+                        <span class="date-day">24</span>
+                    </div>
+                    <div class="event-info">
+                        <div class="event-title" id="upcomingEventTitle">Film & Literature Night</div>
+                        <div class="event-detail" id="upcomingEventDetail">Interstellar & Solitude • 7:00 PM • Live Lounge</div>
+                    </div>
+                </div>
+
+                <div class="social-readers">
+                    <div class="avatar-cluster">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span id="eventAttendeesCount">+324 members attending</span>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- ====================================================================
+         CLEAN BOTTOM TASKBAR WITH AUTONOMOUS WALKING CAT
+         ==================================================================== -->
+    <div class="bottom-taskbar" id="bottomTaskbar"></div>
+
+    <div class="living-cat-actor" id="livingCatActor" title="Touch me for Meow!">
+        <div class="cat-speech-bubble" id="catSpeechBubble">“Meooww...” 🐾</div>
+        <div class="cat-contact-shadow" id="catContactShadow"></div>
+        <img src="assets/cat_walk1.png" alt="Living ginger tabby cat" class="cat-sprite" id="catSprite">
+    </div>
+
+    <!-- ==========================================================================
+         REACTIVE JAVASCRIPT: DATA STORE, THEME, AUDIO, WRITABLE STICKY NOTES & CAT
+         ========================================================================== -->
+    
+    <!-- ====================================================================
+         THE HIDDEN MOTIVE: SCRAMBLED PAPER BALL & FLYING ORIGAMI ROCKET
+         ==================================================================== -->
+    <div class="scrambled-paper-ball" id="scrambledPaperBall" aria-hidden="true">
+        <svg viewBox="0 0 36 36" width="36" height="36">
+            <polygon points="18,4 27,9 33,18 26,29 14,32 5,22 8,9" fill="#F7F2E9" stroke="#CFC5B4" stroke-width="1"/>
+            <polygon points="18,4 21,15 8,9" fill="#EAE1D1"/>
+            <polygon points="21,15 27,9 33,18" fill="#FFFFFF"/>
+            <polygon points="21,15 33,18 26,29" fill="#E0D6C4"/>
+            <polygon points="21,15 26,29 14,32" fill="#FAF6ED"/>
+            <polygon points="21,15 14,32 5,22" fill="#E6DDCB"/>
+            <polygon points="21,15 5,22 8,9" fill="#F2EBE0"/>
+            <line x1="18" y1="4" x2="21" y2="15" stroke="#BFB5A2" stroke-width="0.8"/>
+            <line x1="21" y1="15" x2="26" y2="29" stroke="#BFB5A2" stroke-width="0.8"/>
+        </svg>
+    </div>
+
+    <div class="flying-paper-rocket" id="flyingPaperRocket" aria-hidden="true">
+        <svg viewBox="0 0 68 68" width="68" height="68">
+            <g transform="rotate(45 34 34)">
+                <!-- Soft realistic shadow beneath the aircraft -->
+                <polygon points="34,4 10,60 34,48 58,60" fill="rgba(35,30,20,0.14)" transform="translate(4, 7) scale(0.92)"/>
+                <!-- Left wing (shaded) -->
+                <polygon points="34,4 8,60 34,46" fill="#EDE6D8" stroke="#D3C9B8" stroke-width="0.9"/>
+                <!-- Right wing (lit) -->
+                <polygon points="34,4 60,60 34,46" fill="#FFFFFF" stroke="#D8CEC0" stroke-width="0.9"/>
+                <!-- Center fold line -->
+                <line x1="34" y1="4" x2="34" y2="46" stroke="#AEA495" stroke-width="1.3"/>
+                <!-- Subtle Easter egg note on the wing -->
+                <text x="37" y="34" font-family="'Caveat', cursive" font-size="5.6" fill="#7A7264" transform="rotate(74 37 34)">✦ for the wonderfully weird</text>
+            </g>
+        </svg>
+    </div>
+
+    <!-- Minimal Secret Trigger Button on Taskbar -->
+    <button class="taskbar-rocket-btn" id="launchRocketBtn" title="Launch a paper airplane ✦">
+        <span>✈</span>
+        <span>paper thought</span>
+    </button>
+
+    
+
+    <!-- Reader Profile Modal -->
+    <div id="readerProfileModal" class="profile-modal-backdrop" style="display: none;">
+        <div class="profile-modal-sheet">
+            <button type="button" class="profile-modal-close" id="profileModalCloseBtn" aria-label="Close profile">✕</button>
+            <div class="profile-washi-tape"></div>
+
+            <div class="profile-modal-avatar-wrap">
+                <img src="assets/user_avatar.jpg" alt="Profile avatar" class="profile-modal-avatar" id="modalUserAvatar">
+            </div>
+
+            <div class="profile-modal-info">
+                <h3 class="profile-modal-name" id="modalUserName">Elena Vance</h3>
+                <div class="profile-modal-handle-row">
+                    <span class="profile-modal-handle" id="modalUserHandle">@quietreader</span>
+                    <span class="handle-immutable-pill" title="Handles are strictly permanent">🔒 Permanent Handle</span>
+                </div>
+                <div class="profile-modal-role-badge badge-role-reader" id="modalUserRoleBadge">🌿 Reader</div>
+                <div class="profile-modal-since" id="modalUserSince">Member since: Autumn 2025</div>
+            </div>
+
+            <div class="profile-interests-section">
+                <div class="profile-section-label">Curiosities & Passions</div>
+                <div class="profile-interests-chips" id="modalUserInterests"></div>
+            </div>
+
+            <div class="profile-modal-actions">
+                <button type="button" class="profile-curator-desk-btn" id="modalCuratorDeskBtn" style="display: none;">
+                    Curator's Desk ↗
+                </button>
+                <button type="button" class="profile-signout-btn" id="modalSignOutBtn">
+                    Sign Out
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modular Community Space Scripts -->
+    <script src="js/store.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/cat-engine.js"></script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curator's Desk — Wabi Sabi Bookclub CMS</title>
+    
+    <!-- Editorial & Aesthetic Handwriting Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Manrope:wght@300;400;500;600;700&family=Kalam:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/curator.css">
+</head>
+<body>
+
+    <!-- Paper Texture Overlay -->
+    <div class="paper-grain-overlay"></div>
+
+    <div class="curator-viewport">
+        <!-- Top Editorial Header Bar -->
+        <header class="curator-header">
+            <div class="brand-container">
+                <a href="community.html" class="brand-logo" title="Back to Wabi Sabi Community Space">
+                    <span class="brand-the">The</span>
+                    <div class="brand-logo-wrap">
+                        <img src="assets/wabi_sabi_horizontal.png" alt="Wabi Sabi" class="brand-img light-brand">
+                        <img src="assets/wabi_sabi_horizontal_dark.png" alt="Wabi Sabi" class="brand-img dark-brand">
+                    </div>
+                </a>
+                <span class="curator-badge-tag">CURATOR'S DESK</span>
+            </div>
+
+            <div class="curator-header-actions">
+                <div class="curator-profile-tag">
+                    <span class="curator-role-badge">⚜ Curator</span>
+                    <span id="cdCuratorNameLabel" class="curator-name-label">Dhanush (@curator)</span>
+                </div>
+
+                <a href="community.html" class="curator-back-btn">
+                    <span>←</span>
+                    <span>View Community Space</span>
+                </a>
+
+                <button class="theme-btn theme-toggle-trigger" title="Toggle Light / Dark Theme" aria-label="Toggle Theme">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main CMS Workspace Stage -->
+        <main class="curator-stage">
+            <div>
+                <h1 style="font-family: var(--font-serif); font-size: 30px; font-weight: 500; color: var(--ink-primary); margin-bottom: 4px;">Editorial CMS & Circle Management</h1>
+                <p style="font-size: 14px; color: var(--ink-muted);">Publish live changes to the Community Space, schedule upcoming salons, and oversee the member registry.</p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <nav class="curator-tabs">
+                <button class="curator-tab-btn active" data-tab="tab-library">📚 Library & Selections</button>
+                <button class="curator-tab-btn" data-tab="tab-salons">🕯️ Salons & Gatherings</button>
+                <button class="curator-tab-btn" data-tab="tab-prompts">📝 Community Prompts</button>
+                <button class="curator-tab-btn" data-tab="tab-permissions">🛡️ Member Registry & Roles</button>
+            </nav>
+
+            <!-- Tab 1: Library & Selections -->
+            <section id="tab-library" class="curator-tab-pane active">
+                <div class="curator-card-grid">
+                    <div class="curator-form-card">
+                        <h2 class="curator-card-title">Today's Bookclub Pick</h2>
+                        <p class="curator-card-desc">Features front and center in the community space for all readers.</p>
+
+                        <div class="curator-form">
+                            <div class="auth-field-group">
+                                <label for="cdBookTitle" class="auth-label">Book Title</label>
+                                <input type="text" id="cdBookTitle" class="auth-input" placeholder="e.g. Atomic Habits">
+                            </div>
+
+                            <div class="auth-field-group">
+                                <label for="cdBookAuthor" class="auth-label">Author Name</label>
+                                <input type="text" id="cdBookAuthor" class="auth-input" placeholder="e.g. James Clear">
+                            </div>
+
+                            <div class="auth-field-group">
+                                <label for="cdBookQuote" class="auth-label">Curator's Reflection / Quote</label>
+                                <textarea id="cdBookQuote" class="auth-textarea" rows="3" placeholder="Tiny Changes, Remarkable Results"></textarea>
+                            </div>
+
+                            <div class="auth-field-group">
+                                <label for="cdBookReaders" class="auth-label">Readers Count</label>
+                                <input type="number" id="cdBookReaders" class="auth-input" placeholder="1240">
+                            </div>
+
+                            <button type="button" id="cdSaveBookBtn" class="auth-submit-btn">
+                                <span>Publish Live to Dashboard ↗</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="curator-preview-card">
+                        <span class="preview-label">Live Reader Preview</span>
+                        <div class="preview-book-box">
+                            <div class="preview-book-cover">
+                                <img src="assets/atomic_habits_cover.jpg" alt="Featured Book Cover">
+                            </div>
+                            <div class="preview-book-meta">
+                                <span class="preview-pill">TODAY'S PICK</span>
+                                <div id="cdPreviewTitle" class="preview-title">Atomic Habits</div>
+                                <div id="cdPreviewAuthor" class="preview-author">James Clear</div>
+                                <div id="cdPreviewQuote" class="preview-quote">"Tiny Changes, Remarkable Results"</div>
+                                <div id="cdPreviewReaders" class="preview-readers">+1.2K reading together</div>
+                            </div>
+                        </div>
+                        <p style="font-size: 12.5px; color: var(--ink-muted); line-height: 1.45;">
+                            When published, this book and curator note instantly sync to the left panel in <code>community.html</code> for all logged-in members.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 2: Salons & Gatherings -->
+            <section id="tab-salons" class="curator-tab-pane">
+                <div class="curator-card-grid">
+                    <div class="curator-form-card">
+                        <h2 class="curator-card-title">Upcoming Community Salon</h2>
+                        <p class="curator-card-desc">Schedule and manage the featured salon gathering displayed in the community banner.</p>
+
+                        <div class="curator-form">
+                            <div class="auth-field-group">
+                                <label for="cdEventTitle" class="auth-label">Salon Title</label>
+                                <input type="text" id="cdEventTitle" class="auth-input" placeholder="e.g. Systems Over Goals">
+                            </div>
+
+                            <div class="auth-field-group">
+                                <label for="cdEventDetail" class="auth-label">Event Details / Format</label>
+                                <input type="text" id="cdEventDetail" class="auth-input" placeholder="e.g. Live Audio Salon • 7:00 PM EST">
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div class="auth-field-group">
+                                    <label for="cdEventMonth" class="auth-label">Month</label>
+                                    <input type="text" id="cdEventMonth" class="auth-input" placeholder="Sep">
+                                </div>
+                                <div class="auth-field-group">
+                                    <label for="cdEventDay" class="auth-label">Day</label>
+                                    <input type="text" id="cdEventDay" class="auth-input" placeholder="24">
+                                </div>
+                            </div>
+
+                            <div class="auth-field-group">
+                                <label for="cdEventAttendees" class="auth-label">Attending Members</label>
+                                <input type="number" id="cdEventAttendees" class="auth-input" placeholder="324">
+                            </div>
+
+                            <button type="button" id="cdSaveEventBtn" class="auth-submit-btn">
+                                <span>Save Salon Gathering ↗</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="curator-preview-card">
+                        <span class="preview-label">Live Reader Preview</span>
+                        <div class="preview-event-box">
+                            <div class="preview-calendar-badge">
+                                <span id="cdPreviewMonth">Sep</span>
+                                <strong id="cdPreviewDay">24</strong>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <div id="cdPreviewEventTitle" class="preview-title" style="font-size: 18px;">Systems Over Goals</div>
+                                <div id="cdPreviewEventDetail" class="preview-author">Live Audio Salon • 7:00 PM EST</div>
+                                <div id="cdPreviewEventAttendees" class="preview-readers">+324 members attending</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 3: Community Prompts -->
+            <section id="tab-prompts" class="curator-tab-pane">
+                <div class="curator-card-grid">
+                    <div class="curator-form-card">
+                        <h2 class="curator-card-title">Sticky Note Column Prompts</h2>
+                        <p class="curator-card-desc">Control the default prompt titles displayed atop the 4 sticky note pads across the community board.</p>
+
+                        <div class="curator-form">
+                            <div class="auth-field-group">
+                                <label for="cdPromptBooks" class="auth-label">Pad 1 Title (Mint / Reading)</label>
+                                <input type="text" id="cdPromptBooks" class="auth-input" placeholder="Reading Thoughts">
+                            </div>
+
+                            <div class="auth-field-group">
+                                <label for="cdPromptFilms" class="auth-label">Pad 2 Title (Lavender / Cinema)</label>
+                                <input type="text" id="cdPromptFilms" class="auth-input" placeholder="Cinema Notes">
+                            </div>
+
+                            <div class="auth-field-group">
+                                <label for="cdPromptDiscuss" class="auth-label">Pad 3 Title (Coral / Quiet Musings)</label>
+                                <input type="text" id="cdPromptDiscuss" class="auth-input" placeholder="Quiet Musings">
+                            </div>
+
+                            <div class="auth-field-group">
+                                <label for="cdPromptCommunity" class="auth-label">Pad 4 Title (Canary / Open Letter)</label>
+                                <input type="text" id="cdPromptCommunity" class="auth-input" placeholder="Open Letter">
+                            </div>
+
+                            <button type="button" id="cdSavePromptsBtn" class="auth-submit-btn">
+                                <span>Update All Desks ↗</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="curator-preview-card">
+                        <span class="preview-label">Sticky Pad Palette</span>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div class="prompt-note-card mint-note">
+                                <strong style="font-family: var(--font-serif); font-size: 15px;">🌿 Reading</strong>
+                                <span style="font-family: var(--font-hand); font-size: 14px;">"What lines stayed with you today?"</span>
+                            </div>
+                            <div class="prompt-note-card lavender-note">
+                                <strong style="font-family: var(--font-serif); font-size: 15px;">📽️ Cinema</strong>
+                                <span style="font-family: var(--font-hand); font-size: 14px;">"Favorite frame from the week..."</span>
+                            </div>
+                            <div class="prompt-note-card coral-note">
+                                <strong style="font-family: var(--font-serif); font-size: 15px;">🕯️ Musings</strong>
+                                <span style="font-family: var(--font-hand); font-size: 14px;">"Something quiet you noticed."</span>
+                            </div>
+                            <div class="prompt-note-card canary-note">
+                                <strong style="font-family: var(--font-serif); font-size: 15px;">✉️ Letters</strong>
+                                <span style="font-family: var(--font-hand); font-size: 14px;">"An open thought to the circle."</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 4: Member Registry & Roles -->
+            <section id="tab-permissions" class="curator-tab-pane">
+                <div class="curator-form-card">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+                        <div>
+                            <h2 class="curator-card-title">Circle Member Registry & Permissions</h2>
+                            <p class="curator-card-desc" style="margin-bottom: 0;">Permanent cryptographic handles and elevated roles within Wabi Sabi.</p>
+                        </div>
+                        <span style="font-size: 12px; color: var(--ink-muted); background: rgba(140,135,125,0.12); padding: 4px 10px; border-radius: 12px;">
+                            🔒 Handles are permanent & immutable
+                        </span>
+                    </div>
+
+                    <div class="roles-matrix-table-wrap">
+                        <table class="roles-table">
+                            <thead>
+                                <tr>
+                                    <th>Member</th>
+                                    <th>Handle (Immutable)</th>
+                                    <th>Email</th>
+                                    <th>Circle Role</th>
+                                    <th>Member Since</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cdMembersTableBody">
+                                <!-- Hydrated dynamically by js/curator.js from WabiSabiStore.getAccounts() -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/store.js"></script>
+    <script src="js/curator.js"></script>
+</body>
+</html>
