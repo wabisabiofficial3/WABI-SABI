@@ -62,40 +62,40 @@
         }
 
         [data-theme="dark"] {
-            /* Tactile Dark Paper (No Grid) */
-            --bg-paper: #161815;
-            --bg-paper-alt: #1F221E;
-            --paper-grain-opacity: 0.035;
+            /* Warm Antique Dark Mahogany & Walnut Library (Cozy, Non-Creepy) */
+            --bg-paper: #191614;
+            --bg-paper-alt: #221E1A;
+            --paper-grain-opacity: 0.04;
 
-            --ink-primary: #EBE7DD;
-            --ink-secondary: #B7B4AB;
-            --ink-muted: #807E77;
-            --ink-faint: #4E4C46;
+            --ink-primary: #F5EFE6;
+            --ink-secondary: #CBBFB0;
+            --ink-muted: #968B7C;
+            --ink-faint: #4E463E;
 
-            /* Muted Deep Parchment Sticky Notes */
-            --sticky-books-bg: #213526;
-            --sticky-books-border: #2D4734;
-            --sticky-films-bg: #2A2642;
-            --sticky-films-border: #3A355A;
-            --sticky-discuss-bg: #3D2722;
-            --sticky-discuss-border: #52352E;
-            --sticky-community-bg: #352F22;
-            --sticky-community-border: #4A4230;
+            /* Cozy Illuminated Parchment Sticky Notes under Warm Reading Lamp */
+            --sticky-books-bg: #D4E3D5;
+            --sticky-books-border: #B7CBB8;
+            --sticky-films-bg: #DED8EA;
+            --sticky-films-border: #C2B8D5;
+            --sticky-discuss-bg: #EDDBD2;
+            --sticky-discuss-border: #D8BCB2;
+            --sticky-community-bg: #F3EAD5;
+            --sticky-community-border: #DFCEAF;
 
-            --hand-ink: #EDE8DE;
-            --hand-ink-placeholder: rgba(237, 232, 222, 0.45);
+            --hand-ink: #231E19;
+            --hand-ink-placeholder: rgba(35, 30, 25, 0.45);
 
-            --forest-green: #1C2E24;
-            --forest-dark: #121E18;
-            --accent-sage: #5F7A63;
-            --accent-peach: #A66557;
-            --accent-lavender: #706899;
-            --highlight-lime: #4A6337;
+            --forest-green: #2B4533;
+            --forest-dark: #1A2E21;
+            --accent-sage: #96B299;
+            --accent-peach: #D99585;
+            --accent-lavender: #B2A7D2;
+            --highlight-lime: #7D9761;
 
-            --shadow-sticky: 0 12px 28px rgba(0, 0, 0, 0.45);
-            --shadow-sticky-hover: 0 20px 42px rgba(0, 0, 0, 0.65);
-            --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.4);
-            --shadow-float: 0 16px 36px rgba(0, 0, 0, 0.55);
+            --shadow-sticky: 0 14px 32px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.25);
+            --shadow-sticky-hover: 0 22px 46px rgba(0, 0, 0, 0.65), 0 4px 12px rgba(0, 0, 0, 0.35);
+            --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.35);
+            --shadow-float: 0 18px 40px rgba(0, 0, 0, 0.5);
             --cat-shadow: rgba(0, 0, 0, 0.65);
         }
 
@@ -109,11 +109,14 @@
             padding: 0;
         }
 
+        html {
+            zoom: 1.1;
+        }
+
         html, body {
-            min-height: 100vh;
+            height: 100%;
             width: 100%;
-            overflow-x: hidden;
-            overflow-y: auto; /* Gracefully scrolls if zoom level makes content taller than window */
+            overflow: hidden; /* Fits screen perfectly with zero unwanted scrolling */
             background-color: var(--bg-paper);
             color: var(--ink-primary);
             font-family: var(--font-sans);
@@ -158,7 +161,7 @@
         }
 
         /* ==========================================================================
-           3. MASTER DASHBOARD GRID (Fluid, Zoom-Resilient)
+           3. MASTER DASHBOARD GRID (Fits Screen Perfectly Without Scrolling)
            ========================================================================== */
         .dashboard {
             position: relative;
@@ -166,12 +169,14 @@
             width: 100%;
             max-width: 1520px;
             margin: 0 auto;
-            min-height: 100vh;
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
             display: grid;
             grid-template-columns: clamp(68px, 6vw, 84px) minmax(0, 1fr) minmax(280px, 320px);
-            grid-template-rows: 64px 1fr;
-            padding: 16px clamp(16px, 2vw, 28px) 68px clamp(16px, 2vw, 28px);
-            gap: 16px clamp(18px, 2vw, 28px);
+            grid-template-rows: 52px 1fr;
+            padding: clamp(8px, 1.2vh, 16px) clamp(16px, 2vw, 28px) 52px clamp(16px, 2vw, 28px);
+            gap: clamp(8px, 1.2vh, 16px) clamp(18px, 2vw, 28px);
             box-sizing: border-box;
         }
 
@@ -535,7 +540,7 @@
             grid-column: 2 / 3;
             grid-row: 2 / 3;
             display: grid;
-            grid-template-columns: minmax(280px, 1fr) minmax(360px, 1.25fr);
+            grid-template-columns: minmax(280px, 1fr) minmax(380px, 1.35fr);
             align-items: center;
             gap: clamp(16px, 2.5vw, 36px);
             position: relative;
@@ -644,10 +649,24 @@
         .orbital-stage {
             position: relative;
             width: 100%;
-            max-width: 500px;
-            aspect-ratio: 500 / 440;
-            min-height: 380px;
+            max-width: 560px;
+            min-height: 450px;
             margin: 0 auto;
+        }
+
+        /* Warm Ambient Desk Spotlight / Paper Glow */
+        .paper-desk-lighting {
+            position: absolute;
+            inset: -40px -50px -50px -50px;
+            background: radial-gradient(circle at 48% 40%, rgba(255, 250, 238, 0.9) 0%, rgba(246, 240, 230, 0.45) 50%, rgba(244, 238, 226, 0) 75%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(16px);
+        }
+
+        [data-theme="dark"] .paper-desk-lighting {
+            background: radial-gradient(circle at 48% 40%, rgba(255, 205, 130, 0.22) 0%, rgba(230, 160, 80, 0.08) 45%, rgba(25, 22, 19, 0) 75%);
         }
 
         .orbital-ink-svg {
@@ -663,17 +682,17 @@
             stroke: var(--ink-primary);
             stroke-width: 1.2;
             fill: none;
-            opacity: 0.75;
+            opacity: 0.65;
             stroke-linecap: round;
         }
 
         /* Handwritten Editorial Doodles */
         .hand-anno-more {
             position: absolute;
-            top: 25%;
-            left: 1%;
+            top: 48%;
+            left: -4%;
             font-family: var(--font-hand);
-            font-size: 20px;
+            font-size: 18px;
             line-height: 1.05;
             color: var(--ink-primary);
             transform: rotate(-10deg);
@@ -684,13 +703,13 @@
 
         .hand-anno-explore {
             position: absolute;
-            top: 2%;
-            right: 12%;
+            top: -34px;
+            right: 6%;
             font-family: var(--font-hand);
             font-size: 19px;
             line-height: 1.05;
             color: var(--ink-primary);
-            transform: rotate(4deg);
+            transform: rotate(5deg);
             pointer-events: none;
             z-index: 4;
             white-space: nowrap;
@@ -699,10 +718,11 @@
         /* Circular Stamp Seal */
         .stamp-botanical-seal {
             position: absolute;
-            right: 2%;
-            bottom: 22%;
-            width: 70px;
-            height: 70px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(8deg);
+            width: 84px;
+            height: 84px;
             border: 1px dashed var(--ink-muted);
             border-radius: 50%;
             display: flex;
@@ -710,8 +730,7 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            transform: rotate(14deg);
-            opacity: 0.65;
+            opacity: 0.6;
             pointer-events: none;
             z-index: 1;
         }
@@ -731,24 +750,53 @@
         }
 
         /* ==========================================================================
-           REALISTIC TACTILE STICKY NOTES WITH INTERACTIVE HANDWRITING
+           REALISTIC TACTILE STICKY NOTES WITH INTERACTIVE HANDWRITING & HEADINGS
            - Genuine 3D curled paper shadow
-           - Semi-translucent top adhesive strip
-           - Clickable & Editable handwritten note area (user writes their own thoughts!)
-           - Auto-saved to localStorage
+           - Semi-translucent top adhesive strip & washi tape accent
+           - Micro paper texture grain & top specular highlight
+           - Editable headings and handwritten note area (auto-saved to localStorage)
            ========================================================================== */
         .sticky-note-card {
             position: absolute;
-            width: clamp(170px, 36%, 192px);
-            min-height: 148px;
+            width: clamp(170px, 37%, 200px);
+            min-height: 154px;
             box-shadow: var(--shadow-sticky);
             cursor: text;
             z-index: 3;
             transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
             display: flex;
             flex-direction: column;
-            padding: 12px 14px 14px 14px;
+            padding: 14px 15px 14px 15px;
             border-radius: 3px 4px 18px 3px / 4px 3px 16px 4px; /* Organic paper peel corner */
+            background-image: 
+                linear-gradient(145deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.08) 45%, transparent 100%),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            background-blend-mode: overlay, normal;
+        }
+
+        /* Frosted Semi-Translucent Washi Tape Strip */
+        .washi-tape-strip {
+            position: absolute;
+            top: -9px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 46px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.68);
+            backdrop-filter: blur(4px);
+            border-left: 1.5px dashed rgba(160, 150, 135, 0.45);
+            border-right: 1.5px dashed rgba(160, 150, 135, 0.45);
+            box-shadow: 0 1px 3px rgba(35, 30, 20, 0.08);
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0.88;
+        }
+
+        [data-theme="dark"] .washi-tape-strip {
+            background: rgba(255, 255, 255, 0.14);
+            border-left-color: rgba(255, 255, 255, 0.22);
+            border-right-color: rgba(255, 255, 255, 0.22);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
         }
 
         /* The Famous 3M Post-It Curled Corner Bottom Shadow */
@@ -756,10 +804,10 @@
             content: '';
             position: absolute;
             right: 8px;
-            bottom: 6px;
+            bottom: 5px;
             width: 65%;
             height: 18px;
-            box-shadow: 0 10px 16px rgba(35, 25, 15, 0.16);
+            box-shadow: 0 12px 20px rgba(35, 25, 15, 0.18);
             transform: skew(5deg) rotate(4deg);
             z-index: -1;
             pointer-events: none;
@@ -767,7 +815,7 @@
         }
 
         [data-theme="dark"] .sticky-note-card::after {
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 14px 24px rgba(0, 0, 0, 0.7);
         }
 
         /* Top Translucent Adhesive Band */
@@ -786,59 +834,59 @@
         /* 1. BOOKS STICKY NOTE (Pastel Mint) */
         .sticky-books {
             top: 2%;
-            left: 33%;
+            left: 3%;
             background-color: var(--sticky-books-bg);
             border: 1px solid var(--sticky-books-border);
-            transform: rotate(2.8deg);
+            transform: rotate(-2deg);
         }
 
         .sticky-books:hover, .sticky-books:focus-within {
-            transform: rotate(2.8deg) translateY(-8px) scale(1.04);
+            transform: rotate(-2deg) translateY(-8px) scale(1.03);
             box-shadow: var(--shadow-sticky-hover);
             z-index: 8;
         }
 
         /* 2. FILMS STICKY NOTE (Soft Lavender) */
         .sticky-films {
-            top: 22%;
-            right: 2%;
+            top: 2%;
+            right: 3%;
             background-color: var(--sticky-films-bg);
             border: 1px solid var(--sticky-films-border);
-            transform: rotate(-4.5deg);
+            transform: rotate(2.4deg);
         }
 
         .sticky-films:hover, .sticky-films:focus-within {
-            transform: rotate(-4.5deg) translateY(-8px) scale(1.04);
+            transform: rotate(2.4deg) translateY(-8px) scale(1.03);
             box-shadow: var(--shadow-sticky-hover);
             z-index: 8;
         }
 
         /* 3. DISCUSSIONS STICKY NOTE (Soft Coral Blush) */
         .sticky-discuss {
-            bottom: 8%;
-            left: 8%;
+            bottom: 4%;
+            left: 4%;
             background-color: var(--sticky-discuss-bg);
             border: 1px solid var(--sticky-discuss-border);
-            transform: rotate(2deg);
+            transform: rotate(1.8deg);
         }
 
         .sticky-discuss:hover, .sticky-discuss:focus-within {
-            transform: rotate(2deg) translateY(-8px) scale(1.04);
+            transform: rotate(1.8deg) translateY(-8px) scale(1.03);
             box-shadow: var(--shadow-sticky-hover);
             z-index: 8;
         }
 
         /* 4. COMMUNITY STICKY NOTE (Warm Canary Cream) */
         .sticky-community {
-            bottom: 5%;
-            right: 14%;
+            bottom: 4%;
+            right: 4%;
             background-color: var(--sticky-community-bg);
             border: 1px solid var(--sticky-community-border);
-            transform: rotate(-2.2deg);
+            transform: rotate(-1.5deg);
         }
 
         .sticky-community:hover, .sticky-community:focus-within {
-            transform: rotate(-2.2deg) translateY(-8px) scale(1.04);
+            transform: rotate(-1.5deg) translateY(-8px) scale(1.03);
             box-shadow: var(--shadow-sticky-hover);
             z-index: 8;
         }
@@ -867,6 +915,64 @@
             font-weight: 700;
             color: var(--ink-primary);
             letter-spacing: 0.2px;
+        }
+
+        .sticky-title-text {
+            outline: none;
+            border-bottom: 1px dashed transparent;
+            padding: 0 2px;
+            border-radius: 2px;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+            cursor: text;
+            color: var(--ink-primary);
+        }
+
+        .sticky-title-text:hover {
+            border-bottom-color: var(--ink-muted);
+        }
+
+        .sticky-title-text:focus {
+            border-bottom-color: var(--ink-primary);
+            background-color: rgba(255, 255, 255, 0.35);
+        }
+
+        [data-theme="dark"] .sticky-note-card {
+            color: #231E19;
+        }
+
+        [data-theme="dark"] .sticky-top-bar {
+            border-bottom-color: rgba(35, 30, 25, 0.16);
+        }
+
+        [data-theme="dark"] .sticky-category-title,
+        [data-theme="dark"] .sticky-title-text,
+        [data-theme="dark"] .sticky-pencil-indicator {
+            color: #231E19;
+        }
+
+        [data-theme="dark"] .sticky-title-text:hover {
+            border-bottom-color: rgba(35, 30, 25, 0.4);
+        }
+
+        [data-theme="dark"] .sticky-title-text:focus {
+            background-color: rgba(255, 255, 255, 0.55);
+            border-bottom-color: #231E19;
+        }
+
+        [data-theme="dark"] .sticky-icon {
+            stroke: #231E19;
+        }
+
+        [data-theme="dark"] .sticky-handwriting {
+            color: #231E19;
+        }
+
+        [data-theme="dark"] .sticky-handwriting:empty::before {
+            color: rgba(35, 30, 25, 0.45);
+        }
+
+        [data-theme="dark"] .sticky-footer-hint {
+            color: rgba(35, 30, 25, 0.65);
         }
 
         .sticky-icon {
@@ -1744,15 +1850,18 @@
             <!-- Central Orbital Composition with Four Interactive Sticky Notes -->
             <div class="orbital-stage">
 
+                <!-- Warm Ambient Paper Desk Spotlight Glow -->
+                <div class="paper-desk-lighting"></div>
+
                 <!-- Connecting Ink Constellation Path -->
-                <svg class="orbital-ink-svg" viewBox="0 0 500 440" preserveAspectRatio="none">
-                    <path class="orbital-ink-path" d="M 70 220 Q 120 55 250 65 Q 410 75 420 220 Q 430 370 250 380 Q 100 390 70 220" />
-                    <circle cx="120" cy="95" r="4.5" fill="var(--accent-sage)" />
-                    <circle cx="370" cy="95" r="4.5" fill="var(--accent-lavender)" />
-                    <circle cx="100" cy="260" r="4.5" fill="var(--accent-peach)" />
-                    <circle cx="290" cy="365" r="4.5" fill="var(--ink-primary)" />
+                <svg class="orbital-ink-svg" viewBox="0 0 560 450" preserveAspectRatio="none">
+                    <path class="orbital-ink-path" d="M 90 200 C 110 90, 440 90, 470 200 C 490 300, 460 380, 390 395 C 280 415, 140 400, 100 330 C 80 270, 85 230, 90 200" />
+                    <circle cx="100" cy="110" r="4.5" fill="var(--accent-sage)" />
+                    <circle cx="460" cy="110" r="4.5" fill="var(--accent-lavender)" />
+                    <circle cx="100" cy="340" r="4.5" fill="var(--accent-peach)" />
+                    <circle cx="420" cy="370" r="4.5" fill="var(--ink-primary)" />
                     <!-- Clover Glyph -->
-                    <g transform="translate(355, 80) scale(0.9)" fill="var(--ink-primary)">
+                    <g transform="translate(470, 80) scale(0.9)" fill="var(--ink-primary)">
                         <circle cx="0" cy="-6" r="3.8"/>
                         <circle cx="6" cy="0" r="3.8"/>
                         <circle cx="0" cy="6" r="3.8"/>
@@ -1768,21 +1877,22 @@
                     Explore<br>Your Way ↴
                 </div>
 
-                <!-- Circular Botanical Stamp Seal -->
+                <!-- Circular Botanical Stamp Seal (Framed in open center) -->
                 <div class="stamp-botanical-seal">
-                    <span class="stamp-text">Same Humans</span>
-                    <span class="stamp-icon">❧</span>
-                    <span class="stamp-text">Different Perspectives</span>
+                    <span class="stamp-text">Wabi Sabi</span>
+                    <span class="stamp-icon">📖</span>
+                    <span class="stamp-text">Bookclub • Vol. 1</span>
                 </div>
 
                 <!-- 1. BOOKS STICKY NOTE (Mint Paper) -->
                 <div class="sticky-note-card sticky-books" data-note-id="books" title="Click to write your note">
+                    <div class="washi-tape-strip"></div>
                     <div class="sticky-top-bar">
                         <div class="sticky-category-title">
                             <svg class="sticky-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                            <span>Books</span>
+                            <span class="sticky-title-text" contenteditable="true" spellcheck="false" data-category="books" title="Click to edit heading">Books</span>
                         </div>
-                        <span class="sticky-pencil-indicator" title="Editable handwriting">✎</span>
+                        <span class="sticky-pencil-indicator" title="Click to edit heading or reflection">✎</span>
                     </div>
                     <div class="sticky-handwriting" contenteditable="true" spellcheck="false" data-category="books" data-placeholder="Write your reflection here...">Ideas that take root and stay with you for years.</div>
                     <div class="sticky-footer-hint">
@@ -1793,12 +1903,13 @@
 
                 <!-- 2. FILMS STICKY NOTE (Lavender Paper) -->
                 <div class="sticky-note-card sticky-films" data-note-id="films" title="Click to write your note">
+                    <div class="washi-tape-strip"></div>
                     <div class="sticky-top-bar">
                         <div class="sticky-category-title">
                             <svg class="sticky-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"></polygon></svg>
-                            <span>Films</span>
+                            <span class="sticky-title-text" contenteditable="true" spellcheck="false" data-category="films" title="Click to edit heading">Films</span>
                         </div>
-                        <span class="sticky-pencil-indicator" title="Editable handwriting">✎</span>
+                        <span class="sticky-pencil-indicator" title="Click to edit heading or reflection">✎</span>
                     </div>
                     <div class="sticky-handwriting" contenteditable="true" spellcheck="false" data-category="films" data-placeholder="Write your reflection here...">Quiet frames that open unexpected rooms in the mind.</div>
                     <div class="sticky-footer-hint">
@@ -1809,12 +1920,13 @@
 
                 <!-- 3. DISCUSSIONS STICKY NOTE (Coral Paper) -->
                 <div class="sticky-note-card sticky-discuss" data-note-id="discussions" title="Click to write your note">
+                    <div class="washi-tape-strip"></div>
                     <div class="sticky-top-bar">
                         <div class="sticky-category-title">
                             <svg class="sticky-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                            <span>Discussions</span>
+                            <span class="sticky-title-text" contenteditable="true" spellcheck="false" data-category="discussions" title="Click to edit heading">Discussions</span>
                         </div>
-                        <span class="sticky-pencil-indicator" title="Editable handwriting">✎</span>
+                        <span class="sticky-pencil-indicator" title="Click to edit heading or reflection">✎</span>
                     </div>
                     <div class="sticky-handwriting" contenteditable="true" spellcheck="false" data-category="discussions" data-placeholder="Write your reflection here...">Conversations held with patience, without judgment.</div>
                     <div class="sticky-footer-hint">
@@ -1825,12 +1937,13 @@
 
                 <!-- 4. COMMUNITY STICKY NOTE (Cream Paper) -->
                 <div class="sticky-note-card sticky-community" data-note-id="community" title="Click to write your note">
+                    <div class="washi-tape-strip"></div>
                     <div class="sticky-top-bar">
                         <div class="sticky-category-title">
                             <svg class="sticky-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                            <span>Community</span>
+                            <span class="sticky-title-text" contenteditable="true" spellcheck="false" data-category="community" title="Click to edit heading">Community</span>
                         </div>
-                        <span class="sticky-pencil-indicator" title="Editable handwriting">✎</span>
+                        <span class="sticky-pencil-indicator" title="Click to edit heading or reflection">✎</span>
                     </div>
                     <div class="sticky-handwriting" contenteditable="true" spellcheck="false" data-category="community" data-placeholder="Write your reflection here...">Kindred souls who feel the quiet rhythm of life.</div>
                     <div class="sticky-footer-hint">
@@ -1850,17 +1963,17 @@
             <div class="quote-container">
                 <div class="quote-mark">“</div>
                 <blockquote class="editorial-quote">
-                    Good Ideas<br>Find Better<br>People.
+                    Good Books<br>Find Better<br>People.
                 </blockquote>
                 <div class="quote-dash"></div>
             </div>
 
-            <!-- Today's Pick Card -->
+            <!-- Bookclub Pick Card -->
             <div class="side-card" id="todaysPickCard">
                 <div class="card-meta-header">
                     <span class="header-tag">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                        <span>Today's Pick</span>
+                        <span>Bookclub Pick</span>
                     </span>
                     <span class="header-arrow">↗</span>
                 </div>
@@ -1872,7 +1985,7 @@
                     <div class="pick-info">
                         <div class="pick-title" id="featuredBookTitle">Atomic Habits</div>
                         <div class="pick-author" id="featuredBookAuthor">James Clear</div>
-                        <div class="pick-quote" id="featuredBookQuote">"Small changes. A brighter you."</div>
+                        <div class="pick-quote" id="featuredBookQuote">"Small habits, quiet evenings, a brighter you."</div>
                     </div>
                 </div>
 
@@ -1882,16 +1995,16 @@
                         <span></span>
                         <span></span>
                     </div>
-                    <span id="readersCount">+1.2K reading</span>
+                    <span id="readersCount">+1.2K reading together</span>
                 </div>
             </div>
 
-            <!-- Happening Soon Card -->
+            <!-- Bookclub Gathering Card -->
             <div class="side-card" id="happeningSoonCard">
                 <div class="card-meta-header">
                     <span class="header-tag">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                        <span>Happening Soon</span>
+                        <span>Bookclub Salon</span>
                     </span>
                     <span class="header-arrow">→</span>
                 </div>
@@ -1902,8 +2015,8 @@
                         <span class="date-day">24</span>
                     </div>
                     <div class="event-info">
-                        <div class="event-title" id="upcomingEventTitle">Film Night</div>
-                        <div class="event-detail" id="upcomingEventDetail">Interstellar • 7:00 PM • Online</div>
+                        <div class="event-title" id="upcomingEventTitle">Film & Literature Night</div>
+                        <div class="event-detail" id="upcomingEventDetail">Interstellar & Solitude • 7:00 PM • Live Lounge</div>
                     </div>
                 </div>
 
@@ -1913,7 +2026,7 @@
                         <span></span>
                         <span></span>
                     </div>
-                    <span id="eventAttendeesCount">+324 going</span>
+                    <span id="eventAttendeesCount">+324 members attending</span>
                 </div>
             </div>
         </aside>
@@ -1992,13 +2105,13 @@
             featuredBook: {
                 title: "Atomic Habits",
                 author: "James Clear",
-                quote: "Small changes. A brighter you.",
+                quote: "Small habits, quiet evenings, a brighter you.",
                 cover: "assets/atomic_habits_cover.jpg",
                 readers: 1240
             },
             upcomingEvent: {
-                title: "Film Night",
-                detail: "Interstellar • 7:00 PM • Online",
+                title: "Film & Literature Night",
+                detail: "Interstellar & Solitude • 7:00 PM • Live Lounge",
                 month: "Sep",
                 day: "24",
                 attendees: 324
@@ -2031,12 +2144,12 @@
                 document.getElementById('featuredBookTitle').textContent = state.featuredBook.title;
                 document.getElementById('featuredBookAuthor').textContent = state.featuredBook.author;
                 document.getElementById('featuredBookQuote').textContent = `"${state.featuredBook.quote}"`;
-                document.getElementById('readersCount').textContent = `+${(state.featuredBook.readers / 1000).toFixed(1)}K reading`;
+                document.getElementById('readersCount').textContent = `+${(state.featuredBook.readers / 1000).toFixed(1)}K reading together`;
             }
             if (state.upcomingEvent) {
                 document.getElementById('upcomingEventTitle').textContent = state.upcomingEvent.title;
                 document.getElementById('upcomingEventDetail').textContent = state.upcomingEvent.detail;
-                document.getElementById('eventAttendeesCount').textContent = `+${state.upcomingEvent.attendees} going`;
+                document.getElementById('eventAttendeesCount').textContent = `+${state.upcomingEvent.attendees} members attending`;
             }
         }
 
@@ -2047,7 +2160,10 @@
         // ======================================================================
         function initWritableStickyNotes() {
             const writingPads = document.querySelectorAll('.sticky-handwriting');
+            const titlePads = document.querySelectorAll('.sticky-title-text');
+            const pencilBtns = document.querySelectorAll('.sticky-pencil-indicator');
 
+            // 1. Sticky Note Body Handwriting
             writingPads.forEach(pad => {
                 const category = pad.getAttribute('data-category');
                 const storageKey = `wabisabi_sticky_${category}`;
@@ -2066,6 +2182,54 @@
                 // Prevent hotkey defaults and stop bubble propagation to parent cards
                 pad.addEventListener('click', (e) => {
                     e.stopPropagation();
+                });
+            });
+
+            // 2. Sticky Note Headings (Editable with localStorage persistence)
+            titlePads.forEach(titleEl => {
+                const category = titleEl.getAttribute('data-category');
+                const storageKey = `wabisabi_sticky_title_${category}`;
+                
+                // Load previously saved heading if available
+                const savedTitle = localStorage.getItem(storageKey);
+                if (savedTitle && savedTitle.trim().length > 0) {
+                    titleEl.textContent = savedTitle;
+                }
+
+                // Save heading in real-time
+                titleEl.addEventListener('input', () => {
+                    localStorage.setItem(storageKey, titleEl.textContent);
+                });
+
+                titleEl.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+
+                // Enter key blurs the title cleanly
+                titleEl.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        titleEl.blur();
+                    }
+                });
+            });
+
+            // 3. Pencil Indicator click focuses heading for quick editing
+            pencilBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const card = btn.closest('.sticky-note-card');
+                    if (card) {
+                        const titleEl = card.querySelector('.sticky-title-text');
+                        if (titleEl) {
+                            titleEl.focus();
+                            const range = document.createRange();
+                            range.selectNodeContents(titleEl);
+                            const sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        }
+                    }
                 });
             });
         }
