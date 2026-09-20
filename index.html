@@ -15,40 +15,36 @@
            1. DESIGN TOKENS & COLOR PALETTE
            ========================================================================== */
         :root {
-            /* Warm Editorial Paper Light Mode */
-            --bg-paper: #F7F4EC;
-            --bg-grid: rgba(65, 55, 45, 0.07);
-            --bg-grid-subtle: rgba(65, 55, 45, 0.035);
-            --paper-grain-opacity: 0.045;
+            /* Warm Paper Light Mode (Clean, Warm, No Grid) */
+            --bg-paper: #F6F3EC;
+            --bg-paper-alt: #EFE9DE;
+            --paper-grain-opacity: 0.04;
             
             --ink-primary: #181916;
             --ink-secondary: #484742;
             --ink-muted: #7E7C75;
-            --ink-faint: #B5B3AC;
+            --ink-faint: #C8C5BC;
 
-            /* Four Discovery & Doodle Card Paper Hues */
-            --card-books: #D9ECDC;          /* Mint Paper */
-            --card-books-grid: rgba(46, 125, 50, 0.12);
-            --card-films: #DFDAF5;          /* Lavender Paper */
-            --card-films-grid: rgba(103, 58, 183, 0.12);
-            --card-discuss: #F8DDD7;        /* Soft Coral Paper */
-            --card-discuss-grid: rgba(216, 67, 21, 0.12);
-            --card-community: #F1E9D7;      /* Warm Cream Paper */
-            --card-community-grid: rgba(160, 120, 40, 0.12);
+            /* Four Realistic Sticky Note Paper Hues */
+            --sticky-books: #D9ECDC;          /* Mint Paper */
+            --sticky-films: #DFDAF5;          /* Lavender Paper */
+            --sticky-discuss: #F8DDD7;        /* Soft Coral Paper */
+            --sticky-community: #F1E9D7;      /* Warm Sand Cream Paper */
 
             /* Accent & Organic Elements */
-            --forest-green: #2B4436;
-            --forest-dark: #1F3328;
+            --forest-green: #274033;
+            --forest-dark: #1A2E24;
             --accent-sage: #8EA891;
             --accent-peach: #E59F8E;
             --accent-lavender: #A199CF;
             --highlight-lime: #DCF263;
 
-            /* Tactile Paper Shadows */
-            --shadow-paper: 0 4px 18px rgba(35, 30, 20, 0.06), 0 1px 3px rgba(35, 30, 20, 0.04);
-            --shadow-float: 0 14px 34px rgba(35, 30, 20, 0.09), 0 3px 8px rgba(35, 30, 20, 0.05);
-            --shadow-hover: 0 20px 45px rgba(35, 30, 20, 0.14), 0 5px 12px rgba(35, 30, 20, 0.07);
-            --cat-shadow: rgba(30, 25, 20, 0.35);
+            /* Tactile Paper Shadows for Realistic Sticky Notes */
+            --shadow-sticky: 0 14px 30px rgba(35, 30, 20, 0.08), 0 3px 8px rgba(35, 30, 20, 0.04);
+            --shadow-sticky-hover: 0 22px 45px rgba(35, 30, 20, 0.14), 0 6px 14px rgba(35, 30, 20, 0.06);
+            --shadow-card: 0 6px 20px rgba(35, 30, 20, 0.06);
+            --shadow-float: 0 16px 36px rgba(35, 30, 20, 0.10);
+            --cat-shadow: rgba(30, 25, 20, 0.38);
 
             /* Typography */
             --font-serif: 'Cormorant Garamond', Georgia, serif;
@@ -57,10 +53,9 @@
         }
 
         [data-theme="dark"] {
-            /* Tactile Dark Editorial Paper */
-            --bg-paper: #171916;
-            --bg-grid: rgba(220, 215, 200, 0.055);
-            --bg-grid-subtle: rgba(220, 215, 200, 0.025);
+            /* Tactile Dark Paper (No Grid) */
+            --bg-paper: #161815;
+            --bg-paper-alt: #1F221E;
             --paper-grain-opacity: 0.035;
 
             --ink-primary: #EBE7DD;
@@ -68,27 +63,24 @@
             --ink-muted: #807E77;
             --ink-faint: #4E4C46;
 
-            /* Muted Dark Paper Hues */
-            --card-books: #223727;
-            --card-books-grid: rgba(165, 214, 167, 0.10);
-            --card-films: #2C2843;
-            --card-films-grid: rgba(179, 157, 219, 0.10);
-            --card-discuss: #3F2723;
-            --card-discuss-grid: rgba(255, 171, 145, 0.10);
-            --card-community: #353026;
-            --card-community-grid: rgba(255, 224, 130, 0.10);
+            /* Muted Dark Sticky Notes */
+            --sticky-books: #213526;
+            --sticky-films: #2C2843;
+            --sticky-discuss: #3F2723;
+            --sticky-community: #353026;
 
-            --forest-green: #1F3328;
+            --forest-green: #1C2E24;
             --forest-dark: #121E18;
             --accent-sage: #5F7A63;
             --accent-peach: #A66557;
             --accent-lavender: #706899;
             --highlight-lime: #4A6337;
 
-            --shadow-paper: 0 4px 18px rgba(0, 0, 0, 0.4);
-            --shadow-float: 0 14px 34px rgba(0, 0, 0, 0.55);
-            --shadow-hover: 0 20px 45px rgba(0, 0, 0, 0.7);
-            --cat-shadow: rgba(0, 0, 0, 0.6);
+            --shadow-sticky: 0 14px 30px rgba(0, 0, 0, 0.45);
+            --shadow-sticky-hover: 0 22px 45px rgba(0, 0, 0, 0.65);
+            --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.4);
+            --shadow-float: 0 16px 36px rgba(0, 0, 0, 0.55);
+            --cat-shadow: rgba(0, 0, 0, 0.65);
         }
 
         /* ==========================================================================
@@ -103,7 +95,7 @@
         html, body {
             width: 100vw;
             height: 100vh;
-            overflow: hidden; /* No page scroll */
+            overflow: hidden; /* Strict single viewport: no scrolling */
             background-color: var(--bg-paper);
             color: var(--ink-primary);
             font-family: var(--font-sans);
@@ -113,23 +105,12 @@
             transition: background-color 0.4s ease, color 0.4s ease;
         }
 
-        /* Architectural Grid Paper Texture System */
+        /* Clean Warm Paper Background Texture (NO GRID) */
         .paper-background {
             position: fixed;
             inset: 0;
             pointer-events: none;
             z-index: 0;
-        }
-
-        .paper-grid {
-            position: absolute;
-            inset: 0;
-            background-image: 
-                linear-gradient(var(--bg-grid) 1px, transparent 1px),
-                linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px),
-                linear-gradient(var(--bg-grid-subtle) 1px, transparent 1px),
-                linear-gradient(90deg, var(--bg-grid-subtle) 1px, transparent 1px);
-            background-size: 28px 28px, 28px 28px, 7px 7px, 7px 7px;
         }
 
         .paper-grain {
@@ -139,15 +120,15 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
         }
 
-        /* Background Organic Torn Paper Curves from Reference */
+        /* Organic Torn Paper Accents from Reference */
         .organic-top-drip {
             position: absolute;
             top: 0;
             left: 23%;
-            width: 50px;
-            height: 95px;
-            background: rgba(226, 219, 203, 0.45);
-            border-radius: 0 0 26px 26px;
+            width: 48px;
+            height: 92px;
+            background: rgba(226, 219, 203, 0.5);
+            border-radius: 0 0 24px 24px;
             pointer-events: none;
             z-index: 0;
         }
@@ -156,16 +137,16 @@
             position: absolute;
             bottom: 0;
             left: 0;
-            width: 170px;
-            height: 140px;
-            background: radial-gradient(circle at bottom left, rgba(142, 168, 145, 0.35) 0%, transparent 70%);
+            width: 180px;
+            height: 150px;
+            background: radial-gradient(circle at bottom left, rgba(142, 168, 145, 0.3) 0%, transparent 70%);
             border-radius: 0 100% 0 0;
             pointer-events: none;
             z-index: 0;
         }
 
         /* ==========================================================================
-           3. MASTER DASHBOARD GRID (1440x900 Baseline)
+           3. MASTER DASHBOARD GRID (Faithful 1440x900 Proportions)
            ========================================================================== */
         .dashboard {
             position: relative;
@@ -174,7 +155,7 @@
             height: 100vh;
             display: grid;
             grid-template-columns: 88px 1fr 340px;
-            grid-template-rows: 64px 1fr 228px;
+            grid-template-rows: 64px 1fr 210px;
             padding: 16px 28px;
             gap: 16px 24px;
         }
@@ -187,13 +168,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 8px;
+            padding: 0 6px;
         }
 
         .brand-container {
             display: flex;
             align-items: center;
-            gap: 24px;
+            gap: 22px;
         }
 
         .brand-logo {
@@ -228,7 +209,7 @@
             letter-spacing: 2.2px;
             line-height: 1.35;
             color: var(--ink-muted);
-            border-left: 1px solid var(--bg-grid);
+            border-left: 1px solid rgba(140, 135, 125, 0.25);
             padding-left: 18px;
             font-weight: 600;
         }
@@ -243,7 +224,7 @@
             width: 100%;
             height: 42px;
             background: rgba(140, 135, 125, 0.08);
-            border: 1px solid rgba(60, 50, 40, 0.08);
+            border: 1px solid rgba(60, 50, 40, 0.07);
             border-radius: 40px;
             padding: 0 46px 0 42px;
             font-size: 13.5px;
@@ -256,7 +237,7 @@
             outline: none;
             background: var(--bg-paper);
             border-color: var(--ink-muted);
-            box-shadow: var(--shadow-paper);
+            box-shadow: var(--shadow-card);
         }
 
         .search-icon {
@@ -314,7 +295,7 @@
         .header-divider {
             width: 1px;
             height: 22px;
-            background-color: var(--bg-grid);
+            background-color: rgba(140, 135, 125, 0.25);
         }
 
         .join-pill {
@@ -330,7 +311,7 @@
             text-decoration: none;
             cursor: pointer;
             border: 1px solid var(--ink-primary);
-            box-shadow: var(--shadow-paper);
+            box-shadow: var(--shadow-card);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
@@ -345,7 +326,7 @@
             border-radius: 50%;
             overflow: hidden;
             border: 1.5px solid rgba(60, 50, 40, 0.15);
-            box-shadow: var(--shadow-paper);
+            box-shadow: var(--shadow-card);
             cursor: pointer;
             transition: transform 0.2s ease;
         }
@@ -362,7 +343,7 @@
         }
 
         /* ==========================================================================
-           5. LEFT NAVIGATION DOCK
+           5. LEFT NAVIGATION DOCK (No Scroll Thing)
            ========================================================================== */
         aside.nav-dock {
             grid-column: 1 / 2;
@@ -371,7 +352,7 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0 12px 0;
+            padding: 8px 0 16px 0;
             position: relative;
             z-index: 5;
         }
@@ -381,12 +362,12 @@
             flex-direction: column;
             align-items: center;
             gap: 18px;
-            background: rgba(255, 255, 255, 0.45);
+            background: rgba(255, 255, 255, 0.55);
             backdrop-filter: blur(12px);
             padding: 16px 10px;
             border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.7);
-            box-shadow: var(--shadow-paper);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: var(--shadow-card);
         }
 
         [data-theme="dark"] .dock-capsule {
@@ -435,8 +416,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 14px;
             text-align: center;
+            padding-bottom: 8px;
         }
 
         .dock-annotation {
@@ -447,54 +428,17 @@
             max-width: 76px;
         }
 
-        .scroll-pill {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            font-size: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            color: var(--ink-muted);
-            font-weight: 600;
-        }
-
-        .mouse-icon {
-            width: 14px;
-            height: 20px;
-            border: 1.5px solid var(--ink-muted);
-            border-radius: 8px;
-            position: relative;
-        }
-
-        .mouse-wheel {
-            position: absolute;
-            top: 4px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 2px;
-            height: 4px;
-            background-color: var(--ink-muted);
-            border-radius: 1px;
-            animation: mouseWheel 1.6s infinite ease;
-        }
-
-        @keyframes mouseWheel {
-            0% { opacity: 1; transform: translate(-50%, 0); }
-            100% { opacity: 0; transform: translate(-50%, 6px); }
-        }
-
         /* ==========================================================================
-           6. MAIN CENTER AREA: EDITORIAL HERO & COLORED GRID PAPER DOODLES
+           6. MAIN CENTER AREA: HERO TITLE & REALISTIC ORBITAL STICKY NOTES
            ========================================================================== */
         main.center-stage {
             grid-column: 2 / 3;
             grid-row: 2 / 3;
             display: grid;
-            grid-template-columns: 1.05fr 1fr;
+            grid-template-columns: 1.05fr 1.15fr;
             align-items: center;
             position: relative;
-            padding-right: 12px;
+            padding-right: 10px;
             min-height: 0;
         }
 
@@ -503,7 +447,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding-left: 12px;
+            padding-left: 10px;
             z-index: 2;
         }
 
@@ -573,7 +517,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            box-shadow: var(--shadow-paper);
+            box-shadow: var(--shadow-card);
             transition: all 0.25s ease;
             border: 1px solid var(--ink-primary);
             cursor: pointer;
@@ -606,10 +550,10 @@
         }
 
         /* --------------------------------------------------------------------------
-           COLORED GRID PAPER DOODLE SYSTEM (Center Visual Space)
-           Each doodle piece sits on its own distinct colored architectural grid paper
+           ORBITAL REALISTIC STICKY NOTES IN CENTER VISUAL AREA (Exact Reference)
+           Four organic tactile sticky notes: Books, Films, Discussions, Community
            -------------------------------------------------------------------------- */
-        .doodle-canvas {
+        .orbital-stage {
             position: relative;
             width: 100%;
             height: 100%;
@@ -618,8 +562,8 @@
             justify-content: center;
         }
 
-        /* SVG Constellation Ink Lines & Nodes */
-        .ink-path-svg {
+        /* Connecting SVG Constellation Ink Line */
+        .orbital-ink-svg {
             position: absolute;
             inset: 0;
             width: 100%;
@@ -628,162 +572,32 @@
             z-index: 1;
         }
 
-        .ink-line {
+        .orbital-ink-path {
             fill: none;
             stroke: var(--ink-primary);
-            stroke-width: 1.25;
+            stroke-width: 1.35;
             stroke-linecap: round;
             stroke-linejoin: round;
-            opacity: 0.75;
+            opacity: 0.8;
         }
 
-        /* Distinct Colored Grid Paper Sheets / Doodles */
-        .grid-paper-memo {
+        /* Handwritten Annotations */
+        .hand-anno-more {
             position: absolute;
-            padding: 14px 18px;
-            border-radius: 12px;
-            box-shadow: var(--shadow-float);
-            transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease;
-            cursor: pointer;
-            z-index: 2;
-            overflow: hidden;
-        }
-
-        .grid-paper-memo:hover {
-            transform: scale(1.05) translateY(-5px) !important;
-            box-shadow: var(--shadow-hover);
-            z-index: 5;
-        }
-
-        /* Fine Colored Architectural Grids on each memo sheet */
-        .memo-grid-overlay {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            opacity: 0.55;
-        }
-
-        .memo-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        /* 1. Mint Grid Paper Memo: Books & Ideas Doodle */
-        .memo-mint {
-            top: 6%;
-            left: 28%;
-            width: 155px;
-            background-color: var(--card-books);
-            transform: rotate(3deg);
-        }
-        .memo-mint .memo-grid-overlay {
-            background-image: 
-                linear-gradient(var(--card-books-grid) 1px, transparent 1px),
-                linear-gradient(90deg, var(--card-books-grid) 1px, transparent 1px);
-            background-size: 16px 16px;
-        }
-
-        /* 2. Lavender Grid Paper Memo: Films & Stillness Doodle */
-        .memo-lavender {
-            top: 24%;
-            right: 4%;
-            width: 160px;
-            background-color: var(--card-films);
-            transform: rotate(-4deg);
-        }
-        .memo-lavender .memo-grid-overlay {
-            background-image: 
-                linear-gradient(var(--card-films-grid) 1px, transparent 1px),
-                linear-gradient(90deg, var(--card-films-grid) 1px, transparent 1px);
-            background-size: 16px 16px;
-        }
-
-        /* 3. Soft Coral Grid Paper Memo: Discussions & Dialogue Doodle */
-        .memo-coral {
-            bottom: 12%;
-            left: 10%;
-            width: 170px;
-            background-color: var(--card-discuss);
-            transform: rotate(2.5deg);
-        }
-        .memo-coral .memo-grid-overlay {
-            background-image: 
-                linear-gradient(var(--card-discuss-grid) 1px, transparent 1px),
-                linear-gradient(90deg, var(--card-discuss-grid) 1px, transparent 1px);
-            background-size: 16px 16px;
-        }
-
-        /* 4. Warm Cream Grid Paper Memo: Community & Botanicals Doodle */
-        .memo-cream {
-            bottom: 16%;
-            right: 18%;
-            width: 155px;
-            background-color: var(--card-community);
-            transform: rotate(-3deg);
-        }
-        .memo-cream .memo-grid-overlay {
-            background-image: 
-                linear-gradient(var(--card-community-grid) 1px, transparent 1px),
-                linear-gradient(90deg, var(--card-community-grid) 1px, transparent 1px);
-            background-size: 16px 16px;
-        }
-
-        .memo-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
-
-        .memo-tag {
-            font-size: 9px;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            font-weight: 700;
-            color: var(--ink-secondary);
-        }
-
-        .memo-title {
-            font-family: var(--font-serif);
-            font-size: 18px;
-            font-weight: 600;
-            line-height: 1.1;
-            margin-bottom: 4px;
-            color: var(--ink-primary);
-        }
-
-        .memo-doodle-text {
-            font-family: var(--font-hand);
-            font-size: 15px;
-            line-height: 1.15;
-            color: var(--ink-secondary);
-        }
-
-        .memo-icon {
-            width: 18px;
-            height: 18px;
-            stroke: var(--ink-primary);
-            fill: none;
-            stroke-width: 1.7;
-        }
-
-        /* Handwritten Annotations & Seals in Central Area */
-        .annotation-more {
-            position: absolute;
-            left: 2%;
-            top: 24%;
+            left: 3%;
+            top: 22%;
             font-family: var(--font-hand);
             font-size: 22px;
             line-height: 0.95;
             color: var(--ink-primary);
-            transform: rotate(-10deg);
+            transform: rotate(-12deg);
             z-index: 3;
             pointer-events: none;
         }
 
-        .annotation-explore {
+        .hand-anno-explore {
             position: absolute;
-            top: -6px;
+            top: -4px;
             right: 18%;
             font-family: var(--font-hand);
             font-size: 23px;
@@ -796,11 +610,11 @@
 
         .stamp-botanical-seal {
             position: absolute;
-            right: -10px;
+            right: -8px;
             top: 50%;
             transform: translateY(-50%) rotate(12deg);
-            width: 90px;
-            height: 90px;
+            width: 88px;
+            height: 88px;
             border: 1px dashed var(--ink-muted);
             border-radius: 50%;
             display: flex;
@@ -809,7 +623,7 @@
             justify-content: center;
             text-align: center;
             padding: 8px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
             pointer-events: none;
             z-index: 2;
         }
@@ -824,8 +638,134 @@
         }
 
         .stamp-icon {
-            margin: 3px 0;
+            margin: 2px 0;
             color: var(--forest-green);
+        }
+
+        /* --------------------------------------------------------------------------
+           REALISTIC STICKY NOTE PAPERS (Pebble Organic Cutout + Tactile Depth)
+           -------------------------------------------------------------------------- */
+        .sticky-note-card {
+            position: absolute;
+            padding: 16px 18px 18px 18px;
+            box-shadow: var(--shadow-sticky);
+            cursor: pointer;
+            z-index: 3;
+            transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Subtle Sticky Note Adhesive Strip Highlight at Top */
+        .sticky-note-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 10%;
+            right: 10%;
+            height: 6px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        .sticky-note-card:hover {
+            transform: scale(1.06) translateY(-6px) !important;
+            box-shadow: var(--shadow-sticky-hover);
+            z-index: 6;
+        }
+
+        /* 1. BOOKS STICKY NOTE (Top Mint Pebble) */
+        .sticky-books {
+            top: 4%;
+            left: 36%;
+            width: 172px;
+            height: 135px;
+            background-color: var(--sticky-books);
+            border-radius: 28px 24px 30px 22px / 24px 30px 22px 28px;
+            transform: rotate(3deg);
+        }
+
+        /* 2. FILMS STICKY NOTE (Right Lavender Pebble) */
+        .sticky-films {
+            top: 26%;
+            right: 4%;
+            width: 175px;
+            height: 140px;
+            background-color: var(--sticky-films);
+            border-radius: 24px 32px 22px 30px / 30px 22px 28px 24px;
+            transform: rotate(-5deg);
+        }
+
+        /* 3. DISCUSSIONS STICKY NOTE (Left Coral Pebble) */
+        .sticky-discuss {
+            bottom: 14%;
+            left: 14%;
+            width: 178px;
+            height: 142px;
+            background-color: var(--sticky-discuss);
+            border-radius: 30px 22px 28px 24px / 22px 30px 24px 28px;
+            transform: rotate(2.5deg);
+        }
+
+        /* 4. COMMUNITY STICKY NOTE (Bottom Cream Pebble) */
+        .sticky-community {
+            bottom: 12%;
+            right: 18%;
+            width: 172px;
+            height: 138px;
+            background-color: var(--sticky-community);
+            border-radius: 24px 28px 22px 32px / 28px 24px 30px 22px;
+            transform: rotate(-2.5deg);
+        }
+
+        .sticky-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .sticky-icon {
+            width: 22px;
+            height: 22px;
+            stroke: var(--ink-primary);
+            fill: none;
+            stroke-width: 1.6;
+        }
+
+        .sticky-arrow-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1.2px solid var(--ink-primary);
+            display: grid;
+            place-items: center;
+            font-size: 13px;
+            line-height: 1;
+            color: var(--ink-primary);
+            transition: all 0.25s ease;
+        }
+
+        .sticky-note-card:hover .sticky-arrow-circle {
+            background-color: var(--ink-primary);
+            color: var(--bg-paper);
+        }
+
+        .sticky-title {
+            font-family: var(--font-serif);
+            font-size: 21px;
+            font-weight: 600;
+            line-height: 1.1;
+            margin-bottom: 4px;
+            color: var(--ink-primary);
+        }
+
+        .sticky-desc {
+            font-size: 11.5px;
+            line-height: 1.3;
+            color: var(--ink-secondary);
         }
 
         /* ==========================================================================
@@ -837,7 +777,7 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
-            border-left: 1px solid var(--bg-grid);
+            border-left: 1px solid rgba(140, 135, 125, 0.2);
             padding-left: 20px;
             position: relative;
             z-index: 3;
@@ -881,12 +821,12 @@
 
         /* Today's Pick Card */
         .side-card {
-            background: rgba(255, 255, 255, 0.45);
+            background: rgba(255, 255, 255, 0.55);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.8);
             border-radius: 16px;
             padding: 14px 16px;
-            box-shadow: var(--shadow-paper);
+            box-shadow: var(--shadow-card);
             transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
 
@@ -977,7 +917,7 @@
             gap: 8px;
             font-size: 11px;
             color: var(--ink-muted);
-            border-top: 1px solid var(--bg-grid);
+            border-top: 1px solid rgba(140, 135, 125, 0.15);
             padding-top: 8px;
         }
 
@@ -1059,7 +999,7 @@
             position: relative;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: var(--shadow-paper);
+            box-shadow: var(--shadow-card);
             height: 92px;
         }
 
@@ -1072,7 +1012,7 @@
         }
 
         /* ==========================================================================
-           8. BOTTOM COMMUNITY SECTION & THE LIVING CAT
+           8. BOTTOM SECTION: SPACES FOR YOU & AUTONOMOUS WALKING CAT
            ========================================================================== */
         section.community-shelf {
             grid-column: 2 / 3;
@@ -1085,24 +1025,24 @@
             z-index: 4;
         }
 
-        /* Organic Wave Backdrop */
+        /* Organic Curved Backdrop */
         .wave-backdrop {
             position: absolute;
             bottom: -16px;
             left: -30px;
             right: -20px;
             height: 100%;
-            background: linear-gradient(180deg, rgba(235, 230, 220, 0.3) 0%, rgba(226, 220, 206, 0.6) 100%);
+            background: linear-gradient(180deg, rgba(238, 233, 222, 0.4) 0%, rgba(230, 223, 210, 0.75) 100%);
             border-radius: 36px 36px 0 0;
             z-index: 0;
             pointer-events: none;
         }
 
         [data-theme="dark"] .wave-backdrop {
-            background: linear-gradient(180deg, rgba(28, 32, 28, 0.4) 0%, rgba(20, 23, 20, 0.7) 100%);
+            background: linear-gradient(180deg, rgba(28, 32, 28, 0.4) 0%, rgba(20, 23, 20, 0.75) 100%);
         }
 
-        /* Dark Forest Green Hill with "A brighter you tomorrow —" */
+        /* Dark Forest Green Wave with "A brighter you tomorrow —" */
         .forest-hill-wave {
             position: absolute;
             right: 0;
@@ -1151,185 +1091,73 @@
             background-color: var(--ink-muted);
         }
 
-        /* Horizontal 4 Discovery Cards Sequence */
-        .community-deck {
+        /* Four Community Spaces Track from Reference */
+        .spaces-track {
             position: relative;
             z-index: 2;
             display: flex;
-            align-items: stretch;
+            align-items: center;
             gap: 16px;
-            padding-right: 210px; /* Leave breathing space for forest hill */
+            padding-right: 220px; /* Space for forest green hill */
+            margin-bottom: 22px;
         }
 
-        .discovery-card {
+        .space-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            padding: 8px 14px;
+            box-shadow: var(--shadow-card);
+            cursor: pointer;
+            transition: all 0.25s ease;
             flex: 1;
             min-width: 0;
-            border-radius: 12px;
-            padding: 12px 14px;
-            box-shadow: var(--shadow-paper);
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
         }
 
-        .discovery-card:hover {
-            transform: translateY(-6px) scale(1.02) !important;
-            box-shadow: var(--shadow-hover);
-            z-index: 6;
+        [data-theme="dark"] .space-card {
+            background: rgba(28, 32, 28, 0.6);
+            border-color: rgba(255, 255, 255, 0.08);
         }
 
-        /* Discrete Card Colors & Architectural Grid Patterns */
-        .card-mint {
-            background-color: var(--card-books);
-            transform: rotate(-1.5deg);
-        }
-        .card-mint::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: 
-                linear-gradient(var(--card-books-grid) 1px, transparent 1px),
-                linear-gradient(90deg, var(--card-books-grid) 1px, transparent 1px);
-            background-size: 14px 14px;
-            opacity: 0.55;
-            pointer-events: none;
+        .space-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-sticky);
+            background: rgba(255, 255, 255, 0.85);
         }
 
-        .card-lavender {
-            background-color: var(--card-films);
-            transform: rotate(1.2deg);
-        }
-        .card-lavender::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: 
-                linear-gradient(var(--card-films-grid) 1px, transparent 1px),
-                linear-gradient(90deg, var(--card-films-grid) 1px, transparent 1px);
-            background-size: 14px 14px;
-            opacity: 0.55;
-            pointer-events: none;
+        [data-theme="dark"] .space-card:hover {
+            background: rgba(35, 40, 35, 0.8);
         }
 
-        .card-coral {
-            background-color: var(--card-discuss);
-            transform: rotate(-1deg);
-        }
-        .card-coral::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: 
-                linear-gradient(var(--card-discuss-grid) 1px, transparent 1px),
-                linear-gradient(90deg, var(--card-discuss-grid) 1px, transparent 1px);
-            background-size: 14px 14px;
-            opacity: 0.55;
-            pointer-events: none;
-        }
-
-        .card-cream {
-            background-color: var(--card-community);
-            transform: rotate(1.8deg);
-        }
-        .card-cream::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: 
-                linear-gradient(var(--card-community-grid) 1px, transparent 1px),
-                linear-gradient(90deg, var(--card-community-grid) 1px, transparent 1px);
-            background-size: 14px 14px;
-            opacity: 0.55;
-            pointer-events: none;
-        }
-
-        .disc-card-inner {
-            position: relative;
-            z-index: 2;
-        }
-
-        .disc-icon-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
-
-        .disc-icon {
-            width: 20px;
-            height: 20px;
-            stroke: var(--ink-primary);
-            fill: none;
-            stroke-width: 1.6;
-        }
-
-        .disc-arrow-btn {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            border: 1px solid var(--ink-primary);
-            display: grid;
-            place-items: center;
-            font-size: 12px;
-            line-height: 1;
-            color: var(--ink-primary);
-            transition: all 0.25s ease;
-        }
-
-        .discovery-card:hover .disc-arrow-btn {
-            background-color: var(--ink-primary);
-            color: var(--bg-paper);
-        }
-
-        .disc-title {
-            font-family: var(--font-serif);
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 3px;
-            color: var(--ink-primary);
-        }
-
-        .disc-tagline {
-            font-size: 10.5px;
-            line-height: 1.25;
-            color: var(--ink-secondary);
-            margin-bottom: 8px;
-        }
-
-        /* Spaces Mini Preview with Actual Photographs */
-        .disc-space-preview {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.5);
-            padding: 4px 6px;
+        .space-thumb {
+            width: 40px;
+            height: 40px;
             border-radius: 8px;
-        }
-
-        [data-theme="dark"] .disc-space-preview {
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .disc-space-img {
-            width: 24px;
-            height: 24px;
-            border-radius: 4px;
             overflow: hidden;
             flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
         }
 
-        .disc-space-img img {
+        .space-thumb img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .disc-space-name {
-            font-size: 10px;
+        .space-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .space-name {
+            font-size: 12px;
             font-weight: 600;
             color: var(--ink-primary);
             white-space: nowrap;
@@ -1337,57 +1165,73 @@
             text-overflow: ellipsis;
         }
 
-        .disc-space-count {
-            font-size: 9px;
+        .space-count {
+            font-size: 10px;
             color: var(--ink-muted);
         }
 
+        .space-arrow {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--ink-primary);
+            color: var(--bg-paper);
+            display: grid;
+            place-items: center;
+            font-size: 10px;
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
+        }
+
+        .space-card:hover .space-arrow {
+            transform: translateX(2px);
+        }
+
         /* --------------------------------------------------------------------------
-           9. THE PHOTOREALISTIC LIVING CAT CHARACTER
-           Autonomous behavioral engine: WALK -> PAUSE -> LOOK -> WALK -> SIT -> SLEEP
+           9. THE AUTONOMOUS LIVING CAT (Bigger, Autonomous Stroll, Touch -> Slow Meow)
            -------------------------------------------------------------------------- */
         .living-cat-actor {
             position: absolute;
-            bottom: -8px;
-            left: 120px;
-            width: 155px;
-            height: 110px;
+            bottom: -10px;
+            left: 100px;
+            width: 205px; /* Bigger realistic cat presence as requested */
+            height: 155px;
             pointer-events: auto;
             cursor: pointer;
             z-index: 10;
-            transition: left 0.9s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transition: left 0.85s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
 
-        /* Dynamic Contact Shadow beneath Paws */
+        /* Dynamic Soft Ground Shadow beneath Paws */
         .cat-contact-shadow {
             position: absolute;
-            bottom: 6px;
+            bottom: 8px;
             left: 50%;
             transform: translateX(-50%);
-            width: 100px;
-            height: 12px;
-            background: radial-gradient(ellipse at center, var(--cat-shadow) 0%, rgba(0,0,0,0.08) 50%, transparent 75%);
+            width: 140px;
+            height: 15px;
+            background: radial-gradient(ellipse at center, var(--cat-shadow) 0%, rgba(0,0,0,0.1) 50%, transparent 75%);
             border-radius: 50%;
             pointer-events: none;
             transition: all 0.5s ease;
             z-index: -1;
         }
 
-        /* Cat Image Layer */
+        /* Cat Sprite Display */
         .cat-sprite {
             width: 100%;
             height: 100%;
             object-fit: contain;
             object-position: bottom center;
             display: block;
-            filter: drop-shadow(0 4px 10px rgba(45, 35, 25, 0.12));
+            filter: drop-shadow(0 6px 14px rgba(45, 35, 25, 0.15));
             transform-origin: bottom center;
-            transition: transform 0.4s ease, filter 0.4s ease;
+            transition: transform 0.35s ease, filter 0.4s ease;
         }
 
-        /* Subtle Breathing & Gait Animations */
+        /* Autonomous Natural Breathing & Walk Bobbing */
         .cat-walking .cat-sprite {
-            animation: catGaitBob 0.6s infinite alternate ease-in-out;
+            animation: catGaitBob 0.55s infinite alternate ease-in-out;
         }
 
         .cat-sleeping .cat-sprite {
@@ -1395,8 +1239,8 @@
         }
 
         .cat-sleeping .cat-contact-shadow {
-            width: 90px;
-            height: 14px;
+            width: 120px;
+            height: 18px;
             transform: translateX(-50%) scale(1.05);
         }
 
@@ -1406,84 +1250,93 @@
 
         @keyframes catGaitBob {
             0% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-3px) rotate(0.8deg); }
-            100% { transform: translateY(0) rotate(-0.5deg); }
+            50% { transform: translateY(-4px) rotate(1deg); }
+            100% { transform: translateY(0) rotate(-0.8deg); }
         }
 
         @keyframes catBreathe {
             0%, 100% { transform: scaleY(1) scaleX(1); }
-            50% { transform: scaleY(1.025) scaleX(0.99) translateY(-1px); }
+            50% { transform: scaleY(1.03) scaleX(0.99) translateY(-2px); }
         }
 
         @keyframes catBreatheSit {
             0%, 100% { transform: scaleY(1); }
-            50% { transform: scaleY(1.015) translateY(-1px); }
+            50% { transform: scaleY(1.018) translateY(-1px); }
         }
 
         /* Dark theme cat lighting */
         [data-theme="dark"] .cat-sprite {
-            filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.6)) brightness(0.92) contrast(1.05);
+            filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.7)) brightness(0.93) contrast(1.04);
         }
 
-        /* Status Indicator Bubble (Subtle / Non-intrusive) */
-        .cat-mood-whisper {
+        /* Speech Balloon / Meow Whisper */
+        .cat-speech-bubble {
             position: absolute;
-            top: -18px;
+            top: -28px;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(-50%) scale(0.85);
             font-family: var(--font-hand);
-            font-size: 14px;
-            color: var(--ink-secondary);
-            background: rgba(255, 255, 255, 0.7);
-            padding: 1px 8px;
-            border-radius: 12px;
+            font-size: 19px;
+            color: var(--ink-primary);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            padding: 3px 12px;
+            border-radius: 16px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
             white-space: nowrap;
+            border: 1px solid rgba(140, 135, 125, 0.2);
+            z-index: 12;
         }
 
-        [data-theme="dark"] .cat-mood-whisper {
-            background: rgba(30, 35, 30, 0.7);
-            color: var(--ink-primary);
+        [data-theme="dark"] .cat-speech-bubble {
+            background: rgba(30, 35, 30, 0.9);
+            color: #FFFFFF;
+            border-color: rgba(255, 255, 255, 0.12);
         }
 
-        .living-cat-actor:hover .cat-mood-whisper {
+        .cat-speech-bubble.active {
             opacity: 1;
+            transform: translateX(-50%) scale(1) translateY(-4px);
         }
 
         /* ==========================================================================
-           10. RESPONSIVE COMPOSITION RULES (Crisp on 1440p, 4K, & Laptops)
+           10. RESPONSIVE COMPOSITION RULES
            ========================================================================== */
         @media (min-width: 1920px) {
             .dashboard {
                 grid-template-columns: 100px 1fr 380px;
-                grid-template-rows: 72px 1fr 260px;
+                grid-template-rows: 72px 1fr 240px;
                 padding: 24px 40px;
             }
             .hero-headline { font-size: 84px; }
-            .living-cat-actor { width: 180px; height: 130px; }
+            .living-cat-actor { width: 240px; height: 180px; }
+            .sticky-books { width: 195px; height: 155px; }
+            .sticky-films { width: 198px; height: 160px; }
+            .sticky-discuss { width: 200px; height: 160px; }
+            .sticky-community { width: 195px; height: 155px; }
         }
 
         @media (max-width: 1200px) {
             .dashboard {
                 grid-template-columns: 76px 1fr 300px;
-                grid-template-rows: 58px 1fr 210px;
+                grid-template-rows: 58px 1fr 195px;
                 padding: 12px 18px;
                 gap: 12px 16px;
             }
-            .hero-headline { font-size: 52px; }
-            .community-deck { padding-right: 170px; gap: 10px; }
+            .hero-headline { font-size: 50px; }
+            .spaces-track { padding-right: 170px; gap: 8px; }
             .forest-hill-wave { width: 170px; height: 85px; }
-            .living-cat-actor { width: 135px; height: 95px; }
+            .living-cat-actor { width: 170px; height: 130px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Architectural Grid Paper & Tactile Texture Background -->
+    <!-- Clean Warm Paper Background Texture (NO GRID) -->
     <div class="paper-background">
-        <div class="paper-grid"></div>
         <div class="paper-grain"></div>
         <div class="organic-top-drip"></div>
         <div class="organic-left-wave"></div>
@@ -1550,7 +1403,7 @@
         </header>
 
         <!-- ====================================================================
-             LEFT NAVIGATION DOCK
+             LEFT NAVIGATION DOCK (No Scroll Thing)
              ==================================================================== -->
         <aside class="nav-dock">
             <div class="dock-capsule">
@@ -1584,17 +1437,11 @@
                 <div class="dock-annotation">
                     A calmer internet for curious minds. —
                 </div>
-                <div class="scroll-pill">
-                    <div class="mouse-icon">
-                        <div class="mouse-wheel"></div>
-                    </div>
-                    <span>Scroll To Explore</span>
-                </div>
             </div>
         </aside>
 
         <!-- ====================================================================
-             MAIN CENTER STAGE: EDITORIAL HERO & COLORED GRID PAPER DOODLES
+             MAIN CENTER STAGE: EDITORIAL HERO & REALISTIC ORBITAL STICKY NOTES
              ==================================================================== -->
         <main class="center-stage">
 
@@ -1622,17 +1469,18 @@
                 </div>
             </div>
 
-            <!-- Central Doodles in Different Colored Grid Papers -->
-            <div class="doodle-canvas">
+            <!-- Central Orbital Composition with Four Realistic Sticky Notes -->
+            <div class="orbital-stage">
 
-                <!-- Connecting Ink Constellation Path with Waypoint Nodes -->
-                <svg class="ink-path-svg" viewBox="0 0 500 420" preserveAspectRatio="none">
-                    <path class="ink-line" d="M 40 210 Q 120 70 240 85 T 440 180 Q 470 320 280 345 T 80 290" />
-                    <circle cx="120" cy="70" r="4.5" fill="var(--accent-sage)" />
-                    <circle cx="440" cy="180" r="4.5" fill="var(--accent-peach)" />
-                    <circle cx="280" cy="345" r="4.5" fill="var(--ink-primary)" />
-                    <!-- Clover / Ink Stamp Glyph -->
-                    <g transform="translate(375, 115) scale(0.9)" fill="var(--ink-primary)">
+                <!-- Connecting Ink Constellation Path -->
+                <svg class="orbital-ink-svg" viewBox="0 0 460 420" preserveAspectRatio="none">
+                    <path class="orbital-ink-path" d="M 60 210 Q 110 55 230 65 Q 380 75 390 210 Q 400 350 230 360 Q 90 370 60 210" />
+                    <circle cx="110" cy="95" r="4.5" fill="var(--accent-sage)" />
+                    <circle cx="340" cy="95" r="4.5" fill="var(--accent-lavender)" />
+                    <circle cx="90" cy="250" r="4.5" fill="var(--accent-peach)" />
+                    <circle cx="270" cy="345" r="4.5" fill="var(--ink-primary)" />
+                    <!-- Clover Glyph -->
+                    <g transform="translate(325, 80) scale(0.9)" fill="var(--ink-primary)">
                         <circle cx="0" cy="-6" r="3.8"/>
                         <circle cx="6" cy="0" r="3.8"/>
                         <circle cx="0" cy="6" r="3.8"/>
@@ -1641,10 +1489,10 @@
                 </svg>
 
                 <!-- Handwritten Annotations -->
-                <div class="annotation-more">
+                <div class="hand-anno-more">
                     More<br>than just<br>reading! ↗
                 </div>
-                <div class="annotation-explore">
+                <div class="hand-anno-explore">
                     Explore<br>Your Way ↴
                 </div>
 
@@ -1655,56 +1503,52 @@
                     <span class="stamp-text">Different Perspectives</span>
                 </div>
 
-                <!-- 1. Mint Grid Paper Memo: Books & Ideas Doodle -->
-                <div class="grid-paper-memo memo-mint" data-category="books" title="Curated Reading Memo">
-                    <div class="memo-grid-overlay"></div>
-                    <div class="memo-content">
-                        <div class="memo-header">
-                            <span class="memo-tag">Reading</span>
-                            <svg class="memo-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                <!-- 1. BOOKS STICKY NOTE (Mint Paper Pebble) -->
+                <div class="sticky-note-card sticky-books" data-category="books" title="Explore Books">
+                    <div>
+                        <div class="sticky-header-row">
+                            <svg class="sticky-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                            <span class="sticky-arrow-circle">→</span>
                         </div>
-                        <div class="memo-title">Quiet Pages</div>
-                        <div class="memo-doodle-text">"Ideas that take root and stay with you."</div>
+                        <div class="sticky-title">Books</div>
                     </div>
+                    <div class="sticky-desc">Ideas that stay with you.</div>
                 </div>
 
-                <!-- 2. Lavender Grid Paper Memo: Films & Stillness Doodle -->
-                <div class="grid-paper-memo memo-lavender" data-category="films" title="Cinema Reflection Memo">
-                    <div class="memo-grid-overlay"></div>
-                    <div class="memo-content">
-                        <div class="memo-header">
-                            <span class="memo-tag">Cinema</span>
-                            <svg class="memo-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"></polygon></svg>
+                <!-- 2. FILMS STICKY NOTE (Lavender Paper Pebble) -->
+                <div class="sticky-note-card sticky-films" data-category="films" title="Explore Films">
+                    <div>
+                        <div class="sticky-header-row">
+                            <svg class="sticky-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"></polygon></svg>
+                            <span class="sticky-arrow-circle">→</span>
                         </div>
-                        <div class="memo-title">Still Frames</div>
-                        <div class="memo-doodle-text">"Visual stories that open quiet rooms in the mind."</div>
+                        <div class="sticky-title">Films</div>
                     </div>
+                    <div class="sticky-desc">Stories that open minds.</div>
                 </div>
 
-                <!-- 3. Soft Coral Grid Paper Memo: Discussions & Dialogue Doodle -->
-                <div class="grid-paper-memo memo-coral" data-category="discussions" title="Dialogue Scrap">
-                    <div class="memo-grid-overlay"></div>
-                    <div class="memo-content">
-                        <div class="memo-header">
-                            <span class="memo-tag">Dialogue</span>
-                            <svg class="memo-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <!-- 3. DISCUSSIONS STICKY NOTE (Soft Coral Paper Pebble) -->
+                <div class="sticky-note-card sticky-discuss" data-category="discussions" title="Explore Discussions">
+                    <div>
+                        <div class="sticky-header-row">
+                            <svg class="sticky-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            <span class="sticky-arrow-circle">→</span>
                         </div>
-                        <div class="memo-title">Deep Voices</div>
-                        <div class="memo-doodle-text">"Unfiltered conversations without judgment."</div>
+                        <div class="sticky-title">Discussions</div>
                     </div>
+                    <div class="sticky-desc">Conversations without judgement.</div>
                 </div>
 
-                <!-- 4. Warm Cream Grid Paper Memo: Community & Botanicals Doodle -->
-                <div class="grid-paper-memo memo-cream" data-category="community" title="Fellowship Botanical Note">
-                    <div class="memo-grid-overlay"></div>
-                    <div class="memo-content">
-                        <div class="memo-header">
-                            <span class="memo-tag">Kindred</span>
-                            <svg class="memo-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                <!-- 4. COMMUNITY STICKY NOTE (Warm Cream Paper Pebble) -->
+                <div class="sticky-note-card sticky-community" data-category="community" title="Explore Community">
+                    <div>
+                        <div class="sticky-header-row">
+                            <svg class="sticky-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            <span class="sticky-arrow-circle">→</span>
                         </div>
-                        <div class="memo-title">Kinship</div>
-                        <div class="memo-doodle-text">"People who feel the rhythm of quiet living."</div>
+                        <div class="sticky-title">Community</div>
                     </div>
+                    <div class="sticky-desc">People who get it.</div>
                 </div>
 
             </div>
@@ -1727,7 +1571,7 @@
             <div class="side-card" id="todaysPickCard">
                 <div class="card-meta-header">
                     <span class="header-tag">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="12" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
                         <span>Today's Pick</span>
                     </span>
                     <span class="header-arrow">↗</span>
@@ -1792,13 +1636,13 @@
         </aside>
 
         <!-- ====================================================================
-             BOTTOM COMMUNITY SECTION & LIVING PHOTOREALISTIC CAT
+             BOTTOM SECTION: SPACES FOR YOU & AUTONOMOUS WALKING CAT
              ==================================================================== -->
         <section class="community-shelf" id="communitySection">
             <!-- Organic Wave Backdrop -->
             <div class="wave-backdrop"></div>
 
-            <!-- Dark Forest Green Hill with "A brighter you tomorrow —" -->
+            <!-- Dark Forest Green Wave with "A brighter you tomorrow —" -->
             <div class="forest-hill-wave">
                 <div class="hill-text">
                     A brighter<br>you<br>tomorrow —
@@ -1811,93 +1655,64 @@
                 <div class="community-header-line"></div>
             </div>
 
-            <!-- The Four Discovery Cards (Relocated Here from Center Hero) -->
-            <div class="community-deck">
+            <!-- The Four Community Spaces (Quiet Readers, Film Enthusiasts, Deep Discussions, Creative Minds) -->
+            <div class="spaces-track">
 
-                <!-- 1. BOOKS DISCOVERY CARD (Mint Paper) -->
-                <div class="discovery-card card-mint" id="cardBooks" data-space-index="0">
-                    <div class="disc-card-inner">
-                        <div class="disc-icon-row">
-                            <svg class="disc-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                            <span class="disc-arrow-btn">→</span>
-                        </div>
-                        <div class="disc-title">Books</div>
-                        <div class="disc-tagline">Ideas that stay with you.</div>
-                        <div class="disc-space-preview">
-                            <div class="disc-space-img"><img src="assets/space_quiet_readers.jpg" alt="Quiet Readers"></div>
-                            <div>
-                                <div class="disc-space-name">Quiet Readers</div>
-                                <div class="disc-space-count">342 members</div>
-                            </div>
-                        </div>
+                <!-- 1. Quiet Readers Space -->
+                <div class="space-card" data-space="quiet-readers">
+                    <div class="space-thumb">
+                        <img src="assets/space_quiet_readers.jpg" alt="Quiet Readers room with plant">
                     </div>
+                    <div class="space-meta">
+                        <div class="space-name">Quiet Readers</div>
+                        <div class="space-count">342 members</div>
+                    </div>
+                    <div class="space-arrow">→</div>
                 </div>
 
-                <!-- 2. FILMS DISCOVERY CARD (Lavender Paper) -->
-                <div class="discovery-card card-lavender" id="cardFilms" data-space-index="1">
-                    <div class="disc-card-inner">
-                        <div class="disc-icon-row">
-                            <svg class="disc-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"></polygon></svg>
-                            <span class="disc-arrow-btn">→</span>
-                        </div>
-                        <div class="disc-title">Films</div>
-                        <div class="disc-tagline">Stories that open minds.</div>
-                        <div class="disc-space-preview">
-                            <div class="disc-space-img"><img src="assets/space_film_sunset.jpg" alt="Film Enthusiasts"></div>
-                            <div>
-                                <div class="disc-space-name">Film Enthusiasts</div>
-                                <div class="disc-space-count">281 members</div>
-                            </div>
-                        </div>
+                <!-- 2. Film Enthusiasts Space -->
+                <div class="space-card" data-space="film-enthusiasts">
+                    <div class="space-thumb">
+                        <img src="assets/space_film_sunset.jpg" alt="Film Enthusiasts sunset mountains">
                     </div>
+                    <div class="space-meta">
+                        <div class="space-name">Film Enthusiasts</div>
+                        <div class="space-count">281 members</div>
+                    </div>
+                    <div class="space-arrow">→</div>
                 </div>
 
-                <!-- 3. DISCUSSIONS DISCOVERY CARD (Soft Coral Paper) -->
-                <div class="discovery-card card-coral" id="cardDiscuss" data-space-index="2">
-                    <div class="disc-card-inner">
-                        <div class="disc-icon-row">
-                            <svg class="disc-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                            <span class="disc-arrow-btn">→</span>
-                        </div>
-                        <div class="disc-title">Discussions</div>
-                        <div class="disc-tagline">Conversations without judgement.</div>
-                        <div class="disc-space-preview">
-                            <div class="disc-space-img"><img src="assets/space_deep_ivy.jpg" alt="Deep Discussions"></div>
-                            <div>
-                                <div class="disc-space-name">Deep Discussions</div>
-                                <div class="disc-space-count">196 members</div>
-                            </div>
-                        </div>
+                <!-- 3. Deep Discussions Space -->
+                <div class="space-card" data-space="deep-discussions">
+                    <div class="space-thumb">
+                        <img src="assets/space_deep_ivy.jpg" alt="Deep Discussions ivy room">
                     </div>
+                    <div class="space-meta">
+                        <div class="space-name">Deep Discussions</div>
+                        <div class="space-count">196 members</div>
+                    </div>
+                    <div class="space-arrow">→</div>
                 </div>
 
-                <!-- 4. COMMUNITY DISCOVERY CARD (Warm Cream Paper) -->
-                <div class="discovery-card card-cream" id="cardCommunity" data-space-index="3">
-                    <div class="disc-card-inner">
-                        <div class="disc-icon-row">
-                            <svg class="disc-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-                            <span class="disc-arrow-btn">→</span>
-                        </div>
-                        <div class="disc-title">Community</div>
-                        <div class="disc-tagline">People who get it.</div>
-                        <div class="disc-space-preview">
-                            <div class="disc-space-img"><img src="assets/space_creative_vinyl.jpg" alt="Creative Minds"></div>
-                            <div>
-                                <div class="disc-space-name">Creative Minds</div>
-                                <div class="disc-space-count">317 members</div>
-                            </div>
-                        </div>
+                <!-- 4. Creative Minds Space -->
+                <div class="space-card" data-space="creative-minds">
+                    <div class="space-thumb">
+                        <img src="assets/space_creative_vinyl.jpg" alt="Creative Minds vinyl record">
                     </div>
+                    <div class="space-meta">
+                        <div class="space-name">Creative Minds</div>
+                        <div class="space-count">317 members</div>
+                    </div>
+                    <div class="space-arrow">→</div>
                 </div>
 
             </div>
 
             <!-- ================================================================
-                 THE PHOTOREALISTIC LIVING CAT CHARACTER
-                 State Machine: WALK -> PAUSE -> LOOK -> WALK -> SIT -> SLEEP -> WAKE
+                 THE AUTONOMOUS LIVING CAT CHARACTER (Bigger, Auto Walk, Touch -> Meow)
                  ================================================================ -->
-            <div class="living-cat-actor" id="livingCatActor" title="Resident Tabby Cat">
-                <div class="cat-mood-whisper" id="catMoodWhisper">quietly curious...</div>
+            <div class="living-cat-actor" id="livingCatActor" title="Touch me for Meow!">
+                <div class="cat-speech-bubble" id="catSpeechBubble">“Meooww...” 🐾</div>
                 <div class="cat-contact-shadow" id="catContactShadow"></div>
                 <img src="assets/cat_walk1.png" alt="Living ginger tabby cat" class="cat-sprite" id="catSprite">
             </div>
@@ -1907,12 +1722,11 @@
     </div>
 
     <!-- ==========================================================================
-         11. REACTIVE JAVASCRIPT: DATA STORE, THEME, & AUTONOMOUS CAT CONTROLLER
+         11. REACTIVE JAVASCRIPT: DATA STORE, THEME, AUDIO & AUTONOMOUS CAT
          ========================================================================== -->
     <script>
         /**
-         * Wabi Sabi Production Data Store
-         * Decoupled architecture: Ready for REST, Firebase, Supabase or GraphQL
+         * Production State Layer
          */
         const WabiSabiState = {
             user: {
@@ -1937,16 +1751,10 @@
                 title: "Film Night",
                 detail: "Interstellar • 7:00 PM • Online",
                 attendees: 324
-            },
-            spaces: [
-                { name: "Quiet Readers", count: 342, image: "assets/space_quiet_readers.jpg", category: "books" },
-                { name: "Film Enthusiasts", count: 281, image: "assets/space_film_sunset.jpg", category: "films" },
-                { name: "Deep Discussions", count: 196, image: "assets/space_deep_ivy.jpg", category: "discussions" },
-                { name: "Creative Minds", count: 317, image: "assets/space_creative_vinyl.jpg", category: "community" }
-            ]
+            }
         };
 
-        // --- Theme Engine ---
+        // --- Theme Engine (Clean Paper Light vs Dark) ---
         const themeToggleBtn = document.getElementById('themeToggleBtn');
         let currentTheme = localStorage.getItem('wabi_sabi_theme') || 'light';
 
@@ -1962,7 +1770,7 @@
             applyTheme(currentTheme === 'light' ? 'dark' : 'light');
         });
 
-        // --- Data Binding & Hydration ---
+        // --- Data Hydration ---
         function hydrateDashboard(state) {
             if (state.user && state.user.avatar) {
                 document.getElementById('profileAvatarImg').src = state.user.avatar;
@@ -1986,23 +1794,79 @@
         hydrateDashboard(WabiSabiState);
 
         // ======================================================================
-        // AUTONOMOUS LIVING CAT BEHAVIORAL STATE MACHINE
-        // States: WALK, PAUSE, LOOK, SIT, SLEEP, WAKE
-        // Features:
-        // - Gait cadence walking left and right along the Community section
-        // - Curious head turn on mouse proximity
-        // - Natural guidance toward Community discovery cards
-        // - Randomized pauses and tranquil sleeping cycles
+        // CAT SOUND SYSTEM: SLOW, GENTLE MEOW
+        // Plays assets/meow.mp3 with Web Audio API synthetic fallback
+        // ======================================================================
+        class CatSoundSystem {
+            constructor() {
+                this.audioElement = new Audio('assets/meow.mp3');
+                this.audioElement.volume = 0.75;
+                this.audioCtx = null;
+            }
+
+            playMeow() {
+                // Reset to start so immediate taps/clicks always replay
+                try { this.audioElement.currentTime = 0; } catch (e) {}
+                const playPromise = this.audioElement.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {
+                        // Fallback to Web Audio synthesis if autoplay policy blocks audio element
+                        this.synthesizeSlowMeow();
+                    });
+                }
+            }
+
+            synthesizeSlowMeow() {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const now = ctx.currentTime;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    const filter = ctx.createBiquadFilter();
+
+                    // Pitch sweep: 440Hz -> 720Hz -> 380Hz (slow, gentle meow)
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(430, now);
+                    osc.frequency.exponentialRampToValueAtTime(740, now + 0.45);
+                    osc.frequency.exponentialRampToValueAtTime(390, now + 1.4);
+
+                    // Low-pass filter for warm, feline vocal resonance
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(1400, now);
+                    filter.frequency.exponentialRampToValueAtTime(2200, now + 0.45);
+                    filter.frequency.exponentialRampToValueAtTime(900, now + 1.4);
+
+                    // Smooth volume envelope
+                    gain.gain.setValueAtTime(0.001, now);
+                    gain.gain.linearRampToValueAtTime(0.35, now + 0.2);
+                    gain.gain.linearRampToValueAtTime(0.30, now + 0.7);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 1.55);
+                } catch (e) {
+                    console.log('AudioContext ready');
+                }
+            }
+        }
+
+        // ======================================================================
+        // AUTONOMOUS LIVING CAT ENGINE
+        // - Self-contained autonomous patrol along the bottom shelf
+        // - Does NOT track or follow cursor touch
+        // - Touching the cat triggers a slow, gentle "Meow" and cute purr reaction
         // ======================================================================
         class LivingCatEngine {
             constructor() {
                 this.container = document.getElementById('livingCatActor');
                 this.sprite = document.getElementById('catSprite');
-                this.shadow = document.getElementById('catContactShadow');
-                this.whisper = document.getElementById('catMoodWhisper');
-                this.deck = document.querySelector('.community-deck');
+                this.bubble = document.getElementById('catSpeechBubble');
+                this.sound = new CatSoundSystem();
 
-                // Preloaded Photorealistic Assets
                 this.poses = {
                     walk1: 'assets/cat_walk1.png',
                     walk2: 'assets/cat_walk2.png',
@@ -2011,206 +1875,168 @@
                     sleep: 'assets/cat_sleep.png'
                 };
 
-                // State
                 this.state = 'walk'; // walk | pause | look | sit | sleep
-                this.currentX = 140; // Pixels from left of community section
-                this.targetX = 140;
-                this.direction = 1; // 1: walking right, -1: walking left
+                this.currentX = 120;
+                this.targetX = 280;
+                this.direction = 1;
                 this.walkFrame = 0;
-                this.isEngagedByUser = false;
-                this.stateTimer = null;
-                this.walkInterval = null;
+                this.isMeowing = false;
 
                 this.minX = 40;
-                this.maxX = 480;
+                this.maxX = 620;
+
+                this.walkInterval = null;
+                this.stateTimer = null;
+                this.meowBubbleTimer = null;
 
                 this.init();
             }
 
             init() {
                 this.updatePosition();
-                this.setupInteractions();
-                this.startBehavioralCycle();
+                this.setupTouchMeow();
+                this.startAutonomousBehavior();
             }
 
-            setPose(poseKey) {
-                if (this.poses[poseKey]) {
-                    this.sprite.src = this.poses[poseKey];
+            setPose(key) {
+                if (this.poses[key]) {
+                    this.sprite.src = this.poses[key];
                 }
             }
 
             updatePosition() {
                 this.container.style.left = `${this.currentX}px`;
-                // Flip cat image when walking left/right
                 const flip = this.direction === 1 ? 'scaleX(1)' : 'scaleX(-1)';
                 this.sprite.style.transform = flip;
             }
 
-            setMoodWhisper(text) {
-                this.whisper.textContent = text;
+            triggerMeow() {
+                this.sound.playMeow();
+                
+                // Show gentle Meow speech bubble
+                this.bubble.classList.add('active');
+                if (this.meowBubbleTimer) clearTimeout(this.meowBubbleTimer);
+                this.meowBubbleTimer = setTimeout(() => {
+                    this.bubble.classList.remove('active');
+                }, 2200);
+
+                // Cute reaction: cat stops and looks at you
+                if (this.walkInterval) clearInterval(this.walkInterval);
+                if (this.stateTimer) clearTimeout(this.stateTimer);
+
+                this.state = 'look';
+                this.container.className = 'living-cat-actor';
+                this.setPose('look');
+
+                setTimeout(() => {
+                    this.startAutonomousBehavior();
+                }, 2800);
             }
 
-            // --- Autonomous Behavior Loop ---
-            startBehavioralCycle() {
+            setupTouchMeow() {
+                // Click or Touch triggers the slow, gentle Meow
+                this.container.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.triggerMeow();
+                });
+
+                this.container.addEventListener('touchstart', (e) => {
+                    e.stopPropagation();
+                    this.triggerMeow();
+                }, { passive: true });
+            }
+
+            // Pure Autonomous Behavior (Not driven by user cursor)
+            startAutonomousBehavior() {
                 if (this.stateTimer) clearTimeout(this.stateTimer);
-                if (this.isEngagedByUser) return;
 
                 const roll = Math.random();
 
-                if (roll < 0.40) {
-                    // WALK along community cards
-                    this.enterWalkState();
-                } else if (roll < 0.65) {
-                    // PAUSE & LOOK around
-                    this.enterLookState();
-                } else if (roll < 0.85) {
-                    // SIT comfortably
-                    this.enterSitState();
+                if (roll < 0.45) {
+                    // Stroll autonomously
+                    this.stroll();
+                } else if (roll < 0.70) {
+                    // Pause and observe
+                    this.pauseAndLook();
+                } else if (roll < 0.88) {
+                    // Sit calmly
+                    this.sitDown();
                 } else {
-                    // SLEEP peacefully
-                    this.enterSleepState();
+                    // Take a gentle nap
+                    this.fallAsleep();
                 }
             }
 
-            enterWalkState(targetX = null) {
+            stroll() {
                 this.state = 'walk';
                 this.container.className = 'living-cat-actor cat-walking';
-                this.setMoodWhisper('wandering gracefully...');
 
-                // Pick a target along community shelf
-                if (targetX !== null) {
-                    this.targetX = Math.max(this.minX, Math.min(this.maxX, targetX));
-                } else {
-                    // Pick a random spot near one of the 4 cards
-                    const spots = [70, 180, 290, 420];
-                    this.targetX = spots[Math.floor(Math.random() * spots.length)];
-                }
+                // Pick a destination point along the bottom track
+                const targetPoints = [50, 140, 240, 360, 490, 580];
+                this.targetX = targetPoints[Math.floor(Math.random() * targetPoints.length)];
 
                 this.direction = this.targetX >= this.currentX ? 1 : -1;
                 this.updatePosition();
 
                 if (this.walkInterval) clearInterval(this.walkInterval);
 
-                const stepSize = 14;
+                const step = 12;
                 this.walkInterval = setInterval(() => {
-                    if (this.state !== 'walk' || this.isEngagedByUser) {
+                    if (this.state !== 'walk') {
                         clearInterval(this.walkInterval);
                         return;
                     }
 
-                    // Alternate walk frames for realistic walking stride
+                    // Alternate paws for realistic walking stride
                     this.walkFrame = (this.walkFrame + 1) % 2;
                     this.setPose(this.walkFrame === 0 ? 'walk1' : 'walk2');
 
-                    const delta = this.targetX - this.currentX;
-                    if (Math.abs(delta) <= stepSize) {
+                    const dist = this.targetX - this.currentX;
+                    if (Math.abs(dist) <= step) {
                         this.currentX = this.targetX;
                         this.updatePosition();
                         clearInterval(this.walkInterval);
-                        // Natural pause after reaching destination
-                        this.enterLookState(2500);
+                        // Settle after stroll
+                        this.pauseAndLook(2400 + Math.random() * 2000);
                     } else {
-                        this.currentX += this.direction * stepSize;
+                        this.currentX += this.direction * step;
                         this.updatePosition();
                     }
-                }, 180);
+                }, 190);
             }
 
-            enterLookState(duration = 3200) {
+            pauseAndLook(duration = 3200) {
                 if (this.walkInterval) clearInterval(this.walkInterval);
                 this.state = 'look';
                 this.container.className = 'living-cat-actor';
                 this.setPose('look');
-                this.setMoodWhisper('observing the community...');
 
                 this.stateTimer = setTimeout(() => {
-                    this.startBehavioralCycle();
+                    this.startAutonomousBehavior();
                 }, duration);
             }
 
-            enterSitState(duration = 5500) {
+            sitDown(duration = 6000) {
                 if (this.walkInterval) clearInterval(this.walkInterval);
                 this.state = 'sit';
                 this.container.className = 'living-cat-actor cat-sitting';
                 this.setPose('sit');
-                this.setMoodWhisper('resting nearby...');
 
                 this.stateTimer = setTimeout(() => {
-                    this.startBehavioralCycle();
+                    this.startAutonomousBehavior();
                 }, duration);
             }
 
-            enterSleepState(duration = 9000) {
+            fallAsleep(duration = 9000) {
                 if (this.walkInterval) clearInterval(this.walkInterval);
                 this.state = 'sleep';
                 this.container.className = 'living-cat-actor cat-sleeping';
                 this.setPose('sleep');
-                this.setMoodWhisper('dozing peacefully...');
 
                 this.stateTimer = setTimeout(() => {
-                    // Wake up
-                    this.enterSitState(2500);
+                    // Wake up, sit up first
+                    this.sitDown(2500);
                 }, duration);
-            }
-
-            // --- Subtle Guidance & Mouse Interactions ---
-            setupInteractions() {
-                // 1. Hover on the cat itself
-                this.container.addEventListener('mouseenter', () => {
-                    this.isEngagedByUser = true;
-                    if (this.walkInterval) clearInterval(this.walkInterval);
-                    if (this.stateTimer) clearTimeout(this.stateTimer);
-                    this.setPose('look');
-                    this.container.className = 'living-cat-actor';
-                    this.setMoodWhisper('gentle purr...');
-                });
-
-                this.container.addEventListener('mouseleave', () => {
-                    this.isEngagedByUser = false;
-                    this.stateTimer = setTimeout(() => {
-                        this.startBehavioralCycle();
-                    }, 1200);
-                });
-
-                this.container.addEventListener('click', () => {
-                    this.enterSitState(4000);
-                    this.setMoodWhisper('happy resident cat');
-                });
-
-                // 2. Hover over any Community discovery card:
-                // Cat perkily walks toward the card to guide user attention
-                const cards = document.querySelectorAll('.discovery-card');
-                cards.forEach((card, index) => {
-                    card.addEventListener('mouseenter', () => {
-                        this.isEngagedByUser = true;
-                        if (this.walkInterval) clearInterval(this.walkInterval);
-                        if (this.stateTimer) clearTimeout(this.stateTimer);
-
-                        const targetPositions = [60, 175, 295, 410];
-                        const target = targetPositions[index] || 200;
-
-                        this.setMoodWhisper(`curious about ${card.querySelector('.disc-title').textContent}...`);
-                        
-                        if (Math.abs(this.currentX - target) < 40) {
-                            this.setPose('look');
-                            this.container.className = 'living-cat-actor cat-sitting';
-                        } else {
-                            this.enterWalkState(target);
-                        }
-                    });
-
-                    card.addEventListener('mouseleave', () => {
-                        this.isEngagedByUser = false;
-                        this.stateTimer = setTimeout(() => {
-                            this.startBehavioralCycle();
-                        }, 2500);
-                    });
-
-                    card.addEventListener('click', () => {
-                        this.enterSitState(6000);
-                        this.setMoodWhisper(`settled by ${card.querySelector('.disc-title').textContent}`);
-                    });
-                });
             }
         }
 
@@ -2219,8 +2045,8 @@
             const cat = new LivingCatEngine();
         });
 
-        // 3D Card Parallax Tilt on Hover for tactile paper realism
-        document.querySelectorAll('.grid-paper-memo, .discovery-card').forEach(card => {
+        // 3D Parallax Tilt for Sticky Notes
+        document.querySelectorAll('.sticky-note-card').forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
                 const x = e.clientX - rect.left;
@@ -2228,10 +2054,10 @@
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
                 
-                const rotateX = ((y - centerY) / centerY) * -4;
-                const rotateY = ((x - centerX) / centerX) * 4;
+                const rotateX = ((y - centerY) / centerY) * -5;
+                const rotateY = ((x - centerX) / centerX) * 5;
                 
-                card.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
+                card.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
             });
             
             card.addEventListener('mouseleave', () => {
