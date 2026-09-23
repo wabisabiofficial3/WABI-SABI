@@ -1,0 +1,104 @@
+-- ==============================================================================
+-- WABI SABI SUPABASE POSTGRESQL SCHEMA RESET & INITIALIZATION
+-- ==============================================================================
+
+-- 1. DROP OLD TABLES IF THEY EXIST (CLEAN RESET)
+DROP TABLE IF EXISTS admin_audit_logs CASCADE;
+DROP TABLE IF EXISTS sessions CASCADE;
+DROP TABLE IF EXISTS membership_applications CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+-- 2. CREATE USERS TABLE
+CREATE TABLE users (
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    display_name TEXT NOT NULL,
+    handle TEXT UNIQUE NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('CURATOR', 'USER')),
+    status TEXT NOT NULL CHECK (status IN ('PENDING', 'ACTIVE', 'REJECTED')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    last_login_at TIMESTAMPTZ
+);
+
+-- 3. CREATE MEMBERSHIP APPLICATIONS TABLE
+CREATE TABLE membership_applications (
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    reason TEXT NOT NULL,
+    favorite_work TEXT NOT NULL,
+    perspective TEXT NOT NULL,
+    contribution TEXT NOT NULL,
+    conversation TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
+    reviewed_by TEXT REFERENCES users(id),
+    reviewed_at TIMESTAMPTZ,
+    curator_notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. CREATE SESSIONS TABLE
+CREATE TABLE sessions (
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash TEXT UNIQUE NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. CREATE ADMIN AUDIT LOGS TABLE
+CREATE TABLE admin_audit_logs (
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+    admin_id TEXT NOT NULL REFERENCES users(id),
+    action TEXT NOT NULL,
+    target_user_id TEXT REFERENCES users(id),
+    metadata TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 6. CREATE PERFORMANCE & SEARCH INDEXES
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(LOWER(email));
+CREATE INDEX IF NOT EXISTS idx_users_handle ON users(LOWER(handle));
+CREATE INDEX IF NOT EXISTS idx_sessions_token_hash ON sessions(token_hash);
+CREATE INDEX IF NOT EXISTS idx_applications_user ON membership_applications(user_id);
+CREATE INDEX IF NOT EXISTS idx_applications_status ON membership_applications(status);
+CREATE INDEX IF NOT EXISTS idx_audit_created ON admin_audit_logs(created_at);
+
+-- 7. ENABLE ROW LEVEL SECURITY (RLS) FOR DEFENSE IN DEPTH
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE membership_applications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_audit_logs ENABLE ROW LEVEL SECURITY;
+
+-- 8. SEED THE 3 CURATOR (ADMIN) ACCOUNTS WITH EQUAL ACCESS
+-- Initial Password for all three: curator123
+INSERT INTO users (id, email, password_hash, display_name, handle, role, status)
+VALUES
+    (
+        'curator-likith',
+        'nrlikith6@gmail.com',
+        '$argon2id$v=19$m=32768,t=2,p=1$Ky+TTn2TgpE6FwJ8MeXr8Q$6u/nHzoPQ8KrLp4c0BYXoKmXLFGEN5O03g9LomjJ77Y',
+        'Likith',
+        'likith',
+        'CURATOR',
+        'ACTIVE'
+    ),
+    (
+        'curator-sarvasree',
+        'sarvasreeyuvaraj02@gmail.com',
+        '$argon2id$v=19$m=32768,t=2,p=1$O/buRkL3NuNAVRi1VJOW0w$Au7gDZ7CUHdSI3SUPbXdXH/Ai0b54XdAmlaAhA4DkiM',
+        'Sarvasree',
+        'sarvasree',
+        'CURATOR',
+        'ACTIVE'
+    ),
+    (
+        'curator-dhanush',
+        'ganganidhanush@gmail.com',
+        '$argon2id$v=19$m=32768,t=2,p=1$9Ir2p2OBOfwIILBQtGIswA$r2rZecJ44vuLwDjqofF1DHjXQSI5gTnqX2PrrIe9yMo',
+        'Dhanush',
+        'dhanush',
+        'CURATOR',
+        'ACTIVE'
+    );

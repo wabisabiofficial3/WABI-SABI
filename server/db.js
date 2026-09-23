@@ -84,29 +84,28 @@ function initDatabase() {
 async function seedInitialAccounts() {
     const checkUserStmt = db.prepare('SELECT id FROM users WHERE email = ?');
 
-    // 1. Curators
+    // 1. Curators (Likith, Sarvasree, Dhanush)
     const curators = [
         {
-            id: 'curator-01',
-            email: process.env.CURATOR_1_EMAIL || 'curator@wabisabi.club',
-            altEmail: 'curator1@wabisabi.club',
+            id: 'curator-likith',
+            email: process.env.CURATOR_1_EMAIL || 'nrlikith6@gmail.com',
             password: process.env.CURATOR_1_PASSWORD || 'curator123',
-            name: 'Dhanush',
-            handle: 'curator'
+            name: 'Likith',
+            handle: 'likith'
         },
         {
-            id: 'curator-02',
-            email: process.env.CURATOR_2_EMAIL || 'curator2@wabisabi.club',
+            id: 'curator-sarvasree',
+            email: process.env.CURATOR_2_EMAIL || 'sarvasreeyuvaraj02@gmail.com',
             password: process.env.CURATOR_2_PASSWORD || 'curator123',
-            name: 'Maya',
-            handle: 'curatormaya'
+            name: 'Sarvasree',
+            handle: 'sarvasree'
         },
         {
-            id: 'curator-03',
-            email: process.env.CURATOR_3_EMAIL || 'curator3@wabisabi.club',
+            id: 'curator-dhanush',
+            email: process.env.CURATOR_3_EMAIL || 'ganganidhanush@gmail.com',
             password: process.env.CURATOR_3_PASSWORD || 'curator123',
-            name: 'Julian',
-            handle: 'curatorjulian'
+            name: 'Dhanush',
+            handle: 'dhanush'
         }
     ];
 
