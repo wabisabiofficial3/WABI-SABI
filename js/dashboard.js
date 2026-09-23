@@ -460,14 +460,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // - LocalStorage persistence of hand doodles
     // =========================================================================
     const doodleCanvas = document.getElementById('deskDoodleCanvas');
-    const doodleToggleBtn = document.getElementById('doodleToggleBtn');
-    const doodleClearBtn = document.getElementById('doodleClearBtn');
-    const doodleColorBtns = document.querySelectorAll('.doodle-color-btn');
-
     if (doodleCanvas) {
-        const ctx = doodleCanvas.getContext('2d');
-        let isDrawing = false;
-        let isDoodleActive = true;
         let currentColor = '#231E19';
         let currentStroke = [];
         let allStrokes = [];
