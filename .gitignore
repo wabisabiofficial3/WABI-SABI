@@ -1,5 +1,9 @@
 # Scratch & test scripts
 scratch/
+data/
+*.db
+*.sqlite*
+
 
 # Compiled and binary files
 *.pyc

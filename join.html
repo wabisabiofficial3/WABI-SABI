@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Join the Circle — Wabi Sabi</title>
     
+    <!-- Favicon & Touch Icons -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    
     <!-- Editorial & Aesthetic Handwriting Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,24 +42,31 @@
             </div>
 
             <div class="onboarding-progress-tag" id="obStepIndicator">
-                Step 01 / 05 — Identity
+                Step 01 / 03 — Account
             </div>
 
             <div style="display: flex; align-items: center; gap: 12px;">
-                <button class="theme-btn theme-toggle-trigger" title="Toggle Light / Dark Theme" aria-label="Toggle Theme">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                <button class="theme-btn theme-toggle-trigger" title="Tea Glass (Day) / Coffee Cup (Night)" aria-label="Toggle Light / Dark Theme">
+                    <!-- Light Mode: Serene Fluted Tea Glass -->
+                    <svg class="theme-icon theme-icon-tea" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 6.5h12l-1.8 12.5a2 2 0 0 1-2 1.5H9.8a2 2 0 0 1-2-1.5L6 6.5z"/>
+                        <line x1="6.6" y1="10.2" x2="17.4" y2="10.2"/>
+                        <line x1="10" y1="10.2" x2="10.5" y2="18.5"/>
+                        <line x1="14" y1="10.2" x2="13.5" y2="18.5"/>
+                        <line x1="8.2" y1="18.5" x2="15.8" y2="18.5"/>
+                        <path d="M8.8 4.2c0-.9.6-1.7 1.2-1.7s1.2.8 1.2 1.7"/>
+                        <path d="M12.8 4.2c0-.9.6-1.7 1.2-1.7s1.2.8 1.2 1.7"/>
+                    </svg>
+                    <!-- Dark Mode: Steaming Ceramic Coffee Cup with Handle & Saucer -->
+                    <svg class="theme-icon theme-icon-coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 6.5h11v7a4.5 4.5 0 0 1-4.5 4.5h-2A4.5 4.5 0 0 1 4 13.5v-7z"/>
+                        <path d="M15 8.5h2.2a2.3 2.3 0 0 1 2.3 2.3v.4a2.3 2.3 0 0 1-2.3 2.3H15"/>
+                        <path d="M2.5 19.5h14"/>
+                        <path d="M7 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
+                        <path d="M11 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
                     </svg>
                 </button>
-                <a href="index.html" class="onboarding-cancel-btn" id="obCancelBtn" title="Return to login">
+                <a href="login.html" class="onboarding-cancel-btn" id="obCancelBtn" title="Return to login">
                     ✕ Back to Sign In
                 </a>
             </div>
@@ -60,12 +74,12 @@
 
         <!-- Progress Bar -->
         <div class="onboarding-progress-bar">
-            <div class="onboarding-progress-fill" id="obProgressFill" style="width: 20%;"></div>
+            <div class="onboarding-progress-fill" id="obProgressFill" style="width: 33%;"></div>
         </div>
 
         <!-- Notebook Sheet Container -->
         <main class="onboarding-notebook">
-            <!-- Step 1: Basic Identity -->
+            <!-- Step 1: Account Credentials -->
             <div class="ob-step-card" id="obStep1">
                 <div class="ob-washi-tape"></div>
                 <div class="ob-card-header">
@@ -76,18 +90,23 @@
                 
                 <div class="ob-form">
                     <div class="auth-field-group">
-                        <label class="auth-label">Your Name or Pen Name</label>
-                        <input type="text" id="obNameInput" class="auth-input" placeholder="e.g. Aria Montgomery" required>
+                        <label for="obNameInput" class="auth-label">Your Name or Pen Name</label>
+                        <input type="text" id="obNameInput" class="auth-input" placeholder="e.g. Aria Montgomery" required autocomplete="name">
                     </div>
 
                     <div class="auth-field-group">
-                        <label class="auth-label">Email Address</label>
-                        <input type="email" id="obEmailInput" class="auth-input" placeholder="aria@example.com" required>
+                        <label for="obEmailInput" class="auth-label">Email Address</label>
+                        <input type="email" id="obEmailInput" class="auth-input" placeholder="aria@example.com" required autocomplete="email">
                     </div>
 
                     <div class="auth-field-group">
-                        <label class="auth-label">Password</label>
-                        <input type="password" id="obPasswordInput" class="auth-input" placeholder="At least 6 characters" required>
+                        <label for="obPasswordInput" class="auth-label">Password</label>
+                        <input type="password" id="obPasswordInput" class="auth-input" placeholder="At least 6 characters" required autocomplete="new-password">
+                    </div>
+
+                    <div class="auth-field-group">
+                        <label for="obPasswordConfirmInput" class="auth-label">Confirm Password</label>
+                        <input type="password" id="obPasswordConfirmInput" class="auth-input" placeholder="Re-enter your password" required autocomplete="new-password">
                     </div>
 
                     <div class="ob-button-row">
@@ -111,7 +130,7 @@
 
                 <div class="ob-form">
                     <div class="auth-field-group">
-                        <label class="auth-label">Handle (Letters only, 3–20 characters)</label>
+                        <label for="obHandleInput" class="auth-label">Handle (Letters only, 3–20 characters)</label>
                         <div class="handle-input-container">
                             <span class="handle-prefix">@</span>
                             <input type="text" id="obHandleInput" class="handle-input" placeholder="quietreader" autocomplete="off">
@@ -142,100 +161,97 @@
                     <div class="ob-button-row">
                         <button type="button" class="ob-back-btn" id="obStep2BackBtn">← Back</button>
                         <button type="button" class="auth-submit-btn" id="obStep2NextBtn" disabled>
-                            <span>Continue to Interests</span>
+                            <span>Continue to Questions</span>
                             <span class="btn-arrow">→</span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Step 3: What Pulls You In? (Interests) -->
+            <!-- Step 3: About You (The 5 Meaningful Wabi Sabi Questions) -->
             <div class="ob-step-card" id="obStep3" style="display: none;">
                 <div class="ob-washi-tape washi-lavender"></div>
                 <div class="ob-card-header">
-                    <span class="ob-card-subtitle">Chapter 03 • Curiosities</span>
-                    <h2 class="ob-card-title">What pulls you in?</h2>
-                    <p class="ob-card-subtext">Select the topics and art forms that make you pause and wonder (select at least one).</p>
+                    <span class="ob-card-subtitle">Chapter 03 • Application for the Circle</span>
+                    <h2 class="ob-card-title">About you.</h2>
+                    <p class="ob-card-subtext">We ask a small number of meaningful questions rather than generic forms. Our 3 Curators review every voice with care.</p>
                 </div>
 
-                <div class="interest-chips-grid" id="obInterestsGrid">
-                    <!-- Populated dynamically by js/onboarding.js -->
-                </div>
+                <div class="ob-form" style="gap: 16px;">
+                    <div class="application-question-box">
+                        <span class="app-q-number">Question 01</span>
+                        <label for="obQReason" class="app-q-title">What brought you to Wabi Sabi?</label>
+                        <textarea id="obQReason" class="auth-textarea" rows="2" placeholder="Tell us what drew you here..." required></textarea>
+                    </div>
 
-                <div class="ob-button-row">
-                    <button type="button" class="ob-back-btn" id="obStep3BackBtn">← Back</button>
-                    <button type="button" class="auth-submit-btn" id="obStep3NextBtn">
-                        <span>Continue: Intentions</span>
-                        <span class="btn-arrow">→</span>
-                    </button>
+                    <div class="application-question-box">
+                        <span class="app-q-number">Question 02</span>
+                        <label for="obQFavoriteWork" class="app-q-title">What's something you've read or watched that stayed with you?</label>
+                        <textarea id="obQFavoriteWork" class="auth-textarea" rows="2" placeholder="A book, film, essay, or dialogue..." required></textarea>
+                    </div>
+
+                    <div class="application-question-box">
+                        <span class="app-q-number">Question 03</span>
+                        <label for="obQPerspective" class="app-q-title">What's an idea you've disagreed with recently?</label>
+                        <textarea id="obQPerspective" class="auth-textarea" rows="2" placeholder="Share your perspective thoughtfully..." required></textarea>
+                    </div>
+
+                    <div class="application-question-box">
+                        <span class="app-q-number">Question 04</span>
+                        <label for="obQContribution" class="app-q-title">What would you like to contribute to the community?</label>
+                        <textarea id="obQContribution" class="auth-textarea" rows="2" placeholder="Writing, discussions, book suggestions, quiet listening..." required></textarea>
+                    </div>
+
+                    <div class="application-question-box">
+                        <span class="app-q-number">Question 05</span>
+                        <label for="obQConversation" class="app-q-title">What does a good conversation mean to you?</label>
+                        <textarea id="obQConversation" class="auth-textarea" rows="2" placeholder="What makes dialogue meaningful to you..." required></textarea>
+                    </div>
+
+                    <div class="ob-button-row" style="margin-top: 20px;">
+                        <button type="button" class="ob-back-btn" id="obStep3BackBtn">← Back</button>
+                        <button type="button" class="auth-submit-btn" id="obStep3SubmitBtn">
+                            <span>Submit Application to Curators</span>
+                            <span class="btn-arrow">✦</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Step 4: Why Are You Here? (Intentions) -->
+            <!-- Step 4: Application Received Confirmation Card -->
             <div class="ob-step-card" id="obStep4" style="display: none;">
-                <div class="ob-washi-tape washi-coral"></div>
-                <div class="ob-card-header">
-                    <span class="ob-card-subtitle">Chapter 04 • Intentions</span>
-                    <h2 class="ob-card-title">Why are you here?</h2>
-                    <p class="ob-card-subtext">What kind of space do you hope Wabi Sabi becomes for you?</p>
-                </div>
+                <div class="celebration-badge">✦ Application Received ✦</div>
+                <h2 class="ob-card-title" style="text-align: center; margin-top: 10px;">Your place in the Circle is being considered.</h2>
+                <p class="ob-card-subtext" style="text-align: center;">A Curator will review your responses with care.</p>
 
-                <div class="intentions-cards-grid" id="obIntentionsGrid">
-                    <!-- Populated dynamically by js/onboarding.js -->
-                </div>
+                <div class="library-card-display" style="text-align: center;">
+                    <div class="library-card-stamp">APPLICATION • STATUS</div>
+                    <div class="card-name-title" id="confirmApplicantName">Applicant</div>
+                    <div class="card-handle-badge" style="justify-content: center;">
+                        <span id="confirmApplicantHandle">@handle</span>
+                        <span class="lock-icon">🔒</span>
+                    </div>
+                    
+                    <div style="margin: 14px 0;">
+                        <span class="app-status-badge status-pending">
+                            <span>⏳</span>
+                            <span>Pending Review</span>
+                        </span>
+                    </div>
 
-                <div class="ob-button-row">
-                    <button type="button" class="ob-back-btn" id="obStep4BackBtn">← Back</button>
-                    <button type="button" class="auth-submit-btn" id="obStep4NextBtn">
-                        <span>Continue: What You Bring</span>
-                        <span class="btn-arrow">→</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Step 5: What Do You Bring? (Contributions) -->
-            <div class="ob-step-card" id="obStep5" style="display: none;">
-                <div class="ob-washi-tape washi-cream"></div>
-                <div class="ob-card-header">
-                    <span class="ob-card-subtitle">Chapter 05 • Gifts & Presence</span>
-                    <h2 class="ob-card-title">What do you bring to the circle?</h2>
-                    <p class="ob-card-subtext">Every member enriches the community in their own unique way.</p>
-                </div>
-
-                <div class="interest-chips-grid" id="obContributionsGrid">
-                    <!-- Populated dynamically by js/onboarding.js -->
-                </div>
-
-                <div class="ob-button-row">
-                    <button type="button" class="ob-back-btn" id="obStep5BackBtn">← Back</button>
-                    <button type="button" class="auth-submit-btn" id="obStep5NextBtn">
-                        <span>Craft My Reader Page</span>
-                        <span class="btn-arrow">✦</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Step 6: Celebration Card -->
-            <div class="ob-step-card" id="obStep6" style="display: none;">
-                <div class="celebration-badge">✦ Welcome Home ✦</div>
-                <h2 class="ob-card-title" style="text-align: center; margin-top: 10px;">Your page is ready.</h2>
-                <p class="ob-card-subtext" style="text-align: center;">Welcome to Wabi Sabi, <strong id="celebrationHandleText" style="color: var(--forest-green);">@handle</strong>.</p>
-
-                <div class="library-card-display">
-                    <div class="library-card-stamp">PERMANENT READER • NO. 042</div>
-                    <div class="library-card-body">
-                        <div class="card-name-title" id="celebrationNameText">Elena Vance</div>
-                        <div class="card-handle-badge"><span id="celebrationHandleBadge">@quietreader</span> <span class="lock-icon">🔒</span></div>
-                        <div class="card-role-line">Role: <strong>Reader</strong> • The Wabi Sabi Circle</div>
-                        <div class="card-interests-summary" id="celebrationInterestsSummary"></div>
+                    <div class="card-role-line" style="text-align: left; line-height: 1.6;">
+                        <strong>Next Steps:</strong> Once a Curator reviews your submission, your account will be activated and you will be able to enter the Community Space.
                     </div>
                 </div>
 
-                <div style="text-align: center; margin-top: 24px;">
-                    <button type="button" class="auth-submit-btn" id="celebrationEnterBtn" style="padding: 14px 36px; font-size: 15px; margin: 0 auto;">
-                        <span>Enter Community Space</span>
+                <div style="display: flex; justify-content: center; gap: 14px; margin-top: 24px; flex-wrap: wrap;">
+                    <a href="application-status.html" class="auth-submit-btn" style="text-decoration: none; padding: 12px 28px;">
+                        <span>View Application Status</span>
                         <span class="btn-arrow">→</span>
-                    </button>
+                    </a>
+                    <a href="login.html" class="ob-back-btn" style="text-decoration: none; padding: 12px 22px;">
+                        Back to Sign In
+                    </a>
                 </div>
             </div>
         </main>

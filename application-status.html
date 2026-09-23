@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Status — Wabi Sabi</title>
+    
+    <!-- Favicon & Touch Icons -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    
+    <!-- Editorial & Aesthetic Handwriting Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Manrope:wght@300;400;500;600;700&family=Reenie+Beanie&family=Kalam:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+    <!-- Paper Texture Overlay & Accents -->
+    <div class="paper-grain-overlay"></div>
+    <div class="organic-top-drip"></div>
+    <div class="organic-left-wave"></div>
+
+    <div class="onboarding-viewport">
+        <!-- Header -->
+        <header class="onboarding-header">
+            <div class="brand-container">
+                <a href="index.html" class="brand-logo" title="The Wabi Sabi Bookclub">
+                    <span class="brand-the">The</span>
+                    <div class="brand-logo-wrap">
+                        <img src="assets/wabi_sabi_horizontal.png" alt="Wabi Sabi" class="brand-img light-brand">
+                        <img src="assets/wabi_sabi_horizontal_dark.png" alt="Wabi Sabi" class="brand-img dark-brand">
+                    </div>
+                    <div class="brand-bookclub-tag">
+                        <span class="brand-bookclub-text">Membership</span>
+                    </div>
+                </a>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <button class="theme-btn theme-toggle-trigger" title="Tea Glass (Day) / Coffee Cup (Night)" aria-label="Toggle Light / Dark Theme">
+                    <!-- Light Mode: Serene Fluted Tea Glass -->
+                    <svg class="theme-icon theme-icon-tea" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 6.5h12l-1.8 12.5a2 2 0 0 1-2 1.5H9.8a2 2 0 0 1-2-1.5L6 6.5z"/>
+                        <line x1="6.6" y1="10.2" x2="17.4" y2="10.2"/>
+                        <line x1="10" y1="10.2" x2="10.5" y2="18.5"/>
+                        <line x1="14" y1="10.2" x2="13.5" y2="18.5"/>
+                        <line x1="8.2" y1="18.5" x2="15.8" y2="18.5"/>
+                        <path d="M8.8 4.2c0-.9.6-1.7 1.2-1.7s1.2.8 1.2 1.7"/>
+                        <path d="M12.8 4.2c0-.9.6-1.7 1.2-1.7s1.2.8 1.2 1.7"/>
+                    </svg>
+                    <!-- Dark Mode: Steaming Ceramic Coffee Cup with Handle & Saucer -->
+                    <svg class="theme-icon theme-icon-coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 6.5h11v7a4.5 4.5 0 0 1-4.5 4.5h-2A4.5 4.5 0 0 1 4 13.5v-7z"/>
+                        <path d="M15 8.5h2.2a2.3 2.3 0 0 1 2.3 2.3v.4a2.3 2.3 0 0 1-2.3 2.3H15"/>
+                        <path d="M2.5 19.5h14"/>
+                        <path d="M7 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
+                        <path d="M11 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
+                    </svg>
+                </button>
+                <button type="button" class="onboarding-cancel-btn" id="appSignOutBtn" title="Sign out">
+                    Sign Out
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Status View -->
+        <main class="onboarding-notebook">
+            <div class="ob-step-card" style="display: block; max-width: 600px; margin: 30px auto;">
+                <div class="ob-washi-tape washi-sage"></div>
+
+                <!-- Status Content: Hydrated dynamically by JS -->
+                <div id="statusLoading" style="text-align: center; padding: 40px 0;">
+                    <div style="font-family: var(--font-serif); font-size: 20px; color: var(--ink-secondary);">Checking your application status with the Circle...</div>
+                </div>
+
+                <div id="statusContent" style="display: none;">
+                    <div class="celebration-badge" id="statusHeaderBadge">✦ Membership Status ✦</div>
+                    <h2 class="ob-card-title" id="statusMainHeading" style="text-align: center; margin-top: 10px;">
+                        Your place in the Circle is being considered.
+                    </h2>
+                    <p class="ob-card-subtext" id="statusSubHeading" style="text-align: center;">
+                        A Curator will review your responses with care.
+                    </p>
+
+                    <!-- Library Stamp Card -->
+                    <div class="library-card-display" style="text-align: center; margin-top: 24px;">
+                        <div class="library-card-stamp" id="statusCardStamp">APPLICATION • PENDING</div>
+                        <div class="card-name-title" id="statusUserName">Applicant</div>
+                        <div class="card-handle-badge" style="justify-content: center;">
+                            <span id="statusUserHandle">@handle</span>
+                            <span class="lock-icon">🔒</span>
+                        </div>
+
+                        <div style="margin: 14px 0;" id="statusPillSlot">
+                            <span class="app-status-badge status-pending">
+                                <span>⏳</span>
+                                <span>Pending Review</span>
+                            </span>
+                        </div>
+
+                        <div class="card-role-line" id="statusExplanationText" style="text-align: left; line-height: 1.6;">
+                            Our 3 Curators review every application individually to protect the quiet, thoughtful character of Wabi Sabi. You will be able to enter the Community Space as soon as a Curator activates your membership.
+                        </div>
+
+                        <div id="curatorNoteBox" style="display: none; margin-top: 14px; padding: 12px; background: rgba(140, 135, 125, 0.1); border-radius: 6px; text-align: left; font-size: 13.5px; font-style: italic;">
+                            <strong style="font-style: normal; display: block; margin-bottom: 4px;">Curator's Note:</strong>
+                            <span id="curatorNoteText"></span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div id="statusActionsRow" style="display: flex; justify-content: center; gap: 14px; margin-top: 28px; flex-wrap: wrap;">
+                        <button type="button" class="auth-submit-btn" id="refreshStatusBtn" style="padding: 12px 24px;">
+                            <span>Check Status Again ↻</span>
+                        </button>
+                        <a href="login.html" class="ob-back-btn" style="text-decoration: none; padding: 12px 22px;">
+                            Back to Sign In
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/store.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const loadingEl = document.getElementById('statusLoading');
+            const contentEl = document.getElementById('statusContent');
+            const headerBadge = document.getElementById('statusHeaderBadge');
+            const mainHeading = document.getElementById('statusMainHeading');
+            const subHeading = document.getElementById('statusSubHeading');
+            const cardStamp = document.getElementById('statusCardStamp');
+            const userName = document.getElementById('statusUserName');
+            const userHandle = document.getElementById('statusUserHandle');
+            const pillSlot = document.getElementById('statusPillSlot');
+            const explanationText = document.getElementById('statusExplanationText');
+            const curatorNoteBox = document.getElementById('curatorNoteBox');
+            const curatorNoteText = document.getElementById('curatorNoteText');
+            const actionsRow = document.getElementById('statusActionsRow');
+            const refreshBtn = document.getElementById('refreshStatusBtn');
+            const signOutBtn = document.getElementById('appSignOutBtn');
+
+            if (signOutBtn) {
+                signOutBtn.addEventListener('click', () => {
+                    window.WabiSabiStore.logout();
+                });
+            }
+
+            async function loadStatus() {
+                try {
+                    const res = await fetch('/api/application/status');
+                    if (!res.ok) {
+                        // Not logged in -> redirect to login
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    const data = await res.json();
+                    if (!data.success || !data.user) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
+                    const user = data.user;
+                    const app = data.application;
+                    const status = user.status;
+
+                    userName.textContent = user.displayName || 'Applicant';
+                    userHandle.textContent = `@${user.handle}`;
+
+                    loadingEl.style.display = 'none';
+                    contentEl.style.display = 'block';
+
+                    if (status === 'ACTIVE' || user.role === 'CURATOR') {
+                        headerBadge.textContent = '✦ Welcome to the Circle ✦';
+                        mainHeading.textContent = 'Your application has been approved.';
+                        subHeading.textContent = 'You now have full, active access to the Wabi Sabi Community Space.';
+                        cardStamp.textContent = 'ACTIVE MEMBER • NO. 042';
+                        pillSlot.innerHTML = `
+                            <span class="app-status-badge status-approved">
+                                <span>✓</span>
+                                <span>Approved & Active</span>
+                            </span>
+                        `;
+                        explanationText.innerHTML = 'Your membership is active! Step inside to explore reading desks, quiet notes, salons, and conversations.';
+                        actionsRow.innerHTML = `
+                            <a href="${user.role === 'CURATOR' ? 'curator.html' : 'community.html'}" class="auth-submit-btn" style="text-decoration: none; padding: 14px 32px; font-size: 15px;">
+                                <span>Enter Community Space</span>
+                                <span class="btn-arrow">→</span>
+                            </a>
+                        `;
+                    } else if (status === 'REJECTED') {
+                        headerBadge.textContent = '✦ Application Concluded ✦';
+                        mainHeading.textContent = 'Thank you for sharing your thoughts.';
+                        subHeading.textContent = 'At this time, our curators were unable to extend an active membership for this chapter.';
+                        cardStamp.textContent = 'APPLICATION • NOT ACCEPTED';
+                        pillSlot.innerHTML = `
+                            <span class="app-status-badge status-rejected">
+                                <span>✕</span>
+                                <span>Not Accepted</span>
+                            </span>
+                        `;
+                        explanationText.textContent = 'Wabi Sabi maintains a carefully sized community to nurture deep, intimate dialogue. We deeply appreciate your time, vulnerability, and thoughtful responses.';
+                        if (app && app.curator_notes) {
+                            curatorNoteBox.style.display = 'block';
+                            curatorNoteText.textContent = `"${app.curator_notes}"`;
+                        }
+                    } else {
+                        // PENDING
+                        headerBadge.textContent = '✦ Application Received ✦';
+                        mainHeading.textContent = 'Your place in the Circle is being considered.';
+                        subHeading.textContent = 'A Curator will review your responses with care.';
+                        cardStamp.textContent = 'APPLICATION • PENDING REVIEW';
+                        pillSlot.innerHTML = `
+                            <span class="app-status-badge status-pending">
+                                <span>⏳</span>
+                                <span>Pending Review</span>
+                            </span>
+                        `;
+                    }
+                } catch (err) {
+                    console.error('Error fetching application status:', err);
+                    loadingEl.textContent = 'Could not connect to the server. Please try again.';
+                }
+            }
+
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', () => {
+                    loadingEl.style.display = 'block';
+                    contentEl.style.display = 'none';
+                    loadStatus();
+                });
+            }
+
+            loadStatus();
+        });
+    </script>
+</body>
+</html>

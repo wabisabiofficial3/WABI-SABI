@@ -100,10 +100,17 @@ class TaskbarCatEngine {
     }
 
     updateBoundaries() {
-        this.minX = Math.max(70, window.innerWidth * 0.05);
-        const catWidth = this.container ? (this.container.offsetWidth || 210) : 210;
-        this.maxX = Math.max(this.minX + 200, window.innerWidth - catWidth - 40);
-        if (this.x > this.maxX) this.x = this.maxX;
+        this.minX = Math.max(60, window.innerWidth * 0.04);
+        const catWidth = this.container ? (this.container.offsetWidth || 175) : 175;
+        this.maxX = Math.max(this.minX + 150, window.innerWidth - catWidth - 30);
+        if (this.x > this.maxX) {
+            this.x = this.maxX;
+            if (this.container) this.container.style.left = `${this.x}px`;
+        }
+        if (this.x < this.minX) {
+            this.x = this.minX;
+            if (this.container) this.container.style.left = `${this.x}px`;
+        }
     }
 
     init() {

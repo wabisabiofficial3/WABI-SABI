@@ -237,13 +237,30 @@ html, body {
 }
 
 .theme-btn:hover {
-    transform: rotate(20deg) scale(1.08);
+    transform: rotate(14deg) scale(1.1);
 }
 
 .theme-btn svg {
     width: 20px;
     height: 20px;
     stroke-width: 1.7;
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s ease;
+}
+
+.theme-icon-tea {
+    display: block;
+}
+
+.theme-icon-coffee {
+    display: none;
+}
+
+[data-theme="dark"] .theme-icon-tea {
+    display: none;
+}
+
+[data-theme="dark"] .theme-icon-coffee {
+    display: block;
 }
 
 /* Tabs */
@@ -638,3 +655,261 @@ html, body {
     font-size: 12px;
     display: inline-block;
 }
+
+/* Applications Review Grid & Cards */
+.applications-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 18px;
+    margin-top: 16px;
+}
+
+.app-review-card {
+    background: var(--bg-paper-alt);
+    border: 1px solid rgba(140, 135, 125, 0.25);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+}
+
+.app-review-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+}
+
+.app-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.app-applicant-name {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink-primary);
+}
+
+.app-applicant-handle {
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    color: var(--forest-green);
+    font-weight: 600;
+}
+
+[data-theme="dark"] .app-applicant-handle {
+    color: var(--accent-sage);
+}
+
+.app-submitted-time {
+    font-size: 12px;
+    color: var(--ink-muted);
+}
+
+.app-card-snippet {
+    font-size: 13.5px;
+    color: var(--ink-secondary);
+    line-height: 1.5;
+    margin: 10px 0 16px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-style: italic;
+}
+
+.app-card-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(140, 135, 125, 0.2);
+}
+
+.btn-review-open {
+    flex: 1;
+    background: var(--forest-green);
+    color: #FFFDF8;
+    border: none;
+    border-radius: 6px;
+    padding: 9px 14px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.btn-review-open:hover {
+    opacity: 0.9;
+}
+
+[data-theme="dark"] .btn-review-open {
+    background: var(--accent-sage);
+    color: #191614;
+}
+
+/* Full Applicant Review Modal */
+.review-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 18, 15, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.review-modal-sheet {
+    background: var(--bg-paper);
+    border: 1px solid rgba(140, 135, 125, 0.3);
+    border-radius: 12px;
+    max-width: 680px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 32px;
+    box-shadow: var(--shadow-float);
+    position: relative;
+}
+
+.review-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    color: var(--ink-muted);
+    cursor: pointer;
+}
+
+.review-modal-header {
+    border-bottom: 1.5px solid rgba(140, 135, 125, 0.2);
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+}
+
+.review-q-block {
+    background: var(--bg-paper-alt);
+    border: 1px solid rgba(140, 135, 125, 0.18);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 14px;
+}
+
+.review-q-label {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 12.5px;
+    color: var(--forest-green);
+    display: block;
+    margin-bottom: 4px;
+}
+
+[data-theme="dark"] .review-q-label {
+    color: var(--accent-sage);
+}
+
+.review-q-title {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink-primary);
+    margin-bottom: 8px;
+}
+
+.review-q-answer {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--ink-secondary);
+    line-height: 1.55;
+    white-space: pre-wrap;
+}
+
+.review-actions-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1.5px solid rgba(140, 135, 125, 0.2);
+    flex-wrap: wrap;
+}
+
+.btn-approve-action {
+    background: #255C3E;
+    color: #FFFDF8;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-approve-action:hover {
+    background: #1B452E;
+}
+
+.btn-reject-action {
+    background: transparent;
+    color: #9C3322;
+    border: 1.5px solid #9C3322;
+    border-radius: 8px;
+    padding: 11px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-reject-action:hover {
+    background: rgba(156, 51, 34, 0.1);
+}
+
+.tab-badge {
+    background: var(--forest-green);
+    color: #FFF;
+    border-radius: 10px;
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 4px;
+}
+
+[data-theme="dark"] .tab-badge {
+    background: var(--accent-sage);
+    color: #191614;
+}
+
+/* Audit Log Table Tags */
+.audit-tag-approve {
+    background: rgba(37, 92, 62, 0.14);
+    color: #255C3E;
+    border: 1px solid rgba(37, 92, 62, 0.3);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.audit-tag-reject {
+    background: rgba(156, 51, 34, 0.12);
+    color: #9C3322;
+    border: 1px solid rgba(156, 51, 34, 0.3);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+}
+

@@ -1,49 +1,26 @@
 /**
- * Wabi Sabi — Onboarding ("Join the Circle") Controller (js/onboarding.js)
+ * Wabi Sabi — Membership Application ("Join the Circle") Controller (js/onboarding.js)
  * Manages:
- * 1. 5-step notebook wizard navigation
- * 2. Live immutable handle validation with 4 indicators
- * 3. Interests chips, intentions, contributions selection
- * 4. Stamped Library Membership card celebration & registration
+ * 1. Step 1: Account credentials (Name, Email, Password, Confirm Password)
+ * 2. Step 2: Permanent handle claiming with live validation checklist
+ * 3. Step 3: The 5 curated Wabi Sabi questions
+ * 4. Step 4: Submission to /api/application/submit & pending review presentation
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Data Models & Lists
-    const INTERESTS_LIST = [
-        "Books & Literature", "Cinema & Films", "Philosophy", "Quiet Living",
-        "Architecture", "Psychology", "Art & Aesthetics", "Music & Ambient",
-        "Science & Cosmos", "Poetry", "Photography", "Essays & Notes",
-        "Solitude & Stillness", "Creativity"
-    ];
-
-    const INTENTIONS_LIST = [
-        { icon: "📖", title: "Read more deeply without algorithmic rush" },
-        { icon: "🎬", title: "Discover films and stories beyond algorithms" },
-        { icon: "☕", title: "Have slower, kinder conversations with real depth" },
-        { icon: "🌿", title: "Meet fellow quiet thinkers and curious minds" },
-        { icon: "✍️", title: "Share my own notes, essays, and marginalia" },
-        { icon: "🌙", title: "Find a quiet refuge from the noisy, algorithmic internet" }
-    ];
-
-    const CONTRIBUTIONS_LIST = [
-        "Writing & Essays", "Book Recommendations", "Film Criticism",
-        "Deep Listening", "Philosophical Questions", "Discussion Hosting",
-        "Gentle Encouragement", "Research & History", "Artistic Marginalia",
-        "Poetic Observations"
-    ];
-
     const state = {
         currentStep: 1,
         name: '',
         email: '',
         password: '',
         handle: '',
-        interests: ["Books & Literature", "Cinema & Films"],
-        intentions: ["Read more deeply without algorithmic rush"],
-        contributions: ["Writing & Essays"]
+        reason: '',
+        favorite_work: '',
+        perspective: '',
+        contribution: '',
+        conversation: ''
     };
 
-    // 2. DOM Elements
     const stepIndicator = document.getElementById('obStepIndicator');
     const progressFill = document.getElementById('obProgressFill');
 
@@ -51,9 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('obStep1'),
         document.getElementById('obStep2'),
         document.getElementById('obStep3'),
-        document.getElementById('obStep4'),
-        document.getElementById('obStep5'),
-        document.getElementById('obStep6')
+        document.getElementById('obStep4')
     ];
 
     function showStep(stepNum) {
@@ -62,19 +37,24 @@ document.addEventListener('DOMContentLoaded', () => {
             if (el) el.style.display = (idx + 1 === stepNum) ? 'block' : 'none';
         });
 
-        const stepNames = ["Identity", "Permanent Handle", "Interests", "Intentions", "Contributions", "Welcome"];
+        const stepNames = ["Account", "Permanent Handle", "Questions", "Pending Review"];
         if (stepIndicator) {
-            stepIndicator.textContent = stepNum <= 5 ? `Step 0${stepNum} / 05 — ${stepNames[stepNum - 1]}` : `Welcome to the Circle`;
+            stepIndicator.textContent = stepNum <= 3 
+                ? `Step 0${stepNum} / 03 — ${stepNames[stepNum - 1]}`
+                : `Application Received`;
         }
         if (progressFill) {
-            progressFill.style.width = `${Math.min(100, stepNum * 20)}%`;
+            const pct = stepNum === 1 ? 33 : stepNum === 2 ? 66 : 100;
+            progressFill.style.width = `${pct}%`;
         }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Step 1: Identity
+    // --- Step 1: Account Credentials ---
     const nameInput = document.getElementById('obNameInput');
     const emailInput = document.getElementById('obEmailInput');
     const passwordInput = document.getElementById('obPasswordInput');
+    const passwordConfirmInput = document.getElementById('obPasswordConfirmInput');
     const step1NextBtn = document.getElementById('obStep1NextBtn');
 
     if (step1NextBtn) {
@@ -82,9 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const name = nameInput.value.trim();
             const email = emailInput.value.trim();
             const pass = passwordInput.value;
+            const confirmPass = passwordConfirmInput ? passwordConfirmInput.value : pass;
 
             if (!name) {
-                window.WabiSabiStore.showToast("Please enter your name or pen name.");
+                window.WabiSabiStore.showToast("Please share your name or pen name.");
                 nameInput.focus();
                 return;
             }
@@ -94,8 +75,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             if (!pass || pass.length < 6) {
-                window.WabiSabiStore.showToast("Please create a password of at least 6 characters.");
+                window.WabiSabiStore.showToast("Password must be at least 6 characters.");
                 passwordInput.focus();
+                return;
+            }
+            if (pass !== confirmPass) {
+                window.WabiSabiStore.showToast("Passwords do not match. Please verify.");
+                passwordConfirmInput.focus();
                 return;
             }
 
@@ -103,18 +89,20 @@ document.addEventListener('DOMContentLoaded', () => {
             state.email = email;
             state.password = pass;
 
-            // Auto-suggest handle based on name if handle is empty
+            // Auto-suggest handle if not yet filled
             if (!state.handle) {
                 const suggested = window.WabiSabiStore.normalizeHandle(name);
-                handleInput.value = suggested;
-                checkHandleLive(suggested);
+                if (handleInput) {
+                    handleInput.value = suggested;
+                    checkHandleLive(suggested);
+                }
             }
 
             showStep(2);
         });
     }
 
-    // Step 2: Handle Validation
+    // --- Step 2: Permanent Handle Validation ---
     const handleInput = document.getElementById('obHandleInput');
     const ruleLetters = document.getElementById('ruleLetters');
     const ruleLength = document.getElementById('ruleLength');
@@ -152,13 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Rule 3: Available
         if (val.validLength && val.lettersOnly) {
-            if (val.isAvailable) {
-                ruleAvailable.className = 'handle-rule-item valid';
-                ruleAvailable.querySelector('.rule-icon').textContent = '✓';
-            } else {
-                ruleAvailable.className = 'handle-rule-item invalid';
-                ruleAvailable.querySelector('.rule-icon').textContent = '✗';
-            }
+            ruleAvailable.className = 'handle-rule-item valid';
+            ruleAvailable.querySelector('.rule-icon').textContent = '✓';
         } else {
             ruleAvailable.className = 'handle-rule-item';
             ruleAvailable.querySelector('.rule-icon').textContent = '○';
@@ -171,9 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (handleInput) {
         handleInput.addEventListener('input', () => {
-            // Auto clean/normalize two words or spaces in real time
-            const raw = handleInput.value;
-            checkHandleLive(raw);
+            checkHandleLive(handleInput.value);
         });
     }
 
@@ -185,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         step2NextBtn.addEventListener('click', () => {
             const val = window.WabiSabiStore.validateHandle(handleInput.value);
             if (!val.isValid) {
-                window.WabiSabiStore.showToast("Please choose an available letters-only handle.");
+                window.WabiSabiStore.showToast("Please choose an available letters-only handle (3-20 letters).");
                 return;
             }
             state.handle = val.normalized;
@@ -193,151 +174,91 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Step 3: Interests
-    const interestsGrid = document.getElementById('obInterestsGrid');
-    const step3NextBtn = document.getElementById('obStep3NextBtn');
+    // --- Step 3: The 5 Wabi Sabi Questions & Server Submission ---
+    const qReason = document.getElementById('obQReason');
+    const qFavoriteWork = document.getElementById('obQFavoriteWork');
+    const qPerspective = document.getElementById('obQPerspective');
+    const qContribution = document.getElementById('obQContribution');
+    const qConversation = document.getElementById('obQConversation');
+    const step3SubmitBtn = document.getElementById('obStep3SubmitBtn');
     const step3BackBtn = document.getElementById('obStep3BackBtn');
 
-    if (interestsGrid) {
-        interestsGrid.innerHTML = '';
-        INTERESTS_LIST.forEach(item => {
-            const chip = document.createElement('div');
-            chip.className = `interest-chip ${state.interests.includes(item) ? 'selected' : ''}`;
-            chip.textContent = item;
-            chip.addEventListener('click', () => {
-                if (state.interests.includes(item)) {
-                    state.interests = state.interests.filter(i => i !== item);
-                    chip.classList.remove('selected');
-                } else {
-                    state.interests.push(item);
-                    chip.classList.add('selected');
-                }
-            });
-            interestsGrid.appendChild(chip);
-        });
+    if (step3BackBtn) {
+        step3BackBtn.addEventListener('click', () => showStep(2));
     }
 
-    if (step3BackBtn) step3BackBtn.addEventListener('click', () => showStep(2));
-    if (step3NextBtn) {
-        step3NextBtn.addEventListener('click', () => {
-            if (state.interests.length < 1) {
-                window.WabiSabiStore.showToast("Please choose at least one curiosity.");
-                return;
-            }
-            showStep(4);
-        });
-    }
+    if (step3SubmitBtn) {
+        step3SubmitBtn.addEventListener('click', async () => {
+            const reason = qReason.value.trim();
+            const favorite_work = qFavoriteWork.value.trim();
+            const perspective = qPerspective.value.trim();
+            const contribution = qContribution.value.trim();
+            const conversation = qConversation.value.trim();
 
-    // Step 4: Intentions
-    const intentionsGrid = document.getElementById('obIntentionsGrid');
-    const step4NextBtn = document.getElementById('obStep4NextBtn');
-    const step4BackBtn = document.getElementById('obStep4BackBtn');
-
-    if (intentionsGrid) {
-        intentionsGrid.innerHTML = '';
-        INTENTIONS_LIST.forEach(obj => {
-            const card = document.createElement('div');
-            const isSel = state.intentions.includes(obj.title);
-            card.className = `intention-card ${isSel ? 'selected' : ''}`;
-            card.innerHTML = `
-                <div class="intention-checkbox">${isSel ? '✓' : ''}</div>
-                <div style="font-size: 16px;">${obj.icon}</div>
-                <div style="flex: 1;">${obj.title}</div>
-            `;
-            card.addEventListener('click', () => {
-                if (state.intentions.includes(obj.title)) {
-                    state.intentions = state.intentions.filter(i => i !== obj.title);
-                    card.classList.remove('selected');
-                    card.querySelector('.intention-checkbox').textContent = '';
-                } else {
-                    state.intentions.push(obj.title);
-                    card.classList.add('selected');
-                    card.querySelector('.intention-checkbox').textContent = '✓';
-                }
-            });
-            intentionsGrid.appendChild(card);
-        });
-    }
-
-    if (step4BackBtn) step4BackBtn.addEventListener('click', () => showStep(3));
-    if (step4NextBtn) {
-        step4NextBtn.addEventListener('click', () => showStep(5));
-    }
-
-    // Step 5: Contributions & Finalize
-    const contributionsGrid = document.getElementById('obContributionsGrid');
-    const step5NextBtn = document.getElementById('obStep5NextBtn');
-    const step5BackBtn = document.getElementById('obStep5BackBtn');
-
-    if (contributionsGrid) {
-        contributionsGrid.innerHTML = '';
-        CONTRIBUTIONS_LIST.forEach(item => {
-            const chip = document.createElement('div');
-            chip.className = `interest-chip ${state.contributions.includes(item) ? 'selected' : ''}`;
-            chip.textContent = item;
-            chip.addEventListener('click', () => {
-                if (state.contributions.includes(item)) {
-                    state.contributions = state.contributions.filter(i => i !== item);
-                    chip.classList.remove('selected');
-                } else {
-                    state.contributions.push(item);
-                    chip.classList.add('selected');
-                }
-            });
-            contributionsGrid.appendChild(chip);
-        });
-    }
-
-    if (step5BackBtn) step5BackBtn.addEventListener('click', () => showStep(4));
-    if (step5NextBtn) {
-        step5NextBtn.addEventListener('click', () => {
-            // Register member into store!
-            const res = window.WabiSabiStore.register({
-                name: state.name,
-                email: state.email,
-                password: state.password,
-                handle: state.handle,
-                interests: state.interests,
-                intentions: state.intentions,
-                contributions: state.contributions
-            });
-
-            if (!res.success) {
-                window.WabiSabiStore.showToast(res.message);
+            if (!reason || !favorite_work || !perspective || !contribution || !conversation) {
+                window.WabiSabiStore.showToast("Please answer all 5 questions so the Curators can review your application.");
                 return;
             }
 
-            // Populate Celebration Card
-            document.getElementById('celebrationHandleText').textContent = `@${state.handle}`;
-            document.getElementById('celebrationNameText').textContent = state.name;
-            document.getElementById('celebrationHandleBadge').textContent = `@${state.handle}`;
+            step3SubmitBtn.disabled = true;
+            step3SubmitBtn.style.opacity = '0.7';
 
-            const sumEl = document.getElementById('celebrationInterestsSummary');
-            if (sumEl) {
-                sumEl.innerHTML = '';
-                state.interests.slice(0, 4).forEach(item => {
-                    const tag = document.createElement('span');
-                    tag.className = 'card-mini-chip';
-                    tag.textContent = item;
-                    sumEl.appendChild(tag);
-                });
+            try {
+                const response = await (window.WabiSabiStore ? window.WabiSabiStore.apiFetch('/api/application/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: state.name,
+                        email: state.email,
+                        password: state.password,
+                        handle: state.handle,
+                        reason,
+                        favorite_work,
+                        perspective,
+                        contribution,
+                        conversation
+                    })
+                }) : fetch('/api/application/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: state.name,
+                        email: state.email,
+                        password: state.password,
+                        handle: state.handle,
+                        reason,
+                        favorite_work,
+                        perspective,
+                        contribution,
+                        conversation
+                    })
+                }));
+
+                const result = await response.json();
+                step3SubmitBtn.disabled = false;
+                step3SubmitBtn.style.opacity = '1';
+
+                if (response.ok && result.success) {
+                    // Update confirmation card
+                    const nameEl = document.getElementById('confirmApplicantName');
+                    const handleEl = document.getElementById('confirmApplicantHandle');
+                    if (nameEl) nameEl.textContent = state.name;
+                    if (handleEl) handleEl.textContent = `@${state.handle}`;
+
+                    window.WabiSabiStore.showToast("✦ Application received. Pending review by Curators.");
+                    showStep(4);
+                } else {
+                    window.WabiSabiStore.showToast(result.error || "Failed to submit application.");
+                }
+            } catch (err) {
+                step3SubmitBtn.disabled = false;
+                step3SubmitBtn.style.opacity = '1';
+                console.error('Submission error:', err);
+                window.WabiSabiStore.showToast("Could not reach the server. Please try again.");
             }
-
-            showStep(6);
         });
     }
 
-    // Step 6: Enter Community
-    const celebrationEnterBtn = document.getElementById('celebrationEnterBtn');
-    if (celebrationEnterBtn) {
-        celebrationEnterBtn.addEventListener('click', () => {
-            window.WabiSabiStore.showToast(`Welcome to the circle, @${state.handle}!`);
-            setTimeout(() => {
-                window.location.href = 'community.html';
-            }, 300);
-        });
-    }
-
-    // Initialize Step 1
+    // Initialize on step 1
     showStep(1);
 });

@@ -3,19 +3,21 @@
  * Manages:
  * 1. Guest check & session routing
  * 2. Password visibility toggle
- * 3. Login form validation & credentials check against WabiSabiStore
- * 4. Quick evaluation demo pills
+ * 3. Login form submission to server /api/auth/login with Argon2id verification
+ * 4. Automatic server-directed routing (/curator.html, /community.html, /application-status.html)
+ * 5. Quick evaluation demo pills
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. If already logged in, seamlessly forward to Community Space
-    if (window.WabiSabiStore && window.WabiSabiStore.requireGuest()) {
+document.addEventListener('DOMContentLoaded', async () => {
+    // 1. If already logged in, seamlessly forward according to role/status
+    if (window.WabiSabiStore && await window.WabiSabiStore.requireGuest()) {
         return;
     }
 
     const loginForm = document.getElementById('authLoginForm');
     const emailInput = document.getElementById('authEmailInput');
     const passwordInput = document.getElementById('authPasswordInput');
+    const submitBtn = document.getElementById('authSubmitBtn');
     const togglePassBtn = document.getElementById('authTogglePasswordBtn');
     const eyeOpen = togglePassBtn ? togglePassBtn.querySelector('.eye-open') : null;
     const eyeClosed = togglePassBtn ? togglePassBtn.querySelector('.eye-closed') : null;
@@ -34,20 +36,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. Form submission
-    function handleLogin(email, password) {
+    // 3. Form submission to /api/auth/login
+    async function handleLogin(email, password) {
         if (!email || !password) {
-            showError("Please enter both email address and password.");
+            showError("Please enter both your email address and password.");
             return;
         }
 
-        const res = window.WabiSabiStore.login(email, password);
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.7';
+        }
+
+        const res = await window.WabiSabiStore.login(email, password);
+
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+        }
+
         if (res.success) {
             hideError();
-            window.WabiSabiStore.showToast(`Welcome back, ${res.user.name}.`);
+            const name = res.user.displayName || res.user.name || 'friend';
+            window.WabiSabiStore.showToast(`Welcome back, ${name}.`);
             setTimeout(() => {
-                window.location.href = 'community.html';
-            }, 300);
+                window.location.href = res.redirectUrl || 'community.html';
+            }, 350);
         } else {
             showError(res.message || "Invalid credentials. Please verify your email and password.");
         }
@@ -74,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 4. Quick Demo Pills
+    // 4. Quick Demo Evaluation Pills
     if (demoReaderBtn && emailInput && passwordInput) {
         demoReaderBtn.addEventListener('click', () => {
             emailInput.value = 'reader@wabisabi.club';
@@ -95,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 5. About Us Full Story Reading Modal
     const openAboutBtn = document.getElementById('openAboutStoryBtn');
-    const footerTurnBtn = document.getElementById('footerTurnPageBtn');
     const closeAboutBtn = document.getElementById('closeAboutStoryBtn');
     const storyModal = document.getElementById('aboutStoryModal');
 
@@ -108,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (openAboutBtn) openAboutBtn.addEventListener('click', openStoryModal);
-    if (footerTurnBtn) footerTurnBtn.addEventListener('click', openStoryModal);
     if (closeAboutBtn) closeAboutBtn.addEventListener('click', closeStoryModal);
     if (storyModal) {
         storyModal.addEventListener('click', (e) => {
@@ -118,4 +130,56 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeStoryModal();
     });
+
+    // 6. Floating Demo Drawer Toggle
+    const drawerToggle = document.getElementById('demoDrawerToggle');
+    const drawerContent = document.getElementById('demoDrawerContent');
+    const floatingDemo = document.querySelector('.auth-floating-demo');
+    if (drawerToggle && drawerContent) {
+        drawerToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (floatingDemo) floatingDemo.classList.toggle('is-open');
+            const isHidden = drawerContent.style.display === 'none';
+            drawerContent.style.display = isHidden ? 'flex' : 'none';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (floatingDemo && !floatingDemo.contains(e.target)) {
+                floatingDemo.classList.remove('is-open');
+                drawerContent.style.display = 'none';
+            }
+        });
+    }
+
+    // 7. Responsive Collage Canvas Scale Controller (fits width & height without clipping)
+    function updateCollageScale() {
+        const wrapper = document.querySelector('.auth-collage-wrapper');
+        const canvas = document.querySelector('.auth-collage-canvas');
+        const header = document.querySelector('.auth-header');
+        const footer = document.querySelector('.auth-footer-bar');
+        const stage = document.querySelector('.auth-stage');
+        if (!wrapper || !canvas) return;
+        
+        const availW = wrapper.clientWidth || 640;
+        
+        // Compute real available vertical height between header and footer
+        const vh = window.innerHeight;
+        const headerH = header ? header.offsetHeight : 54;
+        const footerH = footer ? footer.offsetHeight : 44;
+        const stageAvailH = stage ? stage.clientHeight : (vh - headerH - footerH - 24);
+        const availH = Math.min(stageAvailH, vh - headerH - footerH - 20);
+        
+        const scaleW = Math.min(1, availW / 640);
+        const scaleH = availH > 200 ? Math.min(1, availH / 540) : 1;
+        const scale = Math.max(0.48, Math.min(scaleW, scaleH));
+
+        if (scale < 0.99) {
+            canvas.style.setProperty('--canvas-scale', scale.toFixed(4));
+        } else {
+            canvas.style.removeProperty('--canvas-scale');
+        }
+    }
+    window.addEventListener('resize', updateCollageScale, { passive: true });
+    window.addEventListener('orientationchange', updateCollageScale, { passive: true });
+    updateCollageScale();
 });
