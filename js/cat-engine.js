@@ -1,28 +1,53 @@
 /**
- * Wabi Sabi — Living Taskbar Cat & Hidden Motive Rocket Engine (js/cat-engine.js)
- * Controls:
- * 1. Slow meow sound synthesis + meow.mp3 audio playback
- * 2. Autonomous walking tabby cat along bottom taskbar with boundary detection
- * 3. Secret origami rocket flight engine: crumpled paper tossed -> cat swats -> rocket glides out of frame
+ * Dynamic Asset Path Resolver
+ * Ensures assets resolve correctly regardless of whether the page is hosted at root,
+ * /pages/ subdirectory, or opened directly via file://.
  */
+function resolveCatAsset(relativePath) {
+    const clean = relativePath.replace(/^(\.\.\/|\.\/|\/)/, '');
+    const assetName = clean.replace(/^assets\//, '');
+    if (typeof window !== 'undefined') {
+        const path = window.location.pathname || '';
+        if (path.includes('/pages/') || path.includes('\\pages\\') || window.location.protocol === 'file:') {
+            return '../assets/' + assetName;
+        }
+        return '/assets/' + assetName;
+    }
+    return '../assets/' + assetName;
+}
 
 // ======================================================================
 // 1. CAT SOUND SYSTEM: USER-UPLOADED MEOW AUDIO WITH FALLBACK SYNTHESIS
 // ======================================================================
 class CatSoundSystem {
     constructor() {
-        this.audioElement = new Audio('assets/meow.mp3');
+        this.mp3Url = resolveCatAsset('assets/meow.mp3');
+        this.wavUrl = resolveCatAsset('assets/meow.wav');
+        this.audioElement = new Audio(this.mp3Url);
         this.audioElement.preload = 'auto';
-        this.audioElement.volume = 0.9;
+        this.audioElement.volume = 0.95;
     }
 
     playMeow() {
         try {
-            this.audioElement.currentTime = 0;
-            const playPromise = this.audioElement.play();
+            const audio = new Audio(this.mp3Url);
+            audio.volume = 0.95;
+            const playPromise = audio.play();
             if (playPromise !== undefined) {
-                playPromise.catch(() => {
-                    this.synthesizeSlowMeow();
+                playPromise.catch((err) => {
+                    console.warn('MP3 playback failed, trying WAV audio fallback:', err);
+                    try {
+                        const fallbackAudio = new Audio(this.wavUrl);
+                        fallbackAudio.volume = 0.95;
+                        const wavPromise = fallbackAudio.play();
+                        if (wavPromise !== undefined) {
+                            wavPromise.catch(() => {
+                                this.synthesizeSlowMeow();
+                            });
+                        }
+                    } catch (e2) {
+                        this.synthesizeSlowMeow();
+                    }
                 });
             }
         } catch (e) {
@@ -76,10 +101,10 @@ class TaskbarCatEngine {
         this.sound = new CatSoundSystem();
 
         this.poses = {
-            walk1: 'assets/cat_walk1.png',
-            walk2: 'assets/cat_walk2.png',
-            look: 'assets/cat_look.png',
-            sit: 'assets/cat_sit.png'
+            walk1: resolveCatAsset('assets/cat_walk1.png'),
+            walk2: resolveCatAsset('assets/cat_walk2.png'),
+            look: resolveCatAsset('assets/cat_look.png'),
+            sit: resolveCatAsset('assets/cat_sit.png')
         };
 
         this.x = 120;
@@ -115,6 +140,7 @@ class TaskbarCatEngine {
 
     init() {
         if (!this.container || !this.sprite) return;
+        this.sprite.src = this.poses.walk1;
         this.container.style.left = `${this.x}px`;
         this.sprite.style.transform = `scaleX(${this.direction})`;
         this.setupTouchMeow();
@@ -281,9 +307,15 @@ class HiddenMotiveRocketEngine {
 }
 
 // Auto-initialize Cat & Rocket when on community page
-window.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('livingCatActor')) {
+function bootCatEngine() {
+    if (document.getElementById('livingCatActor') && !window.wabiSabiCat) {
         window.wabiSabiCat = new TaskbarCatEngine();
         window.wabiSabiRocket = new HiddenMotiveRocketEngine(window.wabiSabiCat);
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', bootCatEngine);
+} else {
+    bootCatEngine();
+}

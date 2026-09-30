@@ -1,3 +1,4 @@
+        @import url('tokens.css');
         /* ==========================================================================
            1. DESIGN TOKENS & COLOR PALETTE
            ========================================================================== */
@@ -9,7 +10,7 @@
             
             --ink-primary: #181916;
             --ink-secondary: #484742;
-            --ink-muted: #7E7C75;
+            --ink-muted: #685F56;
             --ink-faint: #C8C5BC;
 
             /* Four Realistic Sticky Note Paper Hues */
@@ -166,6 +167,18 @@
             padding: clamp(10px, 1.5vh, 18px) clamp(16px, 1.8vw, 28px) clamp(58px, 6vh, 68px) clamp(16px, 1.8vw, 28px);
             gap: clamp(14px, 1.8vh, 22px) clamp(24px, 2.2vw, 40px);
             box-sizing: border-box;
+            animation: wabiPageFadeIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes wabiPageFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @media (max-height: 740px) {
@@ -510,7 +523,10 @@
             font-weight: 500;
             padding: 8px 10px;
             border-radius: 22px;
-            transition: all 0.22s ease;
+            transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1),
+                        background-color 0.22s ease,
+                        color 0.18s ease,
+                        box-shadow 0.24s ease;
             width: 100%;
             text-align: center;
             line-height: 1.15;
@@ -521,18 +537,28 @@
         .dock-item span {
             white-space: nowrap;
             letter-spacing: 0.1px;
+            transition: color 0.18s ease;
         }
 
         .dock-item svg {
             width: 22px;
             height: 22px;
             stroke-width: 1.7;
+            transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .dock-item:hover {
             color: var(--ink-primary);
             background-color: rgba(0, 0, 0, 0.04);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+        }
+
+        .dock-item:hover svg {
+            transform: scale(1.09);
+        }
+
+        .dock-item:active {
+            transform: translateY(0) scale(0.96);
         }
 
         [data-theme="dark"] .dock-item:hover {
@@ -543,6 +569,11 @@
             background-color: var(--forest-green);
             color: #FFFFFF;
             box-shadow: 0 4px 16px rgba(39, 64, 51, 0.28);
+        }
+
+        .dock-item.active:hover {
+            background-color: #203124;
+            transform: translateY(-1px);
         }
 
         .dock-item.active svg {
@@ -1997,6 +2028,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
+            height: 100dvh;
             pointer-events: none;
             z-index: 2;
             touch-action: none;

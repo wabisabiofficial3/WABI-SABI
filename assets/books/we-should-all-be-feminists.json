@@ -1,0 +1,96 @@
+{
+  "id": "we-should-all-be-feminists",
+  "title": "We Should All Be Feminists",
+  "author": "Chimamanda Ngozi Adichie",
+  "year": "2014",
+  "totalPages": 20,
+  "pdfUrl": "assets/books/we-should-all-be-feminists.pdf",
+  "coverImage": "assets/books/we-should-all-be-feminists-cover.jpg",
+  "description": "A personal, eloquently argued essay adapted from the much-admired TEDx talk of the same name, offering a unique definition of feminism for the twenty-first century.",
+  "category": "Essays & Society",
+  "adaptation": {
+    "title": "TEDxEuston 2012 Keynote",
+    "speaker": "Chimamanda Ngozi Adichie",
+    "year": "2012",
+    "duration": "29 min",
+    "videoUrl": "https://www.youtube-nocookie.com/embed/hg3umXU_qWc",
+    "prompt": "Which delivers the message with more emotional resonance: the spoken keynote or the written essay?",
+    "stats": {
+      "bookReaders": 42,
+      "talkWatchers": 28
+    }
+  },
+  "tableRooms": [
+    {
+      "id": "room-page-6",
+      "title": "The Meaning of a Word: First Encounters with Feminism",
+      "unlockPage": 6,
+      "readersCount": 18,
+      "prompt": "How did you first encounter the word feminist, and what baggage came with it?"
+    },
+    {
+      "id": "room-page-10",
+      "title": "Masculinity as a Hard Cage",
+      "unlockPage": 10,
+      "readersCount": 24,
+      "prompt": "How does defining masculinity around material success and hardness harm young boys?"
+    },
+    {
+      "id": "room-page-15",
+      "title": "Culture Does Not Make People: People Make Culture",
+      "unlockPage": 15,
+      "readersCount": 31,
+      "prompt": "When tradition conflicts with equality, what is our responsibility to reshape it?"
+    }
+  ],
+  "seedAnnotations": [
+    {
+      "id": "anno-1",
+      "page": 6,
+      "passage": "He was also the first person to call me a feminist. I was about fourteen. We were in his house, arguing, both of us bristling with half-baked knowledge from the books we had read.",
+      "author": "Dhanush (@dhanush)",
+      "avatar": "D",
+      "time": "2 hours ago",
+      "thought": "The honesty here is unforgettable. Okoloma didn't intend it as praise, but it planted a seed that redefined her entire life trajectory.",
+      "likes": 14,
+      "type": "thought",
+      "color": "#D4A373"
+    },
+    {
+      "id": "anno-2",
+      "page": 6,
+      "passage": "It was not a compliment. I could tell from his tone - the same tone with which a person would say, 'You're a supporter of terrorism.'",
+      "author": "Sarvasree (@sarvasree)",
+      "avatar": "S",
+      "time": "Yesterday",
+      "thought": "This captures the hostility and fear often loaded into this word by people who have never even looked up its dictionary definition.",
+      "likes": 9,
+      "type": "highlight",
+      "color": "#CCD5AE"
+    },
+    {
+      "id": "anno-3",
+      "page": 10,
+      "passage": "Masculinity is a hard, small cage, and we put boys inside this cage. We teach boys to be afraid of fear, of weakness, of vulnerability.",
+      "author": "Likith (@likith)",
+      "avatar": "L",
+      "time": "3 hours ago",
+      "thought": "Essential passage. Feminism frees men just as profoundly as it empowers women by deconstructing this suffocating cage.",
+      "likes": 22,
+      "type": "thought",
+      "color": "#FAEDCD"
+    },
+    {
+      "id": "anno-4",
+      "page": 15,
+      "passage": "Culture does not make people. People make culture. If it is true that the full humanity of women is not our culture, then we can and must make it our culture.",
+      "author": "Dhanush (@dhanush)",
+      "avatar": "D",
+      "time": "Today, 5:12 PM",
+      "thought": "This sentence alone justifies the entire book. Culture is dynamic, not a permanent monument to past inequality.",
+      "likes": 35,
+      "type": "thought",
+      "color": "#E9EDC9"
+    }
+  ]
+}

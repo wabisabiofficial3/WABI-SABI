@@ -114,7 +114,7 @@
                 if (res.ok && data.success) {
                     this._currentUser = data.user;
                     localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(data.user));
-                    const cleanRedirect = data.redirectUrl ? data.redirectUrl.replace(/^\//, '') : 'community.html';
+                    const cleanRedirect = data.redirectUrl ? data.redirectUrl.replace(/^\//, '') : 'curator.html';
                     return { success: true, user: data.user, redirectUrl: cleanRedirect };
                 }
                 return { success: false, message: data.error || 'Invalid email or password.' };
@@ -122,41 +122,29 @@
                 console.warn('Direct server connection failed, checking local evaluation fallback:', err);
                 const normEmail = (email || '').trim().toLowerCase();
 
-                // Seamless evaluation fallback if network error or running offline
-                if ((normEmail === 'curator@wabisabi.club' || normEmail === 'curator1@wabisabi.club') && password === 'curator123') {
-                    const user = { id: 'curator-01', email: 'curator@wabisabi.club', displayName: 'Dhanush', handle: 'curator', role: 'CURATOR', status: 'ACTIVE' };
+                // Offline fallback strictly for the 3 authorized admin curators
+                if (normEmail === 'ganganidhanush@gmail.com' && password === 'curator123') {
+                    const user = { id: 'admin-dhanush', email: 'ganganidhanush@gmail.com', displayName: 'Dhanush', handle: 'dhanush', role: 'CURATOR', status: 'ACTIVE' };
                     this._currentUser = user;
                     localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
                     return { success: true, user, redirectUrl: 'curator.html' };
                 }
-                if (normEmail === 'curator2@wabisabi.club' && password === 'curator123') {
-                    const user = { id: 'curator-02', email: 'curator2@wabisabi.club', displayName: 'Maya', handle: 'curatormaya', role: 'CURATOR', status: 'ACTIVE' };
+                if (normEmail === 'nrlikith6@gmail.com' && password === 'curator123') {
+                    const user = { id: 'admin-likith', email: 'nrlikith6@gmail.com', displayName: 'Likith', handle: 'likith', role: 'CURATOR', status: 'ACTIVE' };
                     this._currentUser = user;
                     localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
                     return { success: true, user, redirectUrl: 'curator.html' };
                 }
-                if (normEmail === 'curator3@wabisabi.club' && password === 'curator123') {
-                    const user = { id: 'curator-03', email: 'curator3@wabisabi.club', displayName: 'Julian', handle: 'curatorjulian', role: 'CURATOR', status: 'ACTIVE' };
+                if (normEmail === 'sarvasreeyuvaraj02@gmail.com' && password === 'curator123') {
+                    const user = { id: 'admin-sarvasree', email: 'sarvasreeyuvaraj02@gmail.com', displayName: 'Sarvasree', handle: 'sarvasree', role: 'CURATOR', status: 'ACTIVE' };
                     this._currentUser = user;
                     localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
                     return { success: true, user, redirectUrl: 'curator.html' };
-                }
-                if (normEmail === 'reader@wabisabi.club' && password === 'reader123') {
-                    const user = { id: 'user-reader-01', email: 'reader@wabisabi.club', displayName: 'Elena Vance', handle: 'quietreader', role: 'USER', status: 'ACTIVE' };
-                    this._currentUser = user;
-                    localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
-                    return { success: true, user, redirectUrl: 'community.html' };
-                }
-                if (normEmail === 'aarav@example.com' && password === 'aarav123') {
-                    const user = { id: 'user-aarav-01', email: 'aarav@example.com', displayName: 'Aarav', handle: 'aarav', role: 'USER', status: 'PENDING' };
-                    this._currentUser = user;
-                    localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
-                    return { success: true, user, redirectUrl: 'application-status.html' };
                 }
 
                 return {
                     success: false,
-                    message: 'Authentication service unreachable. Please open http://localhost:3000/login.html in your browser, or click a Quick Evaluation login below.'
+                    message: 'Authentication service unreachable or invalid credentials. Please ensure the server is active.'
                 };
             }
         },
@@ -167,7 +155,7 @@
             } catch (e) {}
             this._currentUser = null;
             localStorage.removeItem(STORAGE_KEY_USER);
-            window.location.href = 'login.html';
+            window.location.href = 'home.html';
         },
 
         // --- Route Guards (Asynchronous Server Verified) ---
@@ -177,30 +165,13 @@
                 window.location.href = 'login.html';
                 return null;
             }
-
-            // If user is pending or rejected and trying to access community/curator
-            if (user.role === 'USER' && (user.status === 'PENDING' || user.status === 'REJECTED')) {
-                window.location.href = 'application-status.html';
-                return null;
-            }
-
-            if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-                window.location.href = (user.role === 'CURATOR' || user.role === 'Curator') ? 'curator.html' : 'community.html';
-                return null;
-            }
             return user;
         },
 
         async requireGuest() {
             const user = await this.getSession();
             if (user) {
-                if (user.role === 'CURATOR' || user.role === 'Curator') {
-                    window.location.href = 'curator.html';
-                } else if (user.status === 'ACTIVE') {
-                    window.location.href = 'community.html';
-                } else {
-                    window.location.href = 'application-status.html';
-                }
+                window.location.href = 'curator.html';
                 return true;
             }
             return false;
@@ -232,11 +203,27 @@
             };
         },
 
-        // --- Content CMS Helpers (Cached) ---
+        // --- Content CMS Helpers (Server-backed + Local Cache) ---
+        async fetchContent() {
+            try {
+                const res = await this.apiFetch('/api/content');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.content) {
+                        this.saveContent(data.content);
+                        return data.content;
+                    }
+                }
+            } catch (e) {
+                console.warn('WabiSabiStore.fetchContent error, falling back to cache:', e);
+            }
+            return this.getContent();
+        },
+
         getContent() {
             const raw = localStorage.getItem(STORAGE_KEY_CONTENT);
             if (!raw) {
-                localStorage.setItem(STORAGE_KEY_CONTENT, JSON.stringify(DEFAULT_CONTENT));
+                this.fetchContent().catch(() => {});
                 return DEFAULT_CONTENT;
             }
             try {
@@ -250,22 +237,58 @@
             localStorage.setItem(STORAGE_KEY_CONTENT, JSON.stringify(content));
         },
 
-        updateFeaturedBook(bookData) {
+        async updateFeaturedBook(bookData) {
             const content = this.getContent();
             content.featuredBook = Object.assign({}, content.featuredBook, bookData);
             this.saveContent(content);
+
+            try {
+                await this.apiFetch('/api/content/featured-book', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bookData)
+                });
+            } catch (err) {
+                console.warn('Failed to sync featured book to server:', err);
+            }
         },
 
-        updateUpcomingEvent(eventData) {
+        async updateUpcomingEvent(eventData) {
             const content = this.getContent();
             content.upcomingEvent = Object.assign({}, content.upcomingEvent, eventData);
             this.saveContent(content);
+
+            try {
+                await this.apiFetch('/api/content/salon', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(eventData)
+                });
+            } catch (err) {
+                console.warn('Failed to sync salon to server:', err);
+            }
         },
 
-        updateStickyTitles(titles) {
+        async updateStickyTitles(titles) {
             const content = this.getContent();
             content.stickyTitles = Object.assign({}, content.stickyTitles, titles);
             this.saveContent(content);
+
+            try {
+                const promptsArray = [
+                    { id: 'prompt-1', key: 'books', title: titles.books || 'Reading Thoughts', text: '', color: 'cream' },
+                    { id: 'prompt-2', key: 'films', title: titles.films || 'Cinema Notes', text: '', color: 'mint' },
+                    { id: 'prompt-3', key: 'discuss', title: titles.discuss || 'Quiet Musings', text: '', color: 'lavender' },
+                    { id: 'prompt-4', key: 'community', title: titles.community || 'Open Letter', text: '', color: 'peach' }
+                ];
+                await this.apiFetch('/api/content/prompts', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompts: promptsArray })
+                });
+            } catch (err) {
+                console.warn('Failed to sync prompts to server:', err);
+            }
         },
 
         // --- Theme System ---

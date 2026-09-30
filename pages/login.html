@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curator Sign In — Wabi Sabi</title>
+    
+    <!-- Favicon & Touch Icons -->
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
+    <link rel="manifest" href="../site.webmanifest">
+    
+    <!-- Editorial & Aesthetic Handwriting Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Manrope:wght@300;400;500;600;700&family=Reenie+Beanie&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/auth.css">
+
+    <style>
+        /* ==========================================================================
+           EXACT THEME ADAPTATION FOR LOGIN (Replicating media_1790791546343.png)
+           ========================================================================== */
+        
+        :root {
+            --bg-paper: #F6F3EC;
+            --moss-dark: #3F5547;
+            --moss-mid: #526B5C;
+            --moss-light: #7E9786;
+            --contour-gold: #C6B69B;
+            --contour-gold-faint: rgba(198, 182, 155, 0.45);
+        }
+
+        [data-theme="dark"] {
+            --bg-paper: #181614;
+            --moss-dark: #1E2E23;
+            --moss-mid: #2C4233;
+            --moss-light: #44614E;
+            --contour-gold: #8E7E65;
+            --contour-gold-faint: rgba(142, 126, 101, 0.35);
+        }
+
+        body {
+            background-color: var(--bg-paper);
+            color: var(--ink-primary);
+            font-family: var(--font-sans);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Organic Botanical Waves SVG Layer (Museum Background) */
+        .wabi-organic-frame-svg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .paper-grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.035;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .auth-viewport {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: clamp(14px, 2vw, 24px) clamp(24px, 4vw, 68px);
+            position: relative;
+            z-index: 2;
+            box-sizing: border-box;
+        }
+
+        /* Header Bar */
+        .auth-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 8px;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .brand-the {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 14px;
+            color: var(--ink-muted);
+        }
+
+        .brand-img {
+            height: 28px;
+            width: auto;
+        }
+
+        .dark-brand { display: none; }
+        [data-theme="dark"] .light-brand { display: none; }
+        [data-theme="dark"] .dark-brand { display: block; }
+
+        .brand-bookclub-tag {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(220, 214, 204, 0.45);
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: var(--moss-dark);
+            text-transform: uppercase;
+        }
+
+        [data-theme="dark"] .brand-bookclub-tag {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--accent-sage);
+        }
+
+        .brand-taglines {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            margin-left: 8px;
+        }
+
+        @media (max-width: 900px) {
+            .brand-taglines { display: none; }
+        }
+
+        .auth-header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .auth-tagline {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 15px;
+            color: var(--ink-muted);
+        }
+
+        @media (max-width: 768px) {
+            .auth-tagline { display: none; }
+        }
+
+        /* Main 2-Column Stage */
+        .auth-stage-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.42fr) clamp(350px, 28vw, 410px);
+            gap: clamp(24px, 3.5vw, 56px);
+            align-items: center;
+            margin: auto 0;
+            padding: 16px 0;
+            width: 100%;
+        }
+
+        @media (max-width: 1060px) {
+            .auth-stage-layout {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        /* Left Canvas Board (media_1790791546343.png) */
+        .collage-canvas-board {
+            position: relative;
+            width: 100%;
+            max-width: 660px;
+            height: 520px;
+            margin: 0 auto;
+            user-select: none;
+        }
+
+        @media (max-width: 768px) {
+            .collage-canvas-board {
+                display: none;
+            }
+        }
+
+        /* Chapter Eyebrow */
+        .collage-eyebrow {
+            position: absolute;
+            top: 0;
+            left: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+        }
+
+        /* Center Headline & Scribble */
+        .collage-headline-center {
+            position: absolute;
+            top: 245px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 320px;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .collage-main-title {
+            font-family: var(--font-serif);
+            font-size: 34px;
+            font-weight: 600;
+            line-height: 1.15;
+            color: var(--ink-primary);
+            margin: 0 0 6px 0;
+            position: relative;
+            display: inline-block;
+        }
+
+        .collage-underline-svg {
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 100%;
+            height: 14px;
+            color: #1F3627;
+        }
+
+        [data-theme="dark"] .collage-underline-svg {
+            color: #7A9E84;
+        }
+
+        .collage-main-subtitle {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 15px;
+            color: var(--ink-secondary);
+            margin: 8px 0 10px 0;
+            line-height: 1.35;
+        }
+
+        .collage-scribble-wrap {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-family: var(--font-hand);
+            font-size: 21px;
+            color: var(--ink-primary);
+            line-height: 1.1;
+        }
+
+        .strike-boring-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .strike-container {
+            position: relative;
+            display: inline-block;
+            color: var(--ink-secondary);
+        }
+
+        .scratch-svg {
+            position: absolute;
+            top: 50%;
+            left: -4px;
+            width: calc(100% + 8px);
+            height: 18px;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        /* Authentic Sticky Notes */
+        .c-note {
+            position: absolute;
+            box-sizing: border-box;
+            border-radius: 2px;
+            padding: 14px 14px 12px 14px;
+            box-shadow: 
+                0 2px 4px rgba(45, 38, 28, 0.05),
+                0 8px 20px -4px rgba(45, 38, 28, 0.10);
+            user-select: none;
+            cursor: default;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            z-index: 2;
+        }
+
+        .c-note:hover {
+            transform: rotate(0deg) scale(1.03) !important;
+            box-shadow: 0 14px 30px rgba(45, 38, 28, 0.16);
+            z-index: 8;
+        }
+
+        .c-tape {
+            position: absolute;
+            top: -9px;
+            left: 50%;
+            transform: translateX(-50%) rotate(var(--trot, -0.6deg));
+            width: 44px;
+            height: 17px;
+            background: rgba(250, 246, 238, 0.75);
+            backdrop-filter: blur(1.5px);
+            border-left: 1px dashed rgba(175, 165, 150, 0.55);
+            border-right: 1px dashed rgba(175, 165, 150, 0.55);
+            box-shadow: 0 1px 3px rgba(45, 38, 28, 0.10);
+            pointer-events: none;
+            z-index: 4;
+        }
+
+        [data-theme="dark"] .c-tape {
+            background: rgba(230, 220, 205, 0.25);
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        .c-hand {
+            font-family: var(--font-hand);
+            color: var(--hand-ink, #1C1A17);
+            line-height: 1.14;
+        }
+
+        [data-theme="dark"] .c-hand {
+            color: #F0EAE1;
+        }
+
+        /* 1. Note 1: Why did that scene stay in my head? */
+        .c-note-1 {
+            top: 25px;
+            left: 14px;
+            width: 142px;
+            background: #D5DEC8;
+            border: 1px solid rgba(160, 180, 150, 0.35);
+            transform: rotate(-3deg);
+        }
+        [data-theme="dark"] .c-note-1 {
+            background: #2E3C31;
+            border-color: rgba(140, 170, 145, 0.25);
+        }
+        .c-note-1 .c-hand {
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        /* Doodle next to Note 1: good stories ask better questions */
+        .c-doodle-good-stories {
+            position: absolute;
+            top: 52px;
+            left: 172px;
+            width: 80px;
+            font-family: var(--font-hand);
+            font-size: 18px;
+            line-height: 1.05;
+            color: var(--ink-secondary);
+        }
+
+        /* 2. Note 2: I completely disagree. ... but tell me why */
+        .c-note-2 {
+            top: 18px;
+            left: 270px;
+            width: 148px;
+            background: #DED6EB;
+            border: 1px solid rgba(180, 168, 205, 0.35);
+            transform: rotate(1.6deg);
+        }
+        [data-theme="dark"] .c-note-2 {
+            background: #392F45;
+            border-color: rgba(180, 160, 205, 0.25);
+        }
+        .c-note-2 .quote-line {
+            font-size: 22px;
+            font-weight: 600;
+            border-bottom: 1px solid currentColor;
+            padding-bottom: 2px;
+            display: inline-block;
+        }
+        .c-note-2 .sub-line {
+            font-size: 17px;
+            margin-top: 8px;
+            color: var(--ink-secondary);
+        }
+
+        /* 3. Note 3: maybe that's the book. point? different people */
+        .c-note-3 {
+            top: 26px;
+            left: 438px;
+            width: 110px;
+            background: #EAE1D2;
+            border: 1px solid rgba(195, 180, 155, 0.38);
+            transform: rotate(3.2deg);
+        }
+        [data-theme="dark"] .c-note-3 {
+            background: #3B3326;
+            border-color: rgba(195, 180, 155, 0.22);
+        }
+        .c-note-3 .c-hand {
+            font-size: 17.5px;
+            line-height: 1.12;
+        }
+        .c-rays-3 {
+            position: absolute;
+            top: -12px;
+            right: -14px;
+            width: 24px;
+            height: 24px;
+            color: var(--contour-gold);
+        }
+
+        /* 4. Note 4: Read this. Then tell me what you think. */
+        .c-note-4 {
+            top: 222px;
+            left: 16px;
+            width: 136px;
+            background: #F8DCD4;
+            border: 1px solid rgba(220, 180, 170, 0.35);
+            transform: rotate(1.2deg);
+        }
+        [data-theme="dark"] .c-note-4 {
+            background: #46322C;
+            border-color: rgba(220, 180, 170, 0.25);
+        }
+        .c-note-4 .read-title {
+            font-size: 22px;
+            font-weight: 600;
+            border-bottom: 1px dashed currentColor;
+            padding-bottom: 2px;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+        .c-note-4 .read-body {
+            font-size: 18px;
+        }
+
+        /* Coffee Doodle next to Note 4 */
+        .c-doodle-coffee {
+            position: absolute;
+            top: 254px;
+            left: 175px;
+            width: 32px;
+            height: 32px;
+            color: var(--moss-dark);
+            opacity: 0.85;
+        }
+
+        /* 5. Note 5: Fiction? Non-fiction? Doesn't matter. do. */
+        .c-note-5 {
+            top: 382px;
+            left: 12px;
+            width: 128px;
+            background: #FDF2B8;
+            border: 1px solid rgba(225, 205, 140, 0.4);
+            transform: rotate(-2.2deg);
+        }
+        [data-theme="dark"] .c-note-5 {
+            background: #413720;
+            border-color: rgba(225, 205, 140, 0.22);
+        }
+        .c-note-5 .c-hand {
+            font-size: 17px;
+            line-height: 1.15;
+        }
+        .c-strip-curiosity {
+            position: absolute;
+            bottom: 12px;
+            left: -8px;
+            background: #E8A89A;
+            color: #1A1614;
+            font-family: var(--font-sans);
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            padding: 3px 6px;
+            box-shadow: 0 1px 4px rgba(45, 38, 28, 0.12);
+            transform: rotate(-1deg);
+            white-space: nowrap;
+        }
+
+        /* Doodle next to Note 5: wait— hear me out... */
+        .c-doodle-wait {
+            position: absolute;
+            top: 398px;
+            left: 156px;
+            width: 82px;
+            font-family: var(--font-hand);
+            font-size: 18px;
+            line-height: 1.05;
+            color: var(--ink-secondary);
+        }
+
+        /* 6. Note 6: Different minds make a brighter conversation. ☺ */
+        .c-note-6 {
+            top: 385px;
+            left: 228px;
+            width: 140px;
+            background: #D4E3D0;
+            border: 1px solid rgba(175, 195, 170, 0.38);
+            transform: rotate(-1.4deg);
+        }
+        [data-theme="dark"] .c-note-6 {
+            background: #2D3B2F;
+            border-color: rgba(175, 195, 170, 0.25);
+        }
+        .c-note-6 .c-hand {
+            font-size: 19px;
+            line-height: 1.14;
+        }
+
+        /* Bubble next to Note 6: page 147? */
+        .c-doodle-page147 {
+            position: absolute;
+            top: 395px;
+            left: 388px;
+            text-align: center;
+        }
+        .c-page-bubble {
+            border: 1.2px solid var(--ink-secondary);
+            border-radius: 999px;
+            padding: 3px 10px;
+            font-family: var(--font-hand);
+            font-size: 16.5px;
+            color: var(--ink-primary);
+            display: inline-block;
+        }
+        .c-page-sub {
+            font-family: var(--font-hand);
+            font-size: 15px;
+            color: var(--ink-secondary);
+            margin-top: 4px;
+            line-height: 1.05;
+        }
+
+        /* 7. Note 7: Same story. Different eyes. Different answers. */
+        .c-note-7 {
+            top: 390px;
+            left: 472px;
+            width: 130px;
+            background: #F6DDD7;
+            border: 1px solid rgba(220, 185, 175, 0.35);
+            transform: rotate(2.4deg);
+        }
+        [data-theme="dark"] .c-note-7 {
+            background: #44322C;
+            border-color: rgba(220, 185, 175, 0.25);
+        }
+        .c-note-7 .c-hand {
+            font-size: 18px;
+            line-height: 1.15;
+        }
+
+        /* Framing Botanical Branches */
+        .c-botanical-left {
+            position: absolute;
+            top: 155px;
+            left: -18px;
+            width: 60px;
+            height: 90px;
+            pointer-events: none;
+            opacity: 0.85;
+        }
+        .c-botanical-right {
+            position: absolute;
+            top: 245px;
+            right: 48px;
+            width: 60px;
+            height: 90px;
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        /* Right Form Card (Exact match media_1790791546343.png) */
+        .auth-card-stage-wrap {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .marg-curious-tag {
+            align-self: flex-end;
+            margin-bottom: 8px;
+            margin-right: 14px;
+            font-family: var(--font-hand);
+            font-size: 21px;
+            line-height: 1.1;
+            color: var(--ink-secondary);
+            text-align: right;
+            transform: rotate(1.5deg);
+        }
+
+        .auth-paper-card {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(45, 40, 35, 0.12);
+            border-radius: 20px;
+            padding: 34px 32px 30px;
+            box-shadow: 
+                0 4px 12px rgba(45, 38, 28, 0.04),
+                0 16px 36px -6px rgba(45, 38, 28, 0.09);
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        [data-theme="dark"] .auth-paper-card {
+            background: rgba(30, 27, 24, 0.82);
+            border-color: rgba(235, 225, 210, 0.12);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+        }
+
+        .card-eyebrow {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: var(--ink-muted);
+            margin-bottom: 6px;
+        }
+
+        .card-main-title {
+            font-family: var(--font-serif);
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--ink-primary);
+            margin: 0 0 4px 0;
+            line-height: 1.15;
+        }
+
+        .card-curators-sub {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 14.5px;
+            color: var(--ink-muted);
+            margin: 0 0 22px 0;
+            line-height: 1.35;
+        }
+
+        .auth-field {
+            margin-bottom: 16px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--ink-secondary);
+            margin-bottom: 7px;
+        }
+
+        .field-input-box {
+            display: flex;
+            align-items: center;
+            background: #F6F4EE;
+            border: 1px solid rgba(45, 40, 35, 0.15);
+            border-radius: 9px;
+            padding: 0 12px;
+            height: 44px;
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="dark"] .field-input-box {
+            background: #1C1917;
+            border-color: rgba(235, 225, 210, 0.16);
+        }
+
+        .field-input-box:focus-within {
+            border-color: #1C3224;
+            background: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(28, 50, 36, 0.10);
+        }
+
+        [data-theme="dark"] .field-input-box:focus-within {
+            border-color: #7A9E84;
+            background: #25221F;
+            box-shadow: 0 0 0 3px rgba(122, 158, 132, 0.15);
+        }
+
+        .field-icon {
+            width: 18px;
+            height: 18px;
+            color: var(--ink-muted);
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .field-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--ink-primary);
+            outline: none;
+            padding: 0;
+        }
+
+        .field-input::placeholder {
+            color: var(--ink-muted);
+            opacity: 0.75;
+        }
+
+        .eye-toggle-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: var(--ink-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .eye-toggle-btn:hover {
+            color: var(--ink-primary);
+        }
+
+        .auth-actions-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 14px 0 20px 0;
+            font-size: 13px;
+        }
+
+        .auth-checkbox-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--ink-secondary);
+            cursor: pointer;
+        }
+
+        .auth-checkbox-label input[type="checkbox"] {
+            accent-color: #1C3224;
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+        }
+
+        .auth-forgot-link {
+            color: var(--ink-muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .auth-forgot-link:hover {
+            color: #1C3224;
+            text-decoration: underline;
+        }
+
+        .auth-cta-btn {
+            width: 100%;
+            height: 46px;
+            border-radius: 9px;
+            background: #182F21;
+            color: #FFFFFF;
+            border: none;
+            font-family: inherit;
+            font-size: 14.5px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(24, 47, 33, 0.25);
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .auth-cta-btn:hover {
+            background: #122419;
+            transform: translateY(-1.5px);
+            box-shadow: 0 4px 14px rgba(24, 47, 33, 0.35);
+        }
+
+        [data-theme="dark"] .auth-cta-btn {
+            background: #2D4834;
+        }
+
+        [data-theme="dark"] .auth-cta-btn:hover {
+            background: #36573F;
+        }
+
+        .auth-error-banner {
+            background: rgba(200, 60, 50, 0.10);
+            border: 1px solid rgba(200, 60, 50, 0.3);
+            color: #B52B20;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .card-bottom-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--ink-muted);
+        }
+
+        .card-bottom-link a {
+            color: var(--ink-primary);
+            font-weight: 600;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        /* Bottom Footer Bar */
+        .auth-footer-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 14px;
+            font-size: 13.5px;
+            color: var(--ink-muted);
+            border-top: 1px solid rgba(198, 182, 155, 0.3);
+        }
+
+        .auth-footer-bar a {
+            color: var(--ink-primary);
+            font-weight: 600;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .auth-footer-bar {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Museum Paper Grain Overlay -->
+    <div class="paper-grain-overlay"></div>
+
+    <!-- ====================================================================
+         ORGANIC BOTANICAL FLUID WAVES & CONTOURS SVG LAYER
+         Matches media_1790791546343.png with flowing moss curves and leaves
+         ==================================================================== -->
+    <svg class="wabi-organic-frame-svg" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+        <!-- 1. Top Wave Accent -->
+        <path d="M 0 0 C 320 40, 680 15, 1020 35 C 1360 55, 1680 15, 1920 0 L 1920 0 L 0 0 Z" fill="rgba(235, 226, 211, 0.45)" />
+
+        <!-- 2. Top-Left Fluid Waves -->
+        <path d="M 0 0 L 320 0 C 260 90, 180 160, 90 200 C 40 220, 0 235, 0 235 Z" fill="var(--moss-light)" opacity="0.45" />
+        <path d="M 0 0 L 250 0 C 200 70, 130 130, 65 170 C 25 188, 0 198, 0 198 Z" fill="var(--moss-dark)" opacity="0.65" />
+        <path d="M 0 0 L 360 0 C 290 105, 200 185, 105 230 C 50 255, 0 270, 0 270" fill="none" stroke="var(--contour-gold)" stroke-width="1.4" />
+        <path d="M 0 0 L 400 0 C 325 125, 225 210, 120 260 C 60 285, 0 300, 0 300" fill="none" stroke="var(--contour-gold)" stroke-width="1.2" stroke-dasharray="4 8" />
+        <circle cx="160" cy="180" r="3" fill="var(--contour-gold)" />
+
+        <!-- 3. Bottom-Left Giant Moss Wave & Layered Contours -->
+        <path d="M 0 580 C 130 615, 240 710, 290 820 C 330 910, 420 990, 560 1080 L 0 1080 Z" fill="var(--moss-light)" opacity="0.4" />
+        <path d="M 0 660 C 110 690, 200 760, 240 855 C 275 930, 360 1005, 480 1080 L 0 1080 Z" fill="var(--moss-mid)" opacity="0.55" />
+        <path d="M 0 740 C 90 765, 160 820, 195 900 C 230 965, 300 1030, 400 1080 L 0 1080 Z" fill="var(--moss-dark)" opacity="0.75" />
+        
+        <path d="M 0 540 C 145 580, 270 680, 325 800 C 370 895, 470 980, 620 1080" fill="none" stroke="var(--contour-gold)" stroke-width="1.5" />
+        <path d="M 0 500 C 160 545, 300 650, 360 775 C 410 875, 515 965, 680 1080" fill="none" stroke="var(--contour-gold)" stroke-width="1.2" stroke-dasharray="4 8" />
+        <circle cx="360" cy="775" r="3.2" fill="var(--contour-gold)" />
+        <circle cx="515" cy="965" r="2.8" fill="var(--contour-gold)" />
+
+        <!-- Botanical Branch in Bottom-Left Corner -->
+        <g stroke="#2C3D32" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Main stem -->
+            <path d="M 30 1060 C 50 990, 85 935, 140 945 C 180 955, 210 930, 230 895" />
+            <!-- Leaves -->
+            <path d="M 70 985 C 60 965, 75 945, 95 955 C 100 975, 85 995, 70 985 Z" fill="rgba(82, 107, 92, 0.3)" />
+            <path d="M 90 960 C 110 940, 130 945, 135 965 C 120 980, 100 975, 90 960 Z" fill="rgba(82, 107, 92, 0.3)" />
+            <path d="M 125 948 C 125 925, 145 915, 160 930 C 155 950, 135 960, 125 948 Z" fill="rgba(82, 107, 92, 0.3)" />
+            <path d="M 155 945 C 175 930, 195 935, 195 955 C 180 965, 165 960, 155 945 Z" fill="rgba(82, 107, 92, 0.3)" />
+            <path d="M 190 938 C 195 915, 215 910, 225 925 C 220 945, 205 950, 190 938 Z" fill="rgba(82, 107, 92, 0.3)" />
+            <path d="M 220 905 C 235 885, 255 890, 255 910 C 240 920, 225 915, 220 905 Z" fill="rgba(82, 107, 92, 0.3)" />
+        </g>
+
+        <!-- 4. Top-Right Fluid Waves & Botanical Accent -->
+        <path d="M 1580 0 C 1640 100, 1740 180, 1920 250 L 1920 0 Z" fill="var(--moss-light)" opacity="0.45" />
+        <path d="M 1660 0 C 1715 80, 1800 150, 1920 205 L 1920 0 Z" fill="var(--moss-dark)" opacity="0.65" />
+        <path d="M 1520 0 C 1590 120, 1700 210, 1920 285" fill="none" stroke="var(--contour-gold)" stroke-width="1.5" />
+        <path d="M 1470 0 C 1550 140, 1670 235, 1920 320" fill="none" stroke="var(--contour-gold)" stroke-width="1.2" stroke-dasharray="4 8" />
+        <circle cx="1670" cy="235" r="3" fill="var(--contour-gold)" />
+
+        <!-- Botanical Branch in Top-Right near Header -->
+        <g stroke="#2C3D32" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M 1890 160 C 1850 200, 1810 240, 1785 300" />
+            <path d="M 1860 190 C 1880 180, 1895 195, 1885 210 C 1865 215, 1850 205, 1860 190 Z" fill="rgba(82, 107, 92, 0.25)" />
+            <path d="M 1845 210 C 1825 210, 1815 225, 1830 235 C 1845 235, 1855 220, 1845 210 Z" fill="rgba(82, 107, 92, 0.25)" />
+            <path d="M 1825 235 C 1840 230, 1855 245, 1845 260 C 1830 260, 1820 250, 1825 235 Z" fill="rgba(82, 107, 92, 0.25)" />
+        </g>
+
+        <!-- 5. Bottom-Right Undulating Contour Rolling -->
+        <path d="M 1220 1080 C 1390 1020, 1560 980, 1740 1010 C 1830 1025, 1880 1055, 1920 1080 Z" fill="rgba(235, 226, 211, 0.55)" />
+        <path d="M 1360 1080 C 1500 1025, 1650 995, 1800 1020 C 1860 1030, 1900 1055, 1920 1080 Z" fill="var(--moss-light)" opacity="0.3" />
+        <path d="M 1160 1080 C 1350 1005, 1530 965, 1720 995 C 1820 1015, 1880 1050, 1920 1080" fill="none" stroke="var(--contour-gold)" stroke-width="1.3" />
+        <path d="M 1100 1080 C 1310 990, 1500 950, 1700 980 C 1810 1000, 1870 1040, 1920 1080" fill="none" stroke="var(--contour-gold)" stroke-width="1.1" stroke-dasharray="4 8" />
+        <circle cx="1500" cy="950" r="3" fill="var(--contour-gold)" />
+
+        <!-- 6. Decorative Branch on Lower Right Margin -->
+        <g stroke="#2C3D32" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(1820, 860) rotate(-25)">
+            <path d="M 0 0 C 15 35, 25 75, 20 110" />
+            <path d="M 12 30 C 26 22, 38 32, 28 42 C 16 42, 10 34, 12 30 Z" fill="rgba(82, 107, 92, 0.25)" />
+            <path d="M 18 65 C 32 58, 44 68, 34 78 C 22 78, 16 70, 18 65 Z" fill="rgba(82, 107, 92, 0.25)" />
+        </g>
+    </svg>
+
+    <div class="auth-viewport">
+
+        <!-- Top Header Bar -->
+        <header class="auth-header">
+            <div class="brand-container">
+                <a href="home.html" class="brand-logo" title="The Wabi Sabi Bookclub">
+                    <span class="brand-the">The</span>
+                    <div class="brand-logo-wrap">
+                        <img src="../assets/wabi_sabi_horizontal.png" alt="Wabi Sabi" class="brand-img light-brand">
+                        <img src="../assets/wabi_sabi_horizontal_dark.png" alt="Wabi Sabi" class="brand-img dark-brand">
+                    </div>
+                    <div class="brand-bookclub-tag">
+                        <span>Bookclub</span>
+                        <span style="opacity: 0.65;">VOL. 1</span>
+                    </div>
+                </a>
+                <div class="brand-taglines">
+                    <span>People</span>
+                    <span>Stories</span>
+                    <span>Perspectives</span>
+                </div>
+            </div>
+
+            <div class="auth-header-right">
+                <span class="auth-tagline">A calmer internet for curious minds.</span>
+
+                <button class="theme-btn theme-toggle-trigger" id="themeToggleBtn" title="Tea Glass (Day) / Coffee Cup (Night)" aria-label="Toggle Light / Dark Theme">
+                    <svg class="theme-icon theme-icon-tea" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 6.5h12l-1.8 12.5a2 2 0 0 1-2 1.5H9.8a2 2 0 0 1-2-1.5L6 6.5z"/>
+                        <line x1="6.6" y1="10.2" x2="17.4" y2="10.2"/>
+                        <line x1="10" y1="10.2" x2="10.5" y2="18.5"/>
+                        <line x1="14" y1="10.2" x2="13.5" y2="18.5"/>
+                        <line x1="8.2" y1="18.5" x2="15.8" y2="18.5"/>
+                    </svg>
+                    <svg class="theme-icon theme-icon-coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 6.5h11v7a4.5 4.5 0 0 1-4.5 4.5h-2A4.5 4.5 0 0 1 4 13.5v-7z"/>
+                        <path d="M15 8.5h2.2a2.3 2.3 0 0 1 2.3 2.3v.4a2.3 2.3 0 0 1-2.3 2.3H15"/>
+                        <path d="M2.5 19.5h14"/>
+                        <path d="M7 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
+                        <path d="M11 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main 2-Column Split: Handcrafted Collage (Left) + Curator Sign In Card (Right) -->
+        <main class="auth-stage-layout">
+
+            <!-- Left Editorial Collage Canvas -->
+            <div class="collage-canvas-board" aria-label="Wabi Sabi Philosophy Desk">
+                
+                <!-- Eyebrow -->
+                <div class="collage-eyebrow">NEW CHAPTER • YOU FOUND THE PLACE</div>
+
+                <!-- Note 1: Top-Left (Sage Green) -->
+                <div class="c-note c-note-1">
+                    <div class="c-tape" style="--trot: -1.2deg;"></div>
+                    <div class="c-hand">
+                        Why did<br>that scene<br>stay in my<br><span style="border-bottom: 2px solid currentColor;">head?</span>
+                    </div>
+                </div>
+
+                <!-- Marginalia next to Note 1 -->
+                <div class="c-doodle-good-stories">
+                    good<br>stories<br>ask better<br>questions.
+                </div>
+
+                <!-- Botanical Branch Accent near Note 1 -->
+                <svg class="c-botanical-left" viewBox="0 0 45 70" fill="none" stroke="#2C3D32" stroke-width="1.2" stroke-linecap="round" aria-hidden="true">
+                    <path d="M 8 68 C 12 45, 20 25, 34 5" />
+                    <path d="M 14 50 C 6 42, 4 30, 12 34 C 18 36, 18 45, 14 50 Z" fill="rgba(82, 107, 92, 0.25)" />
+                    <path d="M 22 30 C 14 24, 16 12, 24 16 C 28 20, 26 26, 22 30 Z" fill="rgba(82, 107, 92, 0.25)" />
+                    <path d="M 28 15 C 34 8, 44 12, 38 20 C 32 20, 30 16, 28 15 Z" fill="rgba(82, 107, 92, 0.25)" />
+                </svg>
+
+                <!-- Note 2: Top Center (Lavender) -->
+                <div class="c-note c-note-2">
+                    <div class="c-tape" style="--trot: 1.4deg;"></div>
+                    <div class="c-hand">
+                        <div class="quote-line">I completely<br>disagree.”</div>
+                        <div class="sub-line">... but tell me why.</div>
+                    </div>
+                </div>
+
+                <!-- Note 3: Top Right (Kraft Paper Scrap) -->
+                <div class="c-note c-note-3">
+                    <div class="c-tape" style="--trot: -0.8deg;"></div>
+                    <svg class="c-rays-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+                        <line x1="12" y1="4" x2="16" y2="2"/>
+                        <line x1="16" y1="8" x2="21" y2="6"/>
+                        <line x1="18" y1="14" x2="23" y2="14"/>
+                    </svg>
+                    <div class="c-hand">
+                        maybe<br>that's the<br>book. point?<br><br>different<br>people.
+                    </div>
+                </div>
+
+                <!-- Center Hero Headline Block -->
+                <div class="collage-headline-center">
+                    <h1 class="collage-main-title">
+                        What did you think?
+                        <svg class="collage-underline-svg" viewBox="0 0 280 14" fill="none" preserveAspectRatio="none">
+                            <path d="M 3 7 C 55 3, 120 12, 185 6 C 225 2, 260 9, 277 5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                        </svg>
+                    </h1>
+                    <p class="collage-main-subtitle">
+                        We're more interested in the<br>conversation after the story.
+                    </p>
+                    <div class="collage-scribble-wrap">
+                        <div class="strike-boring-row">
+                            <span>No</span>
+                            <span class="strike-container">
+                                boring
+                                <svg class="scratch-svg" viewBox="0 0 54 16" fill="none">
+                                    <path d="M 2 8 C 14 4, 28 12, 50 6 M 4 11 C 18 6, 32 13, 52 8 M 6 5 C 20 11, 36 5, 48 10" stroke="#1C1A17" stroke-width="2.1" stroke-linecap="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                        <div style="margin-left: 28px;">interesting answers.</div>
+                    </div>
+                </div>
+
+                <!-- Note 4: Mid-Left (Blush Peach) -->
+                <div class="c-note c-note-4">
+                    <div class="c-tape" style="--trot: 0.8deg;"></div>
+                    <div class="c-hand">
+                        <div class="read-title">Read this.</div>
+                        <div class="read-body">Then tell me<br>what you think.</div>
+                    </div>
+                </div>
+
+                <!-- Steaming Cup Doodle next to Note 4 -->
+                <svg class="c-doodle-coffee" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M 6 13 H 22 V 19 C 22 23, 18 26, 14 26 C 10 26, 6 23, 6 19 Z"/>
+                    <path d="M 22 15 H 25 C 26.5 15, 27.5 16, 27.5 17.5 C 27.5 19, 26.5 20, 25 20 H 22"/>
+                    <path d="M 4 28 H 24"/>
+                    <path d="M 10 9 C 10 7, 12 6, 12 4"/>
+                    <path d="M 14 10 C 14 8, 16 7, 16 5"/>
+                    <path d="M 18 9 C 18 7, 20 6, 20 4"/>
+                </svg>
+
+                <!-- Note 5: Bottom-Left (Sunny Chamomile Yellow) -->
+                <div class="c-note c-note-5">
+                    <div class="c-tape" style="--trot: -1.6deg;"></div>
+                    <div class="c-hand">
+                        Fiction?<br>Non-fiction?<br>Doesn't<br>matter.<br><span style="border-bottom: 1.5px solid currentColor;">do.</span>
+                    </div>
+                    <div class="c-strip-curiosity">★ HANDLE WITH CURIOSITY ★</div>
+                </div>
+
+                <!-- Doodle next to Note 5: wait— hear me out... -->
+                <div class="c-doodle-wait">
+                    wait—<br>hear me out...
+                </div>
+
+                <!-- Note 6: Bottom-Center (Matcha Mint) -->
+                <div class="c-note c-note-6">
+                    <div class="c-tape" style="--trot: 1deg;"></div>
+                    <div class="c-hand">
+                        Different<br>minds make<br>a brighter<br>conversation.
+                        <div style="font-size: 22px; margin-top: 2px;">☺</div>
+                    </div>
+                </div>
+
+                <!-- Doodle next to Note 6: page 147? -->
+                <div class="c-doodle-page147">
+                    <div class="c-page-bubble">page 147?</div>
+                    <div class="c-page-sub">
+                        Why though?<br>Interesting...
+                        <div style="font-size: 16px; margin-top: 1px;">✱</div>
+                    </div>
+                </div>
+
+                <!-- Note 7: Bottom-Right (Blush Coral) -->
+                <div class="c-note c-note-7">
+                    <div class="c-tape" style="--trot: -1deg;"></div>
+                    <div class="c-hand">
+                        Same story.<br>Different eyes.<br>Different<br>answers.
+                    </div>
+                </div>
+
+                <!-- Botanical Branch Accent on Right Margin -->
+                <svg class="c-botanical-right" viewBox="0 0 45 70" fill="none" stroke="#2C3D32" stroke-width="1.2" stroke-linecap="round" aria-hidden="true">
+                    <path d="M 10 68 C 15 45, 25 25, 38 5" />
+                    <path d="M 16 50 C 24 42, 34 46, 26 54 C 20 54, 18 50, 16 50 Z" fill="rgba(82, 107, 92, 0.25)" />
+                    <path d="M 24 30 C 32 24, 42 28, 34 36 C 28 36, 26 32, 24 30 Z" fill="rgba(82, 107, 92, 0.25)" />
+                </svg>
+
+            </div>
+
+            <!-- Right Side: Curator Sign In Card -->
+            <div class="auth-card-stage-wrap">
+                <!-- Handwritten Tagline Above Card -->
+                <div class="marg-curious-tag">
+                    Curious<br>people<br>belong<br>here.
+                </div>
+
+                <!-- The Frosted Card -->
+                <div class="auth-paper-card">
+                    <div class="card-eyebrow">Curator Sanctuary.</div>
+                    <h2 class="card-main-title">Curator Sign In</h2>
+                    <p class="card-curators-sub">— Management desk for Likith, Sarvasree & Dhanush.</p>
+
+                    <!-- Error Alert Banner -->
+                    <div id="authErrorBanner" class="auth-error-banner"></div>
+
+                    <!-- Sign In Form -->
+                    <form id="authLoginForm">
+                        <div class="auth-field">
+                            <label for="authEmailInput" class="field-label">CURATOR EMAIL OR USERNAME</label>
+                            <div class="field-input-box">
+                                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                    <polyline points="22,6 12,13 2,6"></polyline>
+                                </svg>
+                                <input type="text" id="authEmailInput" class="field-input" placeholder="curator@wabisabi.club or handle" autocomplete="username" required>
+                            </div>
+                        </div>
+
+                        <div class="auth-field">
+                            <label for="authPasswordInput" class="field-label">PASSWORD</label>
+                            <div class="field-input-box">
+                                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                                <input type="password" id="authPasswordInput" class="field-input" placeholder="••••••••" autocomplete="current-password" required>
+                                <button type="button" id="authTogglePasswordBtn" class="eye-toggle-btn" title="Toggle password visibility" aria-label="Toggle password visibility">
+                                    <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    <svg class="eye-closed" style="display:none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="auth-actions-row">
+                            <label class="auth-checkbox-label">
+                                <input type="checkbox" id="authKeepSignedIn" checked>
+                                <span>Keep me signed in</span>
+                            </label>
+                            <a href="home.html" class="auth-forgot-link">Public Portal →</a>
+                        </div>
+
+                        <button type="submit" id="authSubmitBtn" class="auth-cta-btn">
+                            <span>Enter Curator Desk</span>
+                            <span>→</span>
+                        </button>
+                    </form>
+
+                    <div class="card-bottom-link">
+                        Looking for bookclub updates? <a href="home.html">Go to Public Portal →</a>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Footer Bar -->
+        <footer class="auth-footer-bar">
+            <div>
+                Same stories. Different people. — <a href="home.html" id="openAboutStoryBtn">come find yours.</a>
+            </div>
+            <div>
+                Vol. 1 • A calmer internet for curious minds.
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>Turn the page. →</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2C3D32" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M 2 22 C 8 15, 14 8, 22 2" />
+                    <path d="M 12 12 C 10 8, 12 4, 16 6 C 18 10, 16 12, 12 12 Z" fill="rgba(82, 107, 92, 0.3)" />
+                </svg>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Hidden About Us Story Reading Modal (Preserved for compatibility) -->
+    <div id="aboutStoryModal" class="story-reading-modal" style="display:none;" aria-hidden="true">
+        <div class="story-modal-overlay"></div>
+        <div class="story-modal-card">
+            <button class="story-modal-close" id="closeAboutStoryBtn" title="Close Story" aria-label="Close Story">×</button>
+            <div class="story-modal-header">
+                <h2>Wabi Sabi Community</h2>
+                <p>Welcome to a calmer internet for curious minds.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modular Scripts -->
+    <script src="../js/store.js"></script>
+    <script src="../js/auth.js"></script>
+
+    <!-- Theme management on login page -->
+    <script>
+        (function initLoginTheme() {
+            const savedTheme = localStorage.getItem('wabi_sabi_theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+            const toggleBtn = document.getElementById('themeToggleBtn');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    const current = document.documentElement.getAttribute('data-theme') || 'light';
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    if (next === 'dark') {
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                    } else {
+                        document.documentElement.removeAttribute('data-theme');
+                    }
+                    localStorage.setItem('wabi_sabi_theme', next);
+                });
+            }
+        })();
+    </script>
+</body>
+</html>

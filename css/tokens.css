@@ -1,0 +1,409 @@
+/* ==============================================================================
+   WABI SABI — UNIFIED DESIGN SYSTEM TOKENS (css/tokens.css)
+   Harmonized Color Palette, Typography Scales, Radii, Shadows & WCAG AA Contrast.
+   Japanese Wabi-Sabi Aesthetics: Raw Linen, Sumi Ink, Steaming Tea & Botanical Green.
+   ============================================================================== */
+
+:root {
+    /* --- Core Paper Surfaces --- */
+    --wabi-paper: #FBF8F2;
+    --wabi-paper-tint: #F5F1E8;
+    --wabi-card: #FFFFFF;
+    --wabi-card-subtle: #FAF7F0;
+    --wabi-deckle: #EDE6D8;
+
+    /* --- Sumi Ink & Typography (WCAG AA Compliant: >= 4.5:1 on light paper) --- */
+    --wabi-ink: #24201D;                /* Contrast on #FBF8F2: 13.8:1 (AAA) */
+    --wabi-ink-secondary: #524B43;      /* Contrast on #FBF8F2: 6.8:1 (AA) */
+    --wabi-ink-muted: #685F56;          /* Contrast on #FBF8F2: 4.8:1 (AA) */
+    --wabi-ink-subtle: #7A7268;         /* Contrast for large headings/badges (>= 3:1) */
+
+    /* --- Organic Accents & Botanical Washes --- */
+    --wabi-forest-green: #273B2B;       /* Deep pine green */
+    --wabi-sage: #5A7E64;               /* Restful tea leaf sage */
+    --wabi-sage-soft: rgba(90, 126, 100, 0.16);
+    --wabi-washi-tape: rgba(188, 206, 188, 0.45);
+    --wabi-ochre: #B87333;              /* Terracotta clay / warm amber */
+    --wabi-peach: #E48D6C;              /* Soft morning dawn */
+    --wabi-lavender: #8E7D9E;           /* Twilight solitude */
+    --wabi-live-green: #2E7D32;         /* Active member pulse */
+
+    /* --- Borders & Dividers --- */
+    --wabi-border-subtle: rgba(45, 40, 35, 0.08);
+    --wabi-border-medium: rgba(45, 40, 35, 0.14);
+    --wabi-border-card: rgba(45, 40, 35, 0.06);
+
+    /* --- Elevations & Paper Depths --- */
+    --wabi-shadow-sm: 0 2px 6px rgba(45, 35, 25, 0.04);
+    --wabi-shadow-card: 0 4px 18px rgba(45, 35, 25, 0.05), 0 1px 3px rgba(45, 35, 25, 0.03);
+    --wabi-shadow-float: 0 12px 32px rgba(45, 35, 25, 0.08), 0 2px 8px rgba(45, 35, 25, 0.04);
+    --wabi-shadow-book: 0 16px 45px rgba(45, 35, 25, 0.09), 0 3px 12px rgba(45, 35, 25, 0.04);
+
+    /* --- Font Hierarchies --- */
+    --wabi-font-serif: 'Cormorant Garamond', Garamond, 'EB Garamond', Georgia, serif;
+    --wabi-font-book: 'EB Garamond', 'Cormorant Garamond', Georgia, serif;
+    --wabi-font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --wabi-font-hand: 'Caveat', 'Reenie Beanie', 'Kalam', cursive;
+
+    /* --- Radii --- */
+    --wabi-radius-sm: 8px;
+    --wabi-radius-md: 14px;
+    --wabi-radius-lg: 20px;
+    --wabi-radius-pill: 9999px;
+}
+
+/* ==============================================================================
+   DARK THEME OVERRIDES (Nocturne Mode)
+   ============================================================================== */
+:root[data-theme="dark"],
+[data-theme="dark"] body,
+body.dark-mode {
+    --wabi-paper: #161514;
+    --wabi-paper-tint: #1C1A18;
+    --wabi-card: #201E1C;
+    --wabi-card-subtle: #262421;
+    --wabi-deckle: #2D2B28;
+
+    --wabi-ink: #EDE7DD;                /* Contrast on #161514: 14.2:1 (AAA) */
+    --wabi-ink-secondary: #B8B0A2;      /* Contrast on #161514: 8.2:1 (AAA) */
+    --wabi-ink-muted: #968D7F;          /* Contrast on #161514: 5.1:1 (AA) */
+    --wabi-ink-subtle: #7E7568;
+
+    --wabi-forest-green: #4D7355;
+    --wabi-sage: #7DA687;
+    --wabi-sage-soft: rgba(125, 166, 135, 0.18);
+    --wabi-washi-tape: rgba(90, 126, 100, 0.35);
+    --wabi-ochre: #D48C4E;
+
+    --wabi-border-subtle: rgba(235, 225, 210, 0.08);
+    --wabi-border-medium: rgba(235, 225, 210, 0.15);
+    --wabi-border-card: rgba(235, 225, 210, 0.06);
+
+    --wabi-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.3);
+    --wabi-shadow-card: 0 4px 18px rgba(0, 0, 0, 0.35);
+    --wabi-shadow-float: 0 12px 32px rgba(0, 0, 0, 0.45);
+    --wabi-shadow-book: 0 16px 45px rgba(0, 0, 0, 0.55);
+}
+
+/* ==============================================================================
+   CANONICAL UNIFIED WABI SABI NAVIGATION DOCK (Persistent Across All Pages)
+   ============================================================================== */
+aside.nav-dock {
+    width: clamp(124px, 8.5vw, 142px);
+    min-width: clamp(124px, 8.5vw, 142px);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 0 16px 0;
+    position: relative;
+    z-index: 5;
+    min-height: 0;
+    flex-shrink: 0;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+.dock-capsule {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(8px, 1.2vh, 12px);
+    width: clamp(122px, 8.4vw, 140px);
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 16px 8px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.92);
+    box-shadow: 0 4px 22px rgba(35, 30, 20, 0.06);
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+:root[data-theme="dark"] .dock-capsule,
+[data-theme="dark"] body .dock-capsule,
+body.dark-mode .dock-capsule {
+    background: rgba(28, 30, 28, 0.78);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 22px rgba(0, 0, 0, 0.35);
+}
+
+.dock-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    color: var(--wabi-ink-secondary, #524B43);
+    font-family: var(--wabi-font-sans, 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px 10px;
+    border-radius: 22px;
+    transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background-color 0.22s ease,
+                color 0.18s ease,
+                box-shadow 0.24s ease;
+    width: 100%;
+    text-align: center;
+    line-height: 1.15;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.dock-item span {
+    white-space: nowrap;
+    letter-spacing: 0.1px;
+    transition: color 0.18s ease;
+}
+
+.dock-item svg {
+    width: 22px;
+    height: 22px;
+    stroke-width: 1.7;
+    transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.dock-item:hover {
+    color: var(--wabi-ink, #24201D);
+    background-color: rgba(0, 0, 0, 0.04);
+    transform: translateY(-2px);
+}
+
+.dock-item:hover svg {
+    transform: scale(1.09);
+}
+
+.dock-item:active {
+    transform: translateY(0) scale(0.96);
+}
+
+:root[data-theme="dark"] .dock-item:hover,
+[data-theme="dark"] body .dock-item:hover,
+body.dark-mode .dock-item:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: var(--wabi-ink, #EDE7DD);
+}
+
+.dock-item.active {
+    background-color: var(--wabi-forest-green, #273B2B) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 16px rgba(39, 64, 51, 0.28) !important;
+}
+
+.dock-item.active:hover {
+    background-color: #1F2F23 !important;
+    transform: translateY(-1px);
+}
+
+.dock-item.active svg {
+    stroke: #FFFFFF !important;
+}
+
+.dock-item.active span {
+    color: #FFFFFF !important;
+}
+
+/* Editorial Tagline Under Navigation Dock */
+.calmer-tagline {
+    font-family: var(--wabi-font-serif, 'Cormorant Garamond', Garamond, Georgia, serif);
+    font-size: 12.5px;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--wabi-ink-muted, #685F56);
+    text-align: center;
+    width: clamp(122px, 8.4vw, 140px);
+    margin-top: 6px;
+    padding-bottom: 0;
+    box-sizing: border-box;
+}
+
+.calmer-tagline::after {
+    content: '—';
+    display: block;
+    margin-top: 4px;
+    font-style: normal;
+    text-align: center;
+}
+
+/* ==============================================================================
+   CANONICAL BOTTOM TASKBAR & LIVING SANCTUARY CAT ("MOCHI")
+   ============================================================================== */
+.bottom-taskbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: rgba(246, 243, 236, 0.78);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(140, 135, 125, 0.2);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+}
+
+:root[data-theme="dark"] .bottom-taskbar,
+[data-theme="dark"] body .bottom-taskbar,
+body.dark-mode .bottom-taskbar {
+    background: rgba(22, 24, 21, 0.85);
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.living-cat-actor {
+    position: fixed;
+    bottom: 8px;
+    left: 140px;
+    width: clamp(140px, 10vw, 175px);
+    height: clamp(100px, 7.5vw, 130px);
+    pointer-events: auto;
+    cursor: pointer;
+    z-index: 102;
+    will-change: left;
+    user-select: none;
+}
+
+.cat-contact-shadow {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 75%;
+    height: 14px;
+    background: radial-gradient(ellipse at center, var(--cat-shadow, rgba(30, 25, 20, 0.35)) 0%, rgba(0,0,0,0.08) 55%, transparent 75%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.cat-sprite {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: bottom center;
+    display: block;
+    filter: drop-shadow(0 6px 14px rgba(45, 35, 25, 0.12));
+    transform-origin: bottom center;
+    transition: transform 0.25s ease;
+}
+
+.cat-speech-bubble {
+    position: absolute;
+    top: -38px;
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    background: #FFFFFF;
+    color: var(--wabi-ink-primary, #1A1A1A);
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--wabi-font-hand, 'Caveat', 'Kalam', cursive);
+    white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 105;
+}
+
+:root[data-theme="dark"] .cat-speech-bubble,
+[data-theme="dark"] body .cat-speech-bubble,
+body.dark-mode .cat-speech-bubble {
+    background: #252822;
+    color: #FFFFFF;
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.cat-speech-bubble.active {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.cat-speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px 6px 0;
+    border-style: solid;
+    border-color: #FFFFFF transparent;
+}
+
+:root[data-theme="dark"] .cat-speech-bubble::after,
+[data-theme="dark"] body .cat-speech-bubble::after,
+body.dark-mode .cat-speech-bubble::after {
+    border-color: #252822 transparent;
+}
+
+/* Origami Paper Toss & Rocket */
+.scrambled-paper-ball {
+    position: fixed;
+    bottom: 16px;
+    width: 36px;
+    height: 36px;
+    z-index: 104;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.2) rotate(0deg);
+    filter: drop-shadow(0 6px 12px rgba(35, 30, 20, 0.28));
+}
+
+.scrambled-paper-ball.tossed {
+    opacity: 1;
+    animation: tossPaperIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes tossPaperIn {
+    0% { transform: translate(-30px, -140px) scale(0.4) rotate(-220deg); opacity: 0; }
+    50% { transform: translate(12px, 0px) scale(1.1) rotate(25deg); opacity: 1; }
+    75% { transform: translate(6px, -18px) scale(0.95) rotate(12deg); }
+    100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+}
+
+.scrambled-paper-ball.unfolding {
+    animation: unfoldOrigami 0.5s ease-out forwards;
+}
+
+@keyframes unfoldOrigami {
+    0% { transform: scale(1) rotate(0deg); opacity: 1; }
+    45% { transform: scale(1.35) rotate(35deg); opacity: 0.9; }
+    100% { transform: scale(0.1) rotate(90deg); opacity: 0; }
+}
+
+.flying-paper-rocket {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 68px;
+    height: 68px;
+    z-index: 250;
+    pointer-events: none;
+    opacity: 0;
+    will-change: transform, opacity;
+    filter: drop-shadow(0 12px 22px rgba(30, 25, 20, 0.22));
+}
+
+.flying-paper-rocket.flying {
+    opacity: 1;
+    animation: rocketFlight 6.5s cubic-bezier(0.22, 0.1, 0.25, 1) forwards;
+}
+
+@keyframes rocketFlight {
+    0% { transform: translate(var(--start-x), var(--start-y)) scale(0.55) rotate(-35deg); opacity: 0; }
+    5% { transform: translate(calc(var(--start-x) + 40px), calc(var(--start-y) - 70px)) scale(0.85) rotate(-28deg); opacity: 1; }
+    22% { transform: translate(calc(var(--start-x) + 180px), calc(var(--start-y) - 240px)) scale(1.1) rotate(-38deg); }
+    40% { transform: translate(calc(var(--start-x) + 360px), calc(var(--start-y) - 380px)) scale(1.15) rotate(-16deg); }
+    58% { transform: translate(calc(var(--start-x) + 540px), calc(var(--start-y) - 520px)) scale(1.05) rotate(-42deg); }
+    76% { transform: translate(calc(var(--start-x) + 720px), calc(var(--start-y) - 680px)) scale(0.9) rotate(-28deg); opacity: 0.95; }
+    90% { transform: translate(calc(var(--start-x) + 920px), calc(var(--start-y) - 860px)) scale(0.75) rotate(-20deg); opacity: 0.6; }
+    100% { transform: translate(calc(var(--start-x) + 1150px), calc(var(--start-y) - 1050px)) scale(0.6) rotate(-15deg); opacity: 0; }
+}
+

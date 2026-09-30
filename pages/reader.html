@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wabi Sabi — Reading Sanctuary</title>
+    
+    <!-- Favicon & Touch Icons -->
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
+    
+    <!-- Editorial & Aesthetic Serif Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@300;400;500;600;700&family=Reenie+Beanie&family=Kalam:wght@300;400&display=swap" rel="stylesheet">
+    
+    <!-- Dedicated Reader Stylesheet -->
+    <link rel="stylesheet" href="../css/reader.css">
+</head>
+<body>
+
+    <!-- Paper Grain Overlay -->
+    <div class="paper-grain-overlay"></div>
+
+    <!-- Master Reading Viewport (Strict 100vh - Zero Window Scroll) -->
+    <div class="reading-viewport" id="readingViewport">
+
+        <!-- ====================================================================
+             TOP HEADER BAR
+             ==================================================================== -->
+        <header class="reader-top-header">
+            <!-- Back to Home Button & Book Meta Dropdown -->
+            <div class="reading-book-nav-cluster">
+                <a href="community.html" class="book-nav-back-btn" id="bookNavBackBtn" title="Back to Home Dashboard">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </a>
+                
+                <div class="book-meta-dropdown-wrap">
+                    <div class="book-title-row" id="bookTitleDropdownBtn" title="Switch book">
+                        <span class="reader-book-title" id="readerCurrentTitle">Atomic Habits</span>
+                        <svg class="chevron-down-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="reader-book-author" id="readerCurrentAuthor">James Clear</div>
+
+                    <!-- Book Switcher Dropdown Popover -->
+                    <div class="book-switcher-menu" id="bookSwitcherMenu" style="display: none;">
+                        <div class="book-switch-item active" data-book="atomic-habits">
+                            <div class="switch-item-title">Atomic Habits</div>
+                            <div class="switch-item-sub">James Clear • Chapter 1 (Pages 12–13)</div>
+                        </div>
+                        <div class="book-switch-item" data-book="feminists">
+                            <div class="switch-item-title">We Should All Be Feminists</div>
+                            <div class="switch-item-sub">Chimamanda Ngozi Adichie • Pages 6–7</div>
+                        </div>
+                        <div class="book-switch-item" data-book="catcher">
+                            <div class="switch-item-title">The Catcher in the Rye</div>
+                            <div class="switch-item-sub">J.D. Salinger • Week 4 Companion (Pages 2–3)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reading Sub-navigation Tabs: Read, About, Notes (12), Discussions (8), ⋮ -->
+                <nav class="reading-subtabs" aria-label="Book sections">
+                    <button class="subtab-item active" data-subtab="read">Read</button>
+                    <button class="subtab-item" data-subtab="about">About</button>
+                    <button class="subtab-item" data-subtab="notes">Notes (12)</button>
+                    <button class="subtab-item" data-subtab="discussions">Discussions (8)</button>
+                    <button class="subtab-more-btn" title="More options">⋮</button>
+                </nav>
+            </div>
+
+            <!-- Search Pill -->
+            <div class="search-pill-container">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" class="search-pill" placeholder="Search books, films, people, ideas..." aria-label="Search">
+                <svg class="search-doodle" width="28" height="12" viewBox="0 0 40 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M 2 8 C 10 2, 14 14, 22 8 C 30 2, 34 14, 38 8"></path>
+                </svg>
+            </div>
+
+            <!-- Header Right Controls -->
+            <div class="header-controls">
+                <!-- Fullscreen Toggle Button in Header -->
+                <button class="fullscreen-header-btn" id="headerFullscreenBtn" title="Full Screen (Fill Whole Screen)" aria-label="Toggle Fullscreen">
+                    <svg class="icon-expand" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                    </svg>
+                    <svg class="icon-compress" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path>
+                    </svg>
+                </button>
+
+                <!-- Dark / Light Theme Toggle -->
+                <button class="theme-btn" id="themeToggleBtn" title="Tea Glass (Day) / Coffee Cup (Night)" aria-label="Toggle Light / Dark Theme">
+                    <!-- Light Mode: Serene Fluted Tea Glass -->
+                    <svg id="themeIconTea" class="theme-icon theme-icon-tea" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 5h12l-1.8 13.5a2 2 0 0 1-2 1.5H9.8a2 2 0 0 1-2-1.5L6 5z"/>
+                        <line x1="6.5" y1="9" x2="17.5" y2="9"/>
+                        <line x1="9.8" y1="9" x2="10.5" y2="17.5"/>
+                        <line x1="14.2" y1="9" x2="13.5" y2="17.5"/>
+                        <line x1="8.2" y1="17.5" x2="15.8" y2="17.5"/>
+                    </svg>
+                    <!-- Dark Mode: Steaming Ceramic Coffee Cup with Handle & Saucer -->
+                    <svg id="themeIconCoffee" class="theme-icon theme-icon-coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 6.5h11v7a4.5 4.5 0 0 1-4.5 4.5h-2A4.5 4.5 0 0 1 4 13.5v-7z"/>
+                        <path d="M15 8.5h2.2a2.3 2.3 0 0 1 2.3 2.3v.4a2.3 2.3 0 0 1-2.3 2.3H15"/>
+                        <path d="M2.5 19.5h14"/>
+                        <path d="M7 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
+                        <path d="M11 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
+                    </svg>
+                </button>
+
+                <div class="header-divider"></div>
+
+                <!-- Reader Handle Badge -->
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="reader-handle-badge" id="headerHandleBadge">@reader</span>
+                </div>
+
+                <!-- User Profile Avatar -->
+                <a href="home.html#profile" class="user-avatar-btn" title="View Profile">
+                    <img src="../assets/user_avatar.jpg" alt="Profile photo" id="headerUserAvatarImg">
+                </a>
+            </div>
+        </header>
+
+        <!-- ====================================================================
+             LEFT NAVIGATION DOCK (Identical Wabi Sabi Dock - Reading Active)
+             ==================================================================== -->
+        <aside class="nav-dock" aria-label="Main Navigation">
+            <div class="dock-capsule">
+                <a href="home.html" class="dock-item" data-tab="home" title="Home">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 10.5L12 3l9 7.5v10a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 20.5v-10z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <span>Home</span>
+                </a>
+                <a href="reader.html" class="dock-item active" data-tab="reading" title="Reading">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M2 4.5A2.5 2.5 0 0 1 4.5 2H11v18H4.5A2.5 2.5 0 0 0 2 22.5V4.5z"></path>
+                        <path d="M22 4.5A2.5 2.5 0 0 0 19.5 2H13v18h6.5A2.5 2.5 0 0 1 22 22.5V4.5z"></path>
+                    </svg>
+                    <span>Reading</span>
+                </a>
+                <a href="table-room.html" class="dock-item" data-tab="table-room" title="Table Room">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <span>Table Room</span>
+                </a>
+                <a href="community.html" class="dock-item" data-tab="community" title="Community">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>Community</span>
+                </a>
+                <a href="wabi-wall.html" class="dock-item" data-tab="wabi-wall" title="Wabi Wall">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="9" x2="9" y2="21"></line>
+                    </svg>
+                    <span>Wabi Wall</span>
+                </a>
+                <a href="home.html#library" class="dock-item" data-tab="library" title="Library">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="5" y="3" width="14" height="18" rx="2"></rect>
+                        <line x1="5" y1="16" x2="19" y2="16"></line>
+                    </svg>
+                    <span>Library</span>
+                </a>
+            </div>
+
+            <!-- Calmer Internet Editorial Tagline -->
+            <div class="calmer-tagline">
+                A calmer internet for curious minds.
+            </div>
+        </aside>
+
+        <!-- ====================================================================
+             CENTER MAIN STAGE: THE OPEN TWO-PAGE HARDCOVER BOOK
+             ==================================================================== -->
+        <main class="reader-main-stage">
+            <div class="open-book-casing" id="openBookCasing">
+
+                <!-- Interactive Left Turn Zone (Click or swipe to turn previous) -->
+                <div class="book-turn-zone turn-zone-left" id="turnZoneLeft" title="Click to turn to previous page (or swipe right / Left Arrow)">
+                    <span class="turn-arrow-hint">‹</span>
+                </div>
+
+                <!-- Interactive Right Turn Zone (Click or swipe to turn next) -->
+                <div class="book-turn-zone turn-zone-right" id="turnZoneRight" title="Click to turn to next page (or swipe left / Right Arrow)">
+                    <span class="turn-arrow-hint">›</span>
+                </div>
+                
+                <!-- Tactile Two-Page Open Book Spread -->
+                <div class="book-pages-spread" id="bookPagesSpread">
+                    
+                    <!-- Realistic Spine Valley Shadow -->
+                    <div class="book-spine-crease"></div>
+
+                    <!-- LEFT PAGE -->
+                    <article class="book-page page-left" id="pageLeft">
+                        <div class="page-running-head">
+                            <span class="page-num page-num-left" id="pageLeftNum">12</span>
+                            <span class="page-book-title" id="pageLeftBookTitle">ATOMIC HABITS</span>
+                        </div>
+
+                        <div class="page-body-container" id="pageLeftContent">
+                            <div class="chapter-number-tag" id="pageChapterTag">1</div>
+                            <h2 class="book-chapter-title" id="pageChapterTitle">The Surprising<br>Power of Atomic Habits</h2>
+                            <div class="book-chapter-subtitle" id="pageChapterSubtitle">Tiny Changes, Remarkable Results</div>
+
+                            <p class="book-paragraph" id="pageLeftP1">
+                                Every remarkable result is the product of hundreds of small decisions — the compound effect of atomic habits. It's easy to overestimate the importance of one defining moment and underestimate the value of making small improvements on a daily basis. But the truth is that small habits don't add up. They compound.
+                            </p>
+
+                            <p class="book-paragraph highlighted-passage" data-passage-id="hl-1" id="pageLeftP2">
+                                <span class="sage-washi-highlight">If you can get 1 percent better each day for one year, you'll end up 37 times better by the end of the year.</span>
+                            </p>
+
+                            <p class="book-paragraph" id="pageLeftP3">
+                                Habits are the compound interest of self-improvement. The same way that money multiplies through compound interest, the effects of your habits multiply as you repeat them over time.
+                            </p>
+                        </div>
+
+                        <!-- Botanical Rock Art Drawing Illustration at Bottom Left -->
+                        <div class="page-illustration-rock" id="pageLeftIllustration">
+                            <img src="../assets/botanical_rock.jpg" alt="Botanical stone line drawing" class="rock-drawing-img">
+                        </div>
+                    </article>
+
+                    <!-- RIGHT PAGE -->
+                    <article class="book-page page-right" id="pageRight">
+                        <div class="page-running-head">
+                            <span class="page-book-title" id="pageRightBookTitle">THE SURPRISING POWER OF ATOMIC HABITS</span>
+                            <span class="page-num page-num-right" id="pageRightNum">13</span>
+                        </div>
+
+                        <div class="page-body-container" id="pageRightContent">
+                            <p class="book-paragraph" id="pageRightP1">
+                                You don't rise to the level of your goals. You fall to the level of your systems. Goals are good for setting a direction, but systems are best for making progress.
+                            </p>
+
+                            <p class="book-paragraph" id="pageRightP2">
+                                Here's an example. Let's say your goal is to write a book. A goal gives you a desired result, but it doesn't tell you what to do. A system, on the other hand, is a set of habits that can get you there.
+                            </p>
+
+                            <p class="book-paragraph highlighted-passage" data-passage-id="hl-2" id="pageRightP3">
+                                <span class="sage-washi-highlight">You do not rise to the level of your goals. You fall to the level of your systems.</span>
+                            </p>
+
+                            <p class="book-paragraph" id="pageRightP4">
+                                If you want better results, then forget about setting goals. Focus on your system instead.<sup>1</sup>
+                            </p>
+
+                            <p class="book-paragraph" id="pageRightP5">
+                                The actual behavior is the system. Reading for thirty minutes each day is a system. It's a small habit, but it compounds over time. Many people think they need to make a massive change to see big results. In reality, it's the small changes that create the most powerful outcomes.
+                            </p>
+
+                            <div class="page-footnote-block" id="pageRightFootnote">
+                                <span class="footnote-index">1</span>
+                                <span class="footnote-text">A system is a set of habits, not a single habit.</span>
+                            </div>
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+
+            <!-- Bottom Pager Bar & Tool Cluster -->
+            <div class="reader-bottom-dock">
+                <div class="reader-pager-left">
+                    <button class="pager-circle-btn" id="prevPageBtn" title="Previous Page (‹ or Left Arrow)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <span class="pager-label">Previous</span>
+                </div>
+
+                <div class="reader-pager-center">
+                    <div class="slider-track-wrap">
+                        <input type="range" class="reader-scrub-slider" id="readerScrubSlider" min="2" max="320" value="12" step="2">
+                    </div>
+                    <span class="reader-progress-count" id="readerProgressCount">12 / 320</span>
+                </div>
+
+                <div class="reader-pager-right">
+                    <span class="pager-label">Next</span>
+                    <button class="pager-circle-btn" id="nextPageBtn" title="Next Page (› or Right Arrow)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="reader-tools-cluster">
+                    <button class="reader-tool-item" id="toolFullscreen" title="Full Screen (Fill Whole Screen)">
+                        <svg class="icon-expand" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                        </svg>
+                        <svg class="icon-compress" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                            <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path>
+                        </svg>
+                        <span id="fullscreenToolText">Full Screen</span>
+                    </button>
+                    <button class="reader-tool-item" id="toolFitWidth" title="Fit to width">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                            <polyline points="9 15 9 9 15 9"></polyline>
+                        </svg>
+                        <span>Fit Width</span>
+                    </button>
+                    <button class="reader-tool-item" id="toolContents" title="Table of contents">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        </svg>
+                        <span>Contents</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- ====================================================================
+             RIGHT PANEL: MARGINALIA PASSAGE DISCUSSION & NOTES FEED
+             ==================================================================== -->
+        <aside class="right-marginalia-panel">
+            
+            <!-- Filter Pills: Highlights 3, Notes 5, Discuss 3 -->
+            <div class="marginalia-tabs-row" role="tablist">
+                <button class="marginalia-pill-btn active" id="highlights" data-tab-filter="highlights" role="tab" aria-selected="true">
+                    <span>Highlights</span>
+                    <span class="tab-badge">3</span>
+                </button>
+                <button class="marginalia-pill-btn" id="notes" data-tab-filter="notes" role="tab" aria-selected="false">
+                    <span>Notes</span>
+                    <span class="tab-badge">5</span>
+                </button>
+                <button class="marginalia-pill-btn" id="discussions" data-tab-filter="discuss" role="tab" aria-selected="false">
+                    <span>Discuss</span>
+                    <span class="tab-badge">3</span>
+                </button>
+            </div>
+
+            <!-- Marginalia Cards Feed -->
+            <div class="marginalia-cards-feed" id="marginaliaCardsFeed">
+                
+                <!-- CARD 1: Page 12 Highlight & Threaded Discussion -->
+                <div class="marginalia-card active-card" data-category="highlights" data-target-passage="hl-1">
+                    <blockquote class="card-quote-text">
+                        “If you can get 1 percent better each day for one year, you'll end up 37 times better by the end of the year.”
+                    </blockquote>
+
+                    <div class="card-meta-row">
+                        <span class="card-meta-info">Page 12 • Today, 4:12 PM</span>
+                        <button class="card-more-menu-btn" title="Passage options">⋮</button>
+                    </div>
+
+                    <!-- Community Comments Thread -->
+                    <div class="card-comments-thread" id="cardThread1">
+                        
+                        <!-- Comment 1: reader (You) -->
+                        <div class="thread-comment-item">
+                            <img src="../assets/user_avatar.jpg" alt="@reader" class="comment-author-avatar">
+                            <div class="comment-body">
+                                <div class="comment-header-line">
+                                    <span class="comment-author-handle">@reader</span>
+                                    <span class="comment-you-pill">(You)</span>
+                                </div>
+                                <p class="comment-message">
+                                    This line hits different. It's crazy how small consistent effort actually compounds.
+                                </p>
+                                <div class="comment-actions-bar">
+                                    <button class="comment-action-reply">Reply</button>
+                                    <button class="comment-action-like liked" data-count="12">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                        </svg>
+                                        <span class="like-number">12</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Comment 2: aishwarya -->
+                        <div class="thread-comment-item">
+                            <img src="../assets/avatar_aishwarya.jpg" alt="@aishwarya" class="comment-author-avatar">
+                            <div class="comment-body">
+                                <div class="comment-header-line">
+                                    <span class="comment-author-handle">@aishwarya</span>
+                                </div>
+                                <p class="comment-message">
+                                    Totally. It's not about motivation, it's about systems.
+                                </p>
+                                <div class="comment-actions-bar">
+                                    <button class="comment-action-reply">Reply</button>
+                                    <button class="comment-action-like liked" data-count="8">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                        </svg>
+                                        <span class="like-number">8</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Add a Thought Interactive Field -->
+                    <div class="add-thought-pill-box">
+                        <span class="add-thought-plus">+</span>
+                        <input type="text" class="add-thought-input" id="addThoughtInput" placeholder="Add a thought..." aria-label="Add a thought">
+                    </div>
+                </div>
+
+                <!-- CARD 2: Page 13 Highlight -->
+                <div class="marginalia-card" data-category="highlights" data-target-passage="hl-2">
+                    <blockquote class="card-quote-text">
+                        “You do not rise to the level of your goals. You fall to the level of your systems.”
+                    </blockquote>
+                    <div class="card-meta-row">
+                        <span class="card-meta-info">Page 13 • Today, 5:01 PM</span>
+                        <button class="card-more-menu-btn" title="Passage options">⋮</button>
+                    </div>
+                </div>
+
+                <!-- CARD 3: Page 12 Earlier Highlight -->
+                <div class="marginalia-card" data-category="highlights" data-target-passage="hl-3">
+                    <blockquote class="card-quote-text">
+                        “Habits are the compound interest of self-improvement.”
+                    </blockquote>
+                    <div class="card-meta-row">
+                        <span class="card-meta-info">Page 12 • Yesterday, 11:20 PM</span>
+                        <button class="card-more-menu-btn" title="Passage options">⋮</button>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- ====================================================================
+             EDITORIAL FOOTER TAGLINE
+             ==================================================================== -->
+        <footer class="reading-editorial-footer">
+            <span class="quote-text">"Same stories. Different people."</span>
+            <span class="brand-divider">— WABI SABI —</span>
+        </footer>
+
+        <!-- Floating Exit Fullscreen Button (Shown in Fullscreen Mode) -->
+        <button class="floating-exit-fullscreen-btn" id="exitFullscreenFloatingBtn" title="Exit Fullscreen (Esc or F)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span>Exit Fullscreen</span>
+        </button>
+
+        <!-- About Book Sanctuary Modal Overlay -->
+        <div class="reader-about-backdrop" id="readerAboutModal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle">
+            <div class="reader-about-paper">
+                <button class="reader-about-close" id="readerAboutCloseBtn" aria-label="Close About Modal">✕</button>
+                <div class="reader-about-tag" id="aboutModalTag">Editorial Background</div>
+                <h2 class="reader-about-title" id="aboutModalTitle">Atomic Habits</h2>
+                <div class="reader-about-author" id="aboutModalAuthor">James Clear • 2018</div>
+                
+                <div class="reader-about-body" id="aboutModalBody">
+                    <p class="reader-about-desc" id="aboutModalDesc">
+                        An indispensable guide to how small changes can compound into remarkable results. Focus on systems rather than goals to create lasting transformation.
+                    </p>
+                    
+                    <div class="reader-about-meta-grid">
+                        <div class="about-meta-item">
+                            <span class="meta-item-label">Format</span>
+                            <span class="meta-item-val" id="aboutModalFormat">Hardcover Two-Page Spread</span>
+                        </div>
+                        <div class="about-meta-item">
+                            <span class="meta-item-label">Length</span>
+                            <span class="meta-item-val" id="aboutModalPages">320 Pages</span>
+                        </div>
+                        <div class="about-meta-item">
+                            <span class="meta-item-label">Club Edition</span>
+                            <span class="meta-item-val" id="aboutModalEdition">Vol. 1 · Sanctuary Pick</span>
+                        </div>
+                    </div>
+
+                    <div class="reader-about-companion" id="aboutModalCompanion">
+                        <div class="companion-title" id="aboutModalCompanionTitle">Media Companion & Discussions</div>
+                        <p class="companion-desc" id="aboutModalCompanionText">
+                            Weekly Table Room gatherings explore systems vs goals every Sunday evening.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="reader-about-actions">
+                    <button class="reader-about-action-btn primary" id="aboutReturnToReadBtn">Return to Reading</button>
+                    <a href="table-room.html" class="reader-about-action-btn secondary" id="aboutJoinDiscussionBtn">Join Table Discussion ↗</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/store.js"></script>
+    <script src="../js/reader.js"></script>
+</body>
+</html>

@@ -99,6 +99,53 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     hydrateCommunitySpace();
 
+    // 3b. Interactive Side Cards (Bookclub Pick -> reader.html, Gathering -> table-room.html)
+    const todaysPickCard = document.getElementById('todaysPickCard');
+    if (todaysPickCard) {
+        todaysPickCard.addEventListener('click', () => {
+            window.location.href = 'reader.html';
+        });
+    }
+
+    const happeningSoonCard = document.getElementById('happeningSoonCard');
+    if (happeningSoonCard) {
+        happeningSoonCard.addEventListener('click', () => {
+            window.location.href = 'table-room.html';
+        });
+    }
+
+    // 3c. Global Desk Search Bar
+    const deskSearchInput = document.querySelector('.search-pill');
+    if (deskSearchInput) {
+        deskSearchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && deskSearchInput.value.trim().length > 0) {
+                const query = deskSearchInput.value.trim().toLowerCase();
+                const stickyNotes = document.querySelectorAll('.sticky-note-card');
+                let foundCount = 0;
+                stickyNotes.forEach(note => {
+                    const text = (note.textContent || '').toLowerCase();
+                    if (text.includes(query)) {
+                        foundCount++;
+                        note.style.transition = 'box-shadow 0.3s ease, transform 0.3s ease';
+                        note.style.boxShadow = '0 0 0 3px var(--accent-sage, #2C4837), 0 12px 28px rgba(0,0,0,0.18)';
+                        note.style.transform = 'scale(1.05)';
+                        setTimeout(() => {
+                            note.style.boxShadow = '';
+                            note.style.transform = '';
+                        }, 3000);
+                    }
+                });
+                if (foundCount > 0) {
+                    if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
+                        window.WabiSabiStore.showToast(`Found ${foundCount} highlighted reflection${foundCount > 1 ? 's' : ''} on your desk.`);
+                    }
+                } else {
+                    window.location.href = `community.html?search=${encodeURIComponent(query)}`;
+                }
+            }
+        });
+    }
+
     // 4. Interactive User-Writable Sticky Notes with LocalStorage Persistence
     function initWritableStickyNotes() {
         const writingPads = document.querySelectorAll('.sticky-handwriting');
@@ -292,20 +339,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         },
         'wabi-wall': {
             label: 'Wabi Wall',
-            eyebrow: 'The Wabi Wall • Living Mosaic of Reflections',
-            headline: 'Leaves of<br>Thought Left<br><span class="word-grow">Behind —</span>',
-            tagline: 'Shared reflections and handwritten thoughts pinned by members of the circle. Click any note to write your own.',
-            toast: '✦ Wabi Wall Notes Focused',
+            eyebrow: 'The Wabi Wall • Living Mosaic & Community Gatherings',
+            headline: 'Leaves of<br>Thought &<br><span class="word-grow">Gatherings —</span>',
+            tagline: 'Shared reflections and handwritten thoughts pinned by members, alongside intimate upcoming evening salons under warm amber light.',
+            toast: '✦ Wabi Wall & Gatherings Focused',
             focusNotes: ['books', 'films', 'discussions', 'community'],
-            focusCards: []
+            focusCards: ['happeningSoonCard']
         },
         'events': {
-            label: 'Events',
-            eyebrow: 'Upcoming Salons & Gatherings',
-            headline: 'Quiet Evenings.<br>Shared Voices.<br><span class="word-grow">Gather —</span>',
-            tagline: 'Live audio salons, quiet evening reading sessions, and intimate discussions under warm amber light.',
-            toast: '✦ Upcoming Salons & Events',
-            focusNotes: ['discussions'],
+            label: 'Wabi Wall',
+            eyebrow: 'The Wabi Wall • Living Mosaic & Community Gatherings',
+            headline: 'Leaves of<br>Thought &<br><span class="word-grow">Gatherings —</span>',
+            tagline: 'Shared reflections and handwritten thoughts pinned by members, alongside intimate upcoming evening salons under warm amber light.',
+            toast: '✦ Wabi Wall & Gatherings Focused',
+            focusNotes: ['books', 'films', 'discussions', 'community'],
             focusCards: ['happeningSoonCard']
         },
         'library': {
@@ -392,11 +439,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Attach click listeners to dock items
     dockItems.forEach(item => {
         item.addEventListener('click', (e) => {
-            e.preventDefault();
             const tabKey = item.getAttribute('data-tab') || 'home';
+            if (tabKey === 'reading') {
+                // Navigate directly to reader.html in the same tab
+                window.location.href = 'reader.html';
+                return;
+            }
+            if (tabKey === 'table-room') {
+                // Navigate directly to table-room.html in the same tab
+                window.location.href = 'table-room.html';
+                return;
+            }
+            if (tabKey === 'community') {
+                // Navigate directly to community.html in the same tab
+                window.location.href = 'community.html';
+                return;
+            }
+            if (tabKey === 'theme-weeks') {
+                // Navigate directly to wabi-wall.html
+                window.location.href = 'wabi-wall.html';
+                return;
+            }
+            if (tabKey === 'wabi-wall') {
+                // Navigate directly to wabi-wall.html in the same tab
+                window.location.href = 'wabi-wall.html';
+                return;
+            }
+            e.preventDefault();
             switchSection(tabKey, true);
         });
     });
+
+    // Bookclub Pick card navigates to reader.html
+    const todaysPickCard = document.getElementById('todaysPickCard');
+    if (todaysPickCard) {
+        todaysPickCard.style.cursor = 'pointer';
+        todaysPickCard.addEventListener('click', () => {
+            window.location.href = 'reader.html';
+        });
+    }
 
     // Handle initial hash routing if present
     const initialHash = window.location.hash ? window.location.hash.replace('#', '') : 'home';
@@ -406,51 +487,54 @@ document.addEventListener('DOMContentLoaded', async () => {
         switchSection('home', false);
     }
 
-    // CTAs interaction
+    // CTAs interaction & Intro Sanctuary Modal
     const getStartedBtn = document.getElementById('getStartedBtn');
     const watchIntroBtn = document.getElementById('watchIntroBtn');
+    const introStoryModal = document.getElementById('introStoryModal');
+    const introModalCloseBtn = document.getElementById('introModalCloseBtn');
+    const introModalDismissBtn = document.getElementById('introModalDismissBtn');
+
+    function openIntroModal() {
+        if (introStoryModal) introStoryModal.style.display = 'flex';
+    }
+
+    function closeIntroModal() {
+        if (introStoryModal) introStoryModal.style.display = 'none';
+    }
 
     if (getStartedBtn) {
         getStartedBtn.addEventListener('click', () => {
-            switchSection('community', true);
-            const firstNote = document.querySelector('.sticky-books .sticky-handwriting');
-            if (firstNote) {
-                firstNote.focus();
+            if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
+                window.WabiSabiStore.showToast('✦ Entering Reading Sanctuary...');
             }
+            setTimeout(() => {
+                window.location.href = 'reader.html';
+            }, 300);
         });
     }
 
     if (watchIntroBtn) {
-        watchIntroBtn.addEventListener('click', () => {
-            if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
-                window.WabiSabiStore.showToast('✦ "In the quiet spaces between words, we find ourselves." — Welcome to Wabi Sabi.');
-            }
+        watchIntroBtn.addEventListener('click', openIntroModal);
+    }
+    if (introModalCloseBtn) introModalCloseBtn.addEventListener('click', closeIntroModal);
+    if (introModalDismissBtn) introModalDismissBtn.addEventListener('click', closeIntroModal);
+    if (introStoryModal) {
+        introStoryModal.addEventListener('click', (e) => {
+            if (e.target === introStoryModal) closeIntroModal();
         });
     }
 
-    // =========================================================================
-    // 7. ABSOLUTE VIEWPORT & ZOOM LOCKDOWN CONTROLLER
-    // Locks the page view so nobody can alter or disrupt the 125% perfection:
-    // - Blocks Ctrl + Mouse Wheel zoom
-    // - Blocks Ctrl + '+', '-', '=', '_', '0' keyboard zoom shortcuts
-    // - Blocks Touch / Trackpad pinch-to-zoom gestures
-    // =========================================================================
-    window.addEventListener('wheel', function(e) {
-        if (e.ctrlKey) {
-            e.preventDefault();
-        }
-    }, { passive: false });
-
-    window.addEventListener('keydown', function(e) {
-        if (e.ctrlKey || e.metaKey) {
-            const key = e.key;
-            if (key === '+' || key === '-' || key === '=' || key === '_' || key === '0' || 
-                e.keyCode === 187 || e.keyCode === 189 || e.keyCode === 107 || e.keyCode === 109 || 
-                e.keyCode === 48 || e.keyCode === 96) {
-                e.preventDefault();
-            }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && introStoryModal && introStoryModal.style.display !== 'none') {
+            closeIntroModal();
         }
     });
+
+    // =========================================================================
+    // 7. RESPONSIVE VIEWPORT COHESION (WCAG 2.1 Compliant)
+    // Allows natural user magnification and responsive clamp adjustments
+    // without hijacking browser trackpad gestures or browser zoom.
+    // =========================================================================
 
     // =========================================================================
     // 8. INTERACTIVE DESK DOODLE CANVAS ENGINE

@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curator Dashboard — Wabi Sabi</title>
+    
+    <!-- Favicon & Touch Icons -->
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
+    <link rel="manifest" href="../site.webmanifest">
+    
+    <!-- Editorial & Aesthetic Handwriting Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Manrope:wght@300;400;500;600;700&family=Kalam:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/tokens.css">
+    <link rel="stylesheet" href="../css/portal.css">
+    <link rel="stylesheet" href="../css/curator.css">
+    <style>
+        :root {
+            --bg-paper: #F5F2EA;
+            --moss-dark: #3F5547;
+            --moss-mid: #526B5C;
+            --moss-light: #7E9786;
+            --contour-gold: #C6B69B;
+            --contour-gold-faint: rgba(198, 182, 155, 0.45);
+        }
+
+        [data-theme="dark"] {
+            --bg-paper: #181614;
+            --moss-dark: #1E2E23;
+            --moss-mid: #2C4233;
+            --moss-light: #44614E;
+            --contour-gold: #8E7E65;
+            --contour-gold-faint: rgba(142, 126, 101, 0.35);
+        }
+
+        body.portal-body {
+            background-color: var(--bg-paper) !important;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .wabi-organic-frame-svg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .curator-page-wrap {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+            position: relative;
+            z-index: 2;
+        }
+        .curator-top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--wabi-border-subtle, rgba(45, 40, 35, 0.08));
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .curator-pill-badge {
+            background: var(--wabi-ochre, #B87333);
+            color: #FFFFFF;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+        /* Navigation tabs */
+        .curator-tab-tokens {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(8px);
+            padding: 4px 6px;
+            border-radius: 999px;
+            border: 1px solid var(--wabi-border-medium, rgba(45, 40, 35, 0.14));
+        }
+        [data-theme="dark"] .curator-tab-tokens {
+            background: rgba(32, 30, 28, 0.75);
+            border-color: rgba(235, 225, 210, 0.12);
+        }
+        .curator-tab-btn {
+            padding: 7px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--wabi-ink-secondary);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .curator-tab-btn:hover {
+            color: var(--wabi-ink);
+        }
+        .curator-tab-btn.active {
+            background: var(--wabi-forest-green, #273B2B);
+            color: #FAF7F2 !important;
+            box-shadow: 0 2px 8px rgba(39, 59, 43, 0.25);
+        }
+        [data-theme="dark"] .curator-tab-btn.active {
+            background: var(--wabi-sage, #7DA687);
+            color: #161514 !important;
+        }
+        .curator-section-view {
+            display: none;
+        }
+        .curator-section-view.active {
+            display: block;
+        }
+        .curator-grid-2col {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 28px;
+        }
+        @media (max-width: 860px) {
+            .curator-grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+        .curator-box {
+            background: var(--wabi-card, #FFFFFF);
+            border: 1px solid var(--wabi-border-card, rgba(45, 40, 35, 0.06));
+            border-radius: var(--wabi-radius-md, 14px);
+            padding: 24px;
+            box-shadow: var(--wabi-shadow-card);
+            margin-bottom: 24px;
+            position: relative;
+        }
+        [data-theme="dark"] .curator-box {
+            background: var(--wabi-card, #201E1C);
+            border-color: rgba(235, 225, 210, 0.08);
+        }
+        .curator-box-title {
+            font-family: var(--wabi-font-serif, Georgia, serif);
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--wabi-ink, #24201D);
+            margin: 0 0 4px;
+        }
+        .curator-box-desc {
+            font-size: 13px;
+            color: var(--wabi-ink-muted, #685F56);
+            margin-bottom: 18px;
+        }
+        .c-form-group {
+            margin-bottom: 16px;
+        }
+        .c-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--wabi-ink-secondary, #524B43);
+            margin-bottom: 6px;
+        }
+        .c-input, .c-textarea, .c-select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--wabi-border-medium, rgba(45, 40, 35, 0.14));
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            background: var(--wabi-card-subtle, #FAF7F0);
+            color: var(--wabi-ink);
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        [data-theme="dark"] .c-input,
+        [data-theme="dark"] .c-textarea,
+        [data-theme="dark"] .c-select {
+            background: #1C1A18;
+            border-color: rgba(235, 225, 210, 0.15);
+            color: #EDE7DD;
+        }
+        .c-input:focus, .c-textarea:focus, .c-select:focus {
+            outline: none;
+            border-color: var(--wabi-forest-green, #273B2B);
+        }
+        .c-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .c-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .c-btn-primary {
+            background: var(--wabi-forest-green, #273B2B);
+            color: #FFFFFF;
+        }
+        .c-btn-primary:hover {
+            background: #1B2B1E;
+            transform: translateY(-1px);
+        }
+        [data-theme="dark"] .c-btn-primary {
+            background: var(--wabi-sage, #7DA687);
+            color: #161514;
+        }
+        .c-btn-secondary {
+            background: transparent;
+            border: 1px solid var(--wabi-border-medium);
+            color: var(--wabi-ink);
+        }
+        .c-btn-secondary:hover {
+            background: var(--wabi-sage-soft);
+        }
+        .c-btn-danger {
+            background: transparent;
+            border: 1px solid rgba(220, 53, 69, 0.4);
+            color: #c93b2b;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .c-btn-danger:hover {
+            background: rgba(220, 53, 69, 0.1);
+        }
+        .avatar-quick-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--wabi-border-medium);
+            font-size: 12px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.6);
+            margin: 4px 4px 4px 0;
+            transition: all 0.15s;
+        }
+        .avatar-quick-pill:hover {
+            border-color: var(--wabi-forest-green);
+        }
+        .avatar-quick-pill img {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .active-announcement-card {
+            border: 1px solid var(--wabi-border-subtle);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            background: var(--wabi-paper, #FBF8F2);
+        }
+        [data-theme="dark"] .active-announcement-card {
+            background: #181615;
+            border-color: rgba(235, 225, 210, 0.08);
+        }
+        .member-row-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border: 1px solid var(--wabi-border-subtle);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: var(--wabi-paper, #FBF8F2);
+            gap: 12px;
+        }
+        [data-theme="dark"] .member-row-item {
+            background: #181615;
+            border-color: rgba(235, 225, 210, 0.08);
+        }
+        .curator-status-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--wabi-forest-green, #273B2B);
+            color: #FFFFFF;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 500;
+            box-shadow: var(--wabi-shadow-float);
+            z-index: 999;
+            display: none;
+            animation: fadeInToast 0.25s ease;
+        }
+        @keyframes fadeInToast {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="portal-body">
+
+    <!-- Paper Grain Texture Overlay -->
+    <div class="paper-grain-overlay"></div>
+
+    <!-- Organic Botanical Fluid Waves & Contours SVG Background Layer -->
+    <svg class="wabi-organic-frame-svg" viewBox="0 0 1920 1080" fill="none" preserveAspectRatio="none" aria-hidden="true">
+        <!-- 1. Top Wave Accent -->
+        <path d="M 0 0 C 320 40, 680 15, 1020 35 C 1360 55, 1680 15, 1920 0 L 1920 0 L 0 0 Z" fill="rgba(235, 226, 211, 0.45)" />
+
+        <!-- 2. Top-Left Fluid Waves -->
+        <path d="M 0 0 C 180 80, 240 180, 200 320 C 160 460, 80 520, 0 580 L 0 0 Z" fill="var(--moss-dark)" opacity="0.65" />
+        <path d="M 0 0 C 140 60, 180 140, 150 250 C 120 360, 60 410, 0 460 L 0 0 Z" fill="var(--moss-mid)" opacity="0.85" />
+        <path d="M 0 0 C 230 110, 310 230, 260 380 C 220 500, 120 560, 0 640" fill="none" stroke="var(--contour-gold)" stroke-width="1.6" />
+        <path d="M 0 0 C 270 130, 370 260, 310 430 C 260 560, 150 630, 0 710" fill="none" stroke="var(--contour-gold)" stroke-width="1.2" stroke-dasharray="4 8" />
+        <circle cx="260" cy="380" r="3.5" fill="var(--contour-gold)" />
+        <circle cx="160" cy="180" r="3" fill="var(--contour-gold)" />
+
+        <!-- 3. Bottom-Left Giant Moss Wave & Layered Contours -->
+        <path d="M 0 580 C 130 615, 240 710, 290 820 C 330 910, 420 990, 560 1080 L 0 1080 Z" fill="var(--moss-light)" opacity="0.4" />
+        <path d="M 0 660 C 110 690, 200 760, 240 855 C 275 930, 360 1005, 480 1080 L 0 1080 Z" fill="var(--moss-mid)" opacity="0.55" />
+        <path d="M 0 740 C 90 765, 160 820, 195 900 C 230 965, 300 1030, 400 1080 L 0 1080 Z" fill="var(--moss-dark)" opacity="0.75" />
+        
+        <path d="M 0 540 C 145 580, 270 680, 325 800 C 370 895, 470 980, 620 1080" fill="none" stroke="var(--contour-gold)" stroke-width="1.5" />
+        <path d="M 0 500 C 160 545, 300 650, 360 775 C 410 875, 515 965, 680 1080" fill="none" stroke="var(--contour-gold)" stroke-width="1.2" stroke-dasharray="4 8" />
+        <circle cx="360" cy="775" r="3.2" fill="var(--contour-gold)" />
+        <circle cx="515" cy="965" r="2.8" fill="var(--contour-gold)" />
+
+        <!-- Botanical Branch in Bottom-Left Corner -->
+        <g stroke="#2C3D32" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M 30 1060 C 50 990, 85 935, 140 945 C 180 955, 210 930, 230 895" />
+            <path d="M 70 985 C 60 965, 75 945, 95 955 C 100 975, 85 995, 70 985 Z" fill="rgba(82, 107, 92, 0.3)" />
+            <path d="M 90 960 C 110 940, 130 945, 135 965 C 120 980, 100 975, 90 960 Z" fill="rgba(82, 107, 92, 0.3)" />
+            <path d="M 125 948 C 125 925, 145 915, 160 930 C 155 950, 135 960, 125 948 Z" fill="rgba(82, 107, 92, 0.3)" />
+            <path d="M 155 945 C 175 930, 195 935, 195 955 C 180 965, 165 960, 155 945 Z" fill="rgba(82, 107, 92, 0.3)" />
+            <path d="M 190 938 C 195 915, 215 910, 225 925 C 220 945, 205 950, 190 938 Z" fill="rgba(82, 107, 92, 0.3)" />
+            <path d="M 220 905 C 235 885, 255 890, 255 910 C 240 920, 225 915, 220 905 Z" fill="rgba(82, 107, 92, 0.3)" />
+        </g>
+
+        <!-- 4. Top-Right Fluid Waves & Botanical Accent -->
+        <path d="M 1580 0 C 1640 100, 1740 180, 1920 250 L 1920 0 Z" fill="var(--moss-light)" opacity="0.45" />
+        <path d="M 1660 0 C 1715 80, 1800 150, 1920 205 L 1920 0 Z" fill="var(--moss-dark)" opacity="0.65" />
+        <path d="M 1520 0 C 1590 120, 1700 210, 1920 285" fill="none" stroke="var(--contour-gold)" stroke-width="1.5" />
+        <path d="M 1470 0 C 1550 140, 1670 235, 1920 320" fill="none" stroke="var(--contour-gold)" stroke-width="1.2" stroke-dasharray="4 8" />
+        <circle cx="1670" cy="235" r="3" fill="var(--contour-gold)" />
+
+        <!-- Botanical Branch in Top-Right near Header -->
+        <g stroke="#2C3D32" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M 1890 160 C 1850 200, 1810 240, 1785 300" />
+            <path d="M 1860 190 C 1880 180, 1895 195, 1885 210 C 1865 215, 1850 205, 1860 190 Z" fill="rgba(82, 107, 92, 0.25)" />
+            <path d="M 1845 210 C 1825 210, 1815 225, 1830 235 C 1845 235, 1855 220, 1845 210 Z" fill="rgba(82, 107, 92, 0.25)" />
+            <path d="M 1825 235 C 1840 230, 1855 245, 1845 260 C 1830 260, 1820 250, 1825 235 Z" fill="rgba(82, 107, 92, 0.25)" />
+        </g>
+
+        <!-- 5. Bottom-Right Undulating Contour Rolling -->
+        <path d="M 1220 1080 C 1390 1020, 1560 980, 1740 1010 C 1830 1025, 1880 1055, 1920 1080 Z" fill="rgba(235, 226, 211, 0.55)" />
+        <path d="M 1360 1080 C 1500 1025, 1650 995, 1800 1020 C 1860 1030, 1900 1055, 1920 1080 Z" fill="var(--moss-light)" opacity="0.3" />
+        <path d="M 1160 1080 C 1350 1005, 1530 965, 1720 995 C 1820 1015, 1880 1050, 1920 1080" fill="none" stroke="var(--contour-gold)" stroke-width="1.3" />
+        <path d="M 1100 1080 C 1310 990, 1500 950, 1700 980 C 1810 1000, 1870 1040, 1920 1080" fill="none" stroke="var(--contour-gold)" stroke-width="1.1" stroke-dasharray="4 8" />
+        <circle cx="1500" cy="950" r="3" fill="var(--contour-gold)" />
+
+        <!-- 6. Decorative Branch on Lower Right Margin -->
+        <g stroke="#2C3D32" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(1820, 860) rotate(-25)">
+            <path d="M 0 0 C 15 35, 25 75, 20 110" />
+            <path d="M 12 30 C 26 22, 38 32, 28 42 C 16 42, 10 34, 12 30 Z" fill="rgba(82, 107, 92, 0.25)" />
+            <path d="M 18 65 C 32 58, 44 68, 34 78 C 22 78, 16 70, 18 65 Z" fill="rgba(82, 107, 92, 0.25)" />
+        </g>
+    </svg>
+
+    <div class="curator-page-wrap">
+
+        <!-- ====================================================================
+             TOP CURATOR HEADER & PILLAR SWITCHER
+             ==================================================================== -->
+        <header class="curator-top-nav">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <a href="home.html" title="Wabi Sabi Home" style="display: flex; align-items: center;">
+                    <img src="../assets/wabi_sabi_horizontal.png" alt="Wabi Sabi" class="portal-brand-img light-brand" style="height: 30px;">
+                    <img src="../assets/wabi_sabi_horizontal_dark.png" alt="Wabi Sabi" class="portal-brand-img dark-brand" style="height: 30px;">
+                </a>
+                <span class="curator-pill-badge">Curator Desk</span>
+            </div>
+
+            <!-- Central 3-Pillar Tabs -->
+            <nav class="curator-tab-tokens" aria-label="Curator Sections">
+                <button type="button" class="curator-tab-btn active" data-curator-tab="announcements" id="curTabAnnouncements">
+                    Announcements
+                </button>
+                <button type="button" class="curator-tab-btn" data-curator-tab="community" id="curTabCommunity">
+                    Community
+                </button>
+                <button type="button" class="curator-tab-btn" data-curator-tab="connect" id="curTabConnect">
+                    Connect
+                </button>
+            </nav>
+
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span id="curatorIdentityName" style="font-size: 13.5px; font-weight: 600; color: var(--wabi-ink);">Curator</span>
+
+                <button class="theme-btn theme-toggle-trigger" id="themeToggleBtn" title="Tea Glass (Day) / Coffee Cup (Night)" aria-label="Toggle Light / Dark Theme">
+                    <svg class="theme-icon theme-icon-tea" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 6.5h12l-1.8 12.5a2 2 0 0 1-2 1.5H9.8a2 2 0 0 1-2-1.5L6 6.5z"/>
+                        <line x1="6.6" y1="10.2" x2="17.4" y2="10.2"/>
+                        <line x1="10" y1="10.2" x2="10.5" y2="18.5"/>
+                        <line x1="14" y1="10.2" x2="13.5" y2="18.5"/>
+                        <line x1="8.2" y1="18.5" x2="15.8" y2="18.5"/>
+                    </svg>
+                    <svg class="theme-icon theme-icon-coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 6.5h11v7a4.5 4.5 0 0 1-4.5 4.5h-2A4.5 4.5 0 0 1 4 13.5v-7z"/>
+                        <path d="M15 8.5h2.2a2.3 2.3 0 0 1 2.3 2.3v.4a2.3 2.3 0 0 1-2.3 2.3H15"/>
+                        <path d="M2.5 19.5h14"/>
+                        <path d="M7 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
+                        <path d="M11 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
+                    </svg>
+                </button>
+
+                <a href="home.html" class="c-btn c-btn-secondary" style="text-decoration: none; padding: 7px 14px; font-size: 12.5px;">
+                    <span>View Public Portal ↗</span>
+                </a>
+
+                <button type="button" id="curatorSignOutBtn" class="c-btn c-btn-secondary" style="padding: 7px 14px; font-size: 12.5px; cursor: pointer;">
+                    Sign Out
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Intro Statement -->
+        <div style="margin-bottom: 24px;">
+            <h1 style="font-family: var(--wabi-font-serif); font-size: 32px; font-weight: 500; margin: 0 0 6px;">Curator Management Sanctuary</h1>
+            <p style="font-size: 14px; color: var(--wabi-ink-secondary); margin: 0;">
+                Live coordination panel for <strong>Likith</strong>, <strong>Sarvasree</strong>, and <strong>Dhanush</strong>. Updates made here reflect immediately on the public portal.
+            </p>
+        </div>
+
+        <!-- ====================================================================
+             1. CURATOR ANNOUNCEMENTS PILLAR
+             - Weekly Theme
+             - This Week's Reading
+             - Gathering Details
+             - Discussion Points & Important Notes
+             - Publish Bulletins & Active Notices
+             ==================================================================== -->
+        <section id="curatorSectionAnnouncements" class="curator-section-view active">
+            <div id="announcements"></div>
+            <div class="curator-grid-2col">
+                
+                <!-- Left Column: Theme, Reading, and Gathering -->
+                <div>
+                    <!-- Weekly Theme -->
+                    <div class="curator-box">
+                        <h2 class="curator-box-title">Theme of the Week</h2>
+                        <p class="curator-box-desc">Controls the overarching theme and subtitle quote on the home page.</p>
+
+                        <form id="themeForm">
+                            <div class="c-form-group">
+                                <label for="weeklyThemeTitleInput" class="c-label">Theme Headline</label>
+                                <input type="text" id="weeklyThemeTitleInput" class="c-input" placeholder="e.g. Identity & Belonging" required>
+                            </div>
+
+                            <div class="c-form-group">
+                                <label for="weeklyThemeSubtitleInput" class="c-label">Theme Reflection / Subtitle</label>
+                                <textarea id="weeklyThemeSubtitleInput" class="c-textarea" placeholder="e.g. Exploring who we are beyond our social mirrors." rows="2"></textarea>
+                            </div>
+
+                            <button type="submit" class="c-btn c-btn-primary" style="width: 100%;">
+                                <span>Save Weekly Theme 💾</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- This Week's Reading -->
+                    <div class="curator-box">
+                        <h2 class="curator-box-title">This Week's Reading</h2>
+                        <p class="curator-box-desc">Book title, author, and Google Drive reading link.</p>
+
+                        <form id="readingDetailsForm">
+                            <div class="c-form-group">
+                                <label for="bookTitleInput" class="c-label">Book Title</label>
+                                <input type="text" id="bookTitleInput" class="c-input" placeholder="e.g. The Stranger" required>
+                            </div>
+
+                            <div class="c-form-group">
+                                <label for="bookAuthorInput" class="c-label">Author</label>
+                                <input type="text" id="bookAuthorInput" class="c-input" placeholder="e.g. Albert Camus" required>
+                            </div>
+
+                            <div class="c-form-group">
+                                <label for="bookNotesInput" class="c-label">Reading Notes / Target Chapters</label>
+                                <textarea id="bookNotesInput" class="c-textarea" placeholder="e.g. Finish chapters 1–4 before our Saturday gathering." rows="2"></textarea>
+                            </div>
+
+                            <div class="c-form-group">
+                                <label for="bookDriveUrlInput" class="c-label">Book Drive Link</label>
+                                <input type="url" id="bookDriveUrlInput" class="c-input" placeholder="https://drive.google.com/..." required>
+                            </div>
+
+                            <button type="submit" class="c-btn c-btn-primary" style="width: 100%;">
+                                <span>Save Reading Details 💾</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Gathering Details -->
+                    <div class="curator-box">
+                        <h2 class="curator-box-title">Gathering Details</h2>
+                        <p class="curator-box-desc">Date, time, venue, and Google Maps location.</p>
+
+                        <form id="meetingDetailsForm">
+                            <div class="c-form-group">
+                                <label for="meetingDateInput" class="c-label">Date</label>
+                                <input type="text" id="meetingDateInput" class="c-input" placeholder="e.g. Saturday, 4 October" required>
+                            </div>
+
+                            <div class="c-form-group">
+                                <label for="meetingTimeInput" class="c-label">Time</label>
+                                <input type="text" id="meetingTimeInput" class="c-input" placeholder="e.g. 4:00 PM" required>
+                            </div>
+
+                            <div class="c-form-group">
+                                <label for="meetingLocationInput" class="c-label">Location / Venue</label>
+                                <input type="text" id="meetingLocationInput" class="c-input" placeholder="e.g. MRDU Campus" required>
+                            </div>
+
+                            <div class="c-form-group">
+                                <label for="meetingMapsUrlInput" class="c-label">Google Maps Directions URL</label>
+                                <input type="url" id="meetingMapsUrlInput" class="c-input" placeholder="https://maps.google.com/..." required>
+                            </div>
+
+                            <button type="submit" class="c-btn c-btn-primary" style="width: 100%;">
+                                <span>Save Gathering Details 💾</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right Column: Discussion Points, Important Notes, and Bulletins -->
+                <div>
+                    <!-- Discussion Points & Important Notes -->
+                    <div class="curator-box">
+                        <h2 class="curator-box-title">Discussion Points & Important Notes</h2>
+                        <p class="curator-box-desc">Reflective prompts for the week and critical member reminders.</p>
+
+                        <form id="discussionPointsForm">
+                            <div class="c-form-group">
+                                <label for="discussionPointsInput" class="c-label">Discussion Points (One per line)</label>
+                                <textarea id="discussionPointsInput" class="c-textarea" placeholder="What does belonging mean?&#10;Is identity created or inherited?&#10;What did you think about the protagonist?" rows="5"></textarea>
+                            </div>
+
+                            <div class="c-form-group">
+                                <label for="importantNotesInput" class="c-label">Important Notice Banner</label>
+                                <input type="text" id="importantNotesInput" class="c-input" placeholder="Bring your notes / finish chapters 1–4 before the gathering.">
+                            </div>
+
+                            <button type="submit" class="c-btn c-btn-primary" style="width: 100%;">
+                                <span>Save Discussion & Notice 💾</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Publish New Bulletin -->
+                    <div class="curator-box">
+                        <h2 class="curator-box-title">Publish Bulletin Announcement</h2>
+                        <p class="curator-box-desc">Compose notices, time changes, or reading reflections for visitors.</p>
+
+                        <form id="newAnnouncementForm">
+                            <div class="c-form-group">
+                                <label for="announcementTitle" class="c-label">Headline / Title</label>
+                                <input type="text" id="announcementTitle" class="c-input" placeholder="e.g. Discussion Salon Room Confirmed" required>
+                            </div>
+
+                            <div class="c-form-group">
+                                <label for="announcementContent" class="c-label">Announcement Content</label>
+                                <textarea id="announcementContent" class="c-textarea" placeholder="Write notice details..." rows="3" required></textarea>
+                            </div>
+
+                            <div class="c-form-group" style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="announcementPinned" checked>
+                                <label for="announcementPinned" style="font-size: 13px; color: var(--wabi-ink); cursor: pointer;">Pin as primary notice on top</label>
+                            </div>
+
+                            <button type="submit" id="publishNoticeBtn" class="c-btn c-btn-primary" style="width: 100%;">
+                                <span>Publish Bulletin ✦</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Active Announcements List -->
+                    <div class="curator-box">
+                        <h2 class="curator-box-title">Active Bulletins</h2>
+                        <p class="curator-box-desc">Currently published on the public portal.</p>
+                        <div id="curatorUpdatesList">
+                            <p style="font-size: 13px; color: var(--wabi-ink-muted);">Loading notices...</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ====================================================================
+             2. CURATOR COMMUNITY PILLAR
+             - Add Person (Name, Role, Photo, Handle, Bio)
+             - Remove Person
+             - People Directory Management
+             ==================================================================== -->
+        <section id="curatorSectionCommunity" class="curator-section-view">
+            <div id="community"></div>
+            <div class="curator-grid-2col">
+                
+                <!-- Add Person Form -->
+                <div class="curator-box">
+                    <h2 class="curator-box-title">Add Person to Community</h2>
+                    <p class="curator-box-desc">Add a new reader, member, or fellow curator to the directory.</p>
+
+                    <form id="addMemberForm">
+                        <div class="c-form-group">
+                            <label for="memberNameInput" class="c-label">Full Name</label>
+                            <input type="text" id="memberNameInput" class="c-input" placeholder="e.g. Akshaya" required>
+                        </div>
+
+                        <div class="c-form-group">
+                            <label for="memberRoleSelect" class="c-label">Role</label>
+                            <select id="memberRoleSelect" class="c-select">
+                                <option value="Member">Member</option>
+                                <option value="Curator">Curator</option>
+                                <option value="Reader">Reader</option>
+                            </select>
+                        </div>
+
+                        <div class="c-form-group">
+                            <label for="memberHandleInput" class="c-label">Handle (Optional)</label>
+                            <input type="text" id="memberHandleInput" class="c-input" placeholder="e.g. @akshaya">
+                        </div>
+
+                        <div class="c-form-group">
+                            <label for="memberAvatarInput" class="c-label">Profile Photo (DP) Path or URL</label>
+                            <input type="text" id="memberAvatarInput" class="c-input" value="../assets/avatar_aishwarya.jpg" required>
+                            
+                            <div style="margin-top: 8px;">
+                                <span style="font-size: 11px; text-transform: uppercase; color: var(--wabi-ink-muted); display: block; margin-bottom: 4px;">Quick Select Avatar:</span>
+                                <span class="avatar-quick-pill" onclick="document.getElementById('memberAvatarInput').value='../assets/user_avatar.jpg'">
+                                    <img src="../assets/user_avatar.jpg" alt="Dhanush"> Dhanush
+                                </span>
+                                <span class="avatar-quick-pill" onclick="document.getElementById('memberAvatarInput').value='../assets/avatar_aishwarya.jpg'">
+                                    <img src="../assets/avatar_aishwarya.jpg" alt="Aishwarya"> Akshaya
+                                </span>
+                                <span class="avatar-quick-pill" onclick="document.getElementById('memberAvatarInput').value='../assets/avatar_meera.jpg'">
+                                    <img src="../assets/avatar_meera.jpg" alt="Meera"> Vaishnavi
+                                </span>
+                                <span class="avatar-quick-pill" onclick="document.getElementById('memberAvatarInput').value='../assets/avatar_aarav.jpg'">
+                                    <img src="../assets/avatar_aarav.jpg" alt="Aarav"> Likith
+                                </span>
+                                <span class="avatar-quick-pill" onclick="document.getElementById('memberAvatarInput').value='../assets/avatar_ishita.jpg'">
+                                    <img src="../assets/avatar_ishita.jpg" alt="Ishita"> Sarvasree
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="c-form-group">
+                            <label for="memberBioInput" class="c-label">Bio / Literary Interest</label>
+                            <textarea id="memberBioInput" class="c-textarea" placeholder="e.g. Existential fiction, poetry & quiet discussions" rows="2"></textarea>
+                        </div>
+
+                        <div class="c-form-group">
+                            <label for="memberOrderInput" class="c-label">Display Order</label>
+                            <input type="number" id="memberOrderInput" class="c-input" value="10" min="0">
+                        </div>
+
+                        <button type="submit" class="c-btn c-btn-primary" style="width: 100%;">
+                            <span>Add Person to Community ✦</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Existing People Directory -->
+                <div class="curator-box">
+                    <h2 class="curator-box-title">Active People Directory</h2>
+                    <p class="curator-box-desc">All individuals currently displayed on the Community page.</p>
+                    
+                    <div id="curatorMembersList">
+                        <p style="font-size: 13px; color: var(--wabi-ink-muted);">Loading members...</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ====================================================================
+             3. CURATOR CONNECT PILLAR
+             - Community Chat Link
+             - Book Drive Link
+             - Meeting Location Link
+             - Social Links (Instagram, WhatsApp, Discord)
+             ==================================================================== -->
+        <section id="curatorSectionConnect" class="curator-section-view">
+            <div id="connect"></div>
+            <div class="curator-box" style="max-width: 680px; margin: 0 auto;">
+                <h2 class="curator-box-title">Connect Platform & External Links</h2>
+                <p class="curator-box-desc">Controls destination links for Community Chat, Book Drive, Location, and Social channels.</p>
+
+                <form id="platformLinksForm">
+                    <div class="c-form-group">
+                        <label for="chatUrlInput" class="c-label">Community Chat Link (WhatsApp / Discord)</label>
+                        <input type="url" id="chatUrlInput" class="c-input" placeholder="https://chat.whatsapp.com/..." required>
+                    </div>
+
+                    <div class="c-form-group">
+                        <label for="globalDriveUrlInput" class="c-label">Wabi Sabi Book Drive Link (Google Drive)</label>
+                        <input type="url" id="globalDriveUrlInput" class="c-input" placeholder="https://drive.google.com/..." required>
+                    </div>
+
+                    <div class="c-form-group">
+                        <label for="globalMapsUrlInput" class="c-label">Meeting Location Link (Google Maps)</label>
+                        <input type="url" id="globalMapsUrlInput" class="c-input" placeholder="https://maps.google.com/..." required>
+                    </div>
+
+                    <div class="c-form-group">
+                        <label for="instagramUrlInput" class="c-label">Instagram Link</label>
+                        <input type="url" id="instagramUrlInput" class="c-input" placeholder="https://instagram.com/...">
+                    </div>
+
+                    <div class="c-form-group">
+                        <label for="whatsappUrlInput" class="c-label">WhatsApp Announcement Channel Link</label>
+                        <input type="url" id="whatsappUrlInput" class="c-input" placeholder="https://chat.whatsapp.com/...">
+                    </div>
+
+                    <div class="c-form-group">
+                        <label for="discordUrlInput" class="c-label">Discord Lounge Link</label>
+                        <input type="url" id="discordUrlInput" class="c-input" placeholder="https://discord.gg/...">
+                    </div>
+
+                    <button type="submit" class="c-btn c-btn-primary" style="width: 100%;">
+                        <span>Save Connect Platform Links 💾</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="curatorToast" class="curator-status-toast"></div>
+
+    <!-- Curator Dashboard Script -->
+    <script src="../js/curator.js"></script>
+</body>
+</html>

@@ -1,133 +1,129 @@
 const express = require('express');
 const router = express.Router();
-const crypto = require('node:crypto');
-const { db } = require('../db');
+const { getCuratorByIdentifier, createCuratorSession, deleteCuratorSession } = require('../db');
 const { verifyPassword, generateSessionToken, hashSessionToken } = require('../crypto');
-const { requireAuth, checkLoginRateLimit, recordLoginFailure, clearLoginFailures } = require('../middleware/auth');
+const {
+    getAuthenticatedCurator,
+    checkLoginRateLimit,
+    recordLoginFailure,
+    clearLoginFailures
+} = require('../middleware/auth');
 
 /**
  * POST /api/auth/login
- * One login endpoint, credentials verified with Argon2id.
- * The server decides role and destination — never the browser.
+ * Authenticates one of the 3 Curators (Likith, Sarvasree, Dhanush)
  */
 router.post('/login', checkLoginRateLimit, async (req, res) => {
-    const { email, password } = req.body || {};
-
-    if (!email || !password) {
-        return res.status(400).json({
-            success: false,
-            error: 'Please enter both your email address and password.'
-        });
-    }
-
     try {
-        const normalizedEmail = email.trim().toLowerCase();
-        const userStmt = db.prepare(`
-            SELECT id, email, password_hash, display_name, handle, role, status
-            FROM users
-            WHERE email = ?
-        `);
-        const user = userStmt.get(normalizedEmail);
+        const identifier = req.body.identifier || req.body.email || req.body.username;
+        const password = req.body.password;
 
-        if (!user) {
-            recordLoginFailure(req);
-            return res.status(401).json({
+        if (!identifier || !password) {
+            return res.status(400).json({
                 success: false,
-                error: 'Invalid email address or password. Please verify your credentials.'
+                error: 'Please provide both your curator username/email and password.'
             });
         }
 
-        const isMatch = await verifyPassword(password, user.password_hash);
+        const curator = getCuratorByIdentifier(identifier);
+        if (!curator) {
+            recordLoginFailure(req);
+            return res.status(401).json({
+                success: false,
+                error: 'Invalid curator credentials. Access is restricted to Wabi Sabi curators.'
+            });
+        }
+
+        const isMatch = await verifyPassword(password, curator.password_hash);
         if (!isMatch) {
             recordLoginFailure(req);
             return res.status(401).json({
                 success: false,
-                error: 'Invalid email address or password. Please verify your credentials.'
+                error: 'Invalid curator credentials. Access is restricted to Wabi Sabi curators.'
             });
         }
 
-        // Authentication succeeded: clear failed attempts
         clearLoginFailures(req);
 
-        // Update last_login_at
-        db.prepare(`UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?`).run(user.id);
-
-        // Generate 32-byte cryptographic session token
+        // Generate cryptographically secure session token
         const rawToken = generateSessionToken();
         const tokenHash = hashSessionToken(rawToken);
-        const sessionId = 'sess_' + crypto.randomUUID();
+        const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days
 
-        // 30 days session expiry
-        db.prepare(`
-            INSERT INTO sessions (id, user_id, token_hash, expires_at)
-            VALUES (?, ?, ?, datetime('now', '+30 days'))
-        `).run(sessionId, user.id, tokenHash);
+        createCuratorSession(curator.id, tokenHash, expiresAt);
 
         // Set secure HTTP-only cookie
+        res.cookie('wabisabi_curator_session', rawToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+            path: '/'
+        });
+
+        // Set legacy cookie name too for backward compatibility
         res.cookie('wabisabi_session', rawToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            maxAge: 30 * 24 * 60 * 60 * 1000,
             path: '/'
         });
 
-        // Determine destination based on server-verified identity
-        let redirectUrl = '/community.html';
-        if (user.role === 'CURATOR') {
-            redirectUrl = '/curator.html';
-        } else if (user.status === 'PENDING' || user.status === 'REJECTED') {
-            redirectUrl = '/application-status.html';
-        }
-
         return res.json({
             success: true,
-            user: {
-                id: user.id,
-                email: user.email,
-                displayName: user.display_name,
-                handle: user.handle,
-                role: user.role,
-                status: user.status
-            },
-            redirectUrl
+            curator: {
+                id: curator.id,
+                email: curator.email,
+                displayName: curator.display_name,
+                handle: curator.handle
+            }
         });
     } catch (err) {
-        console.error('Login error:', err);
-        return res.status(500).json({
-            success: false,
-            error: 'A server error occurred during authentication. Please try again.'
-        });
+        console.error('Curator login error:', err);
+        return res.status(500).json({ success: false, error: 'Curator login failed due to a server error.' });
     }
 });
 
 /**
  * POST /api/auth/logout
- * Destroys session in SQLite and clears the session cookie.
+ * Terminates curator session
  */
 router.post('/logout', (req, res) => {
-    const rawToken = req.cookies ? req.cookies.wabisabi_session : null;
-    if (rawToken) {
-        try {
+    try {
+        const rawToken = req.cookies ? (req.cookies.wabisabi_curator_session || req.cookies.wabisabi_session) : null;
+        if (rawToken) {
             const tokenHash = hashSessionToken(rawToken);
-            db.prepare(`DELETE FROM sessions WHERE token_hash = ?`).run(tokenHash);
-        } catch (err) {
-            console.error('Logout session deletion error:', err);
+            deleteCuratorSession(tokenHash);
         }
-    }
 
-    res.clearCookie('wabisabi_session', { httpOnly: true, sameSite: 'lax', path: '/' });
-    return res.json({ success: true, message: 'Signed out successfully.' });
+        res.clearCookie('wabisabi_curator_session', { httpOnly: true, sameSite: 'lax', path: '/' });
+        res.clearCookie('wabisabi_session', { httpOnly: true, sameSite: 'lax', path: '/' });
+
+        return res.json({ success: true, message: 'Curator session terminated.' });
+    } catch (err) {
+        console.error('Curator logout error:', err);
+        return res.status(500).json({ success: false, error: 'Logout failed.' });
+    }
 });
 
 /**
- * GET /api/auth/session
- * Returns the currently active authenticated session and user profile.
+ * GET /api/auth/me
+ * Retrieves current authenticated curator profile
  */
-router.get('/session', requireAuth, (req, res) => {
+router.get('/me', (req, res) => {
+    const curator = getAuthenticatedCurator(req);
+    if (!curator) {
+        return res.json({
+            success: false,
+            curator: null,
+            message: 'Visitor mode (not logged in as a curator).'
+        });
+    }
+
     return res.json({
         success: true,
-        user: req.user
+        curator
     });
 });
 

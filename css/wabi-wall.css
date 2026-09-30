@@ -1,0 +1,1242 @@
+/* ==========================================================================
+   WABI SABI — WABI WALL DIGITAL NOTICE BOARD STYLESHEET
+   Official Corkboard · Pinned Curator Notes · Physical Depth & Natural Texture
+   100vh Viewport Containment · Zero Outer Scroll · Pure Editorial Aesthetics
+   ========================================================================== */
+
+@import url('tokens.css');
+
+:root {
+    --bg-page: #F5F1E9;
+    --bg-card-solid: #FFFFFF;
+    --border-card: #E5DFD5;
+    --border-subtle: #EBE5DB;
+    
+    --ink-primary: #211E1B;
+    --ink-secondary: #524B43;
+    --ink-muted: #685F56;
+    --ink-faint: #B5ACA0;
+    
+    --accent-sage: #5A7E64;
+    --accent-sage-dark: #263B2F;
+    --accent-coral: #C0652B;
+    --accent-lavender: #9F8FB3;
+    
+    /* Corkboard & Frame Tokens */
+    --cork-bg: #C69F74;
+    --cork-pattern: #B78D61;
+    --wood-frame-outer: #5E3D26;
+    --wood-frame-mid: #784F33;
+    --wood-frame-inner: #442B1A;
+    --desk-wood: #533522;
+    --desk-wood-highlight: #6E462E;
+    
+    /* Paper Note Tints */
+    --paper-cream: #FAF6ED;
+    --paper-mint: #E1ECE3;
+    --paper-peach: #F6E5DA;
+    --paper-lavender: #EDE7F3;
+    --paper-parchment: #F8F1DD;
+    --paper-poster: #16281F;
+    
+    --font-serif: 'Cormorant Garamond', Georgia, serif;
+    --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-hand: 'Caveat', 'Kalam', cursive;
+    
+    --radius-pill: 50px;
+    --radius-card: 4px;
+}
+
+[data-theme="dark"] {
+    --bg-page: #151311;
+    --bg-card-solid: #211D1A;
+    --border-card: #35302A;
+    --border-subtle: #2C2723;
+    
+    --ink-primary: #EDE8DF;
+    --ink-secondary: #C8C0B5;
+    --ink-muted: #8E857A;
+    --ink-faint: #5E564C;
+    
+    --cork-bg: #826343;
+    --cork-pattern: #6E5235;
+    --wood-frame-outer: #331E12;
+    --wood-frame-mid: #462A19;
+    --wood-frame-inner: #24140B;
+    --desk-wood: #2D1A0F;
+    --desk-wood-highlight: #3F2516;
+}
+
+/* ==========================================================================
+   RESET & STRICT 100vh CONTAINMENT
+   ========================================================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
+    overflow: hidden !important;
+    background-color: var(--bg-page);
+    color: var(--ink-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Paper Grain Texture */
+.paper-grain-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* ==========================================================================
+   HEADER BAR (Fixed 70px)
+   ========================================================================== */
+header.theme-header {
+    height: 70px;
+    min-height: 70px;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-page);
+    z-index: 50;
+    transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+.brand-container {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--ink-primary);
+}
+
+.brand-the {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ink-muted);
+}
+
+.brand-logo-wrap {
+    height: 28px;
+    display: flex;
+    align-items: center;
+}
+
+.brand-img {
+    height: 24px;
+    width: auto;
+    object-fit: contain;
+}
+
+.dark-brand { display: none; }
+[data-theme="dark"] .light-brand { display: none; }
+[data-theme="dark"] .dark-brand { display: inline-block; }
+
+.brand-bookclub-tag {
+    display: flex;
+    flex-direction: column;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    border-left: 1px solid var(--border-card);
+    padding-left: 8px;
+    margin-left: 4px;
+}
+
+.brand-taglines {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-muted);
+    margin-left: 16px;
+    padding-left: 16px;
+    border-left: 1px solid var(--border-card);
+}
+
+.brand-taglines span:not(:last-child)::after {
+    content: "·";
+    margin-left: 12px;
+    opacity: 0.6;
+}
+
+/* Header Middle Search */
+.search-pill-container {
+    position: relative;
+    width: 380px;
+    max-width: 32vw;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 16px;
+    color: var(--ink-muted);
+    pointer-events: none;
+}
+
+.search-pill {
+    width: 100%;
+    height: 40px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-card);
+    background: var(--bg-card-solid);
+    padding: 0 46px 0 42px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--ink-primary);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.search-pill:focus {
+    border-color: var(--accent-sage);
+    box-shadow: 0 0 0 3px rgba(90, 126, 100, 0.15);
+}
+
+.search-doodle {
+    position: absolute;
+    right: 14px;
+    color: var(--ink-muted);
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+/* Header Right Controls */
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.theme-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ink-muted);
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+}
+
+.theme-btn:hover {
+    color: var(--ink-primary);
+    background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .theme-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.theme-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.theme-icon-coffee { display: none; }
+[data-theme="dark"] .theme-icon-tea { display: none; }
+[data-theme="dark"] .theme-icon-coffee { display: block; }
+
+.header-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border-card);
+}
+
+.curator-desk-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: var(--radius-pill);
+    background: var(--ink-primary);
+    color: var(--bg-page);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.curator-desk-pill:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+.user-avatar-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--border-card);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.user-avatar-btn:hover {
+    transform: scale(1.05);
+}
+
+.user-avatar-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ==========================================================================
+   VIEWPORT STAGE (Dock + Board Area)
+   ========================================================================== */
+.viewport-stage {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 70px);
+    height: calc(100dvh - 70px);
+    max-height: calc(100vh - 70px);
+    max-height: calc(100dvh - 70px);
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   LEFT NAV DOCK (Canonical Unified Wabi Sabi Navigation imported from tokens.css)
+   ========================================================================== */
+/* Inherits aside.nav-dock, .dock-capsule, .dock-item, and .calmer-tagline from tokens.css */
+
+/* ==========================================================================
+   MAIN NOTICE BOARD STAGE
+   ========================================================================== */
+main.board-stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
+    padding: 10px 24px 0 16px;
+    position: relative;
+}
+
+/* Title & Curator Controls Header */
+.board-header-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.board-title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.board-main-title {
+    font-family: var(--font-serif);
+    font-size: 34px;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--ink-primary);
+    letter-spacing: -0.5px;
+}
+
+.board-sub-title {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ink-muted);
+}
+
+.board-top-annotations {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.curator-edit-toggle {
+    display: none; /* Shown dynamically if user role === CURATOR */
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    background: var(--bg-card-solid);
+    border: 1px solid var(--border-card);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.curator-edit-toggle:hover {
+    border-color: var(--accent-sage);
+    color: var(--accent-sage-dark);
+}
+
+.curator-edit-toggle.active {
+    background: var(--accent-sage-dark);
+    color: #FFFFFF;
+    border-color: var(--accent-sage-dark);
+}
+
+.hand-anno-quote {
+    font-family: var(--font-hand);
+    font-size: 16px;
+    line-height: 1.25;
+    color: var(--ink-muted);
+    font-style: italic;
+    text-align: right;
+}
+
+/* ==========================================================================
+   THE CORK NOTICE BOARD FRAME & CONTAINER
+   ========================================================================== */
+.corkboard-stage-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    position: relative;
+    padding-bottom: 2px;
+}
+
+/* Natural Oak Wood Frame */
+.cork-frame {
+    flex: 1;
+    display: flex;
+    position: relative;
+    background: var(--wood-frame-mid);
+    border: 10px solid var(--wood-frame-outer);
+    border-top-color: #8A5B3D;
+    border-left-color: #7D5135;
+    border-bottom-color: #4A2E1C;
+    border-right-color: #553420;
+    border-radius: 8px;
+    box-shadow: 
+        0 12px 35px rgba(25, 15, 8, 0.28),
+        0 4px 12px rgba(0, 0, 0, 0.15),
+        inset 0 2px 6px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* Cork Interior Surface Texture */
+.cork-surface {
+    flex: 1;
+    position: relative;
+    background-color: var(--cork-bg);
+    background-image: 
+        radial-gradient(var(--cork-pattern) 15%, transparent 16%),
+        radial-gradient(var(--cork-pattern) 15%, transparent 16%),
+        linear-gradient(45deg, rgba(0,0,0,0.02) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.02) 75%),
+        linear-gradient(45deg, rgba(0,0,0,0.02) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.02) 75%);
+    background-size: 16px 16px, 16px 16px, 32px 32px, 32px 32px;
+    background-position: 0 0, 8px 8px, 0 0, 16px 16px;
+    box-shadow: inset 0 4px 18px rgba(35, 20, 10, 0.45);
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* Natural ambient drop shadow cast on cork from frame */
+.cork-inner-shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    box-shadow: inset 0 8px 24px rgba(30, 15, 5, 0.35);
+    z-index: 10;
+}
+
+/* Notices Canvas Area */
+.notices-canvas {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+}
+
+/* ==========================================================================
+   PINNED PAPER NOTICES (Individual Card Styling)
+   ========================================================================== */
+.pinned-notice {
+    position: absolute;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease;
+    border-radius: var(--radius-card);
+    box-shadow: 
+        0 4px 12px rgba(25, 18, 12, 0.16),
+        0 2px 4px rgba(25, 18, 12, 0.1);
+    z-index: 5;
+}
+
+.pinned-notice:hover {
+    transform: translateY(-4px) scale(1.02) !important;
+    box-shadow: 
+        0 14px 28px rgba(25, 18, 12, 0.24),
+        0 6px 10px rgba(25, 18, 12, 0.12);
+    z-index: 20 !important;
+}
+
+.pinned-notice.dragging {
+    opacity: 0.85;
+    transform: scale(1.04) rotate(0deg) !important;
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35) !important;
+    z-index: 100 !important;
+    cursor: grabbing;
+}
+
+/* Push-Pins (Realistic 3D Heads with Cast Shadow) */
+.push-pin {
+    position: absolute;
+    top: -9px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.45);
+    z-index: 12;
+    pointer-events: none;
+}
+
+.push-pin::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.65);
+}
+
+.pin-center { left: calc(50% - 7.5px); }
+.pin-top-left { left: 14px; }
+.pin-top-right { right: 14px; }
+
+/* Pin Color Themes */
+.pin-brass {
+    background: radial-gradient(circle at 35% 35%, #F0D078 0%, #C99E32 60%, #7D5C14 100%);
+}
+.pin-red {
+    background: radial-gradient(circle at 35% 35%, #F56565 0%, #C53030 60%, #742A2A 100%);
+}
+.pin-green {
+    background: radial-gradient(circle at 35% 35%, #68D391 0%, #2F855A 60%, #1C4532 100%);
+}
+.pin-purple {
+    background: radial-gradient(circle at 35% 35%, #B794F4 0%, #6B46C1 60%, #3C2670 100%);
+}
+.pin-bronze {
+    background: radial-gradient(circle at 35% 35%, #D69E2E 0%, #8C611B 60%, #52370E 100%);
+}
+
+/* ==========================================================================
+   SPECIFIC CARD TYPE VARIANTS
+   ========================================================================== */
+
+/* 1. Tall Theme Poster Card (Cinema of Solitude) */
+.card-theme-poster {
+    width: 215px;
+    background: var(--paper-poster);
+    color: #F7F3EA;
+    padding: 16px 14px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.poster-vol-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #D4AF37;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.poster-title-text {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    line-height: 1.15;
+    color: #F8F4EA;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.poster-subtitle-text {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 11px;
+    line-height: 1.35;
+    color: #D0C9BA;
+    margin-bottom: 10px;
+    padding: 0 4px;
+}
+
+.poster-dates-badge {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    color: #D4AF37;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.poster-image-box {
+    width: 100%;
+    height: 140px;
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.poster-image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* 2. About This Theme Note */
+.card-about {
+    width: 175px;
+    background: var(--paper-cream);
+    padding: 14px 12px;
+    color: var(--ink-primary);
+}
+
+.card-heading-serif {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--ink-primary);
+    margin-bottom: 4px;
+}
+
+.card-dash-sep {
+    font-size: 14px;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+}
+
+.card-body-text {
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: var(--ink-secondary);
+    margin-bottom: 8px;
+}
+
+.card-quote-italic {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 12.5px;
+    color: var(--ink-primary);
+    line-height: 1.35;
+}
+
+/* 3. Featured Films Note */
+.card-films-list {
+    width: 175px;
+    background: var(--paper-mint);
+    padding: 14px 12px;
+    color: var(--ink-primary);
+    position: relative;
+}
+
+.films-bullet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--ink-secondary);
+    line-height: 1.35;
+    margin-top: 6px;
+}
+
+.films-bullet-list li::before {
+    content: "• ";
+    color: var(--accent-sage-dark);
+    font-weight: bold;
+}
+
+.doodle-projector {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* 4. Timeline Note */
+.card-timeline {
+    width: 175px;
+    background: var(--paper-peach);
+    padding: 14px 12px;
+    color: var(--ink-primary);
+    position: relative;
+}
+
+.timeline-stepper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 6px;
+    position: relative;
+}
+
+.timeline-stepper::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 4.5px;
+    width: 1px;
+    border-left: 1.2px dashed #B88569;
+}
+
+.timeline-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 11px;
+    position: relative;
+    z-index: 2;
+}
+
+.timeline-dot {
+    width: 8px;
+    height: 8px;
+    min-width: 8px;
+    border-radius: 50%;
+    border: 1.5px solid #8A4F32;
+    background: var(--paper-peach);
+}
+
+.timeline-week-name {
+    font-weight: 600;
+    color: var(--ink-primary);
+    min-width: 44px;
+}
+
+.timeline-film-name {
+    color: var(--ink-secondary);
+    font-size: 10.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.doodle-mountains {
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    width: 36px;
+    height: 18px;
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+/* 5. How to Participate Note */
+.card-participation {
+    width: 200px;
+    background: var(--paper-cream);
+    padding: 14px 12px;
+    color: var(--ink-primary);
+}
+
+.steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 6px;
+    margin-bottom: 8px;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--ink-secondary);
+    line-height: 1.25;
+}
+
+.step-num-badge {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    border-radius: 50%;
+    background: var(--ink-primary);
+    color: #FFFFFF;
+    font-size: 9.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-handwriting-footer {
+    font-family: var(--font-hand);
+    font-size: 13.5px;
+    color: var(--ink-muted);
+    text-align: right;
+    line-height: 1.2;
+}
+
+/* 6. Discussion Opens Note */
+.card-discussion {
+    width: 195px;
+    background: var(--paper-lavender);
+    padding: 14px 12px;
+    color: var(--ink-primary);
+}
+
+.discussion-header-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.discussion-calendar-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(159, 143, 179, 0.35);
+    margin: 8px 0;
+}
+
+.discussion-calendar-pill svg {
+    width: 14px;
+    height: 14px;
+    color: var(--ink-primary);
+    flex-shrink: 0;
+}
+
+.pill-date-text {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink-primary);
+}
+
+/* 7. Curator's Note Note */
+.card-curator-note {
+    width: 175px;
+    background: var(--paper-parchment);
+    padding: 14px 12px;
+    color: var(--ink-primary);
+}
+
+/* ==========================================================================
+   EXTERIOR WALL SURROUNDINGS (Right of Corkboard)
+   ========================================================================== */
+.exterior-wall-notes {
+    position: absolute;
+    right: 8px;
+    top: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    z-index: 15;
+    pointer-events: auto;
+}
+
+.wall-quote-card {
+    width: 105px;
+    background: #FAF8F2;
+    padding: 12px 10px;
+    border-radius: 2px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: var(--ink-secondary);
+    transform: rotate(2deg);
+    position: relative;
+}
+
+.wall-quote-card::before {
+    content: "“";
+    font-size: 20px;
+    line-height: 0.8;
+    color: var(--ink-faint);
+    display: block;
+    margin-bottom: 2px;
+}
+
+.wall-sticky-mint {
+    width: 90px;
+    background: #E4ECE5;
+    padding: 10px 8px;
+    border-radius: 2px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+    font-family: var(--font-hand);
+    font-size: 13.5px;
+    line-height: 1.25;
+    color: var(--ink-primary);
+    transform: rotate(-3deg);
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   BOTTOM WOODEN DESK LEDGE & DECORATIVE PROPS
+   ========================================================================== */
+.desk-ledge-shelf {
+    height: 48px;
+    min-height: 48px;
+    background: linear-gradient(180deg, var(--desk-wood-highlight) 0%, var(--desk-wood) 100%);
+    border-top: 3px solid #825337;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 30;
+    flex-shrink: 0;
+}
+
+.desk-shelf-slogan {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(245, 235, 220, 0.45);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* Plant on Left resting on book stack */
+.prop-plant-books {
+    position: absolute;
+    bottom: 26px;
+    left: 28px;
+    width: 135px;
+    height: 135px;
+    z-index: 35;
+    pointer-events: none;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3));
+}
+
+.prop-plant-books img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Sleeping Cat on Right */
+.prop-sleeping-cat {
+    position: absolute;
+    bottom: 24px;
+    right: 32px;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    z-index: 35;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.35));
+}
+
+.cat-sleeping-img {
+    width: 95px;
+    height: auto;
+    object-fit: contain;
+    transform: scaleX(-1); /* Orient naturally toward center */
+}
+
+.coffee-mug-prop {
+    width: 48px;
+    height: 52px;
+    background: #1C1917;
+    border-radius: 4px 4px 6px 6px;
+    border: 1px solid #36322D;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    position: relative;
+    margin-bottom: 4px;
+}
+
+.coffee-mug-prop::after {
+    content: "";
+    position: absolute;
+    right: -7px;
+    top: 12px;
+    width: 8px;
+    height: 18px;
+    border: 2.5px solid #1C1917;
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+}
+
+.mug-quote-text {
+    font-family: var(--font-sans);
+    font-size: 5.5px;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: 0.4px;
+    color: #E7DFD4;
+    text-transform: uppercase;
+}
+
+/* ==========================================================================
+   FOCUSED NOTICE MODAL (Detailed Reading View)
+   ========================================================================== */
+.notice-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(18, 14, 10, 0.65);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.notice-modal-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.notice-modal-paper {
+    width: 480px;
+    max-width: 90vw;
+    background: #FAF7F0;
+    border-radius: 8px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    padding: 32px 36px;
+    position: relative;
+    transform: translateY(20px) scale(0.96);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    color: var(--ink-primary);
+    border: 1px solid #E3D9C8;
+}
+
+.notice-modal-backdrop.show .notice-modal-paper {
+    transform: translateY(0) scale(1);
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.05);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--ink-muted);
+    transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--ink-primary);
+}
+
+.modal-tag-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent-sage-dark);
+    margin-bottom: 8px;
+}
+
+.modal-notice-title {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    color: var(--ink-primary);
+}
+
+.modal-notice-content {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    margin-bottom: 20px;
+    white-space: pre-line;
+}
+
+.modal-action-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.btn-modal-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: var(--radius-pill);
+    background: var(--accent-sage-dark);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-modal-action:hover {
+    background: #18281E;
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   CURATOR EDIT CONTROLS & FLOATING TOOLBAR
+   ========================================================================== */
+.curator-floating-toolbar {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(25, 20, 15, 0.92);
+    backdrop-filter: blur(8px);
+    color: #FFFFFF;
+    padding: 8px 18px;
+    border-radius: var(--radius-pill);
+    display: none; /* Shown only when edit mode is toggled */
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    z-index: 50;
+    font-size: 13px;
+}
+
+.curator-floating-toolbar.active {
+    display: flex;
+}
+
+.btn-curator-tool {
+    background: none;
+    border: none;
+    color: #E5DFD5;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.btn-curator-tool:hover {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Card Curator Quick Action Overlay */
+.card-curator-actions {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    display: none;
+    align-items: center;
+    gap: 4px;
+    z-index: 25;
+}
+
+.curator-edit-mode .card-curator-actions {
+    display: flex;
+}
+
+.btn-card-ctrl {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    color: #FFFFFF;
+    border: none;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.btn-card-ctrl:hover {
+    transform: scale(1.15);
+    background: #000000;
+}

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wabi Sabi — Community & Collective Perspectives</title>
+    
+    <!-- Favicon & Touch Icons -->
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
+    <link rel="manifest" href="../site.webmanifest">
+    
+    <!-- Editorial & Aesthetic Handwriting Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Manrope:wght@300;400;500;600;700&family=Reenie+Beanie&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- Dedicated Community Stylesheet -->
+    <link rel="stylesheet" href="../css/community.css">
+</head>
+<body>
+
+    <!-- Paper Grain Subtle Texture -->
+    <div class="paper-grain-overlay"></div>
+
+    <div class="dashboard-container">
+
+        <!-- ====================================================================
+             TOP HEADER BAR
+             ==================================================================== -->
+        <header class="community-header">
+            <div class="brand-container">
+                <a href="home.html" class="brand-logo" title="The Wabi Sabi Bookclub • Vol. 1">
+                    <span class="brand-the">The</span>
+                    <div class="brand-logo-wrap">
+                        <img src="../assets/wabi_sabi_horizontal.png" alt="Wabi Sabi" class="brand-img light-brand">
+                        <img src="../assets/wabi_sabi_horizontal_dark.png" alt="Wabi Sabi" class="brand-img dark-brand">
+                    </div>
+                    <div class="brand-bookclub-tag">
+                        <span>Bookclub</span>
+                        <span>VOL. 1</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Search Pill -->
+            <div class="search-pill-container">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" class="search-pill" placeholder="Search books, films, people, ideas..." aria-label="Search">
+                <svg class="search-doodle" width="28" height="12" viewBox="0 0 40 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M 2 8 C 10 2, 14 14, 22 8 C 30 2, 34 14, 38 8"></path>
+                </svg>
+            </div>
+
+            <!-- Header Right Controls -->
+            <div class="header-controls">
+                <!-- Theme Toggle (Tea Glass for Day / Coffee Cup for Night) -->
+                <button class="theme-btn" id="themeToggleBtn" title="Toggle Light / Dark Sanctuary" aria-label="Toggle Theme">
+                    <svg id="themeIconTea" class="theme-icon theme-icon-tea" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 5h12l-1.8 13.5a2 2 0 0 1-2 1.5H9.8a2 2 0 0 1-2-1.5L6 5z"/>
+                        <line x1="6.5" y1="9" x2="17.5" y2="9"/>
+                        <line x1="9.8" y1="9" x2="10.5" y2="17.5"/>
+                        <line x1="14.2" y1="9" x2="13.5" y2="17.5"/>
+                        <line x1="8.2" y1="17.5" x2="15.8" y2="17.5"/>
+                    </svg>
+                    <svg id="themeIconCoffee" class="theme-icon theme-icon-coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 6.5h11v7a4.5 4.5 0 0 1-4.5 4.5h-2A4.5 4.5 0 0 1 4 13.5v-7z"/>
+                        <path d="M15 8.5h2.2a2.3 2.3 0 0 1 2.3 2.3v.4a2.3 2.3 0 0 1-2.3 2.3H15"/>
+                        <path d="M2.5 19.5h14"/>
+                        <path d="M7 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
+                        <path d="M11 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
+                    </svg>
+                </button>
+
+                <div class="header-divider"></div>
+
+                <!-- Curator's Desk -->
+                <a href="curator.html" class="curator-desk-pill" title="Curator's Studio">
+                    <span>Curator's Desk</span>
+                    <span>↗</span>
+                </a>
+
+                <!-- User Profile Avatar -->
+                <div class="user-avatar-btn" title="Your Profile">
+                    <img src="../assets/user_avatar.jpg" alt="Profile avatar">
+                </div>
+            </div>
+        </header>
+
+        <!-- ====================================================================
+             MAIN VIEWPORT BODY (Dock + Community Stage)
+             ==================================================================== -->
+        <div class="viewport-stage">
+
+            <!-- LEFT VERTICAL CAPSULE DOCK -->
+            <aside class="nav-dock" aria-label="Main Navigation">
+                <div class="dock-capsule">
+                    <a href="home.html" class="dock-item" data-tab="home" title="Home">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M3 10.5L12 3l9 7.5v10a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 20.5v-10z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        <span>Home</span>
+                    </a>
+                    <a href="reader.html" class="dock-item" data-tab="reading" title="Reading">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M2 4.5A2.5 2.5 0 0 1 4.5 2H11v18H4.5A2.5 2.5 0 0 0 2 22.5V4.5z"></path>
+                            <path d="M22 4.5A2.5 2.5 0 0 0 19.5 2H13v18h6.5A2.5 2.5 0 0 1 22 22.5V4.5z"></path>
+                        </svg>
+                        <span>Reading</span>
+                    </a>
+                    <a href="table-room.html" class="dock-item" data-tab="table-room" title="Table Room">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                        <span>Table Room</span>
+                    </a>
+                    <a href="community.html" class="dock-item active" data-tab="community" title="Community">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span>Community</span>
+                    </a>
+                    <a href="wabi-wall.html" class="dock-item" data-tab="wabi-wall" title="Wabi Wall">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                            <line x1="3" y1="9" x2="21" y2="9"></line>
+                            <line x1="9" y1="9" x2="9" y2="21"></line>
+                        </svg>
+                        <span>Wabi Wall</span>
+                    </a>
+                    <a href="home.html#library" class="dock-item" data-tab="library" title="Library">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="5" y="3" width="14" height="18" rx="2"></rect>
+                            <line x1="5" y1="16" x2="19" y2="16"></line>
+                        </svg>
+                        <span>Library</span>
+                    </a>
+                </div>
+
+                <!-- Calmer Internet Editorial Tagline -->
+                <div class="calmer-tagline">
+                    A calmer internet for curious minds.
+                </div>
+            </aside>
+
+            <!-- ====================================================================
+                 CENTER COMMUNITY STAGE
+                 ==================================================================== -->
+            <main class="community-stage">
+                
+                <!-- Community Heading & Subtabs -->
+                <div class="community-title-row">
+                    <div class="title-left">
+                        <h1 class="community-heading">Community</h1>
+                        <p class="community-subhead">Different minds. Same curiosity.</p>
+                        
+                        <!-- Subtabs Row -->
+                        <div class="community-subtabs">
+                            <a href="#current" class="subtab-link active" data-subtab="current">Current</a>
+                            <a href="#past" class="subtab-link" data-subtab="past">Past Polls</a>
+                            <a href="#threads" class="subtab-link" data-subtab="threads">Open Threads</a>
+                        </div>
+                    </div>
+
+                    <!-- Online members counter + Editorial annotation -->
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                        <div class="members-online-badge">
+                            <div class="avatar-stack">
+                                <img src="../assets/avatar_aarav.jpg" alt="Aarav">
+                                <img src="../assets/avatar_meera.jpg" alt="Meera">
+                                <img src="../assets/avatar_ishita.jpg" alt="Ishita">
+                            </div>
+                            <span class="pulse-dot"></span>
+                            <span>324 members online</span>
+                        </div>
+                        <div class="title-right-annotation">
+                            A place to think together.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3-Column Community Structured Interaction Loop -->
+                <div class="community-grid-3col">
+
+                    <!-- ========================================================
+                         COLUMN 1: THIS WEEK'S POLL (The Question of the Week)
+                         ======================================================== -->
+                    <section class="comm-card col-poll" id="current" aria-label="Question of the Week">
+                        <div>
+                            <!-- Card Header Tag -->
+                            <div class="card-tag-row">
+                                <span class="pill-tag">THIS WEEK'S POLL</span>
+                                <div class="meta-time">
+                                    Closes in 3 days<br>
+                                    Oct 20, 2026 • 8:00 PM
+                                </div>
+                            </div>
+
+                            <!-- Question of the Week -->
+                            <h2 class="poll-question-title">Was Holden right to see the world the way he did?</h2>
+                            <p class="poll-question-sub">
+                                Based on <em>The Catcher in the Rye</em> · <strong>Chapters 6–10</strong>
+                            </p>
+
+                            <!-- Interactive Radio Options -->
+                            <div class="poll-options-form" role="radiogroup" aria-label="Poll choices">
+                                <label class="poll-option-label" data-option="yes">
+                                    <input type="radio" name="wabi_poll" value="yes">
+                                    <div class="custom-radio-circle">
+                                        <div class="custom-radio-inner"></div>
+                                    </div>
+                                    <span class="option-text">Yes, he was right.</span>
+                                </label>
+
+                                <label class="poll-option-label" data-option="no">
+                                    <input type="radio" name="wabi_poll" value="no">
+                                    <div class="custom-radio-circle">
+                                        <div class="custom-radio-inner"></div>
+                                    </div>
+                                    <span class="option-text">No, he was wrong.</span>
+                                </label>
+
+                                <label class="poll-option-label" data-option="complicated">
+                                    <input type="radio" name="wabi_poll" value="complicated">
+                                    <div class="custom-radio-circle">
+                                        <div class="custom-radio-inner"></div>
+                                    </div>
+                                    <span class="option-text">I don't think either — it's more complicated.</span>
+                                </label>
+
+                                <label class="poll-option-label" data-option="unsure">
+                                    <input type="radio" name="wabi_poll" value="unsure">
+                                    <div class="custom-radio-circle">
+                                        <div class="custom-radio-inner"></div>
+                                    </div>
+                                    <span class="option-text">Not sure yet.</span>
+                                </label>
+                            </div>
+
+                            <!-- Cast Vote Button -->
+                            <button class="btn-cast-vote" id="btnCastVote">
+                                <span>Cast Your Vote</span>
+                            </button>
+
+                            <!-- Privacy / Anti-Bandwagon Safeguard -->
+                            <div class="vote-privacy-notice" id="votePrivacyNotice">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                                <span>Results will be shown after you vote.<br>Take a moment to think for yourself.</span>
+                            </div>
+                        </div>
+
+                        <!-- Poetic Marginal Note -->
+                        <div class="col1-handwritten-note">
+                            Same book.<br>
+                            Different minds.<br>
+                            Richer conversations.
+                            <div style="font-size: 14px; margin-top: 2px;">—</div>
+                        </div>
+
+                        <!-- C.S. Lewis Quote Card at Bottom -->
+                        <div class="quote-subcard">
+                            <div class="quote-mark">“</div>
+                            <p class="quote-content">
+                                “Literature is a mirror in which we see more than we expected.”
+                            </p>
+                            <div class="quote-author">— C.S. Lewis</div>
+                        </div>
+                    </section>
+
+                    <!-- ========================================================
+                         COLUMN 2: POLL RESULTS & OPEN DISCUSSION THREAD
+                         ======================================================== -->
+                    <section class="comm-card col-results" id="past" aria-label="Poll Results and Discussion Thread">
+                        
+                        <div class="results-scroll-container">
+                            <!-- Card Header Tag -->
+                            <div class="card-tag-row">
+                                <span class="pill-tag">POLL RESULTS</span>
+                                <div class="meta-time">Closed 2 days ago</div>
+                            </div>
+
+                            <!-- Question Title repeated for results -->
+                            <h2 class="poll-question-title" style="font-size: 22px;">Was Holden right to see the world the way he did?</h2>
+                            <div class="results-votecount">187 people voted</div>
+
+                            <!-- Results Percentage Breakdown -->
+                            <div class="results-bars-group">
+                                <!-- Option 1 -->
+                                <div class="result-bar-item">
+                                    <div class="bar-meta">
+                                        <span class="bar-label">Yes, he was right.</span>
+                                        <span class="bar-percent">42%</span>
+                                    </div>
+                                    <div class="bar-track">
+                                        <div class="bar-fill fill-sage" data-width="42%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Option 2 -->
+                                <div class="result-bar-item">
+                                    <div class="bar-meta">
+                                        <span class="bar-label">No, he was wrong.</span>
+                                        <span class="bar-percent">28%</span>
+                                    </div>
+                                    <div class="bar-track">
+                                        <div class="bar-fill fill-coral" data-width="28%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Option 3 -->
+                                <div class="result-bar-item">
+                                    <div class="bar-meta">
+                                        <span class="bar-label">I don't think either — it's more complicated.</span>
+                                        <span class="bar-percent">22%</span>
+                                    </div>
+                                    <div class="bar-track">
+                                        <div class="bar-fill fill-lavender" data-width="22%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Option 4 -->
+                                <div class="result-bar-item">
+                                    <div class="bar-meta">
+                                        <span class="bar-label">Not sure yet.</span>
+                                        <span class="bar-percent">8%</span>
+                                    </div>
+                                    <div class="bar-track">
+                                        <div class="bar-fill fill-slate" data-width="8%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Open Discussion Thread Banner Callout -->
+                            <div class="discussion-callout-banner" id="discussionThreadCallout" title="Click to participate in thread">
+                                <div class="callout-left">
+                                    <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                    </svg>
+                                    <div class="callout-text-wrap">
+                                        <div class="callout-headline">Open Discussion Thread →</div>
+                                        <div class="callout-sub"><span id="talkingCount">31</span> people are talking right now</div>
+                                    </div>
+                                </div>
+                                <div class="avatar-stack">
+                                    <img src="../assets/avatar_meera.jpg" alt="Meera">
+                                    <img src="../assets/avatar_aarav.jpg" alt="Aarav">
+                                    <img src="../assets/avatar_ishita.jpg" alt="Ishita">
+                                </div>
+                            </div>
+
+                            <!-- Recent Thoughts Feed -->
+                            <div class="recent-thoughts-section" id="threads">
+                                <div class="section-label-sm">Recent Thoughts</div>
+                                
+                                <div id="recentThoughtsContainer" style="display: flex; flex-direction: column; gap: 9px;">
+                                    <!-- Comment 1: Meera -->
+                                    <div class="comment-card">
+                                        <div class="comment-avatar">
+                                            <img src="../assets/avatar_meera.jpg" alt="Meera">
+                                        </div>
+                                        <div class="comment-body">
+                                            <div class="comment-top-row">
+                                                <div class="comment-author-info">
+                                                    <span class="comment-author-name">Meera</span>
+                                                    <span class="comment-time">2h ago</span>
+                                                </div>
+                                                <div class="comment-stats">
+                                                    <span class="stat-item like-stat" title="Like comment">
+                                                        <span>❤️</span> <span class="like-count">12</span>
+                                                    </span>
+                                                    <span class="stat-item" title="Replies">
+                                                        <span>💬</span> <span>4</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <p class="comment-text">
+                                                I voted yes, but not because I think he was right overall. Holden's perspective comes from a place of profound grief and refusal to accept phoniness, even when his coping mechanisms are destructive.<span class="read-more-link">Read more</span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Comment 2: Aarav -->
+                                    <div class="comment-card">
+                                        <div class="comment-avatar">
+                                            <img src="../assets/avatar_aarav.jpg" alt="Aarav">
+                                        </div>
+                                        <div class="comment-body">
+                                            <div class="comment-top-row">
+                                                <div class="comment-author-info">
+                                                    <span class="comment-author-name">Aarav</span>
+                                                    <span class="comment-time">3h ago</span>
+                                                </div>
+                                                <div class="comment-stats">
+                                                    <span class="stat-item like-stat" title="Like comment">
+                                                        <span>❤️</span> <span class="like-count">8</span>
+                                                    </span>
+                                                    <span class="stat-item" title="Replies">
+                                                        <span>💬</span> <span>3</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <p class="comment-text">
+                                                I see it differently. Holden's perspective comes from a place of hurt, but by treating adulthood purely as compromise, he protects himself from ever actually growing up.<span class="read-more-link">Read more</span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Comment 3: Ishita -->
+                                    <div class="comment-card">
+                                        <div class="comment-avatar">
+                                            <img src="../assets/avatar_ishita.jpg" alt="Ishita">
+                                        </div>
+                                        <div class="comment-body">
+                                            <div class="comment-top-row">
+                                                <div class="comment-author-info">
+                                                    <span class="comment-author-name">Ishita</span>
+                                                    <span class="comment-time">5h ago</span>
+                                                </div>
+                                                <div class="comment-stats">
+                                                    <span class="stat-item like-stat" title="Like comment">
+                                                        <span>❤️</span> <span class="like-count">15</span>
+                                                    </span>
+                                                    <span class="stat-item" title="Replies">
+                                                        <span>💬</span> <span>6</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <p class="comment-text">
+                                                I chose the complicated option. I think the question itself is a bit unfair. Holden is sixteen and mourning his brother. Asking whether his view is 'right' or 'wrong' misses the point.<span class="read-more-link">Read more</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sticky Thread Reply Input -->
+                        <div class="discussion-input-bar">
+                            <div class="input-join-wrap">
+                                <input type="text" class="input-join-text" id="commentInput" placeholder="+ Join the conversation..." aria-label="Join discussion">
+                            </div>
+                            <button class="btn-send-comment" id="sendCommentBtn" title="Send thought" aria-label="Send thought">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- ========================================================
+                         COLUMN 3: SIDEBAR (Book Context, Stepper, Previous Poll)
+                         ======================================================== -->
+                    <aside class="col-sidebar" aria-label="Weekly Community Context">
+                        
+                        <!-- Widget 1: This Week's Book -->
+                        <div class="sidebar-widget">
+                            <div class="widget-title">This Week's Book</div>
+                            <div class="book-summary-box">
+                                <div class="book-cover-thumb">
+                                    <img src="../assets/catcher_in_the_rye.jpg" alt="The Catcher in the Rye">
+                                </div>
+                                <div class="book-details-wrap">
+                                    <div class="book-title-text">The Catcher in the Rye</div>
+                                    <div class="book-author-text">J.D. Salinger</div>
+                                    <div class="reading-point-label">Reading Point: Chapters 6 – 10</div>
+                                    <div class="reading-point-date">Oct 14 – Oct 20, 2026</div>
+                                </div>
+                            </div>
+                            <a href="reader.html" class="btn-book-action">
+                                <span>View Book Details</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+
+                        <!-- Widget 2: Weekly Journey Stepper -->
+                        <div class="sidebar-widget">
+                            <div class="widget-title">Weekly Journey</div>
+                            <div class="stepper-journey">
+                                <div class="step-row step-done">
+                                    <div class="step-icon-circle">✓</div>
+                                    <span>Read / Watch</span>
+                                </div>
+                                <div class="step-row step-done">
+                                    <div class="step-icon-circle">✓</div>
+                                    <span>Vote</span>
+                                </div>
+                                <div class="step-row step-current">
+                                    <div class="step-icon-circle">●</div>
+                                    <span>Discuss</span>
+                                </div>
+                                <div class="step-row step-upcoming">
+                                    <div class="step-icon-circle">○</div>
+                                    <span style="color: var(--ink-muted);">Reflect</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Widget 3: Previous Poll -->
+                        <div class="sidebar-widget" id="previous-discussion">
+                            <div class="widget-title">Previous Poll</div>
+                            <div class="prev-poll-question">Is nostalgia actually a good thing?</div>
+                            <div class="prev-bars-group">
+                                <div class="prev-bar-row">
+                                    <span>Yes</span>
+                                    <div class="prev-track-wrap">
+                                        <div class="prev-fill fill-sage" style="width: 54%;"></div>
+                                    </div>
+                                    <span>54%</span>
+                                </div>
+                                <div class="prev-bar-row">
+                                    <span>No</span>
+                                    <div class="prev-track-wrap">
+                                        <div class="prev-fill fill-coral" style="width: 26%;"></div>
+                                    </div>
+                                    <span>26%</span>
+                                </div>
+                                <div class="prev-bar-row">
+                                    <span>Sometimes</span>
+                                    <div class="prev-track-wrap">
+                                        <div class="prev-fill fill-lavender" style="width: 20%;"></div>
+                                    </div>
+                                    <span>20%</span>
+                                </div>
+                            </div>
+                            <div class="prev-votes-total">212 votes</div>
+                            <a href="#previous-discussion" class="btn-book-action" style="font-size: 11px;">
+                                <span>View Discussion</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+
+                        <!-- Editorial Signature -->
+                        <div class="sidebar-footer-handwritten">
+                            Same stories. Different people.
+                        </div>
+                    </aside>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Wabi Sabi Store & Community Controller -->
+    <script src="../js/store.js"></script>
+    <script src="../js/community.js"></script>
+</body>
+</html>

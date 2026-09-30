@@ -44,6 +44,7 @@ Thumbs.db
 # Logs and temporary files
 *.log
 *.tmp
+FLAWS_TODO.txt
 
 # Coverage
 coverage/

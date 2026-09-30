@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wabi Sabi — The Table Room</title>
+    
+    <!-- Favicon & Touch Icons -->
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
+    
+    <!-- Editorial & Aesthetic Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@300;400;500;600;700&family=Reenie+Beanie&family=Kalam:wght@300;400&display=swap" rel="stylesheet">
+    
+    <!-- Dedicated Table Room Stylesheet -->
+    <link rel="stylesheet" href="../css/table-room.css">
+</head>
+<body>
+
+    <!-- Paper Texture Overlay -->
+    <div class="paper-grain-overlay"></div>
+
+    <!-- Organic Botanical Corner Illustrations -->
+    <div class="botanical-corner-left">
+        <img src="../assets/botanical_rock.jpg" alt="Botanical rock accent" class="botanical-corner-img">
+    </div>
+    <div class="botanical-corner-right">
+        <img src="../assets/botanical_branch.jpg" alt="Botanical branch accent" class="botanical-branch-img">
+    </div>
+
+    <!-- Master Viewport Grid (Strict 100vh - Zero Window Scroll) -->
+    <div class="table-room-viewport">
+
+        <!-- ====================================================================
+             TOP HEADER BAR
+             ==================================================================== -->
+        <header class="table-header">
+            <!-- Brand Logo & Vol. 1 -->
+            <div class="brand-container">
+                <a href="community.html" class="brand-logo" title="The Wabi Sabi Bookclub • Vol. 1">
+                    <span class="brand-the">The</span>
+                    <div class="brand-logo-wrap">
+                        <img src="../assets/wabi_sabi_horizontal.png" alt="Wabi Sabi" class="brand-img light-brand">
+                        <img src="../assets/wabi_sabi_horizontal_dark.png" alt="Wabi Sabi" class="brand-img dark-brand">
+                    </div>
+                    <div class="brand-bookclub-tag">
+                        <span class="brand-bookclub-text">Bookclub</span>
+                        <span class="brand-vol-text">VOL. 1</span>
+                    </div>
+                    <span class="brand-dot"></span>
+                </a>
+                <div class="brand-taglines">
+                    <span>People</span>
+                    <span>Stories</span>
+                    <span>Perspectives</span>
+                </div>
+            </div>
+
+            <!-- Search Pill -->
+            <div class="search-pill-container">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" class="search-pill" placeholder="Search books, films, people, ideas..." aria-label="Search">
+                <svg class="search-doodle" width="28" height="12" viewBox="0 0 40 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M 2 8 C 10 2, 14 14, 22 8 C 30 2, 34 14, 38 8"></path>
+                </svg>
+            </div>
+
+            <!-- Header Right Controls -->
+            <div class="header-controls">
+                <!-- Dark / Light Theme Toggle -->
+                <button class="theme-btn" id="themeToggleBtn" title="Tea Glass (Day) / Coffee Cup (Night)" aria-label="Toggle Light / Dark Theme">
+                    <!-- Light Mode: Serene Tea Glass -->
+                    <svg id="themeIconTea" class="theme-icon theme-icon-tea" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 5h12l-1.8 13.5a2 2 0 0 1-2 1.5H9.8a2 2 0 0 1-2-1.5L6 5z"/>
+                        <line x1="6.5" y1="9" x2="17.5" y2="9"/>
+                        <line x1="9.8" y1="9" x2="10.5" y2="17.5"/>
+                        <line x1="14.2" y1="9" x2="13.5" y2="17.5"/>
+                        <line x1="8.2" y1="17.5" x2="15.8" y2="17.5"/>
+                    </svg>
+                    <!-- Dark Mode: Steaming Ceramic Coffee Cup with Handle & Saucer -->
+                    <svg id="themeIconCoffee" class="theme-icon theme-icon-coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 6.5h11v7a4.5 4.5 0 0 1-4.5 4.5h-2A4.5 4.5 0 0 1 4 13.5v-7z"/>
+                        <path d="M15 8.5h2.2a2.3 2.3 0 0 1 2.3 2.3v.4a2.3 2.3 0 0 1-2.3 2.3H15"/>
+                        <path d="M2.5 19.5h14"/>
+                        <path d="M7 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
+                        <path d="M11 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
+                    </svg>
+                </button>
+
+                <div class="header-divider"></div>
+
+                <!-- Curator's Desk Pill -->
+                <a href="curator.html" class="curator-desk-pill" id="headerCuratorDeskBtn">
+                    <span>Curator's Desk</span>
+                    <span>↗</span>
+                </a>
+
+                <!-- User Profile Avatar -->
+                <a href="home.html#profile" class="user-avatar-btn" title="View Profile">
+                    <img src="../assets/user_avatar.jpg" alt="Profile photo" id="headerUserAvatarImg">
+                </a>
+            </div>
+        </header>
+
+        <!-- ====================================================================
+             LEFT NAVIGATION DOCK (Table Room Active)
+             ==================================================================== -->
+        <aside class="nav-dock" aria-label="Main Navigation">
+            <div class="dock-capsule">
+                <a href="home.html" class="dock-item" data-tab="home" title="Home">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 10.5L12 3l9 7.5v10a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 20.5v-10z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <span>Home</span>
+                </a>
+                <a href="reader.html" class="dock-item" data-tab="reading" title="Reading">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M2 4.5A2.5 2.5 0 0 1 4.5 2H11v18H4.5A2.5 2.5 0 0 0 2 22.5V4.5z"></path>
+                        <path d="M22 4.5A2.5 2.5 0 0 0 19.5 2H13v18h6.5A2.5 2.5 0 0 1 22 22.5V4.5z"></path>
+                    </svg>
+                    <span>Reading</span>
+                </a>
+                <a href="table-room.html" class="dock-item active" data-tab="table-room" title="Table Room">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <span>Table Room</span>
+                </a>
+                <a href="community.html" class="dock-item" data-tab="community" title="Community">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>Community</span>
+                </a>
+                <a href="wabi-wall.html" class="dock-item" data-tab="wabi-wall" title="Wabi Wall">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="9" x2="9" y2="21"></line>
+                    </svg>
+                    <span>Wabi Wall</span>
+                </a>
+                <a href="home.html#library" class="dock-item" data-tab="library" title="Library">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="5" y="3" width="14" height="18" rx="2"></rect>
+                        <line x1="5" y1="16" x2="19" y2="16"></line>
+                    </svg>
+                    <span>Library</span>
+                </a>
+            </div>
+
+            <!-- Calmer Internet Editorial Tagline -->
+            <div class="calmer-tagline">
+                A calmer internet for curious minds.
+            </div>
+        </aside>
+
+        <!-- ====================================================================
+             MAIN STAGE: THE TABLE ROOM 3-COLUMN LAYOUT
+             ==================================================================== -->
+        <main class="table-room-stage">
+
+            <!-- ROOM SUB-HEADER -->
+            <div class="room-sub-header">
+                <div class="room-title-cluster">
+                    <a href="community.html" class="room-back-btn" title="Back to Home">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </a>
+                    <div class="room-title-text-wrap">
+                        <h1 class="room-main-title">The Table Room</h1>
+                        <p class="room-subtitle">Live discussions for this week's book</p>
+                    </div>
+                </div>
+
+                <div class="room-meta-cluster">
+                    <div class="online-pill">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span id="roomOnlineCountText">24 online</span>
+                    </div>
+
+                    <div class="week-dropdown-wrapper">
+                        <button type="button" class="week-dropdown-pill" id="weekDropdownBtn" aria-expanded="false" aria-haspopup="true">
+                            <span id="currentWeekLabel">Week 4</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="week-menu-dropdown" id="weekMenuDropdown" style="display: none;">
+                            <button type="button" class="week-menu-item" data-week="1">
+                                <span class="week-menu-badge">Week 1</span>
+                                <span class="week-menu-name">Interstellar · Solitude</span>
+                            </button>
+                            <button type="button" class="week-menu-item" data-week="2">
+                                <span class="week-menu-badge">Week 2</span>
+                                <span class="week-menu-name">Her · Digital Intimacy</span>
+                            </button>
+                            <button type="button" class="week-menu-item" data-week="3">
+                                <span class="week-menu-badge">Week 3</span>
+                                <span class="week-menu-name">Perks of Being a Wallflower</span>
+                            </button>
+                            <button type="button" class="week-menu-item active" data-week="4">
+                                <span class="week-menu-badge">Week 4</span>
+                                <span class="week-menu-name">Lost in Translation & Catcher</span>
+                            </button>
+                            <button type="button" class="week-menu-item" data-week="5">
+                                <span class="week-menu-badge">Week 5</span>
+                                <span class="week-menu-name">Into the Wild · Untamed Mind</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3-COLUMN CONTENT GRID -->
+            <div class="table-content-grid">
+
+                <!-- ============================================================
+                     COLUMN 1: AT THE TABLE NOW (Members Sidebar)
+                     ============================================================ -->
+                <aside class="members-sidebar-card">
+                    <div class="members-card-header">
+                        <div class="members-header-title">
+                            <span class="live-dot-green"></span>
+                            <span>At the Table Now</span>
+                        </div>
+                        <span class="members-count-badge" id="onlineBadgeCount">24</span>
+                    </div>
+
+                    <!-- Scrollable Members List -->
+                    <div class="members-list-scroll" id="membersListScroll">
+                        <!-- 1. Aarav -->
+                        <div class="member-item">
+                            <img src="../assets/avatar_aarav.jpg" alt="Aarav" class="member-avatar">
+                            <div class="member-info">
+                                <span class="member-name">Aarav</span>
+                                <span class="member-status status-typing">
+                                    <span class="status-dot dot-typing"></span> typing...
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 2. Meera -->
+                        <div class="member-item">
+                            <img src="../assets/avatar_meera.jpg" alt="Meera" class="member-avatar">
+                            <div class="member-info">
+                                <span class="member-name">Meera</span>
+                                <span class="member-status status-online">
+                                    <span class="status-dot dot-online"></span> online
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 3. Saanvi -->
+                        <div class="member-item">
+                            <img src="../assets/avatar_aishwarya.jpg" alt="Saanvi" class="member-avatar">
+                            <div class="member-info">
+                                <span class="member-name">Saanvi</span>
+                                <span class="member-status status-online">
+                                    <span class="status-dot dot-online"></span> online
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 4. Karthik -->
+                        <div class="member-item">
+                            <img src="../assets/space_quiet_readers.jpg" alt="Karthik" class="member-avatar">
+                            <div class="member-info">
+                                <span class="member-name">Karthik</span>
+                                <span class="member-status status-online">
+                                    <span class="status-dot dot-online"></span> online
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 5. Ishita -->
+                        <div class="member-item">
+                            <img src="../assets/user_avatar.jpg" alt="Ishita" class="member-avatar">
+                            <div class="member-info">
+                                <span class="member-name">Ishita</span>
+                                <span class="member-status status-reading">
+                                    <span class="status-dot dot-reading"></span> reading
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 6. Zayn -->
+                        <div class="member-item">
+                            <img src="../assets/space_deep_ivy.jpg" alt="Zayn" class="member-avatar">
+                            <div class="member-info">
+                                <span class="member-name">Zayn</span>
+                                <span class="member-status status-online">
+                                    <span class="status-dot dot-online"></span> online
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 7. Rhea -->
+                        <div class="member-item">
+                            <img src="../assets/space_film_sunset.jpg" alt="Rhea" class="member-avatar">
+                            <div class="member-info">
+                                <span class="member-name">Rhea</span>
+                                <span class="member-status status-online">
+                                    <span class="status-dot dot-online"></span> online
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 8. Aditya -->
+                        <div class="member-item">
+                            <img src="../assets/space_creative_vinyl.jpg" alt="Aditya" class="member-avatar">
+                            <div class="member-info">
+                                <span class="member-name">Aditya</span>
+                                <span class="member-status status-reading">
+                                    <span class="status-dot dot-reading"></span> reading
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 9. Tanya -->
+                        <div class="member-item">
+                            <img src="../assets/book_stack_corner.jpg" alt="Tanya" class="member-avatar">
+                            <div class="member-info">
+                                <span class="member-name">Tanya</span>
+                                <span class="member-status status-offline">
+                                    <span class="status-dot dot-offline"></span> offline
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- More Members Toggle -->
+                        <button class="more-members-btn" id="moreMembersBtn">+ 15 more</button>
+                    </div>
+                </aside>
+
+                <!-- ============================================================
+                     COLUMN 2: LIVE CHAT STREAM & PROMPT BANNER
+                     ============================================================ -->
+                <section class="chat-main-card">
+                    
+                    <!-- Top Question Banner -->
+                    <div class="question-banner-card">
+                        <div class="question-banner-left">
+                            <div class="question-badge-row">
+                                <span class="question-sparkle-icon">✨</span>
+                                <span class="question-badge-text">This Week's Question</span>
+                            </div>
+                            <h2 class="question-headline">Was Holden right to see the world the way he did?</h2>
+                            <p class="question-subtext">Share your thoughts, disagree, question, or connect with a line from the book.</p>
+                        </div>
+                        <div class="question-banner-right">
+                            <div class="handwritten-banner-quote">
+                                Same book.<br>
+                                Different minds.<br>
+                                Richer conversations.<br>
+                                <span class="handwritten-dash">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Message Stream -->
+                    <div class="chat-messages-stream" id="chatMessagesStream">
+
+                        <!-- Message 1: Meera -->
+                        <div class="chat-message-row" data-msg-id="m1">
+                            <img src="../assets/avatar_meera.jpg" alt="Meera" class="msg-avatar">
+                            <div class="msg-content-column">
+                                <div class="msg-header-line">
+                                    <span class="msg-author-name">Meera</span>
+                                    <span class="msg-timestamp">7:12 PM</span>
+                                </div>
+                                <div class="msg-bubble">
+                                    I think Holden's problem wasn't the world, it was that he couldn't accept change.
+                                </div>
+                                <div class="msg-actions-row">
+                                    <button class="msg-react-btn msg-btn-like liked" data-likes="12" title="Like reflection">
+                                        <span class="heart-icon">❤️</span>
+                                        <span class="likes-count">12</span>
+                                    </button>
+                                    <button class="msg-react-btn msg-btn-reply" title="Reply to Meera">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="msg-more-btn" title="More options">···</button>
+                        </div>
+
+                        <!-- Message 2: Aarav -->
+                        <div class="chat-message-row" data-msg-id="m2">
+                            <img src="../assets/avatar_aarav.jpg" alt="Aarav" class="msg-avatar">
+                            <div class="msg-content-column">
+                                <div class="msg-header-line">
+                                    <span class="msg-author-name">Aarav</span>
+                                    <span class="msg-timestamp">7:14 PM</span>
+                                </div>
+                                <div class="msg-bubble">
+                                    That's interesting. I felt like he saw through the fake parts of society, which most people ignore.
+                                </div>
+                                <div class="msg-actions-row">
+                                    <button class="msg-react-btn msg-btn-like liked" data-likes="8" title="Like reflection">
+                                        <span class="heart-icon">❤️</span>
+                                        <span class="likes-count">8</span>
+                                    </button>
+                                    <button class="msg-react-btn msg-btn-reply" title="Reply to Aarav">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="msg-more-btn" title="More options">···</button>
+                        </div>
+
+                        <!-- Message 3: Saanvi -->
+                        <div class="chat-message-row" data-msg-id="m3">
+                            <img src="../assets/avatar_aishwarya.jpg" alt="Saanvi" class="msg-avatar">
+                            <div class="msg-content-column">
+                                <div class="msg-header-line">
+                                    <span class="msg-author-name">Saanvi</span>
+                                    <span class="msg-timestamp">7:16 PM</span>
+                                </div>
+                                <div class="msg-bubble">
+                                    The city in the novel felt like a character itself. Lonely, noisy, and honest.
+                                </div>
+                                <div class="msg-actions-row">
+                                    <button class="msg-react-btn msg-btn-like liked" data-likes="10" title="Like reflection">
+                                        <span class="heart-icon">❤️</span>
+                                        <span class="likes-count">10</span>
+                                    </button>
+                                    <button class="msg-react-btn msg-btn-reply" title="Reply to Saanvi">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="msg-more-btn" title="More options">···</button>
+                        </div>
+
+                        <!-- Message 4: Karthik (Tinted Sage Bubble) -->
+                        <div class="chat-message-row" data-msg-id="m4">
+                            <img src="../assets/space_quiet_readers.jpg" alt="Karthik" class="msg-avatar">
+                            <div class="msg-content-column">
+                                <div class="msg-header-line">
+                                    <span class="msg-author-name">Karthik</span>
+                                    <span class="msg-timestamp">7:18 PM</span>
+                                </div>
+                                <div class="msg-bubble bubble-tinted-sage">
+                                    I agree with Aarav. Holden's cynicism is understandable, but it also prevents him from growth. What do you all think?
+                                </div>
+                                <div class="msg-actions-row">
+                                    <button class="msg-react-btn msg-btn-like liked" data-likes="6" title="Like reflection">
+                                        <span class="heart-icon">❤️</span>
+                                        <span class="likes-count">6</span>
+                                    </button>
+                                    <button class="msg-react-btn msg-btn-reply" title="Reply to Karthik">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="msg-more-btn" title="More options">···</button>
+                        </div>
+
+                        <!-- Message 5: Ishita -->
+                        <div class="chat-message-row" data-msg-id="m5">
+                            <img src="../assets/user_avatar.jpg" alt="Ishita" class="msg-avatar">
+                            <div class="msg-content-column">
+                                <div class="msg-header-line">
+                                    <span class="msg-author-name">Ishita</span>
+                                    <span class="msg-timestamp">7:20 PM</span>
+                                </div>
+                                <div class="msg-bubble">
+                                    The ending still confuses me. Was it hopeful or just an escape?
+                                </div>
+                                <div class="msg-actions-row">
+                                    <button class="msg-react-btn msg-btn-like liked" data-likes="9" title="Like reflection">
+                                        <span class="heart-icon">❤️</span>
+                                        <span class="likes-count">9</span>
+                                    </button>
+                                    <button class="msg-react-btn msg-btn-reply" title="Reply to Ishita">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="msg-more-btn" title="More options">···</button>
+                        </div>
+
+                    </div>
+
+                    <!-- Interactive Bottom Chat Input Bar -->
+                    <div class="chat-input-bar">
+                        <button class="chat-tool-btn chat-btn-plus" id="chatPlusBtn" title="Attach passage or excerpt">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+
+                        <input type="text" class="chat-text-input" id="chatTextInput" placeholder="Share your thoughts at the table..." aria-label="Share your thoughts">
+
+                        <button class="chat-tool-btn chat-btn-emoji" id="chatEmojiBtn" title="Add emoji">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                                <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                            </svg>
+                        </button>
+
+                        <button class="chat-tool-btn chat-btn-img" id="chatImgBtn" title="Attach image">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                        </button>
+
+                        <button class="chat-send-btn" id="chatSendBtn" title="Send thought (Enter)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2" fill="currentColor"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+
+                </section>
+
+                <!-- ============================================================
+                     COLUMN 3: BOOK CONTEXT SIDEBAR
+                     ============================================================ -->
+                <aside class="book-context-sidebar">
+                    
+                    <!-- Card 1: Current Book & Progress -->
+                    <div class="context-card current-book-card">
+                        <div class="context-card-eyebrow">Current Book</div>
+                        
+                        <div class="current-book-row">
+                            <div class="book-cover-thumb">
+                                <img src="../assets/catcher_in_the_rye.jpg" alt="The Catcher in the Rye" class="cover-thumb-img">
+                            </div>
+                            <div class="book-title-column">
+                                <h3 class="current-book-title">The Catcher<br>in the Rye</h3>
+                                <div class="current-book-author">J.D. Salinger</div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar (Chapter 7 of 26) -->
+                        <div class="reading-progress-track">
+                            <div class="reading-progress-bar" style="width: 27%;"></div>
+                        </div>
+
+                        <div class="reading-point-text">
+                            Reading Point: <strong>Chapter 7 of 26</strong>
+                        </div>
+                        <div class="reading-dates-text">
+                            Oct 14 – Oct 20, 2026
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Book Info / Adaptation & Resources -->
+                    <div class="context-card book-info-card">
+                        <div class="book-info-pills">
+                            <button class="info-pill-btn active" data-tab="info">📖 Book Info</button>
+                            <button class="info-pill-btn" data-tab="adaptation">Adaptation</button>
+                        </div>
+
+                        <blockquote class="book-info-quote">
+                            "A story about innocence, disillusionment, and the search for a place to belong."
+                        </blockquote>
+
+                        <div class="book-action-links">
+                            <a href="reader.html#notes" class="action-link-item">
+                                <div class="link-left">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    </svg>
+                                    <span>View Notes (18)</span>
+                                </div>
+                                <span class="link-arrow">›</span>
+                            </a>
+
+                            <a href="reader.html#highlights" class="action-link-item">
+                                <div class="link-left">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 20h9"></path>
+                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                    </svg>
+                                    <span>View Highlights (27)</span>
+                                </div>
+                                <span class="link-arrow">›</span>
+                            </a>
+
+                            <a href="community.html#threads" class="action-link-item">
+                                <div class="link-left">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 14 14"></polyline>
+                                    </svg>
+                                    <span>Related Discussions (6)</span>
+                                </div>
+                                <span class="link-arrow">›</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Salon Wisdom Quote Card -->
+                    <div class="context-card wisdom-card">
+                        <blockquote class="wisdom-quote-text">
+                            “Good conversations<br>don't just happen,<br>they are made here.”
+                        </blockquote>
+                        <div class="wisdom-dash">—</div>
+                    </div>
+
+                </aside>
+
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/store.js"></script>
+    <script src="../js/table-room.js"></script>
+</body>
+</html>

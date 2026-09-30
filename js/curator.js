@@ -1,514 +1,503 @@
 /**
- * Wabi Sabi — Curator's Desk Controller (js/curator.js)
- * Manages:
- * 1. Curator role authorization check with server
- * 2. Membership application review, approve & reject actions with audit trail
- * 3. Curator audit logs viewer
- * 4. Member registry viewer
- * 5. Bookclub selections, salons, and prompt editing
+ * Wabi Sabi — Curator Dashboard Client Controller (js/curator.js)
+ * Clean, lightweight 3-pillar CMS for Likith, Sarvasree, and Dhanush:
+ * 1. Announcements (Weekly Theme, Reading, Gathering, Discussion Points, Important Notes, Bulletins)
+ * 2. Community (Add/Remove members, roles, DPs)
+ * 3. Connect (External platform links)
  */
 
-document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Authorization: Only Curators may enter (strictly checked on server)
-    const session = window.WabiSabiStore ? await window.WabiSabiStore.requireAuth(['CURATOR']) : null;
-    if (!session) return; // Directed away if not an active Curator
+(function () {
+    'use strict';
 
-    const curatorLabel = document.getElementById('cdCuratorNameLabel');
-    if (curatorLabel) {
-        curatorLabel.textContent = `${session.displayName} (@${session.handle})`;
+    let currentCurator = null;
+
+    // Toast helper
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('curatorToast');
+        if (!toast) return;
+        toast.textContent = message;
+        toast.style.background = isError ? '#c93b2b' : 'var(--wabi-forest-green, #273B2B)';
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3200);
     }
 
-    // Sign out button
-    const signOutBtn = document.getElementById('cdSignOutBtn');
-    if (signOutBtn) {
-        signOutBtn.addEventListener('click', () => {
-            window.WabiSabiStore.logout();
-        });
-    }
-
-    // 2. Tab Switching
-    const tabButtons = document.querySelectorAll('.curator-tab-btn');
-    const tabPanes = document.querySelectorAll('.curator-tab-pane');
-
-    tabButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const target = btn.getAttribute('data-tab');
-            tabButtons.forEach(b => b.classList.remove('active'));
-            tabPanes.forEach(p => p.classList.remove('active'));
-
-            btn.classList.add('active');
-            const activePane = document.getElementById(target);
-            if (activePane) activePane.classList.add('active');
-
-            // Trigger data load if needed
-            if (target === 'tab-applications') loadApplications(currentFilter);
-            if (target === 'tab-audit') loadAuditLogs();
-            if (target === 'tab-permissions') loadMembers();
-        });
-    });
-
-    // 3. Applications Tab Logic
-    let currentFilter = 'PENDING';
-    let currentActiveApp = null;
-    const applicationsGrid = document.getElementById('cdApplicationsGrid');
-    const pendingBadge = document.getElementById('cdPendingBadge');
-    const filterButtons = document.querySelectorAll('.app-filter-btn');
-
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            filterButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = btn.getAttribute('data-filter');
-            loadApplications(currentFilter);
-        });
-    });
-
-    async function loadApplications(filter = 'PENDING') {
-        if (!applicationsGrid) return;
-        applicationsGrid.innerHTML = `
-            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--ink-muted);">
-                Fetching applications from database...
-            </div>
-        `;
-
+    // Verify authenticated curator
+    async function checkAuth() {
         try {
-            const url = filter === 'ALL' ? '/api/curator/applications' : `/api/curator/applications?status=${filter}`;
-            const res = await (window.WabiSabiStore ? window.WabiSabiStore.apiFetch(url) : fetch(url));
-            if (!res.ok) throw new Error('Failed to fetch applications');
+            const res = await fetch('/api/auth/me', { credentials: 'include' });
             const data = await res.json();
-
-            const apps = data.applications || [];
-
-            // Also check total pending for badge
-            if (filter === 'PENDING') {
-                if (pendingBadge) pendingBadge.textContent = apps.length;
-            } else {
-                fetchPendingCount();
+            if (!data.success || !data.curator) {
+                window.location.href = 'login.html?redirect=curator.html';
+                return false;
             }
+            currentCurator = data.curator;
+            const nameEl = document.getElementById('curatorIdentityName');
+            if (nameEl) {
+                nameEl.textContent = `⚜ ${currentCurator.displayName || 'Curator'}`;
+            }
+            return true;
+        } catch (err) {
+            console.error('Curator auth check failed:', err);
+            window.location.href = 'login.html?redirect=curator.html';
+            return false;
+        }
+    }
 
-            if (apps.length === 0) {
-                applicationsGrid.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; background: var(--bg-paper-alt); border-radius: 8px; border: 1px dashed rgba(140,135,125,0.3);">
-                        <div style="font-family: var(--font-serif); font-size: 20px; color: var(--ink-primary); margin-bottom: 6px;">No applications found</div>
-                        <p style="font-size: 13.5px; color: var(--ink-muted); margin: 0;">There are currently no applications under the <strong>${filter}</strong> filter.</p>
-                    </div>
-                `;
+    // Tab Switching Controller
+    function setupTabs() {
+        const tabs = [
+            { btn: document.getElementById('curTabAnnouncements'), sec: document.getElementById('curatorSectionAnnouncements') },
+            { btn: document.getElementById('curTabCommunity'), sec: document.getElementById('curatorSectionCommunity') },
+            { btn: document.getElementById('curTabConnect'), sec: document.getElementById('curatorSectionConnect') }
+        ];
+
+        tabs.forEach(t => {
+            if (t.btn && t.sec) {
+                t.btn.addEventListener('click', () => {
+                    tabs.forEach(other => {
+                        other.btn.classList.remove('active');
+                        other.sec.classList.remove('active');
+                    });
+                    t.btn.classList.add('active');
+                    t.sec.classList.add('active');
+                    history.replaceState(null, '', `#${t.btn.getAttribute('data-curator-tab')}`);
+                });
+            }
+        });
+
+        // Activate tab based on URL hash
+        const hash = (window.location.hash || '').replace('#', '').toLowerCase();
+        if (hash === 'community') {
+            document.getElementById('curTabCommunity')?.click();
+        } else if (hash === 'connect') {
+            document.getElementById('curTabConnect')?.click();
+        } else if (hash === 'announcements') {
+            document.getElementById('curTabAnnouncements')?.click();
+        }
+    }
+
+    // Load initial data
+    async function loadDashboardData() {
+        try {
+            const res = await fetch('/api/curator/overview', { credentials: 'include' });
+            if (!res.ok) {
+                if (res.status === 401) {
+                    window.location.href = 'login.html?redirect=curator.html';
+                }
                 return;
             }
-
-            applicationsGrid.innerHTML = '';
-            apps.forEach(app => {
-                const card = document.createElement('div');
-                card.className = 'app-review-card';
-
-                const statusPillClass = app.status === 'APPROVED' ? 'status-approved' : app.status === 'REJECTED' ? 'status-rejected' : 'status-pending';
-                const statusPillIcon = app.status === 'APPROVED' ? '✓' : app.status === 'REJECTED' ? '✕' : '⏳';
-                const statusLabel = app.status === 'APPROVED' ? 'Approved' : app.status === 'REJECTED' ? 'Rejected' : 'Pending Review';
-
-                const formattedDate = new Date(app.created_at).toLocaleDateString(undefined, {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                });
-
-                card.innerHTML = `
-                    <div>
-                        <div class="app-card-top">
-                            <div>
-                                <div class="app-applicant-name">${app.display_name}</div>
-                                <div class="app-applicant-handle">@${app.handle}</div>
-                            </div>
-                            <span class="app-status-badge ${statusPillClass}" style="font-size: 11px; padding: 3px 10px;">
-                                <span>${statusPillIcon}</span>
-                                <span>${statusLabel}</span>
-                            </span>
-                        </div>
-                        <div class="app-submitted-time">Submitted on ${formattedDate} • ${app.email}</div>
-                        <div class="app-card-snippet">
-                            "${escapeHtml(app.reason)}"
-                        </div>
-                    </div>
-                    <div class="app-card-actions">
-                        <button type="button" class="btn-review-open" data-app-id="${app.id}">
-                            Review Application →
-                        </button>
-                    </div>
-                `;
-
-                const openBtn = card.querySelector('.btn-review-open');
-                openBtn.addEventListener('click', () => {
-                    openReviewModal(app);
-                });
-
-                applicationsGrid.appendChild(card);
-            });
-        } catch (err) {
-            console.error('Error loading applications:', err);
-            applicationsGrid.innerHTML = `
-                <div style="grid-column: 1 / -1; text-align: center; padding: 30px; color: #9C3322;">
-                    Failed to load applications. Please verify server connection.
-                </div>
-            `;
-        }
-    }
-
-    async function fetchPendingCount() {
-        try {
-            const res = await (window.WabiSabiStore ? window.WabiSabiStore.apiFetch('/api/curator/applications?status=PENDING') : fetch('/api/curator/applications?status=PENDING'));
-            if (res.ok) {
-                const data = await res.json();
-                if (pendingBadge) pendingBadge.textContent = (data.applications || []).length;
-            }
-        } catch (e) {}
-    }
-
-    // 4. Review Modal Sheet Logic
-    const reviewModal = document.getElementById('appReviewModal');
-    const closeReviewModalBtn = document.getElementById('closeReviewModalBtn');
-    const modalApplicantName = document.getElementById('modalApplicantName');
-    const modalApplicantHandle = document.getElementById('modalApplicantHandle');
-    const modalApplicantEmail = document.getElementById('modalApplicantEmail');
-    const modalApplicantDate = document.getElementById('modalApplicantDate');
-    const modalAnsReason = document.getElementById('modalAnsReason');
-    const modalAnsFavoriteWork = document.getElementById('modalAnsFavoriteWork');
-    const modalAnsPerspective = document.getElementById('modalAnsPerspective');
-    const modalAnsContribution = document.getElementById('modalAnsContribution');
-    const modalAnsConversation = document.getElementById('modalAnsConversation');
-    const appReviewNotesInput = document.getElementById('appReviewNotesInput');
-    const modalApproveBtn = document.getElementById('modalApproveBtn');
-    const modalRejectBtn = document.getElementById('modalRejectBtn');
-
-    function openReviewModal(app) {
-        currentActiveApp = app;
-        modalApplicantName.textContent = app.display_name;
-        modalApplicantHandle.textContent = `@${app.handle}`;
-        modalApplicantEmail.textContent = app.email;
-        modalApplicantDate.textContent = `Submitted ${new Date(app.created_at).toLocaleDateString()}`;
-
-        modalAnsReason.textContent = app.reason || '—';
-        modalAnsFavoriteWork.textContent = app.favorite_work || '—';
-        modalAnsPerspective.textContent = app.perspective || '—';
-        modalAnsContribution.textContent = app.contribution || '—';
-        modalAnsConversation.textContent = app.conversation || '—';
-
-        if (appReviewNotesInput) {
-            appReviewNotesInput.value = app.curator_notes || '';
-        }
-
-        // Adjust buttons if already approved or rejected
-        if (app.status === 'APPROVED') {
-            modalApproveBtn.textContent = 'Already Approved ✓';
-            modalApproveBtn.disabled = true;
-            modalRejectBtn.disabled = false;
-        } else if (app.status === 'REJECTED') {
-            modalRejectBtn.textContent = 'Already Rejected ✕';
-            modalRejectBtn.disabled = true;
-            modalApproveBtn.disabled = false;
-        } else {
-            modalApproveBtn.textContent = 'Approve Member for Circle ✓';
-            modalApproveBtn.disabled = false;
-            modalRejectBtn.textContent = 'Reject Application ✕';
-            modalRejectBtn.disabled = false;
-        }
-
-        reviewModal.style.display = 'flex';
-    }
-
-    function closeReviewModal() {
-        reviewModal.style.display = 'none';
-        currentActiveApp = null;
-    }
-
-    if (closeReviewModalBtn) closeReviewModalBtn.addEventListener('click', closeReviewModal);
-    if (reviewModal) {
-        reviewModal.addEventListener('click', (e) => {
-            if (e.target === reviewModal) closeReviewModal();
-        });
-    }
-
-    // Modal Approve Action
-    if (modalApproveBtn) {
-        modalApproveBtn.addEventListener('click', async () => {
-            if (!currentActiveApp) return;
-            const notes = appReviewNotesInput ? appReviewNotesInput.value.trim() : '';
-
-            modalApproveBtn.disabled = true;
-            modalApproveBtn.textContent = 'Approving...';
-
-            try {
-                const res = await (window.WabiSabiStore ? window.WabiSabiStore.apiFetch(`/api/curator/applications/${currentActiveApp.id}/approve`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ notes })
-                }) : fetch(`/api/curator/applications/${currentActiveApp.id}/approve`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ notes })
-                }));
-                const data = await res.json();
-
-                if (res.ok && data.success) {
-                    window.WabiSabiStore.showToast(`✦ Approved @${currentActiveApp.handle} for the Circle.`);
-                    closeReviewModal();
-                    loadApplications(currentFilter);
-                    fetchPendingCount();
-                } else {
-                    window.WabiSabiStore.showToast(data.error || 'Failed to approve application.');
-                    modalApproveBtn.disabled = false;
-                    modalApproveBtn.textContent = 'Approve Member for Circle ✓';
-                }
-            } catch (err) {
-                console.error('Approve error:', err);
-                window.WabiSabiStore.showToast('Server error while approving application.');
-                modalApproveBtn.disabled = false;
-            }
-        });
-    }
-
-    // Modal Reject Action
-    if (modalRejectBtn) {
-        modalRejectBtn.addEventListener('click', async () => {
-            if (!currentActiveApp) return;
-            const notes = appReviewNotesInput ? appReviewNotesInput.value.trim() : '';
-
-            modalRejectBtn.disabled = true;
-            modalRejectBtn.textContent = 'Rejecting...';
-
-            try {
-                const res = await (window.WabiSabiStore ? window.WabiSabiStore.apiFetch(`/api/curator/applications/${currentActiveApp.id}/reject`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ notes })
-                }) : fetch(`/api/curator/applications/${currentActiveApp.id}/reject`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ notes })
-                }));
-                const data = await res.json();
-
-                if (res.ok && data.success) {
-                    window.WabiSabiStore.showToast(`Application for @${currentActiveApp.handle} marked as rejected.`);
-                    closeReviewModal();
-                    loadApplications(currentFilter);
-                    fetchPendingCount();
-                } else {
-                    window.WabiSabiStore.showToast(data.error || 'Failed to reject application.');
-                    modalRejectBtn.disabled = false;
-                    modalRejectBtn.textContent = 'Reject Application ✕';
-                }
-            } catch (err) {
-                console.error('Reject error:', err);
-                window.WabiSabiStore.showToast('Server error while rejecting application.');
-                modalRejectBtn.disabled = false;
-            }
-        });
-    }
-
-    // 5. Curator Audit Logs
-    const auditTableBody = document.getElementById('cdAuditLogsTableBody');
-    async function loadAuditLogs() {
-        if (!auditTableBody) return;
-        auditTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--ink-muted);">Loading audit history...</td></tr>`;
-
-        try {
-            const res = await (window.WabiSabiStore ? window.WabiSabiStore.apiFetch('/api/curator/audit-logs') : fetch('/api/curator/audit-logs'));
             const data = await res.json();
-            const logs = data.logs || [];
+            if (!data.success) return;
 
-            if (logs.length === 0) {
-                auditTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: var(--ink-muted);">No administrative audit actions recorded yet.</td></tr>`;
-                return;
-            }
-
-            auditTableBody.innerHTML = '';
-            logs.forEach(l => {
-                const tr = document.createElement('tr');
-                const isApprove = l.action === 'APPROVE_MEMBER';
-                const tagClass = isApprove ? 'audit-tag-approve' : 'audit-tag-reject';
-                const tagLabel = isApprove ? 'APPROVED MEMBER' : 'REJECTED APPLICATION';
-
-                let notes = '—';
-                try {
-                    const parsed = JSON.parse(l.metadata || '{}');
-                    notes = parsed.notes || '—';
-                } catch (e) {}
-
-                const dateStr = new Date(l.created_at).toLocaleString();
-
-                tr.innerHTML = `
-                    <td><span class="${tagClass}">${tagLabel}</span></td>
-                    <td><strong>${escapeHtml(l.admin_name || 'Curator')}</strong> <span style="font-size: 11px; color: var(--forest-green);">(@${escapeHtml(l.admin_handle || 'curator')})</span></td>
-                    <td>${l.target_name ? `<strong>${escapeHtml(l.target_name)}</strong> <span style="font-size: 11px; color: var(--ink-muted);">(@${escapeHtml(l.target_handle)})</span>` : '—'}</td>
-                    <td style="font-size: 12.5px; color: var(--ink-secondary); font-style: italic;">"${escapeHtml(notes)}"</td>
-                    <td style="font-size: 12px; color: var(--ink-muted);">${dateStr}</td>
-                `;
-                auditTableBody.appendChild(tr);
-            });
-        } catch (err) {
-            console.error('Audit load error:', err);
-            auditTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #9C3322;">Failed to load audit logs.</td></tr>`;
-        }
-    }
-
-    // 6. Member Registry
-    const membersTableBody = document.getElementById('cdMembersTableBody');
-    async function loadMembers() {
-        if (!membersTableBody) return;
-        membersTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--ink-muted);">Loading member registry...</td></tr>`;
-
-        try {
-            const res = await (window.WabiSabiStore ? window.WabiSabiStore.apiFetch('/api/curator/members') : fetch('/api/curator/members'));
-            const data = await res.json();
+            const announcements = data.announcements || {};
             const members = data.members || [];
+            const connectLinks = (data.connect && data.connect.links) || data.settings?.connect_links || {};
 
-            membersTableBody.innerHTML = '';
-            members.forEach(m => {
-                const tr = document.createElement('tr');
-                const roleBadge = m.role === 'CURATOR' ? '<span class="badge-role-curator">⚜ Curator</span>' : '<span class="badge-role-reader">🌿 Reader</span>';
-                const statusBadge = m.status === 'ACTIVE' ? '<span class="app-status-badge status-approved" style="font-size: 10.5px; padding: 2px 8px;">Active</span>' : m.status === 'PENDING' ? '<span class="app-status-badge status-pending" style="font-size: 10.5px; padding: 2px 8px;">Pending</span>' : '<span class="app-status-badge status-rejected" style="font-size: 10.5px; padding: 2px 8px;">Rejected</span>';
-                const joinDate = new Date(m.created_at).toLocaleDateString();
-
-                tr.innerHTML = `
-                    <td><strong>${escapeHtml(m.display_name)}</strong></td>
-                    <td><span style="color: var(--forest-green); font-weight: 600;">@${escapeHtml(m.handle)}</span> 🔒</td>
-                    <td style="color: var(--ink-secondary); font-size: 13px;">${escapeHtml(m.email)}</td>
-                    <td>${roleBadge}</td>
-                    <td>${statusBadge}</td>
-                    <td style="color: var(--ink-muted); font-size: 12.5px;">${joinDate}</td>
-                `;
-                membersTableBody.appendChild(tr);
-            });
+            populateAnnouncements(announcements, data.updates);
+            renderMembers(members);
+            populateConnectLinks(connectLinks);
         } catch (err) {
-            console.error('Members load error:', err);
-            membersTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #9C3322;">Failed to load members.</td></tr>`;
+            console.error('Error loading curator overview:', err);
         }
     }
 
-    // 7. CMS Content: Today's Pick, Salons, Prompts
-    const content = window.WabiSabiStore.getContent();
+    // 1. Populate Announcements forms & lists
+    function populateAnnouncements(announcements, bulletins) {
+        // Theme
+        const theme = announcements.weekly_theme || {};
+        const themeTitleInput = document.getElementById('weeklyThemeTitleInput');
+        const themeSubtitleInput = document.getElementById('weeklyThemeSubtitleInput');
+        if (themeTitleInput) themeTitleInput.value = theme.theme || '';
+        if (themeSubtitleInput) themeSubtitleInput.value = theme.subtitle || theme.quote || '';
 
-    const bookTitleInput = document.getElementById('cdBookTitle');
-    const bookAuthorInput = document.getElementById('cdBookAuthor');
-    const bookQuoteInput = document.getElementById('cdBookQuote');
-    const bookReadersInput = document.getElementById('cdBookReaders');
-    const saveBookBtn = document.getElementById('cdSaveBookBtn');
+        // Reading
+        const book = announcements.this_weeks_reading || {};
+        const bookTitleInput = document.getElementById('bookTitleInput');
+        const bookAuthorInput = document.getElementById('bookAuthorInput');
+        const bookNotesInput = document.getElementById('bookNotesInput');
+        const bookDriveUrlInput = document.getElementById('bookDriveUrlInput');
+        if (bookTitleInput) bookTitleInput.value = book.title || '';
+        if (bookAuthorInput) bookAuthorInput.value = book.author || '';
+        if (bookNotesInput) bookNotesInput.value = book.notes || '';
+        if (bookDriveUrlInput) bookDriveUrlInput.value = book.drive_url || '';
 
-    const previewTitle = document.getElementById('cdPreviewTitle');
-    const previewAuthor = document.getElementById('cdPreviewAuthor');
-    const previewQuote = document.getElementById('cdPreviewQuote');
-    const previewReaders = document.getElementById('cdPreviewReaders');
+        // Gathering
+        const meeting = announcements.gathering || {};
+        const meetingDateInput = document.getElementById('meetingDateInput');
+        const meetingTimeInput = document.getElementById('meetingTimeInput');
+        const meetingLocationInput = document.getElementById('meetingLocationInput');
+        const meetingMapsUrlInput = document.getElementById('meetingMapsUrlInput');
+        if (meetingDateInput) meetingDateInput.value = meeting.date || '';
+        if (meetingTimeInput) meetingTimeInput.value = meeting.time || '';
+        if (meetingLocationInput) meetingLocationInput.value = meeting.location || '';
+        if (meetingMapsUrlInput) meetingMapsUrlInput.value = meeting.maps_url || '';
 
-    if (content.featuredBook) {
-        const fb = content.featuredBook;
-        if (bookTitleInput) bookTitleInput.value = fb.title || '';
-        if (bookAuthorInput) bookAuthorInput.value = fb.author || '';
-        if (bookQuoteInput) bookQuoteInput.value = fb.quote || '';
-        if (bookReadersInput) bookReadersInput.value = fb.readers || 1240;
-        updateBookPreview();
-    }
+        // Discussion Points & Important Notes
+        const dpInput = document.getElementById('discussionPointsInput');
+        const impInput = document.getElementById('importantNotesInput');
+        if (dpInput) {
+            const pts = announcements.discussion_points;
+            if (Array.isArray(pts)) {
+                dpInput.value = pts.join('\n');
+            } else if (typeof pts === 'string') {
+                dpInput.value = pts;
+            }
+        }
+        if (impInput) {
+            impInput.value = announcements.important_notes || '';
+        }
 
-    function updateBookPreview() {
-        if (previewTitle && bookTitleInput) previewTitle.textContent = bookTitleInput.value || "Untitled";
-        if (previewAuthor && bookAuthorInput) previewAuthor.textContent = bookAuthorInput.value || "Unknown Author";
-        if (previewQuote && bookQuoteInput) previewQuote.textContent = `"${bookQuoteInput.value || ''}"`;
-        if (previewReaders && bookReadersInput) {
-            const num = parseFloat(bookReadersInput.value) || 0;
-            previewReaders.textContent = `+${(num / 1000).toFixed(1)}K reading together`;
+        // Active Bulletins List
+        const listEl = document.getElementById('curatorUpdatesList');
+        if (listEl) {
+            const list = bulletins || announcements.bulletins || [];
+            if (list.length === 0) {
+                listEl.innerHTML = '<p style="font-size: 13px; color: var(--wabi-ink-muted); margin: 0;">No notices published yet.</p>';
+            } else {
+                listEl.innerHTML = list.map(u => `
+                    <div class="active-announcement-card" id="card-${u.id}">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                            <div>
+                                <strong style="font-size: 14.5px; color: var(--wabi-ink);">${escapeHtml(u.title)}</strong>
+                                ${u.is_pinned ? '<span style="font-size: 10px; text-transform: uppercase; background: var(--wabi-sage-soft); color: var(--wabi-forest-green); padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 700;">Pinned</span>' : ''}
+                                <p style="font-size: 13px; color: var(--wabi-ink-secondary); margin: 6px 0 0; line-height: 1.4;">${escapeHtml(u.content)}</p>
+                            </div>
+                            <button type="button" class="c-btn c-btn-danger" onclick="window.deleteCuratorUpdate('${u.id}')">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
     }
 
-    [bookTitleInput, bookAuthorInput, bookQuoteInput, bookReadersInput].forEach(inp => {
-        if (inp) inp.addEventListener('input', updateBookPreview);
-    });
+    // 2. Render Community Members Directory
+    function renderMembers(members) {
+        const container = document.getElementById('curatorMembersList');
+        if (!container) return;
 
-    if (saveBookBtn) {
-        saveBookBtn.addEventListener('click', () => {
-            window.WabiSabiStore.updateFeaturedBook({
-                title: bookTitleInput.value.trim(),
-                author: bookAuthorInput.value.trim(),
-                quote: bookQuoteInput.value.trim(),
-                readers: parseInt(bookReadersInput.value, 10) || 1240
-            });
-            window.WabiSabiStore.showToast("✦ Today's Bookclub Pick updated live across Wabi Sabi.");
-        });
-    }
-
-    // Salons & Gatherings
-    const eventTitleInput = document.getElementById('cdEventTitle');
-    const eventDetailInput = document.getElementById('cdEventDetail');
-    const eventMonthInput = document.getElementById('cdEventMonth');
-    const eventDayInput = document.getElementById('cdEventDay');
-    const eventAttendeesInput = document.getElementById('cdEventAttendees');
-    const saveEventBtn = document.getElementById('cdSaveEventBtn');
-
-    const previewMonth = document.getElementById('cdPreviewMonth');
-    const previewDay = document.getElementById('cdPreviewDay');
-    const previewEventTitle = document.getElementById('cdPreviewEventTitle');
-    const previewEventDetail = document.getElementById('cdPreviewEventDetail');
-    const previewEventAttendees = document.getElementById('cdPreviewEventAttendees');
-
-    if (content.upcomingEvent) {
-        const ev = content.upcomingEvent;
-        if (eventTitleInput) eventTitleInput.value = ev.title || '';
-        if (eventDetailInput) eventDetailInput.value = ev.detail || '';
-        if (eventMonthInput) eventMonthInput.value = ev.month || 'Sep';
-        if (eventDayInput) eventDayInput.value = ev.day || '24';
-        if (eventAttendeesInput) eventAttendeesInput.value = ev.attendees || 324;
-        updateEventPreview();
-    }
-
-    function updateEventPreview() {
-        if (previewEventTitle && eventTitleInput) previewEventTitle.textContent = eventTitleInput.value || "Untitled Salon";
-        if (previewEventDetail && eventDetailInput) previewEventDetail.textContent = eventDetailInput.value || "";
-        if (previewMonth && eventMonthInput) previewMonth.textContent = eventMonthInput.value || "Sep";
-        if (previewDay && eventDayInput) previewDay.textContent = eventDayInput.value || "24";
-        if (previewEventAttendees && eventAttendeesInput) {
-            previewEventAttendees.textContent = `+${eventAttendeesInput.value || 0} members attending`;
+        if (!members || members.length === 0) {
+            container.innerHTML = '<p style="font-size: 13px; color: var(--wabi-ink-muted);">No members registered yet.</p>';
+            return;
         }
+
+        container.innerHTML = members.map(m => `
+            <div class="member-row-item" id="member-row-${m.id}">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <img src="${m.avatar_url || '../assets/user_avatar.jpg'}" alt="${escapeHtml(m.name)}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid var(--wabi-border-medium);" onerror="this.src='../assets/user_avatar.jpg'">
+                    <div>
+                        <div style="font-size: 14.5px; font-weight: 600; color: var(--wabi-ink);">
+                            ${escapeHtml(m.name)}
+                            <span style="font-size: 11px; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: rgba(39, 59, 43, 0.1); color: var(--wabi-forest-green); margin-left: 6px;">${escapeHtml(m.role || 'Member')}</span>
+                        </div>
+                        <div style="font-size: 12px; color: var(--wabi-ink-muted); margin-top: 2px;">
+                            ${m.handle ? `<span>${escapeHtml(m.handle)}</span> • ` : ''}
+                            <span>${escapeHtml(m.bio || 'Wabi Sabi companion')}</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <button type="button" class="c-btn c-btn-danger" onclick="window.deleteCuratorMember('${m.id}')">
+                        Remove
+                    </button>
+                </div>
+            </div>
+        `).join('');
     }
 
-    [eventTitleInput, eventDetailInput, eventMonthInput, eventDayInput, eventAttendeesInput].forEach(inp => {
-        if (inp) inp.addEventListener('input', updateEventPreview);
-    });
+    // 3. Populate Connect Links Form
+    function populateConnectLinks(links) {
+        if (!links) return;
+        const chatInput = document.getElementById('chatUrlInput');
+        const driveInput = document.getElementById('globalDriveUrlInput');
+        const mapsInput = document.getElementById('globalMapsUrlInput');
+        const instaInput = document.getElementById('instagramUrlInput');
+        const waInput = document.getElementById('whatsappUrlInput');
+        const discInput = document.getElementById('discordUrlInput');
 
-    if (saveEventBtn) {
-        saveEventBtn.addEventListener('click', () => {
-            window.WabiSabiStore.updateUpcomingEvent({
-                title: eventTitleInput.value.trim(),
-                detail: eventDetailInput.value.trim(),
-                month: eventMonthInput.value.trim(),
-                day: eventDayInput.value.trim(),
-                attendees: parseInt(eventAttendeesInput.value, 10) || 324
+        if (chatInput) chatInput.value = links.community_chat_url || '';
+        if (driveInput) driveInput.value = links.book_drive_url || '';
+        if (mapsInput) mapsInput.value = links.meeting_maps_url || '';
+        if (instaInput) instaInput.value = links.instagram_url || '';
+        if (waInput) waInput.value = links.whatsapp_url || '';
+        if (discInput) discInput.value = links.discord_url || '';
+    }
+
+    // Global hook for deleting an announcement bulletin
+    window.deleteCuratorUpdate = async function (id) {
+        if (!confirm('Are you sure you want to remove this bulletin from the portal?')) return;
+        try {
+            const res = await fetch(`/api/curator/updates/${id}`, {
+                method: 'DELETE',
+                credentials: 'include'
             });
-            window.WabiSabiStore.showToast("✦ Upcoming Salon details saved and synced live.");
-        });
-    }
+            const data = await res.json();
+            if (data.success) {
+                showToast('Bulletin removed.');
+                loadDashboardData();
+            } else {
+                showToast(data.error || 'Failed to delete bulletin.', true);
+            }
+        } catch (err) {
+            showToast('Network error deleting bulletin.', true);
+        }
+    };
 
-    // Sticky Note Prompts
-    const promptBooks = document.getElementById('cdPromptBooks');
-    const promptFilms = document.getElementById('cdPromptFilms');
-    const promptDiscuss = document.getElementById('cdPromptDiscuss');
-    const promptCommunity = document.getElementById('cdPromptCommunity');
-    const savePromptsBtn = document.getElementById('cdSavePromptsBtn');
-
-    if (content.stickyTitles) {
-        const t = content.stickyTitles;
-        if (promptBooks) promptBooks.value = t.books || 'Reading Thoughts';
-        if (promptFilms) promptFilms.value = t.films || 'Cinema Notes';
-        if (promptDiscuss) promptDiscuss.value = t.discuss || 'Quiet Musings';
-        if (promptCommunity) promptCommunity.value = t.community || 'Open Letter';
-    }
-
-    if (savePromptsBtn) {
-        savePromptsBtn.addEventListener('click', () => {
-            window.WabiSabiStore.updateStickyTitles({
-                books: promptBooks.value.trim(),
-                films: promptFilms.value.trim(),
-                discuss: promptDiscuss.value.trim(),
-                community: promptCommunity.value.trim()
+    // Global hook for deleting a member
+    window.deleteCuratorMember = async function (id) {
+        if (!confirm('Are you sure you want to remove this person from the community directory?')) return;
+        try {
+            const res = await fetch(`/api/curator/members/${id}`, {
+                method: 'DELETE',
+                credentials: 'include'
             });
-            window.WabiSabiStore.showToast("✦ Sticky note prompt headings updated for community.");
-        });
+            const data = await res.json();
+            if (data.success) {
+                showToast('Person removed from community directory.');
+                renderMembers(data.members);
+            } else {
+                showToast(data.error || 'Failed to remove member.', true);
+            }
+        } catch (err) {
+            showToast('Network error removing member.', true);
+        }
+    };
+
+    // Form Event Listeners
+    function setupFormHandlers() {
+        // 1. Weekly Theme Form
+        const themeForm = document.getElementById('themeForm');
+        if (themeForm) {
+            themeForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const weekly_theme = {
+                    theme: document.getElementById('weeklyThemeTitleInput').value.trim(),
+                    subtitle: document.getElementById('weeklyThemeSubtitleInput').value.trim()
+                };
+
+                try {
+                    const res = await fetch('/api/curator/announcements', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ weekly_theme })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('Weekly theme updated!');
+                    } else {
+                        showToast(data.error || 'Failed to save theme.', true);
+                    }
+                } catch (err) {
+                    showToast('Network error saving weekly theme.', true);
+                }
+            });
+        }
+
+        // 2. Reading Details Form
+        const readingForm = document.getElementById('readingDetailsForm');
+        if (readingForm) {
+            readingForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const this_weeks_reading = {
+                    title: document.getElementById('bookTitleInput').value.trim(),
+                    author: document.getElementById('bookAuthorInput').value.trim(),
+                    notes: document.getElementById('bookNotesInput').value.trim(),
+                    drive_url: document.getElementById('bookDriveUrlInput').value.trim()
+                };
+
+                try {
+                    const res = await fetch('/api/curator/announcements', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ this_weeks_reading })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('Reading selection updated!');
+                    } else {
+                        showToast(data.error || 'Failed to save reading details.', true);
+                    }
+                } catch (err) {
+                    showToast('Network error saving reading details.', true);
+                }
+            });
+        }
+
+        // 3. Meeting Details Form
+        const meetingForm = document.getElementById('meetingDetailsForm');
+        if (meetingForm) {
+            meetingForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const gathering = {
+                    date: document.getElementById('meetingDateInput').value.trim(),
+                    time: document.getElementById('meetingTimeInput').value.trim(),
+                    location: document.getElementById('meetingLocationInput').value.trim(),
+                    maps_url: document.getElementById('meetingMapsUrlInput').value.trim()
+                };
+
+                try {
+                    const res = await fetch('/api/curator/announcements', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ gathering })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('Gathering details updated!');
+                    } else {
+                        showToast(data.error || 'Failed to save gathering details.', true);
+                    }
+                } catch (err) {
+                    showToast('Network error saving gathering details.', true);
+                }
+            });
+        }
+
+        // 4. Discussion Points & Important Notes Form
+        const dpForm = document.getElementById('discussionPointsForm');
+        if (dpForm) {
+            dpForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const rawPoints = document.getElementById('discussionPointsInput').value;
+                const important_notes = document.getElementById('importantNotesInput').value.trim();
+
+                try {
+                    const res = await fetch('/api/curator/announcements', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            discussion_points: rawPoints,
+                            important_notes
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('Discussion points and important notice updated!');
+                    } else {
+                        showToast(data.error || 'Failed to save notes.', true);
+                    }
+                } catch (err) {
+                    showToast('Network error saving discussion points.', true);
+                }
+            });
+        }
+
+        // 5. Publish Bulletin Form
+        const noticeForm = document.getElementById('newAnnouncementForm');
+        if (noticeForm) {
+            noticeForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const title = document.getElementById('announcementTitle').value;
+                const content = document.getElementById('announcementContent').value;
+                const isPinned = document.getElementById('announcementPinned').checked;
+
+                try {
+                    const res = await fetch('/api/curator/updates', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ title, content, is_pinned: isPinned })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('✦ Bulletin published to public portal!');
+                        noticeForm.reset();
+                        document.getElementById('announcementPinned').checked = true;
+                        loadDashboardData();
+                    } else {
+                        showToast(data.error || 'Failed to publish bulletin.', true);
+                    }
+                } catch (err) {
+                    showToast('Network error while publishing bulletin.', true);
+                }
+            });
+        }
+
+        // 6. Add Community Member Form
+        const addMemberForm = document.getElementById('addMemberForm');
+        if (addMemberForm) {
+            addMemberForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('memberNameInput').value.trim();
+                const role = document.getElementById('memberRoleSelect').value;
+                const handle = document.getElementById('memberHandleInput').value.trim();
+                const avatar_url = document.getElementById('memberAvatarInput').value.trim();
+                const bio = document.getElementById('memberBioInput').value.trim();
+                const display_order = parseInt(document.getElementById('memberOrderInput').value, 10) || 0;
+
+                try {
+                    const res = await fetch('/api/curator/members', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ name, role, handle, avatar_url, bio, display_order })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast(`✦ ${name} added to the community!`);
+                        addMemberForm.reset();
+                        document.getElementById('memberAvatarInput').value = '../assets/avatar_aishwarya.jpg';
+                        document.getElementById('memberOrderInput').value = '10';
+                        renderMembers(data.members);
+                    } else {
+                        showToast(data.error || 'Failed to add member.', true);
+                    }
+                } catch (err) {
+                    showToast('Network error adding member.', true);
+                }
+            });
+        }
+
+        // 7. Platform External Links Form (Connect)
+        const linksForm = document.getElementById('platformLinksForm');
+        if (linksForm) {
+            linksForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const links = {
+                    community_chat_url: document.getElementById('chatUrlInput').value.trim(),
+                    book_drive_url: document.getElementById('globalDriveUrlInput').value.trim(),
+                    meeting_maps_url: document.getElementById('globalMapsUrlInput').value.trim(),
+                    instagram_url: document.getElementById('instagramUrlInput').value.trim(),
+                    whatsapp_url: document.getElementById('whatsappUrlInput').value.trim(),
+                    discord_url: document.getElementById('discordUrlInput').value.trim()
+                };
+
+                try {
+                    const res = await fetch('/api/curator/connect', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify(links)
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('Connect platform links updated!');
+                    } else {
+                        showToast(data.error || 'Failed to save connect links.', true);
+                    }
+                } catch (err) {
+                    showToast('Network error saving connect links.', true);
+                }
+            });
+        }
+
+        // 8. Sign Out Button
+        const signOutBtn = document.getElementById('curatorSignOutBtn');
+        if (signOutBtn) {
+            signOutBtn.addEventListener('click', async () => {
+                try {
+                    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+                } catch (e) {}
+                window.location.href = 'home.html';
+            });
+        }
     }
 
     function escapeHtml(str) {
@@ -518,9 +507,42 @@ document.addEventListener('DOMContentLoaded', async () => {
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+            .replace(/'/g, '&#39;');
     }
 
-    // Initial load: Applications Tab
-    loadApplications('PENDING');
-});
+    // Theme Restoration & Toggle Controller
+    function setupThemeToggle() {
+        const savedTheme = localStorage.getItem('wabi_sabi_theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+        }
+
+        const themeBtn = document.getElementById('themeToggleBtn');
+        if (themeBtn) {
+            themeBtn.addEventListener('click', () => {
+                const current = document.documentElement.getAttribute('data-theme') || 'light';
+                const next = current === 'dark' ? 'light' : 'dark';
+                if (next === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+                localStorage.setItem('wabi_sabi_theme', next);
+            });
+        }
+    }
+
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', async () => {
+        setupThemeToggle();
+        const isAuthed = await checkAuth();
+        if (isAuthed) {
+            setupTabs();
+            setupFormHandlers();
+            loadDashboardData();
+        }
+    });
+
+})();

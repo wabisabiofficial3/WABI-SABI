@@ -1,7 +1,7 @@
 /**
  * Automated Verification Suite for Wabi Sabi Authentication & RBAC System
  */
-const { app, startServer } = require('./index');
+const { app, startServer } = require('../server/index');
 const http = require('node:http');
 
 let server;
@@ -55,8 +55,7 @@ async function request(method, path, body = null, cookie = null) {
 
 async function runTests() {
     console.log('\n--- 1. Starting Server on Ephemeral Port ---');
-    process.env.PORT = 0; // random available port
-    server = await startServer();
+    server = await startServer(0);
     const port = server.address().port;
     baseUrl = `http://localhost:${port}`;
     console.log(`✓ Test server running at ${baseUrl}`);
@@ -65,9 +64,9 @@ async function runTests() {
     let readerCookie = null;
     let applicantCookie = null;
 
-    console.log('\n--- 2. Testing Curator Authentication (Curator 01) ---');
+    console.log('\n--- 2. Testing Curator Authentication (Dhanush) ---');
     const curRes = await request('POST', '/api/auth/login', {
-        email: 'curator@wabisabi.club',
+        email: 'ganganidhanush@gmail.com',
         password: 'curator123'
     });
     console.assert(curRes.status === 200, `Expected 200, got ${curRes.status}`);
@@ -75,30 +74,30 @@ async function runTests() {
     console.assert(curRes.data.redirectUrl === '/curator.html', `Expected /curator.html, got ${curRes.data.redirectUrl}`);
     console.assert(curRes.cookie, 'Expected wabisabi_session cookie');
     curatorCookie = curRes.cookie;
-    console.log('✓ Curator 01 login & Argon2id verification passed.');
+    console.log('✓ Curator Dhanush login & Argon2id verification passed.');
 
-    console.log('\n--- 3. Testing Active Reader Authentication (Elena Vance) ---');
-    const readerRes = await request('POST', '/api/auth/login', {
-        email: 'reader@wabisabi.club',
-        password: 'reader123'
+    console.log('\n--- 3. Testing Authorized Curators (Likith & Sarvasree) ---');
+    const likRes = await request('POST', '/api/auth/login', {
+        email: 'nrlikith6@gmail.com',
+        password: 'curator123'
     });
-    console.assert(readerRes.status === 200, `Expected 200, got ${readerRes.status}`);
-    console.assert(readerRes.data.user.role === 'USER', `Expected USER role, got ${readerRes.data.user.role}`);
-    console.assert(readerRes.data.user.status === 'ACTIVE', `Expected ACTIVE status, got ${readerRes.data.user.status}`);
-    console.assert(readerRes.data.redirectUrl === '/community.html', `Expected /community.html, got ${readerRes.data.redirectUrl}`);
-    readerCookie = readerRes.cookie;
-    console.log('✓ Reader login passed with redirect to /community.html.');
+    console.assert(likRes.status === 200, `Expected 200, got ${likRes.status}`);
+    console.assert(likRes.data.user.role === 'CURATOR', 'Expected CURATOR');
+    console.log('✓ Curator Likith login verified.');
+
+    const sarRes = await request('POST', '/api/auth/login', {
+        email: 'sarvasreeyuvaraj02@gmail.com',
+        password: 'curator123'
+    });
+    console.assert(sarRes.status === 200, `Expected 200, got ${sarRes.status}`);
+    console.assert(sarRes.data.user.role === 'CURATOR', 'Expected CURATOR');
+    console.log('✓ Curator Sarvasree login verified.');
 
     console.log('\n--- 4. Testing RBAC Middleware Protection ---');
     // Unauthenticated request to curator API
     const unauthRes = await request('GET', '/api/curator/applications');
     console.assert(unauthRes.status === 401, `Expected 401 for unauthenticated access, got ${unauthRes.status}`);
     console.log('✓ Unauthenticated access to /api/curator/* rejected with 401.');
-
-    // Reader request to curator API (Forbidden)
-    const forbiddenRes = await request('GET', '/api/curator/applications', null, readerCookie);
-    console.assert(forbiddenRes.status === 403, `Expected 403 for regular user, got ${forbiddenRes.status}`);
-    console.log('✓ Regular member access to /api/curator/* rejected with 403 Forbidden.');
 
     // Curator request to curator API (Allowed)
     const allowedRes = await request('GET', '/api/curator/applications', null, curatorCookie);
@@ -161,6 +160,11 @@ async function runTests() {
     console.assert(miraLogin.data.user.status === 'ACTIVE', `Expected ACTIVE status after approval, got ${miraLogin.data.user.status}`);
     console.assert(miraLogin.data.redirectUrl === '/community.html', `Expected redirect to /community.html, got ${miraLogin.data.redirectUrl}`);
     console.log('✓ Approved user now logs in as ACTIVE and is directed to /community.html!');
+
+    // Test that active member is rejected from Curator API with 403
+    const forbiddenRes = await request('GET', '/api/curator/applications', null, miraLogin.cookie);
+    console.assert(forbiddenRes.status === 403, `Expected 403 for regular member, got ${forbiddenRes.status}`);
+    console.log('✓ Regular member access to /api/curator/* rejected with 403 Forbidden.');
 
     console.log('\n--- 9. Curator Audit Logs Verification ---');
     const auditRes = await request('GET', '/api/curator/audit-logs', null, curatorCookie);

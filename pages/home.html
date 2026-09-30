@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Wabi Sabi Bookclub — Vol. 1</title>
+    
+    <!-- Favicon & Touch Icons -->
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
+    <link rel="manifest" href="../site.webmanifest">
+    
+    <!-- Editorial & Aesthetic Handwriting Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Manrope:wght@300;400;500;600;700&family=Reenie+Beanie&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/tokens.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/portal.css">
+
+    <style>
+        /* ==========================================================================
+           WABI SABI — EXACT ORGANIC BOTANICAL THEME ADAPTATION
+           ========================================================================== */
+        
+        :root {
+            --bg-paper: #F5F2EA;
+            --moss-dark: #3F5547;
+            --moss-mid: #526B5C;
+            --moss-light: #7E9786;
+            --contour-gold: #C6B69B;
+            --contour-gold-faint: rgba(198, 182, 155, 0.45);
+        }
+
+        [data-theme="dark"] {
+            --bg-paper: #181614;
+            --moss-dark: #1E2E23;
+            --moss-mid: #2C4233;
+            --moss-light: #44614E;
+            --contour-gold: #8E7E65;
+            --contour-gold-faint: rgba(142, 126, 101, 0.35);
+        }
+
+        body.dashboard-body {
+            background-color: var(--bg-paper) !important;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* SVG Organic Fluid Wave & Botanical Frame */
+        .wabi-organic-frame-svg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Master Dashboard Grid */
+        .dashboard {
+            grid-template-columns: minmax(0, 1fr) clamp(300px, 21.5vw, 360px) !important;
+            padding-left: clamp(24px, 3.2vw, 56px) !important;
+            padding-right: clamp(20px, 2.8vw, 48px) !important;
+            min-height: calc(100vh - 40px);
+            position: relative;
+            z-index: 2;
+        }
+
+        header {
+            grid-column: 1 / -1 !important;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 4px 18px 4px;
+            gap: 20px;
+        }
+
+        /* Hanging Vertical Tagline Ribbon */
+        .vertical-tagline-ribbon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 8px 10px 12px;
+            background: rgba(235, 226, 211, 0.65);
+            backdrop-filter: blur(6px);
+            border-radius: 0 0 16px 16px;
+            font-size: 8.5px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            line-height: 1.15;
+            border: 1px solid rgba(180, 168, 148, 0.25);
+            border-top: none;
+            margin-top: -12px;
+            user-select: none;
+        }
+
+        [data-theme="dark"] .vertical-tagline-ribbon {
+            background: rgba(45, 40, 35, 0.65);
+            border-color: rgba(235, 225, 210, 0.12);
+            color: var(--ink-secondary);
+        }
+
+        /* Header Navigation Tokens Bar */
+        .header-nav-tokens {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #FFFFFF;
+            padding: 4px 6px;
+            border-radius: 999px;
+            border: 1px solid rgba(220, 214, 204, 0.75);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+            user-select: none;
+        }
+
+        [data-theme="dark"] .header-nav-tokens {
+            background: rgba(30, 28, 26, 0.95);
+            border-color: rgba(235, 225, 210, 0.16);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-token-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 18px;
+            border-radius: 999px;
+            font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+            font-size: 13.5px;
+            font-weight: 500;
+            letter-spacing: 0.1px;
+            color: #23201D;
+            background: transparent;
+            border: 1px solid transparent;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            white-space: nowrap;
+        }
+
+        .nav-token-btn:hover {
+            background: rgba(240, 236, 228, 0.6);
+            color: #111110;
+        }
+
+        .nav-token-btn.active {
+            background: #182F21 !important;
+            color: #FFFFFF !important;
+            font-weight: 600 !important;
+            border-color: #182F21 !important;
+            box-shadow: 0 2px 8px rgba(24, 47, 33, 0.26);
+        }
+
+        [data-theme="dark"] .nav-token-btn {
+            color: #E2DDD5;
+        }
+
+        [data-theme="dark"] .nav-token-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #FFFFFF;
+        }
+
+        [data-theme="dark"] .nav-token-btn.active {
+            background: #789E82 !important;
+            color: #0F1A12 !important;
+            border-color: #789E82 !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+        }
+
+        .nav-token-icon {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+            opacity: 0.95;
+        }
+
+        /* Views switching inside dashboard */
+        .hub-tab-panel {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .hub-tab-panel.active {
+            display: contents;
+            opacity: 1;
+        }
+
+        .hub-full-view {
+            grid-column: 1 / -1 !important;
+            width: 100%;
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 8px 12px 60px;
+            animation: fadeInView 0.28s ease;
+        }
+
+        @keyframes fadeInView {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Center Main Content */
+        main.main-content {
+            grid-column: 1 / 2 !important;
+            grid-template-columns: minmax(280px, 0.82fr) minmax(580px, 1.48fr) !important;
+            gap: clamp(16px, 2.4vw, 40px) !important;
+            position: relative;
+            align-items: center;
+        }
+
+        aside.right-panel {
+            grid-column: 2 / 3 !important;
+            position: relative;
+        }
+
+        /* Hero Typography & Lime Highlighter */
+        .word-grow-highlight {
+            position: relative;
+            display: inline-block;
+        }
+
+        .word-grow-highlight::after {
+            content: '';
+            position: absolute;
+            left: -2px;
+            bottom: 4px;
+            width: calc(100% + 4px);
+            height: 9px;
+            background: rgba(220, 242, 99, 0.52);
+            border-radius: 4px;
+            z-index: -1;
+            transform: rotate(-0.6deg);
+        }
+
+        [data-theme="dark"] .word-grow-highlight::after {
+            background: rgba(142, 175, 80, 0.45);
+        }
+
+        /* Buttons */
+        .btn-cta-primary {
+            background: #182B1E !important;
+            color: #FAF7F2 !important;
+            border-radius: 999px !important;
+            padding: 11px 24px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            border: none !important;
+            box-shadow: 0 4px 14px rgba(24, 43, 30, 0.28) !important;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cta-primary:hover {
+            background: #101E15 !important;
+            transform: translateY(-1.5px);
+            box-shadow: 0 6px 18px rgba(24, 43, 30, 0.35) !important;
+        }
+
+        .btn-cta-secondary {
+            background: rgba(255, 255, 255, 0.4) !important;
+            color: #24201D !important;
+            border: 1px solid rgba(45, 40, 35, 0.25) !important;
+            border-radius: 999px !important;
+            padding: 11px 22px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="dark"] .btn-cta-secondary {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #EDE7DD !important;
+            border-color: rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .btn-cta-secondary:hover {
+            background: rgba(255, 255, 255, 0.85) !important;
+            transform: translateY(-1.5px);
+        }
+
+        /* Handwritten Explore Annotation & Radiating Rays */
+        .hand-anno-explore {
+            font-family: 'Caveat', cursive !important;
+            font-size: 21px !important;
+            color: var(--ink-secondary) !important;
+            position: absolute;
+            top: 26px;
+            right: 42px;
+            text-align: center;
+            line-height: 1.15;
+            user-select: none;
+            z-index: 5;
+        }
+
+        .explore-rays-svg {
+            display: block;
+            margin: 0 auto 2px auto;
+        }
+
+        /* Connecting Central Stamp */
+        .stamp-botanical-seal {
+            border: 1px solid rgba(160, 145, 125, 0.4) !important;
+            background: rgba(255, 255, 255, 0.6) !important;
+            backdrop-filter: blur(4px);
+        }
+
+        [data-theme="dark"] .stamp-botanical-seal {
+            background: rgba(35, 32, 28, 0.6) !important;
+            border-color: rgba(235, 225, 210, 0.15) !important;
+        }
+
+        /* Right Panel Cards */
+        .side-card {
+            background: rgba(255, 255, 255, 0.82) !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(45, 40, 35, 0.08) !important;
+            border-radius: 16px !important;
+            padding: 20px 22px !important;
+            box-shadow: 0 6px 22px rgba(35, 30, 20, 0.04) !important;
+        }
+
+        [data-theme="dark"] .side-card {
+            background: rgba(32, 30, 28, 0.85) !important;
+            border-color: rgba(235, 225, 210, 0.08) !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+        }
+
+        .side-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(35, 30, 20, 0.09) !important;
+        }
+
+        /* Avatar cluster */
+        .avatar-cluster {
+            display: flex;
+            align-items: center;
+        }
+
+        .avatar-cluster span {
+            width: 17px !important;
+            height: 17px !important;
+            border: 1.5px solid #FFFFFF !important;
+            margin-right: -4px !important;
+        }
+
+        .avatar-cluster span:nth-child(1) { background: #E8927C !important; }
+        .avatar-cluster span:nth-child(2) { background: #6B9E78 !important; }
+        .avatar-cluster span:nth-child(3) { background: #8E82B2 !important; }
+
+        /* Editorial Quote */
+        .editorial-quote {
+            font-family: var(--font-serif) !important;
+            font-style: italic !important;
+            font-size: clamp(23px, 1.8vw, 27px) !important;
+            line-height: 1.25 !important;
+            color: var(--ink-primary) !important;
+        }
+
+        /* ==========================================================================
+           HIGH-LEVEL REALISTIC EDITORIAL STICKY NOTES & ORBIT
+           Directly adapted from media_1790790709063.png
+           ========================================================================== */
+
+        .orbital-stage {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            height: 500px;
+            margin: 0 auto;
+            user-select: none;
+        }
+
+        /* 1. Golden Thin Orbit Line */
+        .realistic-orbit-svg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 2. Central Botanical Stamp Seal */
+        .stamp-botanical-seal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            border: 1px solid rgba(198, 175, 136, 0.55);
+            background: radial-gradient(circle, #FAF7F0 60%, #EFE9DC 100%);
+            box-shadow: 0 4px 16px rgba(45, 35, 20, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        [data-theme="dark"] .stamp-botanical-seal {
+            background: radial-gradient(circle, #25221E 60%, #1A1816 100%);
+            border-color: rgba(198, 175, 136, 0.25);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .stamp-tick-mark {
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1.2px;
+            height: 6px;
+            background: #C6AF88;
+        }
+
+        .stamp-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 8.5px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #7B684B;
+            margin-top: 3px;
+            line-height: 1;
+        }
+
+        .stamp-sub {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 6.5px;
+            font-weight: 600;
+            letter-spacing: 1.8px;
+            color: #8C785B;
+            margin-top: 3px;
+            line-height: 1;
+        }
+
+        .stamp-vol {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 6.5px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            color: #8C785B;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        /* 3. Realistic Torn Kraft Masking Tape Strip */
+        .torn-tape-kraft {
+            position: absolute;
+            top: -11px;
+            left: 50%;
+            transform: translateX(-50%) rotate(var(--tape-rot, -0.6deg));
+            width: 56px;
+            height: 22px;
+            background-color: #DECFA8;
+            background-image: 
+                linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(0, 0, 0, 0.03) 50%, rgba(255, 255, 255, 0.12) 100%);
+            opacity: 0.85;
+            backdrop-filter: blur(1.5px);
+            -webkit-backdrop-filter: blur(1.5px);
+            /* Jagged serrated torn ends top & bottom */
+            clip-path: polygon(
+                0% 8%, 4% 0%, 9% 6%, 15% 1%, 21% 7%, 27% 0%, 33% 5%, 39% 1%, 45% 7%, 51% 0%, 57% 6%, 63% 1%, 69% 7%, 75% 0%, 81% 6%, 87% 1%, 93% 6%, 100% 0%,
+                100% 92%, 96% 100%, 91% 94%, 85% 99%, 79% 93%, 73% 100%, 67% 94%, 61% 99%, 55% 93%, 49% 100%, 43% 94%, 37% 99%, 31% 93%, 25% 100%, 19% 94%, 13% 99%, 7% 94%, 0% 100%
+            );
+            filter: drop-shadow(0 1.5px 2.5px rgba(45, 35, 20, 0.18));
+            z-index: 6;
+            pointer-events: none;
+        }
+
+        [data-theme="dark"] .torn-tape-kraft {
+            background-color: #A89878;
+            opacity: 0.82;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+        }
+
+        /* 4. Base Sticky Note Card with High Realism (Matte Heavy Cardstock) */
+        .sticky-note-card {
+            position: absolute;
+            width: 220px;
+            min-height: 165px;
+            max-height: 180px;
+            padding: 16px 18px 14px 18px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            z-index: 3;
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+            background-blend-mode: multiply;
+        }
+
+        /* Top-Left Header: 01 + line */
+        .realistic-note-header {
+            margin-bottom: 10px;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .realistic-note-num {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #2D2721;
+            letter-spacing: 0.6px;
+            line-height: 1;
+        }
+
+        .realistic-note-line {
+            width: 28px;
+            height: 1px;
+            background: rgba(50, 42, 32, 0.32);
+            margin-top: 3px;
+        }
+
+        /* Editorial Serif Italic Quote */
+        .realistic-note-body {
+            font-family: 'Cormorant Garamond', Georgia, serif !important;
+            font-style: italic !important;
+            font-weight: 600 !important;
+            font-size: clamp(16px, 1.25vw, 18.5px) !important;
+            line-height: 1.34 !important;
+            color: #231E18 !important;
+            letter-spacing: 0.1px;
+            outline: none;
+            flex-grow: 1;
+            margin: 0 0 10px 0;
+            border-bottom: 1px dashed transparent;
+            transition: border-color 0.2s ease;
+        }
+
+        .realistic-note-body:focus {
+            border-bottom-color: rgba(35, 30, 24, 0.4);
+        }
+
+        /* Bottom-Right Arrow Circle */
+        .realistic-note-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .realistic-note-action {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1.2px solid rgba(60, 50, 40, 0.45);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(60, 50, 40, 0.7);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .sticky-note-card:hover .realistic-note-action {
+            border-color: #1C3224;
+            color: #1C3224;
+            background: rgba(28, 50, 36, 0.08);
+            transform: scale(1.08);
+        }
+
+        /* Individual Palette & 3D Curled Shadows - Flawlessly Positioned */
+
+        /* 1. Note 01 (Sage / Matcha Mint) - Top Left */
+        .sticky-books {
+            top: 8px;
+            left: 12px;
+            transform: rotate(-2.2deg);
+            background-color: #DDE5D5;
+            background-image: 
+                linear-gradient(175deg, #E4EBDC 0%, #DDE5D5 60%, #D4DDD0 100%),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            border: 1px solid rgba(135, 155, 125, 0.28);
+            border-radius: 2px 3px 20px 2px / 2px 2px 16px 3px;
+            box-shadow: 
+                0 2px 4px rgba(45, 38, 28, 0.05),
+                0 8px 18px -4px rgba(45, 38, 28, 0.10),
+                0 16px 28px -8px rgba(45, 38, 28, 0.08);
+        }
+
+        .sticky-books::after {
+            content: '';
+            position: absolute;
+            right: 6px;
+            bottom: 6px;
+            width: 65%;
+            height: 22px;
+            box-shadow: 0 14px 22px -2px rgba(45, 35, 22, 0.18);
+            transform: skew(4.5deg) rotate(3deg);
+            z-index: -1;
+            filter: blur(3px);
+            transition: all 0.3s ease;
+        }
+
+        .sticky-books:hover {
+            transform: rotate(-2.2deg) translateY(-6px) scale(1.02);
+            box-shadow: 
+                0 4px 8px rgba(45, 38, 28, 0.07),
+                0 14px 26px -4px rgba(45, 38, 28, 0.14),
+                0 24px 36px -8px rgba(45, 38, 28, 0.12);
+            z-index: 8;
+        }
+
+        /* 2. Note 02 (Dusty Lavender / Lilac) - Top Right */
+        .sticky-films {
+            top: 10px;
+            right: 12px;
+            transform: rotate(1.8deg);
+            background-color: #E3D9E8;
+            background-image: 
+                linear-gradient(175deg, #EAE0F0 0%, #E3D9E8 60%, #DAD0DE 100%),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            border: 1px solid rgba(155, 135, 165, 0.28);
+            border-radius: 3px 2px 2px 20px / 2px 2px 3px 16px;
+            box-shadow: 
+                0 2px 4px rgba(45, 38, 28, 0.05),
+                0 8px 18px -4px rgba(45, 38, 28, 0.10),
+                0 16px 28px -8px rgba(45, 38, 28, 0.08);
+        }
+
+        .sticky-films::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            bottom: 6px;
+            width: 65%;
+            height: 22px;
+            box-shadow: 0 14px 22px -2px rgba(45, 35, 22, 0.18);
+            transform: skew(-4.5deg) rotate(-3deg);
+            z-index: -1;
+            filter: blur(3px);
+            transition: all 0.3s ease;
+        }
+
+        .sticky-films:hover {
+            transform: rotate(1.8deg) translateY(-6px) scale(1.02);
+            box-shadow: 
+                0 4px 8px rgba(45, 38, 28, 0.07),
+                0 14px 26px -4px rgba(45, 38, 28, 0.14),
+                0 24px 36px -8px rgba(45, 38, 28, 0.12);
+            z-index: 8;
+        }
+
+        /* 3. Note 03 (Blush Coral / Peach Rose) - Bottom Left */
+        .sticky-discuss {
+            bottom: 10px;
+            left: 14px;
+            transform: rotate(1.2deg);
+            background-color: #EED2C9;
+            background-image: 
+                linear-gradient(175deg, #F5D9D0 0%, #EED2C9 60%, #E3C1B6 100%),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            border: 1px solid rgba(185, 140, 130, 0.28);
+            border-radius: 2px 3px 18px 2px / 2px 2px 14px 3px;
+            box-shadow: 
+                0 2px 4px rgba(45, 38, 28, 0.05),
+                0 8px 18px -4px rgba(45, 38, 28, 0.10),
+                0 16px 28px -8px rgba(45, 38, 28, 0.08);
+        }
+
+        .sticky-discuss::after {
+            content: '';
+            position: absolute;
+            right: 6px;
+            bottom: 6px;
+            width: 65%;
+            height: 22px;
+            box-shadow: 0 14px 22px -2px rgba(45, 35, 22, 0.18);
+            transform: skew(4.5deg) rotate(3deg);
+            z-index: -1;
+            filter: blur(3px);
+            transition: all 0.3s ease;
+        }
+
+        .sticky-discuss:hover {
+            transform: rotate(1.2deg) translateY(-6px) scale(1.02);
+            box-shadow: 
+                0 4px 8px rgba(45, 38, 28, 0.07),
+                0 14px 26px -4px rgba(45, 38, 28, 0.14),
+                0 24px 36px -8px rgba(45, 38, 28, 0.12);
+            z-index: 8;
+        }
+
+        /* 4. Note 04 (Warm Chamomile / Golden Buttercream) - Bottom Right */
+        .sticky-community {
+            bottom: 10px;
+            right: 12px;
+            transform: rotate(-1.8deg);
+            background-color: #F4E5C2;
+            background-image: 
+                linear-gradient(175deg, #FAF0D4 0%, #F4E5C2 60%, #EAD5AB 100%),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            border: 1px solid rgba(190, 170, 120, 0.28);
+            border-radius: 3px 2px 2px 18px / 2px 3px 2px 14px;
+            box-shadow: 
+                0 2px 4px rgba(45, 38, 28, 0.05),
+                0 8px 18px -4px rgba(45, 38, 28, 0.10),
+                0 16px 28px -8px rgba(45, 38, 28, 0.08);
+        }
+
+        .sticky-community::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            bottom: 6px;
+            width: 65%;
+            height: 22px;
+            box-shadow: 0 14px 22px -2px rgba(45, 35, 22, 0.18);
+            transform: skew(-4.5deg) rotate(-3deg);
+            z-index: -1;
+            filter: blur(3px);
+            transition: all 0.3s ease;
+        }
+
+        .sticky-community:hover {
+            transform: rotate(-1.8deg) translateY(-6px) scale(1.02);
+            box-shadow: 
+                0 4px 8px rgba(45, 38, 28, 0.07),
+                0 14px 26px -4px rgba(45, 38, 28, 0.14),
+                0 24px 36px -8px rgba(45, 38, 28, 0.12);
+            z-index: 8;
+        }
+
+        /* 5. Botanical Gypsophila Sprig (Dried baby's breath at bottom-left - BEHIND Note 03) */
+        .botanical-gypsophila-sprig {
+            position: absolute;
+            bottom: -22px;
+            left: -46px;
+            z-index: 1; /* Resting on desk surface underneath Note 03 */
+            pointer-events: none;
+            opacity: 0.92;
+            transform: rotate(4deg);
+            filter: drop-shadow(2px 4px 6px rgba(45, 35, 25, 0.16));
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1200px) {
+            main.main-content {
+                grid-template-columns: 1fr !important;
+            }
+            .orbital-stage {
+                max-width: 580px;
+                height: 480px;
+            }
+            .sticky-note-card {
+                width: 210px;
+                min-height: 155px;
+            }
+            .sticky-books { top: 6px; left: 8px; }
+            .sticky-films { top: 8px; right: 8px; }
+            .sticky-discuss { bottom: 8px; left: 8px; }
+            .sticky-community { bottom: 8px; right: 8px; }
+        }
+
+        /* Dark Mode Colors */
+        [data-theme="dark"] .sticky-books {
+            background-color: #2F3E34;
+            background-image: linear-gradient(175deg, #374A3D 0%, #2F3E34 60%, #25332A 100%);
+            border-color: rgba(142, 175, 150, 0.25);
+        }
+        [data-theme="dark"] .sticky-films {
+            background-color: #38313D;
+            background-image: linear-gradient(175deg, #443B4A 0%, #38313D 60%, #2C2630 100%);
+            border-color: rgba(175, 150, 185, 0.25);
+        }
+        [data-theme="dark"] .sticky-discuss {
+            background-color: #3E312E;
+            background-image: linear-gradient(175deg, #4D3C38 0%, #3E312E 60%, #302523 100%);
+            border-color: rgba(195, 155, 145, 0.25);
+        }
+        [data-theme="dark"] .sticky-community {
+            background-color: #3D382B;
+            background-image: linear-gradient(175deg, #4B4535 0%, #3D382B 60%, #2F2B20 100%);
+            border-color: rgba(195, 180, 135, 0.25);
+        }
+        [data-theme="dark"] .realistic-note-num {
+            color: #E8E2D8;
+        }
+        [data-theme="dark"] .realistic-note-line {
+            background: rgba(230, 220, 205, 0.35);
+        }
+        [data-theme="dark"] .realistic-note-body {
+            color: #EDE8E0 !important;
+        }
+        [data-theme="dark"] .realistic-note-action {
+            border-color: rgba(230, 220, 205, 0.45);
+            color: rgba(230, 220, 205, 0.85);
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+
+    <!-- Paper Texture Overlay -->
+    <div class="paper-grain-overlay"></div>
+
+    <!-- ====================================================================
+         ORGANIC BOTANICAL FLUID WAVES & CONTOURS SVG LAYER
+         Matches media_1790790547284.png with flowing moss curves and leaves
+         ==================================================================== -->
+    <svg class="wabi-organic-frame-svg" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+        <!-- 1. Top Wave Accent -->
+        <path d="M 0 0 C 320 40, 680 15, 1020 35 C 1360 55, 1680 15, 1920 0 L 1920 0 L 0 0 Z" fill="rgba(235, 226, 211, 0.45)" />
+
+        <!-- 2. Top-Left Fluid Waves -->
+        <path d="M 0 0 L 320 0 C 260 90, 180 160, 90 200 C 40 220, 0 235, 0 235 Z" fill="var(--moss-light)" opacity="0.45" />
+        <path d="M 0 0 L 250 0 C 200 70, 130 130, 65 170 C 25 188, 0 198, 0 198 Z" fill="var(--moss-dark)" opacity="0.65" />
+        <path d="M 0 0 L 360 0 C 290 105, 200 185, 105 230 C 50 255, 0 270, 0 270" fill="none" stroke="var(--contour-gold)" stroke-width="1.4" />
+        <path d="M 0 0 L 400 0 C 325 125, 225 210, 120 260 C 60 285, 0 300, 0 300" fill="none" stroke="var(--contour-gold)" stroke-width="1.2" stroke-dasharray="4 8" />
+        <circle cx="160" cy="180" r="3" fill="var(--contour-gold)" />
+
+        <!-- 3. Bottom-Left Giant Moss Wave & Layered Contours -->
+        <path d="M 0 580 C 130 615, 240 710, 290 820 C 330 910, 420 990, 560 1080 L 0 1080 Z" fill="var(--moss-light)" opacity="0.4" />
+        <path d="M 0 660 C 110 690, 200 760, 240 855 C 275 930, 360 1005, 480 1080 L 0 1080 Z" fill="var(--moss-mid)" opacity="0.55" />
+        <path d="M 0 740 C 90 765, 160 820, 195 900 C 230 965, 300 1030, 400 1080 L 0 1080 Z" fill="var(--moss-dark)" opacity="0.75" />
+        
+        <path d="M 0 540 C 145 580, 270 680, 325 800 C 370 895, 470 980, 620 1080" fill="none" stroke="var(--contour-gold)" stroke-width="1.5" />
+        <path d="M 0 500 C 160 545, 300 650, 360 775 C 410 875, 515 965, 680 1080" fill="none" stroke="var(--contour-gold)" stroke-width="1.2" stroke-dasharray="4 8" />
+        <circle cx="360" cy="775" r="3.2" fill="var(--contour-gold)" />
+        <circle cx="515" cy="965" r="2.8" fill="var(--contour-gold)" />
+
+        <!-- Botanical Branch in Bottom-Left Corner -->
+        <g stroke="#2C3D32" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Main stem -->
+            <path d="M 30 1060 C 50 990, 85 935, 140 945 C 180 955, 210 930, 230 895" />
+            <!-- Leaves -->
+            <path d="M 70 985 C 60 965, 75 945, 95 955 C 100 975, 85 995, 70 985 Z" fill="rgba(82, 107, 92, 0.3)" />
+            <path d="M 90 960 C 110 940, 130 945, 135 965 C 120 980, 100 975, 90 960 Z" fill="rgba(82, 107, 92, 0.3)" />
+            <path d="M 125 948 C 125 925, 145 915, 160 930 C 155 950, 135 960, 125 948 Z" fill="rgba(82, 107, 92, 0.3)" />
+            <path d="M 155 945 C 175 930, 195 935, 195 955 C 180 965, 165 960, 155 945 Z" fill="rgba(82, 107, 92, 0.3)" />
+            <path d="M 190 938 C 195 915, 215 910, 225 925 C 220 945, 205 950, 190 938 Z" fill="rgba(82, 107, 92, 0.3)" />
+            <path d="M 220 905 C 235 885, 255 890, 255 910 C 240 920, 225 915, 220 905 Z" fill="rgba(82, 107, 92, 0.3)" />
+        </g>
+
+        <!-- 4. Top-Right Fluid Waves & Botanical Accent -->
+        <path d="M 1580 0 C 1640 100, 1740 180, 1920 250 L 1920 0 Z" fill="var(--moss-light)" opacity="0.45" />
+        <path d="M 1660 0 C 1715 80, 1800 150, 1920 205 L 1920 0 Z" fill="var(--moss-dark)" opacity="0.65" />
+        <path d="M 1520 0 C 1590 120, 1700 210, 1920 285" fill="none" stroke="var(--contour-gold)" stroke-width="1.5" />
+        <path d="M 1470 0 C 1550 140, 1670 235, 1920 320" fill="none" stroke="var(--contour-gold)" stroke-width="1.2" stroke-dasharray="4 8" />
+        <circle cx="1670" cy="235" r="3" fill="var(--contour-gold)" />
+
+        <!-- Botanical Branch in Top-Right near Editorial Quote -->
+        <g stroke="#2C3D32" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Stem -->
+            <path d="M 1890 160 C 1850 200, 1810 240, 1785 300" />
+            <!-- Leaves -->
+            <path d="M 1860 190 C 1880 180, 1895 195, 1885 210 C 1865 215, 1850 205, 1860 190 Z" fill="rgba(82, 107, 92, 0.25)" />
+            <path d="M 1845 210 C 1825 210, 1815 225, 1830 235 C 1845 235, 1855 220, 1845 210 Z" fill="rgba(82, 107, 92, 0.25)" />
+            <path d="M 1825 235 C 1840 230, 1855 245, 1845 260 C 1830 260, 1820 250, 1825 235 Z" fill="rgba(82, 107, 92, 0.25)" />
+            <path d="M 1810 260 C 1790 265, 1785 280, 1800 290 C 1815 285, 1820 270, 1810 260 Z" fill="rgba(82, 107, 92, 0.25)" />
+            <path d="M 1790 290 C 1775 305, 1770 325, 1785 330 C 1800 320, 1800 300, 1790 290 Z" fill="rgba(82, 107, 92, 0.25)" />
+        </g>
+
+        <!-- 5. Bottom-Right Undulating Contour Rolling -->
+        <path d="M 1220 1080 C 1390 1020, 1560 980, 1740 1010 C 1830 1025, 1880 1055, 1920 1080 Z" fill="rgba(235, 226, 211, 0.55)" />
+        <path d="M 1360 1080 C 1500 1025, 1650 995, 1800 1020 C 1860 1030, 1900 1055, 1920 1080 Z" fill="var(--moss-light)" opacity="0.3" />
+        <path d="M 1160 1080 C 1350 1005, 1530 965, 1720 995 C 1820 1015, 1880 1050, 1920 1080" fill="none" stroke="var(--contour-gold)" stroke-width="1.3" />
+        <path d="M 1100 1080 C 1310 990, 1500 950, 1700 980 C 1810 1000, 1870 1040, 1920 1080" fill="none" stroke="var(--contour-gold)" stroke-width="1.1" stroke-dasharray="4 8" />
+        <circle cx="1500" cy="950" r="3" fill="var(--contour-gold)" />
+
+        <!-- 6. Decorative Zen Sparkles -->
+        <g fill="var(--contour-gold)" opacity="0.8">
+            <!-- Sparkle top-left hero -->
+            <path d="M 80 270 Q 80 280 70 280 Q 80 280 80 290 Q 80 280 90 280 Q 80 280 80 270 Z" />
+            <!-- Sparkle mid-left hero -->
+            <path d="M 52 425 Q 52 433 44 433 Q 52 433 52 441 Q 52 433 60 433 Q 52 433 52 425 Z" />
+            <circle cx="52" cy="455" r="2.2" />
+            <!-- Sparkle under grow -->
+            <path d="M 640 515 Q 640 523 632 523 Q 640 523 640 531 Q 640 523 648 523 Q 640 523 640 515 Z" />
+            <!-- Sparkle top-right quote -->
+            <circle cx="1860" cy="225" r="3.2" />
+        </g>
+    </svg>
+
+    <!-- Master Screen-Fit Container -->
+    <div class="dashboard">
+
+        <!-- ====================================================================
+             TOP HEADER BAR
+             The WABI SABI • BOOKCLUB VOL. 1 | VERTICAL RIBBON | NAV TOKENS | CONTROLS
+             ==================================================================== -->
+        <header>
+            <div class="brand-container">
+                <a href="home.html" class="brand-logo" title="The Wabi Sabi Bookclub • Vol. 1">
+                    <span class="brand-the">The</span>
+                    <div class="brand-logo-wrap">
+                        <img src="../assets/wabi_sabi_horizontal.png" alt="Wabi Sabi" class="brand-img light-brand">
+                        <img src="../assets/wabi_sabi_horizontal_dark.png" alt="Wabi Sabi" class="brand-img dark-brand">
+                    </div>
+                    <div class="brand-bookclub-tag">
+                        <span class="brand-bookclub-text">Bookclub</span>
+                        <span class="brand-vol-text">VOL. 1</span>
+                    </div>
+                    <span class="brand-dot" style="width: 4px; height: 4px; background: var(--contour-gold); border-radius: 50%; display: inline-block; margin-left: 2px;"></span>
+                </a>
+
+                <!-- Hanging Vertical Rounded Ribbon -->
+                <div class="vertical-tagline-ribbon" title="Wabi Sabi Values">
+                    <span>PEOPLE</span>
+                    <span>STORIES</span>
+                    <span>PERSPECTIVES</span>
+                </div>
+            </div>
+
+            <!-- Floating Pill Navigation Tokens: Dashboard | Announcements | Community | Connect -->
+            <nav class="header-nav-tokens" aria-label="Portal Navigation Tokens">
+                <button type="button" class="nav-token-btn active" id="tokenDashboard" data-tab="dashboard" title="Dashboard">
+                    <svg class="nav-token-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="9"></rect>
+                        <rect x="14" y="3" width="7" height="5"></rect>
+                        <rect x="14" y="12" width="7" height="9"></rect>
+                        <rect x="3" y="16" width="7" height="5"></rect>
+                    </svg>
+                    <span>Dashboard</span>
+                </button>
+                <button type="button" class="nav-token-btn" id="tokenAnnouncements" data-tab="announcements" title="Announcements">
+                    <svg class="nav-token-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h3v4l4.5-4H20c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path>
+                    </svg>
+                    <span>Announcements</span>
+                </button>
+                <button type="button" class="nav-token-btn" id="tokenCommunity" data-tab="community" title="Community">
+                    <svg class="nav-token-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>Community</span>
+                </button>
+                <button type="button" class="nav-token-btn" id="tokenConnect" data-tab="connect" title="Connect">
+                    <svg class="nav-token-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                    </svg>
+                    <span>Connect</span>
+                </button>
+            </nav>
+
+            <!-- Header Right Controls -->
+            <div class="header-controls">
+                <!-- Dark / Light Theme Toggle -->
+                <button class="theme-btn" id="themeToggleBtn" title="Tea Glass (Day) / Coffee Cup (Night)" aria-label="Toggle Light / Dark Theme">
+                    <svg id="themeIconTea" class="theme-icon theme-icon-tea" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 5h12l-1.8 13.5a2 2 0 0 1-2 1.5H9.8a2 2 0 0 1-2-1.5L6 5z"/>
+                        <line x1="6.5" y1="9" x2="17.5" y2="9"/>
+                        <line x1="9.8" y1="9" x2="10.5" y2="17.5"/>
+                        <line x1="14.2" y1="9" x2="13.5" y2="17.5"/>
+                        <line x1="8.2" y1="17.5" x2="15.8" y2="17.5"/>
+                    </svg>
+                    <svg id="themeIconCoffee" class="theme-icon theme-icon-coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 6.5h11v7a4.5 4.5 0 0 1-4.5 4.5h-2A4.5 4.5 0 0 1 4 13.5v-7z"/>
+                        <path d="M15 8.5h2.2a2.3 2.3 0 0 1 2.3 2.3v.4a2.3 2.3 0 0 1-2.3 2.3H15"/>
+                        <path d="M2.5 19.5h14"/>
+                        <path d="M7 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
+                        <path d="M11 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
+                    </svg>
+                </button>
+
+                <div class="header-divider"></div>
+
+                <!-- Role / Handle / Curator Action Slot -->
+                <div id="headerRoleActionSlot" style="display: flex; align-items: center; gap: 10px;">
+                    <a href="login.html" class="reader-handle-badge" id="headerHandleBadge" style="text-decoration: none;" title="Curator Login">@quietreader</a>
+                    <a href="curator.html" class="curator-desk-pill" id="headerCuratorDeskBtn" style="display: none; text-decoration: none;">
+                        <span>Curator's Desk</span>
+                        <span>↗</span>
+                    </a>
+                </div>
+
+                <!-- User Profile / Curator Login -->
+                <a href="login.html" class="user-avatar-btn" id="userProfileBtn" title="Curator Access" style="text-decoration: none; display: inline-block;">
+                    <img src="../assets/user_avatar.jpg" alt="Profile photo" id="headerUserAvatarImg">
+                </a>
+                <span id="profile" style="display:none;"></span>
+                <span id="library" style="display:none;"></span>
+            </div>
+        </header>
+
+        <!-- ====================================================================
+             TAB 1: DASHBOARD / READING DESK (DEFAULT HOME VIEW)
+             Exact visual recreation of media_1790790547284.png
+             ==================================================================== -->
+        <div id="panelDashboard" class="hub-tab-panel active">
+            <div id="dashboard"></div>
+            <!-- Center Main Editorial & Orbital Stage -->
+            <main class="main-content">
+                <!-- Left Typography Hero Statement -->
+                <div class="hero-statement" style="position: relative;">
+                    <div class="hero-eyebrow">THE WABI SABI BOOKCLUB • VOL. 1 • SAME STORIES, DIFFERENT PEOPLE</div>
+                    <h1 class="hero-headline">
+                        Read<br>
+                        Watch<br>
+                        Discuss<br>
+                        <span class="word-grow-highlight">Grow —</span>
+                    </h1>
+                    <p class="hero-tagline" id="heroTagline">
+                        Books, films, conversations and people who see the world a little differently.
+                    </p>
+                    <div class="hero-ctas">
+                        <button class="btn-cta-primary" id="getStartedBtn">Get Started →</button>
+                        <button class="btn-cta-secondary" id="watchIntroBtn">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polygon points="10 8 16 12 10 16 10 8" fill="currentColor"></polygon>
+                            </svg>
+                            <span>Watch Intro</span>
+                        </button>
+                    </div>
+
+                    <!-- Delicate dashed flight path leading to origami rocket -->
+                    <svg viewBox="0 0 180 140" width="180" height="140" style="position: absolute; right: -36px; top: 90px; pointer-events: none; z-index: 2;" aria-hidden="true">
+                        <path d="M 20 115 C 35 65, 75 35, 105 70 C 125 100, 95 130, 75 105 C 60 80, 95 40, 140 28" fill="none" stroke="#C6B69B" stroke-width="1.3" stroke-dasharray="3 5"/>
+                        <g transform="translate(140, 28) rotate(35) scale(0.25)">
+                            <polygon points="34,4 10,60 34,48 58,60" fill="rgba(35,30,20,0.12)" transform="translate(4, 7) scale(0.92)"/>
+                            <polygon points="34,4 8,60 34,46" fill="#EDE6D8" stroke="#A89B87" stroke-width="1"/>
+                            <polygon points="34,4 60,60 34,46" fill="#FFFFFF" stroke="#AEA18D" stroke-width="1"/>
+                            <line x1="34" y1="4" x2="34" y2="46" stroke="#8E826F" stroke-width="1.3"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- Central Orbital Composition with Four High-Level Realistic Sticky Notes -->
+                <div class="orbital-stage">
+                    <!-- Warm Ambient Paper Desk Spotlight Glow -->
+                    <div class="paper-desk-lighting"></div>
+
+                    <!-- Clean Delicate Golden Orbit Ring -->
+                    <svg class="realistic-orbit-svg" viewBox="0 0 640 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                        <circle cx="320" cy="250" r="162" fill="none" stroke="#C4A87D" stroke-width="1.1" opacity="0.85" />
+                    </svg>
+
+                    <!-- Circular Botanical Stamp Seal in Center -->
+                    <div class="stamp-botanical-seal" title="The Wabi Sabi Bookclub • Vol. 1">
+                        <div class="stamp-tick-mark"></div>
+                        <svg viewBox="0 0 36 28" width="28" height="20" fill="none" stroke="#8E7858" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M 18 8 C 13 4, 5 4, 3 6.5 L 3 23 C 5 21, 13 21, 18 24.5 C 23 21, 31 21, 33 23 L 33 6.5 C 31 4, 23 4, 18 8 Z"/>
+                            <line x1="18" y1="8" x2="18" y2="24.5"/>
+                            <path d="M 5 9.5 C 10 7.5, 15 8, 17 9.5" stroke-width="0.8" opacity="0.6"/>
+                            <path d="M 31 9.5 C 26 7.5, 21 8, 19 9.5" stroke-width="0.8" opacity="0.6"/>
+                        </svg>
+                        <span class="stamp-title">WABI SABI</span>
+                        <span class="stamp-sub">BOOKCLUB</span>
+                        <span class="stamp-vol">VOL. 1</span>
+                    </div>
+
+                    <!-- Handwritten "Explore Your Way ↴" annotation above Note 02 -->
+                    <div class="hand-anno-explore" style="position: absolute; top: -14px; right: 28px; z-index: 5; pointer-events: none;">
+                        <svg class="explore-rays-svg" width="32" height="16" viewBox="0 0 32 16" fill="none" stroke="#C6B69B" stroke-width="1.2" stroke-linecap="round" aria-hidden="true">
+                            <line x1="16" y1="2" x2="16" y2="7"/>
+                            <line x1="8" y1="5" x2="11" y2="9"/>
+                            <line x1="24" y1="5" x2="21" y2="9"/>
+                        </svg>
+                        <span>Explore Your Way ↴</span>
+                    </div>
+
+                    <!-- 1. BOOKS STICKY NOTE (Sage / Matcha Mint Paper) -->
+                    <div class="sticky-note-card sticky-books" data-note-id="books" title="Wabi Sabi Reflection 01">
+                        <div class="torn-tape-kraft" style="--tape-rot: -1.2deg;"></div>
+                        <div class="realistic-note-header">
+                            <div class="realistic-note-num">01</div>
+                            <div class="realistic-note-line"></div>
+                        </div>
+                        <div class="sticky-handwriting realistic-note-body" contenteditable="true" spellcheck="false" data-category="books">“Ideas that take quiet root, and stay with you for years.”</div>
+                        <div class="realistic-note-footer">
+                            <div class="realistic-note-action" title="Read reflection">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. FILMS STICKY NOTE (Dusty Lavender Paper) -->
+                    <div class="sticky-note-card sticky-films" data-note-id="films" title="Wabi Sabi Reflection 02">
+                        <div class="torn-tape-kraft" style="--tape-rot: 1.4deg;"></div>
+                        <div class="realistic-note-header">
+                            <div class="realistic-note-num">02</div>
+                            <div class="realistic-note-line"></div>
+                        </div>
+                        <div class="sticky-handwriting realistic-note-body" contenteditable="true" spellcheck="false" data-category="films">“Quiet frames that open unexpected rooms in the mind.”</div>
+                        <div class="realistic-note-footer">
+                            <div class="realistic-note-action" title="Read reflection">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. DISCUSSIONS STICKY NOTE (Blush Coral / Peach Rose Paper) -->
+                    <div class="sticky-note-card sticky-discuss" data-note-id="discussions" title="Wabi Sabi Reflection 03">
+                        <div class="torn-tape-kraft" style="--tape-rot: -0.8deg;"></div>
+                        <div class="realistic-note-header">
+                            <div class="realistic-note-num">03</div>
+                            <div class="realistic-note-line"></div>
+                        </div>
+                        <div class="sticky-handwriting realistic-note-body" contenteditable="true" spellcheck="false" data-category="discussions">Conversations held with patience, without judgment.</div>
+                        <div class="realistic-note-footer">
+                            <div class="realistic-note-action" title="Read reflection">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. COMMUNITY STICKY NOTE (Warm Chamomile Buttercream Paper) -->
+                    <div class="sticky-note-card sticky-community" data-note-id="community" title="Wabi Sabi Reflection 04">
+                        <div class="torn-tape-kraft" style="--tape-rot: 1.6deg;"></div>
+                        <div class="realistic-note-header">
+                            <div class="realistic-note-num">04</div>
+                            <div class="realistic-note-line"></div>
+                        </div>
+                        <div class="sticky-handwriting realistic-note-body" contenteditable="true" spellcheck="false" data-category="community">“Kindred souls who feel the quiet rhythm of life.”</div>
+                        <div class="realistic-note-footer">
+                            <div class="realistic-note-action" title="Read reflection">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dried Baby's Breath / Gypsophila Botanical Sprig (bottom-left) -->
+                    <svg class="botanical-gypsophila-sprig" viewBox="0 0 160 160" width="140" height="140" aria-hidden="true">
+                        <!-- Woody Stems -->
+                        <path d="M 12 155 C 30 140, 52 118, 70 95 C 80 82, 95 65, 110 42" stroke="#9A8568" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+                        <path d="M 50 120 C 58 108, 65 92, 58 75 C 54 66, 42 55, 35 48" stroke="#9A8568" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+                        <path d="M 70 95 C 85 92, 102 96, 118 90 C 126 87, 135 80, 142 72" stroke="#9A8568" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                        <path d="M 88 74 C 95 62, 92 50, 85 38 C 82 32, 75 25, 72 20" stroke="#9A8568" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+                        <path d="M 110 42 C 118 36, 128 32, 134 22" stroke="#9A8568" stroke-width="1.0" fill="none" stroke-linecap="round"/>
+                        <path d="M 45 80 L 38 72 M 52 65 L 60 56 M 92 88 L 98 80 M 115 92 L 122 84 M 82 48 L 75 42" stroke="#9A8568" stroke-width="0.9" fill="none"/>
+
+                        <!-- Dried Baby's Breath Blossoms -->
+                        <circle cx="34" cy="46" r="4.5" fill="#FAF6ED" stroke="#E6DAC8" stroke-width="0.6"/>
+                        <circle cx="34" cy="46" r="1.5" fill="#C2AA84" opacity="0.6"/>
+                        <circle cx="38" cy="70" r="4" fill="#FAF6ED" stroke="#E6DAC8" stroke-width="0.6"/>
+                        <circle cx="58" cy="54" r="5" fill="#FAF6ED" stroke="#E6DAC8" stroke-width="0.6"/>
+                        <circle cx="58" cy="54" r="1.6" fill="#C2AA84" opacity="0.6"/>
+                        <circle cx="70" cy="18" r="4.5" fill="#FAF6ED" stroke="#E6DAC8" stroke-width="0.6"/>
+                        <circle cx="83" cy="36" r="5" fill="#FAF6ED" stroke="#E6DAC8" stroke-width="0.6"/>
+                        <circle cx="83" cy="36" r="1.6" fill="#C2AA84" opacity="0.6"/>
+                        <circle cx="74" cy="40" r="3.8" fill="#F4EDE0" stroke="#E2D4C0" stroke-width="0.6"/>
+                        <circle cx="110" cy="40" r="4.8" fill="#FAF6ED" stroke="#E6DAC8" stroke-width="0.6"/>
+                        <circle cx="134" cy="20" r="5.2" fill="#FAF6ED" stroke="#E6DAC8" stroke-width="0.6"/>
+                        <circle cx="134" cy="20" r="1.7" fill="#C2AA84" opacity="0.6"/>
+                        <circle cx="142" cy="32" r="4" fill="#F5EEE2" stroke="#DFD0BC" stroke-width="0.6"/>
+                        <circle cx="98" cy="78" r="4.2" fill="#FAF6ED" stroke="#E6DAC8" stroke-width="0.6"/>
+                        <circle cx="122" cy="82" r="5" fill="#FAF6ED" stroke="#E6DAC8" stroke-width="0.6"/>
+                        <circle cx="122" cy="82" r="1.6" fill="#C2AA84" opacity="0.6"/>
+                        <circle cx="142" cy="70" r="4.8" fill="#FAF6ED" stroke="#E6DAC8" stroke-width="0.6"/>
+                    </svg>
+                </div>
+            </main>
+
+            <!-- Right Information Panel -->
+            <aside class="right-panel">
+                <!-- Editorial Quote -->
+                <div class="quote-container" style="position: relative;">
+                    <div class="quote-mark">“</div>
+                    <blockquote class="editorial-quote">
+                        Good Books<br>Find Better<br>People.
+                    </blockquote>
+                    <div class="quote-dash"></div>
+                </div>
+
+                <!-- Bookclub Pick Card -->
+                <div class="side-card" id="todaysPickCard" title="Open Book Drive">
+                    <div class="card-meta-header">
+                        <span class="header-tag">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                            <span>Bookclub Pick</span>
+                        </span>
+                        <span class="header-arrow">↗</span>
+                    </div>
+
+                    <div class="pick-body">
+                        <div class="pick-thumb">
+                            <img src="../assets/atomic_habits_cover.jpg" alt="Book cover" id="featuredBookCover" onerror="this.src='../assets/book_stack_corner.jpg'">
+                        </div>
+                        <div class="pick-info">
+                            <div class="pick-title" id="featuredBookTitle">The Courage to Be Disliked</div>
+                            <div class="pick-author" id="featuredBookAuthor">Ichiro Kishimi</div>
+                            <div class="pick-quote" id="featuredBookQuote">"The courage to live without seeking other people’s approval."</div>
+                        </div>
+                    </div>
+
+                    <div class="social-readers">
+                        <div class="avatar-cluster">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <span id="readersCount">+1.2K reading together</span>
+                    </div>
+                </div>
+
+                <!-- Bookclub Gathering Card -->
+                <div class="side-card" id="happeningSoonCard" title="Open in Google Maps">
+                    <div class="card-meta-header">
+                        <span class="header-tag">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            <span>Bookclub Salon</span>
+                        </span>
+                        <span class="header-arrow">→</span>
+                    </div>
+
+                    <div class="event-body">
+                        <div class="date-badge">
+                            <span class="date-month" id="eventMonth">Sat</span>
+                            <span class="date-day" id="eventDay">11</span>
+                        </div>
+                        <div class="event-info">
+                            <div class="event-title" id="upcomingEventTitle">Film & Literature Night</div>
+                            <div class="event-detail" id="upcomingEventDetail">MRDU Sanctuary Lounge • 5:00 PM</div>
+                        </div>
+                    </div>
+
+                    <div class="social-readers">
+                        <div class="avatar-cluster">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <span id="eventAttendeesCount">+324 members attending</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- ====================================================================
+             TAB 2: COMMUNITY (PEOPLE DIRECTORY)
+             "Who is part of Wabi Sabi"
+             ==================================================================== -->
+        <div id="panelCommunity" class="hub-tab-panel">
+            <div class="hub-full-view">
+                <div class="hub-eyebrow">PEOPLE • VOICES • KINDRED SOULS</div>
+                <h1 class="hub-headline">Community</h1>
+                <p class="hub-lead">The people who make Wabi Sabi. Readers, thinkers, and companions on the journey.</p>
+
+                <div class="community-directory-grid" id="communityDirectoryGrid">
+                    <!-- Hydrated dynamically from /api/portal -->
+                    <div class="member-polaroid-card">
+                        <div class="member-dp-wrap">
+                            <img src="../assets/user_avatar.jpg" alt="Dhanush" class="member-dp-img">
+                        </div>
+                        <div class="member-name">Dhanush</div>
+                        <div class="member-role-badge role-curator">Curator</div>
+                        <div class="member-handle">@dhanush</div>
+                        <p class="member-bio">Founding curator • Reader & Architect</p>
+                    </div>
+
+                    <div class="member-polaroid-card">
+                        <div class="member-dp-wrap">
+                            <img src="../assets/avatar_aishwarya.jpg" alt="Akshaya" class="member-dp-img">
+                        </div>
+                        <div class="member-name">Akshaya</div>
+                        <div class="member-role-badge role-member">Member</div>
+                        <div class="member-handle">@akshaya</div>
+                        <p class="member-bio">Literature, existential fiction & poetry</p>
+                    </div>
+
+                    <div class="member-polaroid-card">
+                        <div class="member-dp-wrap">
+                            <img src="../assets/avatar_meera.jpg" alt="Vaishnavi" class="member-dp-img">
+                        </div>
+                        <div class="member-name">Vaishnavi</div>
+                        <div class="member-role-badge role-member">Member</div>
+                        <div class="member-handle">@vaishnavi</div>
+                        <p class="member-bio">Cinema, narratives & quiet thoughts</p>
+                    </div>
+
+                    <div class="member-polaroid-card">
+                        <div class="member-dp-wrap">
+                            <img src="../assets/avatar_aarav.jpg" alt="Likith" class="member-dp-img">
+                        </div>
+                        <div class="member-name">Likith</div>
+                        <div class="member-role-badge role-curator">Curator</div>
+                        <div class="member-handle">@likith</div>
+                        <p class="member-bio">Curator • Book selections & gatherings</p>
+                    </div>
+
+                    <div class="member-polaroid-card">
+                        <div class="member-dp-wrap">
+                            <img src="../assets/avatar_ishita.jpg" alt="Sarvasree" class="member-dp-img">
+                        </div>
+                        <div class="member-name">Sarvasree</div>
+                        <div class="member-role-badge role-curator">Curator</div>
+                        <div class="member-handle">@sarvasree</div>
+                        <p class="member-bio">Curator • Discussions & literary archives</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====================================================================
+             TAB 3: CONNECT (EXTERNAL PLATFORMS & RESOURCES)
+             "All external platforms and resources - Where do I go?"
+             ==================================================================== -->
+        <div id="panelConnect" class="hub-tab-panel">
+            <div class="hub-full-view">
+                <div class="hub-eyebrow">COORDINATION • SPACES • GATHERING PLACES</div>
+                <h1 class="hub-headline">Connect</h1>
+                <p class="hub-lead">Where to join our conversations, browse the shared library, and find our physical gatherings.</p>
+
+                <!-- Talk with everyone -->
+                <div class="connect-category-section">
+                    <div class="connect-category-title">
+                        <span>💬</span>
+                        <span>Talk with everyone</span>
+                    </div>
+                    <div class="connect-cards-grid">
+                        <div class="connect-resource-card">
+                            <div>
+                                <div class="connect-card-title">Community Chat</div>
+                                <p class="connect-card-desc">Join the main conversation, share impressions, and stay in touch between gatherings.</p>
+                            </div>
+                            <div>
+                                <a href="https://chat.whatsapp.com" target="_blank" rel="noopener noreferrer" class="btn-hub-action btn-hub-action-primary" id="connectCommunityChatBtn">
+                                    <span>Open Community Chat</span>
+                                    <span>↗</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Books & Reading -->
+                <div class="connect-category-section">
+                    <div class="connect-category-title">
+                        <span>📚</span>
+                        <span>Books & Reading</span>
+                    </div>
+                    <div class="connect-cards-grid">
+                        <div class="connect-resource-card">
+                            <div>
+                                <div class="connect-card-title">Wabi Sabi Book Drive</div>
+                                <p class="connect-card-desc">Our shared drive containing books, PDFs, reading guides, and literary resources for all volumes.</p>
+                            </div>
+                            <div>
+                                <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" class="btn-hub-action btn-hub-action-secondary" id="connectBookDriveBtn">
+                                    <span>Open Book Drive</span>
+                                    <span>↗</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gather -->
+                <div class="connect-category-section">
+                    <div class="connect-category-title">
+                        <span>📍</span>
+                        <span>Gather</span>
+                    </div>
+                    <div class="connect-cards-grid">
+                        <div class="connect-resource-card">
+                            <div>
+                                <div class="connect-card-title">Meeting Location</div>
+                                <p class="connect-card-desc">Direct Google Maps link to our confirmed gathering spot and nearby quiet reading spaces.</p>
+                            </div>
+                            <div>
+                                <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="btn-hub-action btn-hub-action-secondary" id="connectMeetingLocationBtn">
+                                    <span>Open Location</span>
+                                    <span>↗</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other Platforms -->
+                <div class="connect-category-section">
+                    <div class="connect-category-title">
+                        <span>🌐</span>
+                        <span>Other Platforms</span>
+                    </div>
+                    <div class="connect-cards-grid">
+                        <div class="connect-resource-card">
+                            <div>
+                                <div class="connect-card-title">Instagram</div>
+                                <p class="connect-card-desc">Photos, quotes, and announcements from our gatherings.</p>
+                            </div>
+                            <div>
+                                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="btn-hub-action btn-hub-action-secondary" id="connectInstagramBtn">
+                                    <span>Open Instagram</span>
+                                    <span>↗</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="connect-resource-card">
+                            <div>
+                                <div class="connect-card-title">WhatsApp Announcement Group</div>
+                                <p class="connect-card-desc">Direct notices and meeting alerts from the curators.</p>
+                            </div>
+                            <div>
+                                <a href="https://chat.whatsapp.com" target="_blank" rel="noopener noreferrer" class="btn-hub-action btn-hub-action-secondary" id="connectWhatsAppBtn">
+                                    <span>Open WhatsApp</span>
+                                    <span>↗</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="connect-resource-card">
+                            <div>
+                                <div class="connect-card-title">Discord Lounge</div>
+                                <p class="connect-card-desc">Voice rooms and late-night discussion threads for nocturnal readers.</p>
+                            </div>
+                            <div>
+                                <a href="https://discord.gg" target="_blank" rel="noopener noreferrer" class="btn-hub-action btn-hub-action-secondary" id="connectDiscordBtn">
+                                    <span>Open Discord</span>
+                                    <span>↗</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====================================================================
+             TAB 2: ANNOUNCEMENTS & WHAT IS HAPPENING (BULLETIN BOARD)
+             "What is happening and what everyone needs to know"
+             ==================================================================== -->
+        <div id="panelAnnouncements" class="hub-tab-panel">
+            <div id="announcements"></div>
+            <div class="hub-full-view">
+                <div class="hub-eyebrow">THIS WEEK AT WABI SABI • CURATED BULLETIN & GATHERINGS</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+                    <div>
+                        <h1 class="hub-headline">Announcements</h1>
+                        <p class="hub-lead">What is happening and what everyone needs to know. Curated weekly by Likith, Sarvasree & Dhanush.</p>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <a href="curator.html#announcements" class="btn-cta-secondary" style="text-decoration: none; padding: 9px 18px; font-size: 13.5px; border-radius: 999px;">Curator Desk ↗</a>
+                    </div>
+                </div>
+
+                <!-- 3 Top Cards: Weekly Theme, Current Reading, Next Gathering -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px; margin-bottom: 28px;">
+                    
+                    <!-- Theme of the Week -->
+                    <div class="side-card" style="padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                                <span class="header-tag" style="background: rgba(82, 107, 92, 0.15); color: #2C4233; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;">Theme of the Week</span>
+                                <span style="font-size: 18px;">🌿</span>
+                            </div>
+                            <h2 id="annThemeTitle" style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-weight: 700; color: var(--ink-primary); margin: 0 0 8px;">Identity & Belonging</h2>
+                            <p id="annThemeSubtitle" style="font-size: 14px; color: var(--ink-secondary); font-style: italic; line-height: 1.45; margin: 0;">“Exploring who we are beyond our social mirrors.”</p>
+                        </div>
+                    </div>
+
+                    <!-- This Week's Reading -->
+                    <div class="side-card" style="padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                                <span class="header-tag" style="background: rgba(184, 115, 51, 0.15); color: #7B4B1E; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;">This Week's Reading</span>
+                                <span style="font-size: 18px;">📖</span>
+                            </div>
+                            <h2 id="annReadingTitle" style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-weight: 700; color: var(--ink-primary); margin: 0 0 4px;">The Stranger</h2>
+                            <div id="annReadingAuthor" style="font-size: 13.5px; color: var(--ink-muted); margin-bottom: 8px;">by Albert Camus</div>
+                            <p id="annReadingNotes" style="font-size: 13.5px; color: var(--ink-secondary); line-height: 1.4; margin: 0 0 14px;">Finish chapters 1 through 4 before the Saturday salon.</p>
+                        </div>
+                        <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" id="annDriveBtn" class="btn-hub-action btn-hub-action-secondary" style="width: 100%; text-align: center; text-decoration: none;">
+                            <span>Open Book in Drive ↗</span>
+                        </a>
+                    </div>
+
+                    <!-- Gathering Details -->
+                    <div class="side-card" style="padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                                <span class="header-tag" style="background: rgba(120, 110, 160, 0.15); color: #4B4265; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;">Gathering</span>
+                                <span style="font-size: 18px;">📍</span>
+                            </div>
+                            <h2 id="annGatheringDate" style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-weight: 700; color: var(--ink-primary); margin: 0 0 4px;">Saturday, 4 October</h2>
+                            <div id="annGatheringTime" style="font-size: 15px; font-weight: 600; color: var(--ink-primary); margin-bottom: 6px;">4:00 PM</div>
+                            <div id="annGatheringLoc" style="font-size: 13.5px; color: var(--ink-muted); margin-bottom: 14px;">MRDU Campus Courtyard Lounge</div>
+                        </div>
+                        <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" id="annMapsBtn" class="btn-hub-action btn-hub-action-primary" style="width: 100%; text-align: center; text-decoration: none;">
+                            <span>View Location in Maps ↗</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Bottom 2 Columns: Discussion Points & Important Notes | Curator Bulletins Feed -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+                    <!-- Left: Discussion Points & Important -->
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <!-- Discussion Points -->
+                        <div class="side-card" style="padding: 24px;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <span style="font-size: 20px;">💬</span>
+                                <h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 22px; font-weight: 700; margin: 0;">Discussion Points</h3>
+                            </div>
+                            <p style="font-size: 13px; color: var(--ink-muted); margin-bottom: 14px;">Questions to ponder before and during this week's salon:</p>
+                            <ul id="annDiscussionList" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 14px; color: var(--ink-primary); line-height: 1.45;">
+                                <li style="display: flex; gap: 10px; align-items: flex-start;">
+                                    <span style="color: var(--moss-dark); font-weight: bold;">•</span>
+                                    <span>What does belonging mean to you?</span>
+                                </li>
+                                <li style="display: flex; gap: 10px; align-items: flex-start;">
+                                    <span style="color: var(--moss-dark); font-weight: bold;">•</span>
+                                    <span>Is identity created or inherited?</span>
+                                </li>
+                                <li style="display: flex; gap: 10px; align-items: flex-start;">
+                                    <span style="color: var(--moss-dark); font-weight: bold;">•</span>
+                                    <span>What did you think about the protagonist's emotional detachment?</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Important Notes -->
+                        <div class="side-card" style="padding: 24px; border-left: 4px solid var(--wabi-ochre, #B87333);">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                <span style="font-size: 18px;">⚠️</span>
+                                <h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; font-weight: 700; margin: 0; color: #7B4B1E;">Important Reminders</h3>
+                            </div>
+                            <div id="annImportantNotes" style="font-size: 14px; color: var(--ink-primary); line-height: 1.5;">
+                                Bring your notes and finish chapters 1–4 before the Saturday gathering. Arrive 10 minutes early for warm tea.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Curator Live Notices Feed -->
+                    <div class="side-card" style="padding: 24px; display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 20px;">📢</span>
+                                <h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 22px; font-weight: 700; margin: 0;">Curator Notices</h3>
+                            </div>
+                            <span class="header-tag" style="background: rgba(82, 107, 92, 0.15); color: #2C4233; padding: 2px 7px; border-radius: 6px; font-size: 11px; font-weight: 600;">Live Feed</span>
+                        </div>
+                        <div id="annBulletinsList" style="display: flex; flex-direction: column; gap: 12px; flex-grow: 1;">
+                            <div style="background: rgba(245, 242, 234, 0.6); padding: 14px 16px; border-radius: 8px; border: 1px solid var(--wabi-border-subtle, rgba(45,40,35,0.08));">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <span style="font-weight: 700; font-size: 13.5px; color: var(--ink-primary);">Volume 1 Circles Launch</span>
+                                    <span style="font-size: 11.5px; color: var(--ink-muted);">Dhanush</span>
+                                </div>
+                                <p style="font-size: 13px; color: var(--ink-secondary); margin: 0; line-height: 1.45;">Welcome to Vol. 1 of Wabi Sabi! Check the Connect tab to join our community chat and book drive.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ====================================================================
+         BOTTOM TASKBAR WITH AUTONOMOUS WALKING CAT (MOCHI)
+         ==================================================================== -->
+    <div class="bottom-taskbar" id="bottomTaskbar"></div>
+
+    <div class="living-cat-actor" id="livingCatActor" title="Touch me for Meow!">
+        <div class="cat-speech-bubble" id="catSpeechBubble">“Meooww...” 🐾</div>
+        <div class="cat-contact-shadow" id="catContactShadow"></div>
+        <img src="../assets/cat_walk1.png" alt="Living ginger tabby cat" class="cat-sprite" id="catSprite">
+    </div>
+
+    <!-- Hidden Origami Paper Rocket & Scrambled Paper Ball -->
+    <div class="scrambled-paper-ball" id="scrambledPaperBall" aria-hidden="true">
+        <svg viewBox="0 0 36 36" width="36" height="36">
+            <polygon points="18,4 27,9 33,18 26,29 14,32 5,22 8,9" fill="#F7F2E9" stroke="#CFC5B4" stroke-width="1"/>
+            <polygon points="18,4 21,15 8,9" fill="#EAE1D1"/>
+            <polygon points="21,15 27,9 33,18" fill="#FFFFFF"/>
+            <polygon points="21,15 33,18 26,29" fill="#E0D6C4"/>
+            <polygon points="21,15 26,29 14,32" fill="#FAF6ED"/>
+            <polygon points="21,15 14,32 5,22" fill="#E6DDCB"/>
+            <polygon points="21,15 5,22 8,9" fill="#F2EBE0"/>
+            <line x1="18" y1="4" x2="21" y2="15" stroke="#BFB5A2" stroke-width="0.8"/>
+            <line x1="21" y1="15" x2="26" y2="29" stroke="#BFB5A2" stroke-width="0.8"/>
+        </svg>
+    </div>
+
+    <div class="flying-paper-rocket" id="flyingPaperRocket" aria-hidden="true">
+        <svg viewBox="0 0 68 68" width="68" height="68">
+            <g transform="rotate(45 34 34)">
+                <polygon points="34,4 10,60 34,48 58,60" fill="rgba(35,30,20,0.14)" transform="translate(4, 7) scale(0.92)"/>
+                <polygon points="34,4 8,60 34,46" fill="#EDE6D8" stroke="#D3C9B8" stroke-width="0.9"/>
+                <polygon points="34,4 60,60 34,46" fill="#FFFFFF" stroke="#D8CEC0" stroke-width="0.9"/>
+                <line x1="34" y1="4" x2="34" y2="46" stroke="#AEA495" stroke-width="1.3"/>
+                <text x="37" y="34" font-family="'Caveat', cursive" font-size="5.6" fill="#7A7264" transform="rotate(74 37 34)">✦ for the wonderfully weird</text>
+            </g>
+        </svg>
+    </div>
+
+    <!-- Secret Trigger Button on Taskbar -->
+    <button class="taskbar-rocket-btn" id="launchRocketBtn" title="Launch a paper airplane ✦">
+        <span>✈</span>
+        <span>paper thought</span>
+    </button>
+
+    <!-- Scripts -->
+    <script src="../js/cat-engine.js"></script>
+    <script>
+        // 1. Theme Management (Light: Tea Glass / Dark: Coffee Cup)
+        (function initTheme() {
+            const savedTheme = localStorage.getItem('wabi_sabi_theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+            const toggleBtn = document.getElementById('themeToggleBtn');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    const current = document.documentElement.getAttribute('data-theme') || 'light';
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    if (next === 'dark') {
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                    } else {
+                        document.documentElement.removeAttribute('data-theme');
+                    }
+                    localStorage.setItem('wabi_sabi_theme', next);
+                });
+            }
+        })();
+
+        // 2. Tab Navigation Controller (Announcements, Community, Connect, Dashboard)
+        const tabButtons = {
+            announcements: document.getElementById('tokenAnnouncements'),
+            community: document.getElementById('tokenCommunity'),
+            connect: document.getElementById('tokenConnect'),
+            dashboard: document.getElementById('tokenDashboard')
+        };
+
+        const tabPanels = {
+            announcements: document.getElementById('panelAnnouncements'),
+            community: document.getElementById('panelCommunity'),
+            connect: document.getElementById('panelConnect'),
+            dashboard: document.getElementById('panelDashboard')
+        };
+
+        function switchTab(tabName) {
+            const clean = (tabName || 'dashboard').toLowerCase();
+            const target = tabPanels[clean] ? clean : 'dashboard';
+
+            Object.keys(tabButtons).forEach(key => {
+                if (tabButtons[key]) {
+                    if (key === target) {
+                        tabButtons[key].classList.add('active');
+                    } else {
+                        tabButtons[key].classList.remove('active');
+                    }
+                }
+            });
+
+            Object.keys(tabPanels).forEach(key => {
+                if (tabPanels[key]) {
+                    if (key === target) {
+                        tabPanels[key].classList.add('active');
+                    } else {
+                        tabPanels[key].classList.remove('active');
+                    }
+                }
+            });
+
+            // Update URL hash without scrolling
+            if (window.location.hash !== `#${target}`) {
+                history.replaceState(null, '', `#${target}`);
+            }
+        }
+
+        // Attach Click Listeners
+        Object.keys(tabButtons).forEach(key => {
+            if (tabButtons[key]) {
+                tabButtons[key].addEventListener('click', () => switchTab(key));
+            }
+        });
+
+        // Handle URL Hash on load & hashchange
+        function handleHash() {
+            const hash = (window.location.hash || '').replace('#', '').toLowerCase();
+            if (hash && tabPanels[hash]) {
+                switchTab(hash);
+            } else {
+                switchTab('dashboard');
+            }
+        }
+        window.addEventListener('hashchange', handleHash);
+
+        // 3. Sticky Notes Local Persistence (Editable reflections matching media_1790790709063.png)
+        (function initStickyNotes() {
+            const defaultQuotes = {
+                books: '“Ideas that take quiet root, and stay with you for years.”',
+                films: '“Quiet frames that open unexpected rooms in the mind.”',
+                discussions: 'Conversations held with patience, without judgment.',
+                community: '“Kindred souls who feel the quiet rhythm of life.”'
+            };
+            const categories = ['books', 'films', 'discussions', 'community'];
+            categories.forEach(cat => {
+                const noteEl = document.querySelector(`.sticky-handwriting[data-category="${cat}"]`);
+                if (noteEl) {
+                    const savedNote = localStorage.getItem(`wabisabi_note_${cat}`);
+                    if (savedNote && !savedNote.includes('Write your reflection') && !savedNote.includes('Read 25 pages') && !savedNote.includes('Reading Thoughts') && !savedNote.includes('Cinema Notes')) {
+                        noteEl.textContent = savedNote;
+                    } else if (defaultQuotes[cat]) {
+                        noteEl.textContent = defaultQuotes[cat];
+                    }
+                    noteEl.addEventListener('blur', () => {
+                        localStorage.setItem(`wabisabi_note_${cat}`, noteEl.textContent.trim());
+                    });
+                }
+            });
+        })();
+
+        // 4. Hydrate Live Coordination Data from /api/portal
+        async function hydratePortalData() {
+            let bookDriveUrl = 'https://drive.google.com';
+            let meetingMapUrl = 'https://maps.google.com';
+            let communityUrl = 'https://chat.whatsapp.com';
+
+            try {
+                const res = await fetch('/api/portal');
+                if (!res.ok) return;
+                const data = await res.json();
+
+                const announcements = data.announcements || {};
+                const community = data.community || {};
+                const connect = data.connect || {};
+
+                // --- Dashboard Side Cards & Theme ---
+                if (announcements.weekly_theme && announcements.weekly_theme.theme) {
+                    const dashTheme = document.getElementById('dashThemePreview');
+                    if (dashTheme) dashTheme.textContent = announcements.weekly_theme.theme;
+                }
+
+                if (announcements.reading) {
+                    const r = announcements.reading;
+                    const ftTitle = document.getElementById('featuredBookTitle');
+                    const ftAuthor = document.getElementById('featuredBookAuthor');
+                    const ftQuote = document.getElementById('featuredBookQuote');
+                    if (ftTitle && r.title) ftTitle.textContent = r.title;
+                    if (ftAuthor && r.author) ftAuthor.textContent = r.author;
+                    if (ftQuote && r.notes) ftQuote.textContent = `"${r.notes}"`;
+                    if (r.drive_url) bookDriveUrl = r.drive_url;
+                }
+
+                if (announcements.gathering) {
+                    const g = announcements.gathering;
+                    const gDetail = document.getElementById('upcomingEventDetail');
+                    const gMonth = document.getElementById('eventMonth');
+                    const gDay = document.getElementById('eventDay');
+
+                    if (gDetail && g.location) {
+                        gDetail.textContent = `${g.location} • ${g.time || '4:00 PM'}`;
+                    }
+                    if (g.date) {
+                        const mMatch = g.date.match(/([a-zA-Z]{3})/);
+                        const dMatch = g.date.match(/(\d{1,2})/);
+                        if (mMatch && gMonth) gMonth.textContent = mMatch[1];
+                        if (dMatch && gDay) gDay.textContent = dMatch[1].padStart(2, '0');
+                    }
+                    if (g.maps_url) meetingMapUrl = g.maps_url;
+                }
+
+                // --- Announcements Tab Hydration ---
+                if (announcements.weekly_theme) {
+                    const wt = announcements.weekly_theme;
+                    const aThemeTitle = document.getElementById('annThemeTitle');
+                    const aThemeSub = document.getElementById('annThemeSubtitle');
+                    if (aThemeTitle && wt.theme) aThemeTitle.textContent = wt.theme;
+                    if (aThemeSub && wt.subtitle) aThemeSub.textContent = `“${wt.subtitle}”`;
+                }
+
+                if (announcements.reading) {
+                    const r = announcements.reading;
+                    const aReadTitle = document.getElementById('annReadingTitle');
+                    const aReadAuth = document.getElementById('annReadingAuthor');
+                    const aReadNotes = document.getElementById('annReadingNotes');
+                    const aReadDrive = document.getElementById('annDriveBtn');
+                    if (aReadTitle && r.title) aReadTitle.textContent = r.title;
+                    if (aReadAuth && r.author) aReadAuth.textContent = `by ${r.author}`;
+                    if (aReadNotes && r.notes) aReadNotes.textContent = r.notes;
+                    if (aReadDrive && r.drive_url) aReadDrive.href = r.drive_url;
+                }
+
+                if (announcements.gathering) {
+                    const g = announcements.gathering;
+                    const aGathDate = document.getElementById('annGatheringDate');
+                    const aGathTime = document.getElementById('annGatheringTime');
+                    const aGathLoc = document.getElementById('annGatheringLoc');
+                    const aGathMaps = document.getElementById('annMapsBtn');
+                    if (aGathDate && g.date) aGathDate.textContent = g.date;
+                    if (aGathTime && g.time) aGathTime.textContent = g.time || '4:00 PM';
+                    if (aGathLoc && g.location) aGathLoc.textContent = `📍 ${g.location}`;
+                    if (aGathMaps && g.maps_url) aGathMaps.href = g.maps_url;
+                }
+
+                if (announcements.discussion_points && Array.isArray(announcements.discussion_points) && announcements.discussion_points.length > 0) {
+                    const dList = document.getElementById('annDiscussionList');
+                    if (dList) {
+                        dList.innerHTML = announcements.discussion_points.map(pt => `
+                            <li style="display: flex; gap: 10px; align-items: flex-start;">
+                                <span style="color: var(--moss-dark); font-weight: bold;">•</span>
+                                <span>${escapeHtml(pt)}</span>
+                            </li>
+                        `).join('');
+                    }
+                }
+
+                if (announcements.important_notes) {
+                    const impEl = document.getElementById('annImportantNotes');
+                    if (impEl) impEl.textContent = announcements.important_notes;
+                }
+
+                if (data.updates && Array.isArray(data.updates) && data.updates.length > 0) {
+                    const bullEl = document.getElementById('annBulletinsList');
+                    if (bullEl) {
+                        bullEl.innerHTML = data.updates.map(u => `
+                            <div style="background: rgba(245, 242, 234, 0.6); padding: 14px 16px; border-radius: 8px; border: 1px solid var(--wabi-border-subtle, rgba(45,40,35,0.08));">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <span style="font-weight: 700; font-size: 13.5px; color: var(--ink-primary);">${escapeHtml(u.title)}</span>
+                                    <span style="font-size: 11.5px; color: var(--ink-muted);">${escapeHtml(u.author_name || 'Curator')}</span>
+                                </div>
+                                <p style="font-size: 13px; color: var(--ink-secondary); margin: 0; line-height: 1.45;">${escapeHtml(u.content)}</p>
+                            </div>
+                        `).join('');
+                    }
+                }
+
+                if (connect.links && connect.links.community_chat_url) {
+                    communityUrl = connect.links.community_chat_url;
+                }
+
+                // --- Community Directory ---
+                if (community.members && Array.isArray(community.members) && community.members.length > 0) {
+                    const gridEl = document.getElementById('communityDirectoryGrid');
+                    if (gridEl) {
+                        gridEl.innerHTML = community.members.map(m => {
+                            const roleClass = (m.role || '').toLowerCase().includes('curator') ? 'role-curator' :
+                                              (m.role || '').toLowerCase().includes('member') ? 'role-member' : 'role-reader';
+                            const avatar = m.avatar_url || '../assets/user_avatar.jpg';
+                            return `
+                                <div class="member-polaroid-card">
+                                    <div class="member-dp-wrap">
+                                        <img src="${avatar}" alt="${escapeHtml(m.name)}" class="member-dp-img" onerror="this.src='../assets/user_avatar.jpg'">
+                                    </div>
+                                    <div class="member-name">${escapeHtml(m.name)}</div>
+                                    <div class="member-role-badge ${roleClass}">${escapeHtml(m.role || 'Member')}</div>
+                                    ${m.handle ? `<div class="member-handle">${escapeHtml(m.handle)}</div>` : ''}
+                                    ${m.bio ? `<p class="member-bio">${escapeHtml(m.bio)}</p>` : ''}
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                }
+
+                // --- Connect Links ---
+                if (connect.links) {
+                    const l = connect.links;
+                    const chatBtn = document.getElementById('connectCommunityChatBtn');
+                    const driveBtn = document.getElementById('connectBookDriveBtn');
+                    const locBtn = document.getElementById('connectMeetingLocationBtn');
+                    const instaBtn = document.getElementById('connectInstagramBtn');
+                    const waBtn = document.getElementById('connectWhatsAppBtn');
+                    const discBtn = document.getElementById('connectDiscordBtn');
+
+                    if (chatBtn && l.community_chat_url) chatBtn.href = l.community_chat_url;
+                    if (driveBtn && l.book_drive_url) driveBtn.href = l.book_drive_url;
+                    if (locBtn && l.meeting_maps_url) locBtn.href = l.meeting_maps_url;
+                    if (instaBtn && l.instagram_url) instaBtn.href = l.instagram_url;
+                    if (waBtn && l.whatsapp_url) waBtn.href = l.whatsapp_url;
+                    if (discBtn && l.discord_url) discBtn.href = l.discord_url;
+                }
+
+            } catch (err) {
+                console.warn('Coordination data load notice:', err);
+            }
+
+            // Click Handlers for Dashboard Cards & CTAs
+            const pickCard = document.getElementById('todaysPickCard');
+            if (pickCard) {
+                pickCard.addEventListener('click', () => {
+                    if (bookDriveUrl) window.open(bookDriveUrl, '_blank');
+                });
+            }
+
+            const salonCard = document.getElementById('happeningSoonCard');
+            if (salonCard) {
+                salonCard.addEventListener('click', () => {
+                    if (meetingMapUrl) window.open(meetingMapUrl, '_blank');
+                });
+            }
+
+            const getStartedBtn = document.getElementById('getStartedBtn');
+            if (getStartedBtn) {
+                getStartedBtn.addEventListener('click', () => {
+                    if (bookDriveUrl) window.open(bookDriveUrl, '_blank');
+                });
+            }
+
+            const watchIntroBtn = document.getElementById('watchIntroBtn');
+            if (watchIntroBtn) {
+                watchIntroBtn.addEventListener('click', () => {
+                    if (communityUrl) window.open(communityUrl, '_blank');
+                });
+            }
+
+            // Check if logged in as Curator to show direct curator desk button
+            try {
+                const meRes = await fetch('/api/auth/me');
+                if (meRes.ok) {
+                    const meData = await meRes.json();
+                    if (meData.authenticated && meData.curator) {
+                        const handleBadge = document.getElementById('headerHandleBadge');
+                        const deskBtn = document.getElementById('headerCuratorDeskBtn');
+                        if (handleBadge) handleBadge.style.display = 'none';
+                        if (deskBtn) {
+                            deskBtn.style.display = 'flex';
+                            deskBtn.innerHTML = `<span>Curator (${meData.curator.username})</span> <span>↗</span>`;
+                        }
+                    }
+                }
+            } catch (e) {
+                // Public visitor; no auth needed
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            handleHash();
+            hydratePortalData();
+        });
+    </script>
+</body>
+</html>

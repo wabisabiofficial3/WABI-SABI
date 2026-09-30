@@ -5,7 +5,6 @@
  * 2. Password visibility toggle
  * 3. Login form submission to server /api/auth/login with Argon2id verification
  * 4. Automatic server-directed routing (/curator.html, /community.html, /application-status.html)
- * 5. Quick evaluation demo pills
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -22,8 +21,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const eyeOpen = togglePassBtn ? togglePassBtn.querySelector('.eye-open') : null;
     const eyeClosed = togglePassBtn ? togglePassBtn.querySelector('.eye-closed') : null;
     const errorBanner = document.getElementById('authErrorBanner');
-    const demoReaderBtn = document.getElementById('demoReaderBtn');
-    const demoCuratorBtn = document.getElementById('demoCuratorBtn');
 
     // 2. Password visibility toggle
     if (togglePassBtn && passwordInput) {
@@ -60,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const name = res.user.displayName || res.user.name || 'friend';
             window.WabiSabiStore.showToast(`Welcome back, ${name}.`);
             setTimeout(() => {
-                window.location.href = res.redirectUrl || 'community.html';
+                window.location.href = res.redirectUrl || 'curator.html';
             }, 350);
         } else {
             showError(res.message || "Invalid credentials. Please verify your email and password.");
@@ -88,26 +85,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // 4. Quick Demo Evaluation Pills
-    if (demoReaderBtn && emailInput && passwordInput) {
-        demoReaderBtn.addEventListener('click', () => {
-            emailInput.value = 'reader@wabisabi.club';
-            passwordInput.value = 'reader123';
-            hideError();
-            handleLogin('reader@wabisabi.club', 'reader123');
-        });
-    }
-
-    if (demoCuratorBtn && emailInput && passwordInput) {
-        demoCuratorBtn.addEventListener('click', () => {
-            emailInput.value = 'curator@wabisabi.club';
-            passwordInput.value = 'curator123';
-            hideError();
-            handleLogin('curator@wabisabi.club', 'curator123');
-        });
-    }
-
-    // 5. About Us Full Story Reading Modal
+    // 4. About Us Full Story Reading Modal
     const openAboutBtn = document.getElementById('openAboutStoryBtn');
     const closeAboutBtn = document.getElementById('closeAboutStoryBtn');
     const storyModal = document.getElementById('aboutStoryModal');
@@ -131,27 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (e.key === 'Escape') closeStoryModal();
     });
 
-    // 6. Floating Demo Drawer Toggle
-    const drawerToggle = document.getElementById('demoDrawerToggle');
-    const drawerContent = document.getElementById('demoDrawerContent');
-    const floatingDemo = document.querySelector('.auth-floating-demo');
-    if (drawerToggle && drawerContent) {
-        drawerToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (floatingDemo) floatingDemo.classList.toggle('is-open');
-            const isHidden = drawerContent.style.display === 'none';
-            drawerContent.style.display = isHidden ? 'flex' : 'none';
-        });
-
-        document.addEventListener('click', (e) => {
-            if (floatingDemo && !floatingDemo.contains(e.target)) {
-                floatingDemo.classList.remove('is-open');
-                drawerContent.style.display = 'none';
-            }
-        });
-    }
-
-    // 7. Responsive Collage Canvas Scale Controller (fits width & height without clipping)
+    // 5. Responsive Collage Canvas Scale Controller (fits width & height without clipping)
     function updateCollageScale() {
         const wrapper = document.querySelector('.auth-collage-wrapper');
         const canvas = document.querySelector('.auth-collage-canvas');

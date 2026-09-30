@@ -1,0 +1,517 @@
+/* ==============================================================================
+   WABI SABI — PUBLIC COORDINATION PORTAL STYLESHEET (css/portal.css)
+   Pure Japanese Wabi-Sabi Aesthetics: Raw Linen, Sumi Ink, Steaming Tea & Botanical Green.
+   ============================================================================== */
+@import url('tokens.css');
+
+:root {
+    --portal-max-width: 1040px;
+}
+
+body.portal-body {
+    background-color: var(--wabi-paper, #FBF8F2);
+    color: var(--wabi-ink, #24201D);
+    font-family: var(--wabi-font-sans, 'Manrope', -apple-system, sans-serif);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.portal-container {
+    max-width: var(--portal-max-width);
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* --- Top Header --- */
+.portal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 0 16px;
+    border-bottom: 1px solid var(--wabi-border-subtle, rgba(45, 40, 35, 0.08));
+    margin-bottom: 36px;
+}
+
+.portal-brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.portal-brand-logo-wrap {
+    display: flex;
+    align-items: center;
+}
+
+.portal-brand-img {
+    height: 34px;
+    width: auto;
+    object-fit: contain;
+}
+
+.portal-brand-img.dark-brand {
+    display: none;
+}
+
+:root[data-theme="dark"] .portal-brand-img.light-brand,
+body.dark-mode .portal-brand-img.light-brand {
+    display: none;
+}
+
+:root[data-theme="dark"] .portal-brand-img.dark-brand,
+body.dark-mode .portal-brand-img.dark-brand {
+    display: block;
+}
+
+.portal-taglines {
+    display: flex;
+    gap: 8px;
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--wabi-ink-muted, #685F56);
+    border-left: 1px solid var(--wabi-border-medium, rgba(45, 40, 35, 0.14));
+    padding-left: 14px;
+}
+
+.portal-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.curator-login-link {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--wabi-ink-secondary, #524B43);
+    text-decoration: none;
+    padding: 7px 14px;
+    border-radius: var(--wabi-radius-pill, 9999px);
+    border: 1px solid var(--wabi-border-medium, rgba(45, 40, 35, 0.14));
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.curator-login-link:hover {
+    color: var(--wabi-forest-green, #273B2B);
+    border-color: var(--wabi-forest-green, #273B2B);
+    background: #FFFFFF;
+    transform: translateY(-1px);
+}
+
+:root[data-theme="dark"] .curator-login-link {
+    background: rgba(40, 38, 35, 0.6);
+}
+
+/* --- Hero Section --- */
+.portal-hero {
+    text-align: center;
+    padding: 20px 0 40px;
+    position: relative;
+}
+
+.portal-eyebrow {
+    font-family: var(--wabi-font-sans);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--wabi-sage, #5A7E64);
+    margin-bottom: 10px;
+}
+
+.portal-title {
+    font-family: var(--wabi-font-serif, 'Cormorant Garamond', Georgia, serif);
+    font-size: clamp(38px, 6vw, 56px);
+    font-weight: 500;
+    color: var(--wabi-ink, #24201D);
+    line-height: 1.15;
+    margin: 0 0 12px;
+}
+
+.portal-subtitle {
+    font-family: var(--wabi-font-serif);
+    font-style: italic;
+    font-size: clamp(18px, 2.5vw, 22px);
+    color: var(--wabi-ink-secondary, #524B43);
+    max-width: 600px;
+    margin: 0 auto 28px;
+    line-height: 1.5;
+}
+
+/* Quick Access Row */
+.quick-access-bar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 40px;
+}
+
+.quick-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--wabi-radius-pill, 9999px);
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.22s ease;
+    box-shadow: var(--wabi-shadow-sm);
+}
+
+.quick-btn-chat {
+    background: var(--wabi-forest-green, #273B2B);
+    color: #FFFFFF !important;
+}
+
+.quick-btn-chat:hover {
+    background: #1B2B1E;
+    transform: translateY(-2px);
+    box-shadow: var(--wabi-shadow-card);
+}
+
+.quick-btn-books {
+    background: #FFFFFF;
+    color: var(--wabi-ink, #24201D);
+    border: 1px solid var(--wabi-border-medium);
+}
+
+.quick-btn-books:hover {
+    border-color: var(--wabi-ochre, #B87333);
+    color: var(--wabi-ochre, #B87333);
+    transform: translateY(-2px);
+    box-shadow: var(--wabi-shadow-card);
+}
+
+.quick-btn-meeting {
+    background: #FFFFFF;
+    color: var(--wabi-ink, #24201D);
+    border: 1px solid var(--wabi-border-medium);
+}
+
+.quick-btn-meeting:hover {
+    border-color: var(--wabi-sage, #5A7E64);
+    color: var(--wabi-sage, #5A7E64);
+    transform: translateY(-2px);
+    box-shadow: var(--wabi-shadow-card);
+}
+
+:root[data-theme="dark"] .quick-btn-books,
+:root[data-theme="dark"] .quick-btn-meeting {
+    background: var(--wabi-card, #201E1C);
+    color: var(--wabi-ink, #EDE7DD);
+}
+
+/* --- Layout Grid (Split into Key Sections) --- */
+.portal-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 32px;
+    margin-top: 10px;
+}
+
+@media (max-width: 860px) {
+    .portal-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+}
+
+/* Section Containers */
+.portal-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--wabi-border-subtle);
+}
+
+.section-label {
+    font-family: var(--wabi-font-serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--wabi-ink);
+}
+
+.section-sublabel {
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--wabi-ink-muted);
+}
+
+/* Card Styles */
+.portal-card {
+    background: var(--wabi-card, #FFFFFF);
+    border-radius: var(--wabi-radius-md, 14px);
+    border: 1px solid var(--wabi-border-card, rgba(45, 40, 35, 0.06));
+    box-shadow: var(--wabi-shadow-card);
+    padding: 24px;
+    margin-bottom: 20px;
+    position: relative;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.portal-card:hover {
+    box-shadow: var(--wabi-shadow-float);
+}
+
+:root[data-theme="dark"] .portal-card {
+    background: var(--wabi-card, #201E1C);
+}
+
+/* Washi Tape strip on top of cards */
+.card-washi-tape {
+    position: absolute;
+    top: -9px;
+    left: 36px;
+    width: 60px;
+    height: 18px;
+    background: var(--wabi-washi-tape, rgba(188, 206, 188, 0.45));
+    border-radius: 2px;
+    transform: rotate(-1.5deg);
+    pointer-events: none;
+}
+
+/* Updates Cards */
+.updates-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.update-card {
+    background: var(--wabi-card, #FFFFFF);
+    border: 1px solid var(--wabi-border-subtle);
+    border-radius: var(--wabi-radius-md);
+    padding: 20px 22px;
+    box-shadow: var(--wabi-shadow-sm);
+    position: relative;
+}
+
+.update-card.pinned {
+    border-left: 4px solid var(--wabi-sage, #5A7E64);
+}
+
+.update-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    gap: 12px;
+}
+
+.update-title {
+    font-family: var(--wabi-font-serif);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--wabi-ink);
+    line-height: 1.3;
+    margin: 0;
+}
+
+.update-meta-badge {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: var(--wabi-sage-soft);
+    color: var(--wabi-forest-green);
+    white-space: nowrap;
+}
+
+.update-content {
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--wabi-ink-secondary);
+    margin: 8px 0 12px;
+    white-space: pre-wrap;
+}
+
+.update-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--wabi-ink-muted);
+    border-top: 1px dashed var(--wabi-border-subtle);
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+.update-author {
+    font-family: var(--wabi-font-hand, cursive);
+    font-size: 15px;
+    color: var(--wabi-ink);
+}
+
+/* Feature Side Cards (Book, Meeting, Community) */
+.side-feature-card {
+    background: var(--wabi-card, #FFFFFF);
+    border-radius: var(--wabi-radius-md);
+    border: 1px solid var(--wabi-border-card);
+    box-shadow: var(--wabi-shadow-card);
+    padding: 24px;
+    margin-bottom: 24px;
+    position: relative;
+}
+
+.feature-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--wabi-ochre, #B87333);
+    margin-bottom: 12px;
+}
+
+.feature-title {
+    font-family: var(--wabi-font-serif);
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--wabi-ink);
+    margin: 0 0 6px;
+}
+
+.feature-subtitle {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--wabi-ink-muted);
+    margin-bottom: 12px;
+}
+
+.feature-notes {
+    font-family: var(--wabi-font-serif);
+    font-style: italic;
+    font-size: 15.5px;
+    line-height: 1.5;
+    color: var(--wabi-ink-secondary);
+    background: var(--wabi-card-subtle, #FAF7F0);
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 3px solid var(--wabi-ochre, #B87333);
+    margin-bottom: 18px;
+}
+
+:root[data-theme="dark"] .feature-notes {
+    background: var(--wabi-card-subtle, #262421);
+}
+
+.feature-cta-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 18px;
+    border-radius: var(--wabi-radius-sm);
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.feature-cta-btn-primary {
+    background: var(--wabi-forest-green, #273B2B);
+    color: #FFFFFF !important;
+}
+
+.feature-cta-btn-primary:hover {
+    background: #1B2B1E;
+    transform: translateY(-1px);
+}
+
+.feature-cta-btn-outline {
+    background: transparent;
+    border: 1px solid var(--wabi-border-medium);
+    color: var(--wabi-ink) !important;
+}
+
+.feature-cta-btn-outline:hover {
+    border-color: var(--wabi-forest-green);
+    color: var(--wabi-forest-green) !important;
+    background: var(--wabi-sage-soft);
+    transform: translateY(-1px);
+}
+
+/* Meeting Specific Layout */
+.meeting-details-box {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 14px 0 20px;
+}
+
+.meeting-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--wabi-ink-secondary);
+}
+
+.meeting-row-icon {
+    font-size: 16px;
+    width: 22px;
+    text-align: center;
+}
+
+.meeting-row-val {
+    font-weight: 600;
+    color: var(--wabi-ink);
+}
+
+/* --- Footer --- */
+.portal-footer {
+    text-align: center;
+    padding: 40px 0 20px;
+    border-top: 1px solid var(--wabi-border-subtle);
+    margin-top: 40px;
+    font-size: 13px;
+    color: var(--wabi-ink-muted);
+}
+
+.footer-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.footer-nav a,
+.footer-nav button {
+    color: var(--wabi-ink-secondary);
+    text-decoration: none;
+    background: none;
+    border: none;
+    font-size: 13px;
+    cursor: pointer;
+    transition: color 0.18s ease;
+}
+
+.footer-nav a:hover,
+.footer-nav button:hover {
+    color: var(--wabi-forest-green);
+}

@@ -1,88 +1,85 @@
-const { db } = require('../db');
+const { getCuratorBySessionTokenHash } = require('../db');
 const { hashSessionToken } = require('../crypto');
 
 /**
- * Authentication Middleware:
- * Inspects the HTTP-only 'wabisabi_session' cookie, checks cryptographic hash against SQLite,
- * validates expiry, and attaches the authenticated user record to req.user.
+ * Extract authenticated curator from the session cookie
  */
-function requireAuth(req, res, next) {
-    const rawToken = req.cookies ? req.cookies.wabisabi_session : null;
-    if (!rawToken) {
-        return res.status(401).json({
-            success: false,
-            error: 'Authentication required. Please sign in.'
-        });
-    }
+function getAuthenticatedCurator(req) {
+    const rawToken = req.cookies ? (req.cookies.wabisabi_curator_session || req.cookies.wabisabi_session) : null;
+    if (!rawToken) return null;
 
     try {
         const tokenHash = hashSessionToken(rawToken);
-        const stmt = db.prepare(`
-            SELECT s.id AS session_id, s.expires_at, 
-                   u.id, u.email, u.display_name, u.handle, u.role, u.status
-            FROM sessions s
-            JOIN users u ON s.user_id = u.id
-            WHERE s.token_hash = ? AND datetime(s.expires_at) > datetime('now')
-        `);
-        const row = stmt.get(tokenHash);
+        const curator = getCuratorBySessionTokenHash(tokenHash);
+        if (!curator) return null;
 
-        if (!row) {
-            res.clearCookie('wabisabi_session', { httpOnly: true, sameSite: 'lax', path: '/' });
-            return res.status(401).json({
-                success: false,
-                error: 'Session has expired or is invalid. Please sign in again.'
-            });
-        }
-
-        req.user = {
-            id: row.id,
-            email: row.email,
-            displayName: row.display_name,
-            handle: row.handle,
-            role: row.role,
-            status: row.status,
-            sessionId: row.session_id
+        return {
+            id: curator.id,
+            email: curator.email,
+            displayName: curator.display_name,
+            handle: curator.handle,
+            role: 'CURATOR',
+            sessionId: curator.session_id
         };
-
-        next();
     } catch (err) {
-        console.error('requireAuth middleware error:', err);
-        return res.status(500).json({ success: false, error: 'Internal authentication error.' });
+        console.error('getAuthenticatedCurator error:', err);
+        return null;
     }
 }
 
 /**
- * Curator RBAC Middleware:
- * Verifies that the authenticated user possesses the CURATOR role.
- * Strictly enforced on the server — never relies on browser state.
+ * Curator RBAC Middleware for JSON API routes:
+ * Strictly verifies that the request has an active curator session.
  */
 function requireCurator(req, res, next) {
-    if (!req.user) {
-        return res.status(401).json({ success: false, error: 'Authentication required.' });
-    }
-
-    if (req.user.role !== 'CURATOR') {
-        return res.status(403).json({
+    const curator = getAuthenticatedCurator(req);
+    if (!curator) {
+        if (req.cookies && (req.cookies.wabisabi_curator_session || req.cookies.wabisabi_session)) {
+            res.clearCookie('wabisabi_curator_session', { httpOnly: true, sameSite: 'lax', path: '/' });
+            res.clearCookie('wabisabi_session', { httpOnly: true, sameSite: 'lax', path: '/' });
+        }
+        return res.status(401).json({
             success: false,
-            error: 'Forbidden: Curator privileges required to access this resource.'
+            error: 'Authentication required. Only Curators can perform this action.'
         });
     }
 
+    req.curator = curator;
+    req.user = curator; // alias for backwards compatibility
+    next();
+}
+
+/**
+ * Page-Level Curator Guard:
+ * Protects curator dashboard pages (/curator). Redirects unauthorized visitors to /login.
+ */
+function requireCuratorPage(req, res, next) {
+    const curator = getAuthenticatedCurator(req);
+    if (!curator) {
+        if (req.cookies && (req.cookies.wabisabi_curator_session || req.cookies.wabisabi_session)) {
+            res.clearCookie('wabisabi_curator_session', { httpOnly: true, sameSite: 'lax', path: '/' });
+            res.clearCookie('wabisabi_session', { httpOnly: true, sameSite: 'lax', path: '/' });
+        }
+        const returnUrl = req.originalUrl || req.url;
+        return res.redirect(`/login?redirect=${encodeURIComponent(returnUrl)}`);
+    }
+    req.curator = curator;
+    req.user = curator;
     next();
 }
 
 /**
  * In-Memory Failed Login Rate Limiter:
- * Throttles repeated failed attempts per IP and target email to prevent brute-force attacks.
+ * Throttles repeated failed attempts per IP + target identifier
  */
-const failedAttempts = new Map(); // key: `${ip}:${email}` -> { count, firstFailedAt }
+const failedAttempts = new Map();
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const MAX_FAILED_ATTEMPTS = 5;
 
 function checkLoginRateLimit(req, res, next) {
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
-    const email = (req.body && req.body.email ? req.body.email.trim().toLowerCase() : '');
-    const key = `${ip}:${email}`;
+    const identifier = (req.body && (req.body.email || req.body.username) ? (req.body.email || req.body.username).trim().toLowerCase() : '');
+    const key = `${ip}:${identifier}`;
     const now = Date.now();
 
     const record = failedAttempts.get(key);
@@ -103,8 +100,8 @@ function checkLoginRateLimit(req, res, next) {
 
 function recordLoginFailure(req) {
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
-    const email = (req.body && req.body.email ? req.body.email.trim().toLowerCase() : '');
-    const key = `${ip}:${email}`;
+    const identifier = (req.body && (req.body.email || req.body.username) ? (req.body.email || req.body.username).trim().toLowerCase() : '');
+    const key = `${ip}:${identifier}`;
     const now = Date.now();
 
     const record = failedAttempts.get(key);
@@ -117,14 +114,17 @@ function recordLoginFailure(req) {
 
 function clearLoginFailures(req) {
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
-    const email = (req.body && req.body.email ? req.body.email.trim().toLowerCase() : '');
-    const key = `${ip}:${email}`;
+    const identifier = (req.body && (req.body.email || req.body.username) ? (req.body.email || req.body.username).trim().toLowerCase() : '');
+    const key = `${ip}:${identifier}`;
     failedAttempts.delete(key);
 }
 
 module.exports = {
-    requireAuth,
     requireCurator,
+    requireAuth: requireCurator, // alias
+    requireCuratorPage,
+    getAuthenticatedCurator,
+    getAuthenticatedUser: getAuthenticatedCurator,
     checkLoginRateLimit,
     recordLoginFailure,
     clearLoginFailures
