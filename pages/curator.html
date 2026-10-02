@@ -1436,6 +1436,38 @@
                     </button>
                 </form>
             </div>
+
+            <!-- Sanctuary Interactive Controls Card -->
+            <div class="curator-box" style="max-width: 680px; margin: 24px auto 0;">
+                <div class="curator-box-header-row">
+                    <div>
+                        <h2 class="curator-box-title">✈️ Sanctuary Feature Controls</h2>
+                        <p class="curator-box-desc">
+                            Manage interactive companion animations and whimsical paper features on the public portal.
+                        </p>
+                    </div>
+                </div>
+
+                <div style="background: rgba(39, 59, 43, 0.04); border: 1px solid var(--wabi-border-subtle); border-radius: 10px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 240px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                            <span style="font-weight: 700; font-size: 14px; color: var(--wabi-ink, #23201D);">Paper Airplane / Origami Rocket</span>
+                            <span id="paperPlaneStatusBadge" class="curator-badge-tag" style="background: rgba(120, 115, 105, 0.15); color: var(--wabi-ink-muted, #7A7264); font-size: 11px; padding: 2px 8px; border-radius: 12px;">OFF (Default)</span>
+                        </div>
+                        <p style="margin: 0; font-size: 12.5px; color: var(--wabi-ink-secondary, #5C5549); line-height: 1.45;">
+                            Enables the secret paper plane taskbar button (<em>✈ paper thought</em>) and autonomous origami rocket flight animations on the public portal. Default is OFF.
+                        </p>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
+                        <label class="curator-switch" title="Toggle Paper Airplane Feature">
+                            <input type="checkbox" id="paperPlaneToggleCheckbox" aria-label="Toggle Paper Airplane Feature">
+                            <span class="curator-slider"></span>
+                        </label>
+                        <span id="paperPlaneToggleText" style="font-size: 13px; font-weight: 700; color: var(--wabi-ink-muted); min-width: 34px;">OFF</span>
+                    </div>
+                </div>
+            </div>
         </section>
 
     </div>

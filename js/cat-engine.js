@@ -377,7 +377,7 @@ class TaskbarCatEngine {
 }
 
 // ======================================================================
-// 4. THE HIDDEN MOTIVE ENGINE: SCRAMBLED PAPER -> ORIGAMI ROCKET
+// 4. THE HIDDEN MOTIVE ENGINE: SCRAMBLED PAPER -> ORIGAMI ROCKET (DEFAULT OFF)
 // ======================================================================
 class HiddenMotiveRocketEngine {
     constructor(catEngine) {
@@ -386,31 +386,54 @@ class HiddenMotiveRocketEngine {
         this.rocket = document.getElementById('flyingPaperRocket');
         this.triggerBtn = document.getElementById('launchRocketBtn');
         this.isSequenceActive = false;
+        this.enabled = false; // Default: OFF as requested by Admin
 
         if (this.triggerBtn) {
+            this.triggerBtn.style.display = 'none'; // Hidden by default
             this.triggerBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                this.triggerEvent();
+                if (this.enabled) this.triggerEvent();
             });
         }
+    }
 
-        // Initial launch after 12 seconds
-        setTimeout(() => {
-            this.triggerEvent();
-        }, 12000);
+    enable() {
+        this.enabled = true;
+        if (this.triggerBtn) {
+            this.triggerBtn.style.display = 'inline-flex';
+        }
+        if (!this.timerStarted) {
+            this.timerStarted = true;
+            this.initialTimer = setTimeout(() => {
+                if (this.enabled) this.triggerEvent();
+            }, 12000);
+            this.scheduleNextRandomEvent();
+        }
+    }
 
-        this.scheduleNextRandomEvent();
+    disable() {
+        this.enabled = false;
+        if (this.triggerBtn) {
+            this.triggerBtn.style.display = 'none';
+        }
+        if (this.initialTimer) clearTimeout(this.initialTimer);
+        if (this.randomTimer) clearTimeout(this.randomTimer);
+        this.timerStarted = false;
     }
 
     scheduleNextRandomEvent() {
+        if (!this.enabled) return;
         const nextDelay = 35000 + Math.random() * 25000;
-        setTimeout(() => {
-            this.triggerEvent();
-            this.scheduleNextRandomEvent();
+        this.randomTimer = setTimeout(() => {
+            if (this.enabled) {
+                this.triggerEvent();
+                this.scheduleNextRandomEvent();
+            }
         }, nextDelay);
     }
 
     triggerEvent() {
+        if (!this.enabled) return;
         if (!this.paperBall || !this.rocket || !this.cat) return;
         if (this.isSequenceActive || this.cat.isInteracting) return;
         this.isSequenceActive = true;
@@ -424,10 +447,19 @@ class HiddenMotiveRocketEngine {
         this.paperBall.className = 'scrambled-paper-ball tossed';
 
         setTimeout(() => {
+            if (!this.enabled) {
+                this.isSequenceActive = false;
+                return;
+            }
             this.cat.isInteracting = true;
             this.cat.setPose('look');
 
             setTimeout(() => {
+                if (!this.enabled) {
+                    this.isSequenceActive = false;
+                    this.cat.isInteracting = false;
+                    return;
+                }
                 this.paperBall.className = 'scrambled-paper-ball unfolding';
 
                 setTimeout(() => {
@@ -448,7 +480,7 @@ class HiddenMotiveRocketEngine {
     }
 
     launchRocket(startX, startY) {
-        if (!this.rocket) return;
+        if (!this.rocket || !this.enabled) return;
         this.rocket.style.setProperty('--start-x', `${startX}px`);
         this.rocket.style.setProperty('--start-y', `${startY}px`);
         this.rocket.className = 'flying-paper-rocket flying';
@@ -458,6 +490,17 @@ class HiddenMotiveRocketEngine {
         }, 6500);
     }
 }
+
+// Global hook to toggle paper plane feature dynamically
+window.setPaperPlaneFeature = function(enabled) {
+    if (window.wabiSabiRocket) {
+        if (enabled) {
+            window.wabiSabiRocket.enable();
+        } else {
+            window.wabiSabiRocket.disable();
+        }
+    }
+};
 
 // Auto-initialize Cat & Rocket when on community/portal page
 function bootCatEngine() {

@@ -60,6 +60,8 @@ router.get('/', (req, res) => {
             discord_url: 'https://discord.gg'
         };
 
+        const paperPlaneEnabled = settings.paper_plane_enabled === true || settings.paper_plane_enabled === 'true';
+
         const flatSettings = {
             current_book: typeof reading === 'string' ? reading : (reading.title || 'The Stranger'),
             current_book_author: reading.author || 'Albert Camus',
@@ -69,7 +71,8 @@ router.get('/', (req, res) => {
             meeting_time: gathering.time || '4:00 PM',
             meeting_location: gathering.location || 'MRDU Campus',
             meeting_url: connectLinks.meeting_maps_url || gathering.maps_url || 'https://maps.google.com',
-            community_url: connectLinks.community_chat_url || 'https://chat.whatsapp.com'
+            community_url: connectLinks.community_chat_url || 'https://chat.whatsapp.com',
+            paper_plane_enabled: paperPlaneEnabled
         };
 
         return res.json({
@@ -95,6 +98,10 @@ router.get('/', (req, res) => {
                 buttons: connectLinks,
                 button_links: connectLinks,
                 sticky_notes: stickyNotes,
+                features: {
+                    paper_plane_enabled: paperPlaneEnabled
+                },
+                paper_plane_enabled: paperPlaneEnabled,
                 updates,
                 current_book: reading,
                 next_meeting: gathering,
@@ -115,6 +122,10 @@ router.get('/', (req, res) => {
             connect: {
                 links: connectLinks
             },
+            features: {
+                paper_plane_enabled: paperPlaneEnabled
+            },
+            paper_plane_enabled: paperPlaneEnabled,
             sticky_notes: stickyNotes,
             updates,
             current_book: reading,

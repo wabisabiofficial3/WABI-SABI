@@ -242,20 +242,24 @@ async function runVerification() {
         await send('Runtime.evaluate', {
             expression: `document.getElementById('tokenConnect').click()`
         });
-        await new Promise(r => setTimeout(r, 400));
 
-        const connectCheck = await send('Runtime.evaluate', {
-            expression: `(() => ({
-                countLabel: document.getElementById('connectAvatarCount')?.textContent.trim(),
-                avatarCount: document.querySelectorAll('#connectAvatarStack img').length
-            }))()`,
-            returnByValue: true
-        });
+        let connectData;
+        for (let i = 0; i < 25; i++) {
+            await new Promise(r => setTimeout(r, 200));
+            const connectCheck = await send('Runtime.evaluate', {
+                expression: `(() => ({
+                    countLabel: document.getElementById('connectAvatarCount')?.textContent.trim(),
+                    avatarCount: document.querySelectorAll('#connectAvatarStack img').length
+                }))()`,
+                returnByValue: true
+            });
+            connectData = connectCheck.result.value;
+            if (connectData && connectData.avatarCount === Math.min(initialCount, 5)) break;
+        }
 
-        const connectData = connectCheck.result.value;
         console.log('   Connect tab data:', connectData);
-        assert(connectData.countLabel.includes(`${initialCount} member`), `Count label must include "${initialCount} member"`);
-        assert.strictEqual(connectData.avatarCount, Math.min(initialCount, 5), 'Avatar stack must show up to 5 real members');
+        assert(connectData && connectData.countLabel.includes(`${initialCount} member`), `Count label must include "${initialCount} member"`);
+        assert.strictEqual(connectData && connectData.avatarCount, Math.min(initialCount, 5), 'Avatar stack must show up to 5 real members');
         console.log('   ✓ Connect tab avatar stack and member count dynamically match database!');
 
         // D. Side Scroll Indicator Visibility & Smooth Scrolling

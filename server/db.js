@@ -246,6 +246,10 @@ function seedDefaultSettings() {
                 discord_url: 'https://discord.gg'
             })
         },
+        {
+            key: 'paper_plane_enabled',
+            value: JSON.stringify(false)
+        },
         // Backwards compatibility keys
         {
             key: 'current_book',

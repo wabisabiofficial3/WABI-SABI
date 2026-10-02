@@ -5179,8 +5179,8 @@
         </svg>
     </div>
 
-    <!-- Secret Trigger Button on Taskbar -->
-    <button class="taskbar-rocket-btn" id="launchRocketBtn" title="Launch a paper airplane ✦">
+    <!-- Secret Trigger Button on Taskbar (Default: OFF / Controlled by Admin) -->
+    <button class="taskbar-rocket-btn" id="launchRocketBtn" title="Launch a paper airplane ✦" style="display: none;">
         <span>✈</span>
         <span>paper thought</span>
     </button>
@@ -5753,6 +5753,21 @@
                     if (sn.films && document.getElementById('noteBodyFilms')) document.getElementById('noteBodyFilms').textContent = sn.films;
                     if (sn.discussions && document.getElementById('noteBodyDiscuss')) document.getElementById('noteBodyDiscuss').textContent = sn.discussions;
                     if (sn.community && document.getElementById('noteBodyCommunity')) document.getElementById('noteBodyCommunity').textContent = sn.community;
+                }
+
+                // --- Sanctuary Features (Paper Airplane Animation / Button) ---
+                const isPaperPlaneEnabled = Boolean(
+                    portalData.paper_plane_enabled ||
+                    portalData.features?.paper_plane_enabled ||
+                    (portalData.portal && (portalData.portal.paper_plane_enabled || portalData.portal.features?.paper_plane_enabled))
+                );
+
+                if (window.setPaperPlaneFeature) {
+                    window.setPaperPlaneFeature(isPaperPlaneEnabled);
+                }
+                const rocketBtn = document.getElementById('launchRocketBtn');
+                if (rocketBtn) {
+                    rocketBtn.style.display = isPaperPlaneEnabled ? 'inline-flex' : 'none';
                 }
 
             } catch (err) {

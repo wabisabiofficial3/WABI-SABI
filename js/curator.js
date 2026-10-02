@@ -126,6 +126,9 @@
             // 6. Populate Admin Profile Form
             populateAdminProfile(data.curator || currentCurator);
 
+            // 7. Populate Sanctuary Feature Controls (Paper Airplane Default Off)
+            populateFeatureControls(data.settings || {});
+
         } catch (err) {
             console.error('Error loading curator overview:', err);
         }
@@ -395,6 +398,27 @@
         if (nameInput) nameInput.value = curator.displayName || curator.display_name || 'Wabi Sabi Admin';
         if (handleInput) handleInput.value = (curator.handle || 'admin').replace(/^@/, '');
         if (emailInput) emailInput.value = curator.email || 'wabisabiofficial3@gmail.com';
+    }
+
+    // 6. Populate Sanctuary Feature Controls (Paper Airplane Option)
+    function populateFeatureControls(settings) {
+        const isPaperPlaneEnabled = Boolean(settings && (settings.paper_plane_enabled === true || settings.paper_plane_enabled === 'true'));
+        const checkbox = document.getElementById('paperPlaneToggleCheckbox');
+        const statusBadge = document.getElementById('paperPlaneStatusBadge');
+        const statusText = document.getElementById('paperPlaneToggleText');
+
+        if (checkbox) {
+            checkbox.checked = isPaperPlaneEnabled;
+        }
+        if (statusBadge) {
+            statusBadge.textContent = isPaperPlaneEnabled ? 'ON (Active)' : 'OFF (Default)';
+            statusBadge.style.background = isPaperPlaneEnabled ? 'rgba(39, 59, 43, 0.15)' : 'rgba(120, 115, 105, 0.15)';
+            statusBadge.style.color = isPaperPlaneEnabled ? 'var(--moss-dark, #273B2B)' : 'var(--wabi-ink-muted, #7A7264)';
+        }
+        if (statusText) {
+            statusText.textContent = isPaperPlaneEnabled ? 'ON' : 'OFF';
+            statusText.style.color = isPaperPlaneEnabled ? 'var(--moss-dark, #273B2B)' : 'var(--wabi-ink-muted, #7A7264)';
+        }
     }
 
     // Form Event Listeners & Actions
@@ -682,7 +706,37 @@
             });
         }
 
-        // 9. Member Directory Search
+        // 9. Sanctuary Feature Controls (Paper Airplane On/Off Toggle)
+        const paperPlaneToggle = document.getElementById('paperPlaneToggleCheckbox');
+        if (paperPlaneToggle) {
+            paperPlaneToggle.addEventListener('change', async (e) => {
+                const isEnabled = e.target.checked;
+                populateFeatureControls({ paper_plane_enabled: isEnabled });
+
+                try {
+                    const res = await fetch('/api/curator/features', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ paper_plane_enabled: isEnabled })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast(isEnabled ? '✈️ Paper Airplane feature enabled on portal!' : '✦ Paper Airplane feature turned off (Default)');
+                    } else {
+                        showToast(data.error || 'Failed to update feature setting.', true);
+                        e.target.checked = !isEnabled;
+                        populateFeatureControls({ paper_plane_enabled: !isEnabled });
+                    }
+                } catch (err) {
+                    showToast('Network error updating feature setting.', true);
+                    e.target.checked = !isEnabled;
+                    populateFeatureControls({ paper_plane_enabled: !isEnabled });
+                }
+            });
+        }
+
+        // 10. Member Directory Search
         const searchInput = document.getElementById('curatorMemberSearchInput');
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {

@@ -480,31 +480,34 @@ router.get('/settings', (req, res) => {
 });
 
 /**
- * PUT /api/curator/settings
- * Backward compatibility settings update
+ * PUT /api/curator/settings & PUT /api/curator/features
+ * Platform settings & sanctuary feature toggles
  */
-router.put('/settings', (req, res) => {
+router.put(['/settings', '/features'], (req, res) => {
     try {
-        const { current_book, next_meeting, platform_links, weekly_theme, this_weeks_reading, gathering, discussion_points, important_notes, connect_links } = req.body || {};
+        const { current_book, next_meeting, platform_links, weekly_theme, this_weeks_reading, gathering, discussion_points, important_notes, connect_links, paper_plane_enabled } = req.body || {};
 
-        if (current_book) setSetting('current_book', current_book);
-        if (next_meeting) setSetting('next_meeting', next_meeting);
-        if (platform_links) setSetting('platform_links', platform_links);
-        if (weekly_theme) setSetting('weekly_theme', weekly_theme);
-        if (this_weeks_reading) setSetting('this_weeks_reading', this_weeks_reading);
-        if (gathering) setSetting('gathering', gathering);
-        if (discussion_points) setSetting('discussion_points', discussion_points);
-        if (important_notes) setSetting('important_notes', important_notes);
-        if (connect_links) setSetting('connect_links', connect_links);
-        if (req.body && req.body.sticky_notes) setSetting('sticky_notes', req.body.sticky_notes);
+        if (current_book !== undefined) setSetting('current_book', current_book);
+        if (next_meeting !== undefined) setSetting('next_meeting', next_meeting);
+        if (platform_links !== undefined) setSetting('platform_links', platform_links);
+        if (weekly_theme !== undefined) setSetting('weekly_theme', weekly_theme);
+        if (this_weeks_reading !== undefined) setSetting('this_weeks_reading', this_weeks_reading);
+        if (gathering !== undefined) setSetting('gathering', gathering);
+        if (discussion_points !== undefined) setSetting('discussion_points', discussion_points);
+        if (important_notes !== undefined) setSetting('important_notes', important_notes);
+        if (connect_links !== undefined) setSetting('connect_links', connect_links);
+        if (paper_plane_enabled !== undefined) {
+            setSetting('paper_plane_enabled', Boolean(paper_plane_enabled));
+        }
+        if (req.body && req.body.sticky_notes !== undefined) setSetting('sticky_notes', req.body.sticky_notes);
 
         return res.json({
             success: true,
-            message: 'Portal settings updated successfully.',
+            message: 'Portal settings and features updated successfully.',
             settings: getAllSettings()
         });
     } catch (err) {
-        console.error('Error updating settings:', err);
+        console.error('Error updating settings/features:', err);
         return res.status(500).json({ success: false, error: 'Failed to update settings.' });
     }
 });
