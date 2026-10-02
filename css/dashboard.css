@@ -1409,41 +1409,64 @@
         /* The Enlarged Walking Cat on the Taskbar (Fluid Scaled) */
         .living-cat-actor {
             position: fixed;
-            bottom: 8px; /* Paws walk directly on the taskbar ledge */
+            bottom: 44px; /* Paws firmly walk on top of the taskbar ledge */
             left: 140px;
             width: clamp(140px, 10vw, 175px);
             height: clamp(100px, 7.5vw, 130px);
             pointer-events: auto;
             cursor: pointer;
             z-index: 102;
-            will-change: left;
+            will-change: left, transform;
             user-select: none;
+            transition: transform 0.15s ease-out;
+        }
+
+        .living-cat-actor.step-up {
+            transform: translateY(-3px);
+        }
+
+        .living-cat-actor.step-down {
+            transform: translateY(0px);
         }
 
         /* Dynamic Soft Ground Shadow beneath Paws */
         .cat-contact-shadow {
             position: absolute;
-            bottom: 10px;
+            bottom: 2px;
             left: 50%;
             transform: translateX(-50%);
             width: 75%;
-            height: 14px;
+            height: 12px;
             background: radial-gradient(ellipse at center, var(--cat-shadow) 0%, rgba(0,0,0,0.08) 55%, transparent 75%);
             border-radius: 50%;
             pointer-events: none;
             z-index: -1;
+            transition: width 0.15s ease, opacity 0.15s ease;
         }
 
         /* Cat Sprite Display */
         .cat-sprite {
+            position: absolute;
+            bottom: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             object-fit: contain;
             object-position: bottom center;
             display: block;
-            filter: drop-shadow(0 6px 14px rgba(45, 35, 25, 0.12));
+            filter: drop-shadow(0 4px 10px rgba(45, 35, 25, 0.12));
             transform-origin: bottom center;
-            transition: transform 0.25s ease;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.08s ease-in-out;
+        }
+
+        .cat-sprite.active,
+        .cat-sprite:only-child {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
         }
 
         /* Feline Speech Bubble */

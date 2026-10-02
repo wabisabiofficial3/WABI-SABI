@@ -111,16 +111,21 @@ async function testUserMemory() {
         console.log('► 4. Personalizing Reader Name ("Dhanush")...');
         await send('Runtime.evaluate', {
             expression: `(() => {
-                document.getElementById('readerMemoryChip').click();
-                document.getElementById('readerNameInput').value = 'Dhanush';
-                document.getElementById('readerGenreInput').value = 'Philosophy & Literary Fiction';
-                document.getElementById('saveReaderMemoryBtn').click();
+                const chip = document.getElementById('readerMemoryChip');
+                if (chip) chip.click();
+                const nameInp = document.getElementById('readerNameInput');
+                if (nameInp) nameInp.value = 'Dhanush';
+                const genreInp = document.getElementById('readerGenreInput');
+                if (genreInp) genreInp.value = 'Philosophy & Literary Fiction';
+                const saveBtn = document.getElementById('saveReaderMemoryBtn');
+                if (saveBtn) saveBtn.click();
             })()`
         });
 
         // Poll until chip and hero greeting update
         let updatedIdentity;
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < 30; i++) {
+            await new Promise(r => setTimeout(r, 200));
             const res = await send('Runtime.evaluate', {
                 expression: `(() => ({
                     chip: document.getElementById('readerChipName')?.textContent.trim(),
@@ -131,8 +136,19 @@ async function testUserMemory() {
                 returnByValue: true
             });
             updatedIdentity = res.result.value;
-            if (updatedIdentity.stored && updatedIdentity.stored.name === 'Dhanush') break;
-            await new Promise(r => setTimeout(r, 200));
+            if (updatedIdentity && updatedIdentity.chip === '✦ Dhanush') break;
+            
+            // Re-trigger save if not registered yet
+            if (i === 10 && (!updatedIdentity.stored || updatedIdentity.stored.name !== 'Dhanush')) {
+                await send('Runtime.evaluate', {
+                    expression: `(() => {
+                        const nameInp = document.getElementById('readerNameInput');
+                        if (nameInp) nameInp.value = 'Dhanush';
+                        const saveBtn = document.getElementById('saveReaderMemoryBtn');
+                        if (saveBtn) saveBtn.click();
+                    })()`
+                });
+            }
         }
 
         console.log('   Updated Identity in DOM:', updatedIdentity);

@@ -289,22 +289,27 @@ async function runVerification() {
         // E. Curator Portal Inspection & Silent Heartbeat Check
         console.log('\n► 9. Verifying Curator Studio (curator.html) & Invisible Keep-Alive...');
         await send('Page.navigate', { url: 'http://localhost:3000/curator.html' });
-        await new Promise(r => setTimeout(r, 1600));
+        
+        let curatorCheck;
+        for (let i = 0; i < 25; i++) {
+            await new Promise(r => setTimeout(r, 200));
+            const res = await send('Runtime.evaluate', {
+                expression: `(() => ({
+                    url: window.location.href,
+                    peopleBadge: document.getElementById('curatorPeopleCountBadge')?.textContent.trim(),
+                    hasHeartbeatFunction: typeof window._curatorKeepAliveHeartbeat === 'function',
+                    heartbeatDomElements: document.querySelectorAll('[id*="heartbeat"], [class*="heartbeat"]').length
+                }))()`,
+                returnByValue: true
+            });
+            curatorCheck = res.result.value;
+            if (curatorCheck && curatorCheck.peopleBadge && !curatorCheck.peopleBadge.includes('Loading')) break;
+        }
 
-        const curatorCheck = await send('Runtime.evaluate', {
-            expression: `(() => ({
-                url: window.location.href,
-                peopleBadge: document.getElementById('curatorPeopleCountBadge')?.textContent.trim(),
-                hasHeartbeatFunction: typeof window._curatorKeepAliveHeartbeat === 'function',
-                heartbeatDomElements: document.querySelectorAll('[id*="heartbeat"], [class*="heartbeat"]').length
-            }))()`,
-            returnByValue: true
-        });
-
-        console.log('   Curator Studio check:', curatorCheck.result.value);
-        assert(curatorCheck.result.value.url.includes('curator.html'), `Must remain on curator.html, got: ${curatorCheck.result.value.url}`);
-        assert(curatorCheck.result.value.peopleBadge && curatorCheck.result.value.peopleBadge.includes(`${initialCount} soul`), 'People badge in curator studio must be accurate');
-        assert.strictEqual(curatorCheck.result.value.heartbeatDomElements, 0, 'Health check / keep-alive must have ZERO visual DOM footprint');
+        console.log('   Curator Studio check:', curatorCheck);
+        assert(curatorCheck && curatorCheck.url.includes('curator.html'), `Must remain on curator.html, got: ${curatorCheck?.url}`);
+        assert(curatorCheck && curatorCheck.peopleBadge && curatorCheck.peopleBadge.includes(`${initialCount} soul`), 'People badge in curator studio must be accurate');
+        assert.strictEqual(curatorCheck && curatorCheck.heartbeatDomElements, 0, 'Health check / keep-alive must have ZERO visual DOM footprint');
         console.log('   ✓ Curator Studio verified: accurate badge count and completely invisible keep-alive!');
 
         ws.close();

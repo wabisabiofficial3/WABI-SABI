@@ -302,87 +302,69 @@ function seedDefaultSettings() {
  * Seed initial community members directory
  */
 function seedDefaultMembers() {
-    const countRow = db.prepare('SELECT count(*) as count FROM members').get();
-    if (!countRow || countRow.count === 0) {
-        const insertStmt = db.prepare(`
-            INSERT INTO members (id, name, role, handle, avatar_url, bio, display_order, full_name, display_name, gender, date_joined, secret_code_hash, status, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-        `);
+    const insertStmt = db.prepare(`
+        INSERT INTO members (id, name, role, handle, avatar_url, bio, display_order, full_name, display_name, gender, date_joined, secret_code_hash, status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    `);
 
-        const defaultMembers = [
-            {
-                id: 'mem-admin',
-                name: 'Wabi Sabi Admin',
-                role: 'Admin',
-                handle: '@wabisabi',
-                avatar_url: '../assets/user_avatar.jpg',
-                bio: 'Sanctuary steward & literary curator',
-                order: 1,
-                full_name: 'Wabi Sabi Admin',
-                display_name: 'Wabi Sabi Admin',
-                gender: '',
-                date_joined: '01 September 2026',
-                secret_code_hash: null,
-                status: 'active'
-            },
-            {
-                id: 'mem-akshaya',
-                name: 'Akshaya',
-                role: 'Member',
-                handle: '@akshaya',
-                avatar_url: '../assets/avatar_aishwarya.jpg',
-                bio: 'Literature, existential fiction & poetry',
-                order: 2,
-                full_name: 'Akshaya',
-                display_name: 'Akshaya',
-                gender: 'Female',
-                date_joined: '02 October 2026',
-                secret_code_hash: hashSecretCode('WS-7K4M-X92P-LQ8A'),
-                status: 'active'
-            },
-            {
-                id: 'mem-vaishnavi',
-                name: 'Vaishnavi',
-                role: 'Member',
-                handle: '@vaishnavi',
-                avatar_url: '../assets/avatar_meera.jpg',
-                bio: 'Cinema, narratives & quiet thoughts',
-                order: 3,
-                full_name: 'Vaishnavi',
-                display_name: 'Vaishnavi',
-                gender: 'Female',
-                date_joined: '28 September 2026',
-                secret_code_hash: hashSecretCode('WS-3R8B-Y65W-NK2D'),
-                status: 'active'
-            }
-        ];
-
-        for (const m of defaultMembers) {
-            insertStmt.run(m.id, m.name, m.role, m.handle, m.avatar_url, m.bio, m.order, m.full_name, m.display_name, m.gender, m.date_joined, m.secret_code_hash, m.status);
+    const defaultMembers = [
+        {
+            id: 'mem-admin',
+            name: 'Wabi Sabi Admin',
+            role: 'Admin',
+            handle: '@wabisabi',
+            avatar_url: '../assets/user_avatar.jpg',
+            bio: 'Sanctuary steward & literary curator',
+            order: 1,
+            full_name: 'Wabi Sabi Admin',
+            display_name: 'Wabi Sabi Admin',
+            gender: '',
+            date_joined: '01 September 2026',
+            secret_code_hash: null,
+            status: 'active'
+        },
+        {
+            id: 'mem-akshaya',
+            name: 'Akshaya',
+            role: 'Member',
+            handle: '@akshaya',
+            avatar_url: '../assets/avatar_aishwarya.jpg',
+            bio: 'Literature, existential fiction & poetry',
+            order: 2,
+            full_name: 'Akshaya',
+            display_name: 'Akshaya',
+            gender: 'Female',
+            date_joined: '02 October 2026',
+            secret_code_hash: hashSecretCode('WS-7K4M-X92P-LQ8A'),
+            status: 'active'
+        },
+        {
+            id: 'mem-vaishnavi',
+            name: 'Vaishnavi',
+            role: 'Member',
+            handle: '@vaishnavi',
+            avatar_url: '../assets/avatar_meera.jpg',
+            bio: 'Cinema, narratives & quiet thoughts',
+            order: 3,
+            full_name: 'Vaishnavi',
+            display_name: 'Vaishnavi',
+            gender: 'Female',
+            date_joined: '28 September 2026',
+            secret_code_hash: hashSecretCode('WS-3R8B-Y65W-NK2D'),
+            status: 'active'
         }
-    } else {
-        // Sync new fields for existing seed members if missing
-        try {
-            const akshaya = db.prepare('SELECT id, secret_code_hash FROM members WHERE id = ?').get('mem-akshaya');
-            if (akshaya && !akshaya.secret_code_hash) {
-                db.prepare(`
-                    UPDATE members
-                    SET full_name = 'Akshaya', display_name = 'Akshaya', gender = 'Female', date_joined = '02 October 2026',
-                        secret_code_hash = ?, status = 'active'
-                    WHERE id = 'mem-akshaya'
-                `).run(hashSecretCode('WS-7K4M-X92P-LQ8A'));
-            }
-            const vaishnavi = db.prepare('SELECT id, secret_code_hash FROM members WHERE id = ?').get('mem-vaishnavi');
-            if (vaishnavi && !vaishnavi.secret_code_hash) {
-                db.prepare(`
-                    UPDATE members
-                    SET full_name = 'Vaishnavi', display_name = 'Vaishnavi', gender = 'Female', date_joined = '28 September 2026',
-                        secret_code_hash = ?, status = 'active'
-                    WHERE id = 'mem-vaishnavi'
-                `).run(hashSecretCode('WS-3R8B-Y65W-NK2D'));
-            }
-        } catch (e) {
-            console.warn('Member sync notice:', e.message);
+    ];
+
+    for (const m of defaultMembers) {
+        const existing = db.prepare('SELECT id, secret_code_hash FROM members WHERE id = ?').get(m.id);
+        if (!existing) {
+            insertStmt.run(m.id, m.name, m.role, m.handle, m.avatar_url, m.bio, m.order, m.full_name, m.display_name, m.gender, m.date_joined, m.secret_code_hash, m.status);
+        } else if (m.secret_code_hash && !existing.secret_code_hash) {
+            db.prepare(`
+                UPDATE members
+                SET full_name = ?, display_name = ?, gender = ?, date_joined = ?, secret_code_hash = ?, status = 'active'
+                WHERE id = ?
+            `).run(m.full_name, m.display_name, m.gender, m.date_joined, m.secret_code_hash, m.id);
         }
     }
 
