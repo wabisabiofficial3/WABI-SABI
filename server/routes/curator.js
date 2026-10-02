@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const QRCode = require('qrcode');
 const {
     createUpdate,
     updateUpdate,
@@ -9,11 +10,19 @@ const {
     getAllSettings,
     setSetting,
     getAllMembers,
+    getAllMembersCurator,
     getMemberById,
     createMember,
     updateMember,
-    deleteMember
+    regenerateMemberCode,
+    setMemberStatus,
+    createMemberClaim,
+    deleteMember,
+    getCuratorById,
+    getCuratorWithPassword,
+    updateCuratorProfile
 } = require('../db');
+const { hashPassword, verifyPassword } = require('../crypto');
 const { requireCurator } = require('../middleware/auth');
 
 // All curator routes require authentication
@@ -27,7 +36,7 @@ router.get('/overview', (req, res) => {
     try {
         const updates = getPublicUpdates();
         const settings = getAllSettings();
-        const members = getAllMembers();
+        const members = getAllMembersCurator();
 
         return res.json({
             success: true,
@@ -109,7 +118,7 @@ router.put('/announcements', (req, res) => {
  */
 router.get('/members', (req, res) => {
     try {
-        const members = getAllMembers();
+        const members = getAllMembersCurator();
         return res.json({ success: true, members });
     } catch (err) {
         console.error('Error fetching members:', err);
@@ -119,25 +128,33 @@ router.get('/members', (req, res) => {
 
 router.post('/members', (req, res) => {
     try {
-        const { name, role, handle, avatar_url, bio, display_order } = req.body || {};
-        if (!name || !name.trim()) {
+        const { name, full_name, display_name, role, handle, gender, date_joined, avatar_url, bio, display_order, status } = req.body || {};
+        const memberName = (full_name || display_name || name || '').trim();
+        if (!memberName) {
             return res.status(400).json({ success: false, error: 'Member name is required.' });
         }
 
-        const id = createMember({
-            name: name.trim(),
+        const result = createMember({
+            name: memberName,
+            full_name: (full_name || memberName).trim(),
+            display_name: (display_name || memberName).trim(),
             role: role || 'Member',
             handle: handle || '',
+            gender: gender || '',
+            date_joined: date_joined || '',
             avatar_url: avatar_url || '../assets/user_avatar.jpg',
             bio: bio || '',
-            display_order: display_order || 0
+            display_order: display_order || 0,
+            status: status || 'active'
         });
 
         return res.status(201).json({
             success: true,
-            message: 'Member added to community.',
-            memberId: id,
-            members: getAllMembers()
+            message: 'Member registered into circle.',
+            memberId: result.id,
+            secretCode: result.secretCode,
+            member: result.member,
+            members: getAllMembersCurator()
         });
     } catch (err) {
         console.error('Error creating member:', err);
@@ -147,16 +164,96 @@ router.post('/members', (req, res) => {
 
 router.put('/members/:id', (req, res) => {
     try {
-        const { name, role, handle, avatar_url, bio, display_order } = req.body || {};
-        updateMember(req.params.id, { name, role, handle, avatar_url, bio, display_order });
+        const { name, full_name, display_name, role, handle, gender, date_joined, avatar_url, bio, display_order, status } = req.body || {};
+        updateMember(req.params.id, { name, full_name, display_name, role, handle, gender, date_joined, avatar_url, bio, display_order, status });
         return res.json({
             success: true,
-            message: 'Member profile updated.',
-            members: getAllMembers()
+            message: 'Member portrait updated.',
+            member: getMemberById(req.params.id),
+            members: getAllMembersCurator()
         });
     } catch (err) {
         console.error('Error updating member:', err);
         return res.status(500).json({ success: false, error: 'Failed to update member.' });
+    }
+});
+
+router.post('/members/:id/regenerate-code', (req, res) => {
+    try {
+        const newCode = regenerateMemberCode(req.params.id);
+        return res.json({
+            success: true,
+            message: 'New Secret Code generated. Previous code has been invalidated.',
+            secretCode: newCode
+        });
+    } catch (err) {
+        console.error('Error regenerating secret code:', err);
+        return res.status(500).json({ success: false, error: 'Failed to regenerate code.' });
+    }
+});
+
+router.put('/members/:id/status', (req, res) => {
+    try {
+        const { status } = req.body || {};
+        if (!status || (status !== 'active' && status !== 'suspended')) {
+            return res.status(400).json({ success: false, error: 'Valid status (active or suspended) is required.' });
+        }
+        setMemberStatus(req.params.id, status);
+        return res.json({
+            success: true,
+            message: `Membership status updated to ${status}.`,
+            status,
+            members: getAllMembersCurator()
+        });
+    } catch (err) {
+        console.error('Error setting member status:', err);
+        return res.status(500).json({ success: false, error: 'Failed to update member status.' });
+    }
+});
+
+router.post('/members/:id/generate-qr', async (req, res) => {
+    try {
+        const member = getMemberById(req.params.id);
+        if (!member) {
+            return res.status(404).json({ success: false, error: 'Member not found.' });
+        }
+
+        const token = createMemberClaim(req.params.id, 7);
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+        const host = req.get('host') || 'localhost:3000';
+        const claimUrl = `${protocol}://${host}/api/member/claim-pass?token=${token}`;
+
+        let qrDataUrl = '';
+        try {
+            qrDataUrl = await QRCode.toDataURL(claimUrl, {
+                margin: 2,
+                width: 240,
+                color: {
+                    dark: '#273B2B',
+                    light: '#FAF7F2'
+                }
+            });
+        } catch (qrErr) {
+            console.warn('QRCode generation fallback:', qrErr);
+        }
+
+        return res.json({
+            success: true,
+            token,
+            claimUrl,
+            qrDataUrl,
+            member: {
+                id: member.id,
+                name: member.display_name || member.name,
+                full_name: member.full_name || member.name,
+                handle: member.handle,
+                role: member.role || 'Member',
+                date_joined: member.date_joined || 'Autumn 2026'
+            }
+        });
+    } catch (err) {
+        console.error('Error generating QR pass:', err);
+        return res.status(500).json({ success: false, error: 'Failed to generate QR pass.' });
     }
 });
 
@@ -166,7 +263,7 @@ router.delete('/members/:id', (req, res) => {
         return res.json({
             success: true,
             message: 'Member removed from directory.',
-            members: getAllMembers()
+            members: getAllMembersCurator()
         });
     } catch (err) {
         console.error('Error deleting member:', err);
@@ -175,33 +272,127 @@ router.delete('/members/:id', (req, res) => {
 });
 
 /**
- * PUT /api/curator/connect
- * Update external platform links (Community Chat, Book Drive, Meeting Location, Socials)
+ * PUT /api/curator/connect & PUT /api/curator/buttons
+ * Update external platform links and button configuration
  */
-router.put('/connect', (req, res) => {
+router.put(['/connect', '/buttons'], (req, res) => {
     try {
         const links = req.body || {};
         const cleanLinks = {
             community_chat_url: links.community_chat_url || '',
+            community_chat_label: links.community_chat_label || 'Join Community Lounge',
             book_drive_url: links.book_drive_url || '',
+            book_drive_label: links.book_drive_label || 'Open Book Drive',
             meeting_maps_url: links.meeting_maps_url || '',
+            meeting_maps_label: links.meeting_maps_label || 'Open in Google Maps',
             instagram_url: links.instagram_url || '',
+            instagram_label: links.instagram_label || 'Instagram',
             whatsapp_url: links.whatsapp_url || '',
-            discord_url: links.discord_url || ''
+            whatsapp_label: links.whatsapp_label || 'WhatsApp Channel',
+            discord_url: links.discord_url || '',
+            discord_label: links.discord_label || 'Discord Lounge',
+            goodreads_url: links.goodreads_url || '',
+            goodreads_label: links.goodreads_label || 'Goodreads Circle',
+            custom_btn_1_url: links.custom_btn_1_url || '',
+            custom_btn_1_label: links.custom_btn_1_label || '',
+            custom_btn_1_enabled: Boolean(links.custom_btn_1_enabled),
+            custom_btn_2_url: links.custom_btn_2_url || '',
+            custom_btn_2_label: links.custom_btn_2_label || '',
+            custom_btn_2_enabled: Boolean(links.custom_btn_2_enabled)
         };
 
         setSetting('connect_links', cleanLinks);
+        setSetting('button_links', cleanLinks);
         // Sync platform_links for backward-compatibility
         setSetting('platform_links', cleanLinks);
 
         return res.json({
             success: true,
-            message: 'Connect platform links updated.',
-            links: cleanLinks
+            message: 'Button links and platform destinations updated.',
+            links: cleanLinks,
+            buttons: cleanLinks
         });
     } catch (err) {
-        console.error('Error updating connect links:', err);
-        return res.status(500).json({ success: false, error: 'Failed to update connect links.' });
+        console.error('Error updating button links:', err);
+        return res.status(500).json({ success: false, error: 'Failed to update button links.' });
+    }
+});
+
+/**
+ * PUT /api/curator/profile
+ * Update Admin profile details (Display Name, Handle, Email, Password)
+ */
+router.put('/profile', async (req, res) => {
+    try {
+        const { displayName, handle, email, currentPassword, newPassword } = req.body || {};
+        const curatorId = req.curator.id;
+
+        const currentRecord = getCuratorWithPassword(curatorId);
+        if (!currentRecord) {
+            return res.status(404).json({ success: false, error: 'Curator profile not found.' });
+        }
+
+        let newPasswordHash = null;
+        if (newPassword) {
+            if (!currentPassword) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Please provide your current password to set a new password.'
+                });
+            }
+            const isMatch = await verifyPassword(currentPassword, currentRecord.password_hash);
+            if (!isMatch) {
+                return res.status(401).json({
+                    success: false,
+                    error: 'Current password does not match. Profile changes aborted.'
+                });
+            }
+            if (newPassword.length < 6) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'New password must be at least 6 characters long.'
+                });
+            }
+            newPasswordHash = await hashPassword(newPassword);
+        }
+
+        const updated = updateCuratorProfile(curatorId, {
+            displayName,
+            handle,
+            email,
+            passwordHash: newPasswordHash
+        });
+
+        // Also update the seed record if it's admin-wabisabi
+        try {
+            const memberAdmin = db.prepare('SELECT id FROM members WHERE id = ?').get('mem-admin');
+            if (memberAdmin && (displayName || handle)) {
+                db.prepare(`
+                    UPDATE members
+                    SET name = ?, display_name = ?, full_name = ?, handle = ?
+                    WHERE id = 'mem-admin'
+                `).run(
+                    updated.display_name,
+                    updated.display_name,
+                    updated.display_name,
+                    `@${updated.handle.replace(/^@/, '')}`
+                );
+            }
+        } catch (e) {}
+
+        return res.json({
+            success: true,
+            message: 'Admin Profile updated successfully.',
+            curator: {
+                id: updated.id,
+                email: updated.email,
+                displayName: updated.display_name,
+                handle: updated.handle
+            }
+        });
+    } catch (err) {
+        console.error('Error updating curator profile:', err);
+        return res.status(500).json({ success: false, error: 'Failed to update admin profile.' });
     }
 });
 
@@ -305,6 +496,7 @@ router.put('/settings', (req, res) => {
         if (discussion_points) setSetting('discussion_points', discussion_points);
         if (important_notes) setSetting('important_notes', important_notes);
         if (connect_links) setSetting('connect_links', connect_links);
+        if (req.body && req.body.sticky_notes) setSetting('sticky_notes', req.body.sticky_notes);
 
         return res.json({
             success: true,
@@ -314,6 +506,40 @@ router.put('/settings', (req, res) => {
     } catch (err) {
         console.error('Error updating settings:', err);
         return res.status(500).json({ success: false, error: 'Failed to update settings.' });
+    }
+});
+
+/**
+ * PUT /api/curator/sticky-notes
+ * Update one or all 4 tactile sticky notes on the reading desk
+ */
+router.put('/sticky-notes', (req, res) => {
+    try {
+        const existingNotes = getSetting('sticky_notes') || {
+            books: '“Ideas that take quiet root, and stay with you for years.”',
+            films: '“Quiet frames that open unexpected rooms in the mind.”',
+            discussions: 'Conversations held with patience, without judgment.',
+            community: '“Kindred souls who feel the quiet rhythm of life.”'
+        };
+
+        const incoming = req.body || {};
+        const updatedNotes = {
+            books: incoming.books !== undefined ? incoming.books : existingNotes.books,
+            films: incoming.films !== undefined ? incoming.films : existingNotes.films,
+            discussions: incoming.discussions !== undefined ? incoming.discussions : existingNotes.discussions,
+            community: incoming.community !== undefined ? incoming.community : existingNotes.community
+        };
+
+        setSetting('sticky_notes', updatedNotes);
+
+        return res.json({
+            success: true,
+            message: 'Sticky notes updated successfully.',
+            sticky_notes: updatedNotes
+        });
+    } catch (err) {
+        console.error('Error updating sticky notes:', err);
+        return res.status(500).json({ success: false, error: 'Failed to update sticky notes.' });
     }
 });
 

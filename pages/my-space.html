@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Space • Wabi Sabi Bookclub</title>
+    <meta name="description" content="Personal reading desk, private notes, and bookshelf for verified members of the Wabi Sabi Bookclub circle.">
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --wabi-cream-light: #FBF9F4;
+            --wabi-cream-mid: #F5F2EA;
+            --wabi-paper: #EDE8DC;
+            --wabi-forest-green: #273B2B;
+            --wabi-sage-light: #5E7864;
+            --wabi-sage-pale: rgba(94, 120, 100, 0.12);
+            --wabi-earth-clay: #7A5343;
+            --wabi-ink: #2C2621;
+            --wabi-ink-muted: #6E6252;
+            --wabi-ink-faint: #9A8D7C;
+            --wabi-border-subtle: rgba(198, 182, 155, 0.45);
+            --wabi-border-medium: rgba(170, 150, 120, 0.55);
+            --wabi-shadow-paper: 0 10px 30px rgba(44, 38, 33, 0.07), 0 2px 6px rgba(44, 38, 33, 0.04);
+            --wabi-shadow-card: 0 14px 40px rgba(44, 38, 33, 0.09), 0 3px 10px rgba(44, 38, 33, 0.05);
+            --wabi-radius-card: 16px;
+            --wabi-radius-pill: 999px;
+            --wabi-gold-seal: #964234;
+        }
+
+        [data-theme="dark"] {
+            --wabi-cream-light: #1A1816;
+            --wabi-cream-mid: #141312;
+            --wabi-paper: #22201D;
+            --wabi-forest-green: #5E7864;
+            --wabi-sage-light: #8BA892;
+            --wabi-sage-pale: rgba(139, 168, 146, 0.15);
+            --wabi-earth-clay: #B68674;
+            --wabi-ink: #EAE6DF;
+            --wabi-ink-muted: #B8B0A2;
+            --wabi-ink-faint: #807769;
+            --wabi-border-subtle: rgba(120, 105, 85, 0.35);
+            --wabi-border-medium: rgba(140, 125, 105, 0.45);
+            --wabi-shadow-paper: 0 10px 30px rgba(0, 0, 0, 0.45);
+            --wabi-shadow-card: 0 14px 40px rgba(0, 0, 0, 0.55);
+            --wabi-gold-seal: #B85242;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            background-color: var(--wabi-cream-mid);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(94, 120, 100, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(122, 83, 67, 0.04) 0%, transparent 40%),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.025'/%3E%3C/svg%3E");
+            color: var(--wabi-ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Curator Preview Notice */
+        #curatorPreviewBanner {
+            display: none;
+            background: #273B2B;
+            color: #FBF9F4;
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 9999;
+        }
+
+        #curatorPreviewBanner.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        #curatorPreviewBanner a {
+            color: #E2D9C8;
+            text-decoration: underline;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        /* Header Navigation */
+        .desk-header {
+            width: 100%;
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 24px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            border-bottom: 1px solid var(--wabi-border-subtle);
+        }
+
+        .desk-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--wabi-ink);
+        }
+
+        .desk-logo-text {
+            font-family: 'Cinzel', serif;
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: var(--wabi-ink);
+        }
+
+        .desk-badge-vol {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 2px 7px;
+            border-radius: var(--wabi-radius-pill);
+            background: var(--wabi-sage-pale);
+            color: var(--wabi-forest-green);
+        }
+
+        .desk-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .desk-nav-link {
+            font-size: 13.5px;
+            color: var(--wabi-ink-muted);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: var(--wabi-radius-pill);
+            transition: all 0.2s ease;
+        }
+
+        .desk-nav-link:hover {
+            color: var(--wabi-forest-green);
+            background: var(--wabi-sage-pale);
+        }
+
+        .btn-leave-space {
+            font-size: 12.5px;
+            font-weight: 600;
+            padding: 7px 16px;
+            border-radius: var(--wabi-radius-pill);
+            border: 1px solid var(--wabi-border-medium);
+            background: var(--wabi-cream-light);
+            color: var(--wabi-ink-muted);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.25s ease;
+        }
+
+        .btn-leave-space:hover {
+            background: #BA4230;
+            border-color: #BA4230;
+            color: #FFF;
+        }
+
+        /* Main Desk Container */
+        .desk-container {
+            width: 100%;
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 32px 28px 80px;
+            flex: 1;
+        }
+
+        /* Member Identity Card / Banner */
+        .member-portrait-card {
+            background: var(--wabi-cream-light);
+            border: 1px solid var(--wabi-border-subtle);
+            border-radius: var(--wabi-radius-card);
+            box-shadow: var(--wabi-shadow-card);
+            padding: 32px 36px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portrait-stamp {
+            position: absolute;
+            top: 24px;
+            right: 28px;
+            width: 44px;
+            height: 44px;
+            border: 1.5px solid var(--wabi-gold-seal);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--wabi-gold-seal);
+            opacity: 0.85;
+            transform: rotate(-12deg);
+            pointer-events: none;
+        }
+
+        .portrait-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            min-width: 0;
+        }
+
+        .portrait-avatar-wrapper {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .portrait-avatar {
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--wabi-border-medium);
+            box-shadow: 0 4px 14px rgba(44, 38, 33, 0.08);
+            background: var(--wabi-paper);
+        }
+
+        .portrait-status-dot {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #2E7D32;
+            border: 2px solid var(--wabi-cream-light);
+        }
+
+        .portrait-meta h1 {
+            font-family: 'Cinzel', 'Cormorant Garamond', Georgia, serif;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: var(--wabi-ink);
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+
+        .portrait-handle-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
+        .portrait-handle {
+            font-size: 14.5px;
+            color: var(--wabi-forest-green);
+            font-weight: 600;
+        }
+
+        .portrait-status-pill {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 3px 10px;
+            border-radius: var(--wabi-radius-pill);
+            background: var(--wabi-sage-pale);
+            color: var(--wabi-forest-green);
+            border: 1px solid rgba(94, 120, 100, 0.25);
+        }
+
+        .portrait-joined {
+            font-size: 13px;
+            color: var(--wabi-ink-muted);
+            margin-top: 6px;
+        }
+
+        .portrait-bio {
+            font-size: 13.5px;
+            color: var(--wabi-ink-muted);
+            font-style: italic;
+            margin-top: 8px;
+            max-width: 540px;
+        }
+
+        /* 2-Column Desk Grid */
+        .desk-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+        }
+
+        @media (max-width: 900px) {
+            .desk-grid {
+                grid-template-columns: 1fr;
+            }
+            .member-portrait-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* Tactile Paper Modules */
+        .desk-module {
+            background: var(--wabi-cream-light);
+            border: 1px solid var(--wabi-border-subtle);
+            border-radius: var(--wabi-radius-card);
+            box-shadow: var(--wabi-shadow-paper);
+            padding: 28px;
+            position: relative;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--wabi-border-subtle);
+            padding-bottom: 12px;
+        }
+
+        .module-title {
+            font-family: 'Cinzel', serif;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--wabi-ink);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-tag {
+            font-size: 11px;
+            color: var(--wabi-ink-muted);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* 1. Currently Reading Module */
+        .reading-card-inner {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .book-jacket-mini {
+            width: 88px;
+            height: 124px;
+            background: #273B2B;
+            color: #EDE8DC;
+            border-radius: 6px;
+            box-shadow: 0 8px 18px rgba(44, 38, 33, 0.16);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 12px 10px;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            border-left: 4px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .book-jacket-mini h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 11.5px;
+            line-height: 1.2;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .book-jacket-mini p {
+            font-size: 9.5px;
+            opacity: 0.8;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .reading-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .reading-book-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--wabi-ink);
+            line-height: 1.2;
+        }
+
+        .reading-book-author {
+            font-size: 13.5px;
+            color: var(--wabi-ink-muted);
+            margin-top: 2px;
+        }
+
+        .reading-progress-row {
+            margin-top: 16px;
+        }
+
+        .progress-label-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--wabi-ink-muted);
+            margin-bottom: 6px;
+        }
+
+        .progress-bar-track {
+            width: 100%;
+            height: 8px;
+            background: var(--wabi-paper);
+            border-radius: var(--wabi-radius-pill);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #5E7864, #273B2B);
+            border-radius: var(--wabi-radius-pill);
+            transition: width 0.35s ease;
+        }
+
+        .progress-slider-wrapper {
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .progress-slider-wrapper input[type="range"] {
+            flex: 1;
+            accent-color: var(--wabi-forest-green);
+            cursor: pointer;
+        }
+
+        .btn-update-progress {
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 5px 12px;
+            background: var(--wabi-forest-green);
+            color: #FFF;
+            border: none;
+            border-radius: var(--wabi-radius-pill);
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-update-progress:hover {
+            opacity: 0.9;
+        }
+
+        /* 2. My Notes Module */
+        .notes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .note-card {
+            background: var(--wabi-paper);
+            border: 1px solid var(--wabi-border-subtle);
+            border-radius: 10px;
+            padding: 14px 16px;
+            position: relative;
+        }
+
+        .note-content {
+            font-family: 'Caveat', cursive;
+            font-size: 19px;
+            color: var(--wabi-ink);
+            line-height: 1.4;
+        }
+
+        .note-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 11px;
+            color: var(--wabi-ink-faint);
+        }
+
+        .btn-delete-note {
+            background: none;
+            border: none;
+            color: #BA4230;
+            font-size: 11px;
+            cursor: pointer;
+            opacity: 0.75;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-delete-note:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .add-note-box {
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .note-textarea {
+            width: 100%;
+            background: var(--wabi-cream-light);
+            border: 1px solid var(--wabi-border-medium);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-family: 'Caveat', cursive;
+            font-size: 18px;
+            color: var(--wabi-ink);
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .note-textarea:focus {
+            outline: 2px solid var(--wabi-forest-green);
+        }
+
+        .btn-save-note {
+            align-self: flex-end;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 14px;
+            background: var(--wabi-forest-green);
+            color: #FFF;
+            border: none;
+            border-radius: var(--wabi-radius-pill);
+            cursor: pointer;
+        }
+
+        /* 3. My Shelf Module */
+        .shelf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 14px;
+        }
+
+        .shelf-item {
+            background: var(--wabi-paper);
+            border: 1px solid var(--wabi-border-subtle);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 110px;
+        }
+
+        .shelf-book-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.25;
+            color: var(--wabi-ink);
+        }
+
+        .shelf-book-author {
+            font-size: 11.5px;
+            color: var(--wabi-ink-muted);
+            margin-top: 3px;
+        }
+
+        .shelf-badge {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: var(--wabi-radius-pill);
+            align-self: flex-start;
+            margin-top: 8px;
+            background: var(--wabi-sage-pale);
+            color: var(--wabi-forest-green);
+        }
+
+        /* 4. Gathering & Journey Module */
+        .gathering-box {
+            background: rgba(39, 59, 43, 0.05);
+            border: 1px solid rgba(94, 120, 100, 0.25);
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .gathering-info h4 {
+            font-family: 'Cinzel', serif;
+            font-size: 15px;
+            color: var(--wabi-forest-green);
+            font-weight: 700;
+        }
+
+        .gathering-info p {
+            font-size: 13px;
+            color: var(--wabi-ink-muted);
+            margin-top: 4px;
+        }
+
+        .journey-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .timeline-bullet {
+            color: var(--wabi-forest-green);
+            font-size: 12px;
+        }
+
+        .timeline-content {
+            color: var(--wabi-ink-muted);
+        }
+
+        .timeline-content strong {
+            color: var(--wabi-ink);
+        }
+
+        /* Unauthenticated Secret Code Access Card (Shown if visitor arrives directly without cookie) */
+        #unauthenticatedCard {
+            display: none;
+            max-width: 520px;
+            margin: 60px auto;
+            background: var(--wabi-cream-light);
+            border: 1px solid var(--wabi-border-medium);
+            border-radius: var(--wabi-radius-card);
+            box-shadow: var(--wabi-shadow-card);
+            padding: 40px 36px;
+            text-align: center;
+        }
+
+        .access-card-hanko {
+            width: 48px;
+            height: 48px;
+            border: 1.5px solid var(--wabi-gold-seal);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--wabi-gold-seal);
+            margin: 0 auto 18px;
+        }
+
+        .access-card-title {
+            font-family: 'Cinzel', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--wabi-ink);
+            margin-bottom: 8px;
+        }
+
+        .access-card-desc {
+            font-size: 14px;
+            color: var(--wabi-ink-muted);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .access-input {
+            width: 100%;
+            padding: 12px 16px;
+            font-family: 'Plus Jakarta Sans', monospace;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-align: center;
+            text-transform: uppercase;
+            border: 1.5px solid var(--wabi-border-medium);
+            border-radius: 10px;
+            background: var(--wabi-cream-mid);
+            color: var(--wabi-ink);
+            margin-bottom: 16px;
+        }
+
+        .access-input:focus {
+            outline: 2px solid var(--wabi-forest-green);
+        }
+
+        .btn-access-submit {
+            width: 100%;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            background: var(--wabi-forest-green);
+            color: #FFF;
+            border: none;
+            border-radius: var(--wabi-radius-pill);
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-access-submit:hover {
+            opacity: 0.9;
+        }
+
+        .access-error {
+            font-size: 12.5px;
+            color: #BA4230;
+            margin-top: 12px;
+            display: none;
+        }
+
+        /* Loading Skeleton */
+        #deskSkeleton {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--wabi-ink-muted);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Curator Preview Banner -->
+    <div id="curatorPreviewBanner">
+        <span>⚜ <strong>CURATOR VIEW</strong> • Viewing <span id="curatorTargetName">Member</span>'s Space</span>
+        <a href="/curator.html">Return to Curator Studio ↗</a>
+    </div>
+
+    <!-- Top Header -->
+    <header class="desk-header">
+        <a href="/" class="desk-brand">
+            <span class="desk-logo-text">WABI SABI</span>
+            <span class="desk-badge-vol">Vol. 1</span>
+        </a>
+
+        <div class="desk-nav-actions">
+            <a href="/" class="desk-nav-link">Sanctuary</a>
+            <a href="/#announcements" class="desk-nav-link">Announcements</a>
+            <a href="/#community" class="desk-nav-link">Community</a>
+            <a href="/#connect" class="desk-nav-link">Connect</a>
+            <button id="leaveSpaceBtn" class="btn-leave-space" title="Leave My Space">
+                <span>Leave My Space</span>
+                <span>→</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="desk-container">
+
+        <!-- Unauthenticated Access Card (Falls back here if visitor opens /my-space without session) -->
+        <div id="unauthenticatedCard">
+            <div class="access-card-hanko">侘</div>
+            <h2 class="access-card-title">Enter your Wabi Sabi Code</h2>
+            <p class="access-card-desc">A private key given to members of our circle to unlock their personal reading desk.</p>
+            <form id="directAccessForm">
+                <input type="text" id="directCodeInput" class="access-input" placeholder="WS-••••-••••-••••" autocomplete="off" spellcheck="false" required>
+                <button type="submit" class="btn-access-submit">Open My Space →</button>
+                <div id="directAccessError" class="access-error"></div>
+            </form>
+            <p style="font-size: 12.5px; color: var(--wabi-ink-faint); margin-top: 20px;">
+                Not a member yet? You can still explore the <a href="/" style="color: var(--wabi-forest-green); text-decoration: underline;">public sanctuary</a> freely.
+            </p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="deskSkeleton">
+            <p>Quietly arranging your reading desk...</p>
+        </div>
+
+        <!-- Authenticated Personal Desk -->
+        <div id="authenticatedDesk" style="display: none;">
+            
+            <!-- Member Portrait & Identity -->
+            <section class="member-portrait-card">
+                <div class="portrait-stamp">侘寂</div>
+                <div class="portrait-left">
+                    <div class="portrait-avatar-wrapper">
+                        <img id="deskAvatar" class="portrait-avatar" src="../assets/user_avatar.jpg" alt="Member Avatar">
+                        <div class="portrait-status-dot"></div>
+                    </div>
+                    <div class="portrait-meta">
+                        <h1 id="deskMemberName">AKSHAYA</h1>
+                        <div class="portrait-handle-row">
+                            <span id="deskMemberHandle" class="portrait-handle">@akshaya</span>
+                            <span id="deskMemberRole" class="portrait-status-pill">Circle Member</span>
+                        </div>
+                        <div id="deskMemberJoined" class="portrait-joined">Member since 02 October 2026</div>
+                        <p id="deskMemberBio" class="portrait-bio">Literature, existential fiction & poetry</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2-Column Desk Grid -->
+            <div class="desk-grid">
+
+                <!-- 1. Currently Reading -->
+                <div class="desk-module">
+                    <div class="module-header">
+                        <h2 class="module-title"><span>📖</span> Currently Reading</h2>
+                        <span class="module-tag">Autumn Selection</span>
+                    </div>
+
+                    <div class="reading-card-inner">
+                        <div class="book-jacket-mini">
+                            <h3 id="bookJacketTitle">The Stranger</h3>
+                            <p id="bookJacketAuthor">Albert Camus</p>
+                        </div>
+
+                        <div class="reading-details">
+                            <h3 id="readingTitle" class="reading-book-title">The Stranger</h3>
+                            <p id="readingAuthor" class="reading-book-author">by Albert Camus</p>
+
+                            <div class="reading-progress-row">
+                                <div class="progress-label-row">
+                                    <span>Reading Progress</span>
+                                    <span id="progressPercentLabel">62% complete</span>
+                                </div>
+                                <div class="progress-bar-track">
+                                    <div id="progressBarFill" class="progress-bar-fill" style="width: 62%;"></div>
+                                </div>
+
+                                <div class="progress-slider-wrapper">
+                                    <input type="range" id="progressSlider" min="0" max="100" value="62" title="Adjust progress">
+                                    <button type="button" id="saveProgressBtn" class="btn-update-progress">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Personal Notes (Private Reflections) -->
+                <div class="desk-module">
+                    <div class="module-header">
+                        <h2 class="module-title"><span>🖋</span> My Private Notes</h2>
+                        <span class="module-tag">Margin Reflections</span>
+                    </div>
+
+                    <div id="notesContainer" class="notes-list">
+                        <!-- Notes populated dynamically -->
+                    </div>
+
+                    <div class="add-note-box">
+                        <textarea id="newNoteInput" class="note-textarea" placeholder="Write a quiet reflection or quote for your desk..." rows="2"></textarea>
+                        <button type="button" id="saveNoteBtn" class="btn-save-note">✦ Record Reflection</button>
+                    </div>
+                </div>
+
+                <!-- 3. My Shelf (Personal Bookshelf) -->
+                <div class="desk-module">
+                    <div class="module-header">
+                        <h2 class="module-title"><span>📚</span> My Shelf</h2>
+                        <span class="module-tag">3 Titles</span>
+                    </div>
+
+                    <div id="shelfContainer" class="shelf-grid">
+                        <!-- Bookshelf items populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- 4. Next Gathering & Reading Journey -->
+                <div class="desk-module">
+                    <div class="module-header">
+                        <h2 class="module-title"><span>🕯</span> Next Gathering & Journey</h2>
+                        <span class="module-tag">Circle Coordinates</span>
+                    </div>
+
+                    <div class="gathering-box">
+                        <div class="gathering-info">
+                            <h4 id="gatheringHeadline">Saturday, 11 October • 4:30 PM</h4>
+                            <p id="gatheringVenue">MRDU Courtyard Garden</p>
+                        </div>
+                        <a id="gatheringMapsLink" href="https://maps.google.com" target="_blank" rel="noopener noreferrer" style="font-size: 12px; font-weight: 600; color: var(--wabi-forest-green); text-decoration: underline;">
+                            Directions ↗
+                        </a>
+                    </div>
+
+                    <div class="journey-timeline">
+                        <div class="timeline-item">
+                            <span class="timeline-bullet">✦</span>
+                            <div class="timeline-content">
+                                <strong>Circle Invitation Confirmed</strong>: Secret key recognized on this desk.
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-bullet">✦</span>
+                            <div class="timeline-content">
+                                <strong>Reading Commitment</strong>: Exploring existential themes with Albert Camus.
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-bullet">✦</span>
+                            <div class="timeline-content">
+                                <strong>Tea Room Salon</strong>: Courtyard gathering open for kindred discussion.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Automatic secret code formatter (WS-XXXX-XXXX-XXXX)
+        function formatCodeInput(val) {
+            const clean = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            const parts = [];
+            let prefix = 'WS';
+            let rest = clean;
+            if (clean.startsWith('WS')) {
+                rest = clean.slice(2);
+            }
+            parts.push(prefix);
+            for (let i = 0; i < rest.length && i < 12; i += 4) {
+                parts.push(rest.slice(i, i + 4));
+            }
+            return parts.join('-');
+        }
+
+        const directCodeInput = document.getElementById('directCodeInput');
+        if (directCodeInput) {
+            directCodeInput.addEventListener('input', (e) => {
+                const cur = e.target.value;
+                const formatted = formatCodeInput(cur);
+                e.target.value = formatted;
+            });
+        }
+
+        // Direct Code Access Submission (when visitor lands on /my-space without cookie)
+        const directAccessForm = document.getElementById('directAccessForm');
+        if (directAccessForm) {
+            directAccessForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const code = directCodeInput.value.trim();
+                const errEl = document.getElementById('directAccessError');
+                errEl.style.display = 'none';
+
+                try {
+                    const res = await fetch('/api/member/access', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        errEl.textContent = data.error || 'Invalid code.';
+                        errEl.style.display = 'block';
+                    }
+                } catch (err) {
+                    errEl.textContent = 'Connection error. Please try again.';
+                    errEl.style.display = 'block';
+                }
+            });
+        }
+
+        // Leave Space Button
+        const leaveBtn = document.getElementById('leaveSpaceBtn');
+        if (leaveBtn) {
+            leaveBtn.addEventListener('click', async () => {
+                try {
+                    await fetch('/api/member/leave', { method: 'POST' });
+                } catch (e) {}
+                window.location.href = '/';
+            });
+        }
+
+        // Escape helper
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Hydrate Member Desk
+        async function loadMemberDesk() {
+            const skeleton = document.getElementById('deskSkeleton');
+            const desk = document.getElementById('authenticatedDesk');
+            const unauth = document.getElementById('unauthenticatedCard');
+            const previewBanner = document.getElementById('curatorPreviewBanner');
+
+            // Check if preview query param is present
+            const params = new URLSearchParams(window.location.search);
+            const previewId = params.get('preview');
+            const endpoint = previewId ? `/api/member/me?preview=${encodeURIComponent(previewId)}` : '/api/member/me';
+
+            try {
+                const res = await fetch(endpoint);
+                if (res.status === 401 || res.status === 403) {
+                    skeleton.style.display = 'none';
+                    unauth.style.display = 'block';
+                    desk.style.display = 'none';
+                    return;
+                }
+
+                const data = await res.json();
+                if (!data.success || !data.member) {
+                    skeleton.style.display = 'none';
+                    unauth.style.display = 'block';
+                    desk.style.display = 'none';
+                    return;
+                }
+
+                // Show Curator Preview notice if active
+                if (data.isCuratorPreview) {
+                    previewBanner.classList.add('active');
+                    const targetName = document.getElementById('curatorTargetName');
+                    if (targetName) targetName.textContent = data.member.name;
+                }
+
+                // Populate Member Identity
+                document.getElementById('deskMemberName').textContent = data.member.name;
+                document.getElementById('deskMemberHandle').textContent = data.member.handle ? data.member.handle : `@${data.member.name.toLowerCase().replace(/\s+/g, '')}`;
+                document.getElementById('deskMemberRole').textContent = data.member.role || 'Circle Member';
+                document.getElementById('deskMemberJoined').textContent = `Member since ${data.member.date_joined || 'Autumn 2026'}`;
+                if (data.member.bio) {
+                    document.getElementById('deskMemberBio').textContent = data.member.bio;
+                }
+                if (data.member.avatar_url) {
+                    document.getElementById('deskAvatar').src = data.member.avatar_url;
+                }
+
+                // Populate Reading
+                const r = data.reading || {};
+                document.getElementById('readingTitle').textContent = r.book_title || 'The Stranger';
+                document.getElementById('readingAuthor').textContent = `by ${r.book_author || 'Albert Camus'}`;
+                document.getElementById('bookJacketTitle').textContent = r.book_title || 'The Stranger';
+                document.getElementById('bookJacketAuthor').textContent = r.book_author || 'Albert Camus';
+                
+                const prog = r.progress || 0;
+                document.getElementById('progressPercentLabel').textContent = `${prog}% complete`;
+                document.getElementById('progressBarFill').style.width = `${prog}%`;
+                document.getElementById('progressSlider').value = prog;
+
+                // Hook up reading progress slider
+                const slider = document.getElementById('progressSlider');
+                const progLabel = document.getElementById('progressPercentLabel');
+                const progBar = document.getElementById('progressBarFill');
+                const saveProgBtn = document.getElementById('saveProgressBtn');
+
+                slider.addEventListener('input', () => {
+                    progLabel.textContent = `${slider.value}% complete`;
+                    progBar.style.width = `${slider.value}%`;
+                });
+
+                saveProgBtn.addEventListener('click', async () => {
+                    saveProgBtn.textContent = 'Saving...';
+                    try {
+                        const url = previewId ? `/api/member/reading?preview=${encodeURIComponent(previewId)}` : '/api/member/reading';
+                        await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                book_title: r.book_title || 'The Stranger',
+                                book_author: r.book_author || 'Albert Camus',
+                                progress: Number(slider.value)
+                            })
+                        });
+                        saveProgBtn.textContent = 'Saved ✓';
+                        setTimeout(() => { saveProgBtn.textContent = 'Save'; }, 1500);
+                    } catch (e) {
+                        saveProgBtn.textContent = 'Error';
+                    }
+                });
+
+                // Populate Notes
+                renderNotes(data.notes || []);
+
+                // Hook up Add Note
+                const saveNoteBtn = document.getElementById('saveNoteBtn');
+                const noteInput = document.getElementById('newNoteInput');
+                saveNoteBtn.addEventListener('click', async () => {
+                    const content = noteInput.value.trim();
+                    if (!content) return;
+                    saveNoteBtn.textContent = 'Saving...';
+                    try {
+                        const url = previewId ? `/api/member/notes?preview=${encodeURIComponent(previewId)}` : '/api/member/notes';
+                        const res = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ content })
+                        });
+                        const noteData = await res.json();
+                        if (noteData.success) {
+                            renderNotes(noteData.notes);
+                            noteInput.value = '';
+                        }
+                    } catch (e) {}
+                    saveNoteBtn.textContent = '✦ Record Reflection';
+                });
+
+                // Populate Bookshelf
+                const shelfContainer = document.getElementById('shelfContainer');
+                if (data.bookshelf && shelfContainer) {
+                    shelfContainer.innerHTML = data.bookshelf.map(b => `
+                        <div class="shelf-item">
+                            <div>
+                                <h4 class="shelf-book-title">${escapeHtml(b.title)}</h4>
+                                <p class="shelf-book-author">${escapeHtml(b.author)}</p>
+                            </div>
+                            <span class="shelf-badge">${b.status === 'currently_reading' ? `${b.progress}% read` : 'Saved'}</span>
+                        </div>
+                    `).join('');
+                }
+
+                // Populate Gathering
+                if (data.gathering) {
+                    const g = data.gathering;
+                    const h = document.getElementById('gatheringHeadline');
+                    const v = document.getElementById('gatheringVenue');
+                    const m = document.getElementById('gatheringMapsLink');
+                    if (h && g.date) h.textContent = `${g.date} • ${g.time || '4:00 PM'}`;
+                    if (v && g.location) v.textContent = g.location;
+                    if (m && g.maps_url) m.href = g.maps_url;
+                }
+
+                // Reveal authenticated desk
+                skeleton.style.display = 'none';
+                desk.style.display = 'block';
+
+            } catch (err) {
+                console.error('Error loading desk:', err);
+                skeleton.style.display = 'none';
+                unauth.style.display = 'block';
+            }
+        }
+
+        // Render Private Notes list
+        function renderNotes(notes) {
+            const container = document.getElementById('notesContainer');
+            if (!container) return;
+            if (notes.length === 0) {
+                container.innerHTML = '<p style="font-size: 13.5px; font-style: italic; color: var(--wabi-ink-muted);">No private margin notes yet. Jot down your first thought below.</p>';
+                return;
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const previewId = params.get('preview');
+
+            container.innerHTML = notes.map(n => `
+                <div class="note-card" id="note-${n.id}">
+                    <p class="note-content">“${escapeHtml(n.content)}”</p>
+                    <div class="note-footer">
+                        <span>${new Date(n.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                        <button type="button" class="btn-delete-note" onclick="deleteDeskNote('${n.id}')">Erase note</button>
+                    </div>
+                </div>
+            `).join('');
+
+            window.deleteDeskNote = async (id) => {
+                if (!confirm('Erase this quiet margin reflection?')) return;
+                try {
+                    const url = previewId ? `/api/member/notes/${id}?preview=${encodeURIComponent(previewId)}` : `/api/member/notes/${id}`;
+                    const res = await fetch(url, { method: 'DELETE' });
+                    const resData = await res.json();
+                    if (resData.success) {
+                        renderNotes(resData.notes);
+                    }
+                } catch (e) {}
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', loadMemberDesk);
+    </script>
+</body>
+</html>

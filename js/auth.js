@@ -54,10 +54,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (res.success) {
             hideError();
-            const name = res.user.displayName || res.user.name || 'friend';
+            const name = (res.user && (res.user.displayName || res.user.name)) || 'Curator';
             window.WabiSabiStore.showToast(`Welcome back, ${name}.`);
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectParam = urlParams.get('redirect');
+            const target = redirectParam || res.redirectUrl || 'curator.html';
             setTimeout(() => {
-                window.location.href = res.redirectUrl || 'curator.html';
+                window.location.href = target;
             }, 350);
         } else {
             showError(res.message || "Invalid credentials. Please verify your email and password.");

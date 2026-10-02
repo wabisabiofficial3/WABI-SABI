@@ -61,7 +61,7 @@ function requireCuratorPage(req, res, next) {
             res.clearCookie('wabisabi_session', { httpOnly: true, sameSite: 'lax', path: '/' });
         }
         const returnUrl = req.originalUrl || req.url;
-        return res.redirect(`/login?redirect=${encodeURIComponent(returnUrl)}`);
+        return res.redirect(`/sanctuary?redirect=${encodeURIComponent(returnUrl)}`);
     }
     req.curator = curator;
     req.user = curator;

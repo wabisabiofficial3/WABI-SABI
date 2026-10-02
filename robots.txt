@@ -1,0 +1,21 @@
+# Wabi Sabi Bookclub — Robots.txt
+# Calm, respectful web crawling policy
+
+User-agent: *
+Allow: /
+Allow: /home.html
+Allow: /assets/
+Allow: /css/
+Allow: /js/
+
+# Disallow private curation portals and admin API endpoints
+Disallow: /sanctuary
+Disallow: /sanctuary.html
+Disallow: /curator
+Disallow: /curator.html
+Disallow: /api/curator/
+Disallow: /api/auth/
+Disallow: /data/
+Disallow: /server/
+
+Sitemap: https://wabi-sabi.onrender.com/sitemap.xml

@@ -91,6 +91,10 @@
                         localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(data.user));
                         return data.user;
                     }
+                    // Server says session is not valid — clear stale cache
+                    this._currentUser = null;
+                    localStorage.removeItem(STORAGE_KEY_USER);
+                    return null;
                 } else if (res.status === 401) {
                     this._currentUser = null;
                     localStorage.removeItem(STORAGE_KEY_USER);
@@ -122,21 +126,9 @@
                 console.warn('Direct server connection failed, checking local evaluation fallback:', err);
                 const normEmail = (email || '').trim().toLowerCase();
 
-                // Offline fallback strictly for the 3 authorized admin curators
-                if (normEmail === 'ganganidhanush@gmail.com' && password === 'curator123') {
-                    const user = { id: 'admin-dhanush', email: 'ganganidhanush@gmail.com', displayName: 'Dhanush', handle: 'dhanush', role: 'CURATOR', status: 'ACTIVE' };
-                    this._currentUser = user;
-                    localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
-                    return { success: true, user, redirectUrl: 'curator.html' };
-                }
-                if (normEmail === 'nrlikith6@gmail.com' && password === 'curator123') {
-                    const user = { id: 'admin-likith', email: 'nrlikith6@gmail.com', displayName: 'Likith', handle: 'likith', role: 'CURATOR', status: 'ACTIVE' };
-                    this._currentUser = user;
-                    localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
-                    return { success: true, user, redirectUrl: 'curator.html' };
-                }
-                if (normEmail === 'sarvasreeyuvaraj02@gmail.com' && password === 'curator123') {
-                    const user = { id: 'admin-sarvasree', email: 'sarvasreeyuvaraj02@gmail.com', displayName: 'Sarvasree', handle: 'sarvasree', role: 'CURATOR', status: 'ACTIVE' };
+                // Offline fallback strictly for the single authorized admin account
+                if ((normEmail === 'wabisabiofficial3@gmail.com' || normEmail === 'admin') && password === 'DsL@678_') {
+                    const user = { id: 'admin-wabisabi', email: 'wabisabiofficial3@gmail.com', displayName: 'Wabi Sabi Admin', handle: 'admin', role: 'ADMIN', status: 'ACTIVE' };
                     this._currentUser = user;
                     localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
                     return { success: true, user, redirectUrl: 'curator.html' };
@@ -162,7 +154,7 @@
         async requireAuth(allowedRoles) {
             const user = await this.getSession();
             if (!user) {
-                window.location.href = 'login.html';
+                window.location.href = '/sanctuary';
                 return null;
             }
             return user;

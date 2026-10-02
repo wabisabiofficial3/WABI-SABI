@@ -91,8 +91,8 @@ async function runTests() {
         // Unauthenticated access to /curator page must redirect to /login
         const resCuratorPage = await request('/curator');
         assert.strictEqual(resCuratorPage.statusCode, 302, 'Unauthenticated /curator should redirect');
-        assert(resCuratorPage.headers.location.includes('/login'), 'Should redirect to /login');
-        console.log('✓ Public visitors are strictly blocked from /curator and redirected to /login');
+        assert(resCuratorPage.headers.location.includes('/sanctuary'), 'Should redirect to /sanctuary');
+        console.log('✓ Public visitors are strictly blocked from /curator and redirected to /sanctuary');
 
         // Unauthenticated access to /api/curator/updates must return 401 Unauthorized
         const resUnauthApi = await request('/api/curator/updates', {
@@ -114,29 +114,29 @@ async function runTests() {
         assert.strictEqual(resBadLogin.statusCode, 401, 'Non-curator login must be rejected');
         console.log('✓ Non-curator login requests rejected with 401');
 
-        // Login as Dhanush (one of the 3 Curators)
-        const resDhanushLogin = await request('/api/auth/login', {
+        // Login as Wabi Sabi Admin (The single authorized Admin account)
+        const resAdminLogin = await request('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: { identifier: 'dhanush', password: 'curator123' }
+            body: { identifier: 'wabisabiofficial3@gmail.com', password: 'DsL@678_' }
         });
-        assert.strictEqual(resDhanushLogin.statusCode, 200, 'Curator Dhanush login should succeed');
-        assert.strictEqual(resDhanushLogin.body.success, true);
-        assert.strictEqual(resDhanushLogin.body.curator.handle, 'dhanush');
+        assert.strictEqual(resAdminLogin.statusCode, 200, 'Admin login should succeed');
+        assert.strictEqual(resAdminLogin.body.success, true);
+        assert.strictEqual(resAdminLogin.body.curator.handle, 'admin');
 
         // Extract session cookie
-        const setCookieHeader = resDhanushLogin.headers['set-cookie'];
+        const setCookieHeader = resAdminLogin.headers['set-cookie'];
         assert(setCookieHeader && setCookieHeader.length > 0, 'Login must set session cookie');
         const cookie = setCookieHeader.map(c => c.split(';')[0]).join('; ');
-        console.log('✓ Curator Dhanush authenticated successfully and received session cookie');
+        console.log('✓ Admin authenticated successfully and received session cookie');
 
         // Verify session via /api/auth/me
         const resMe = await request('/api/auth/me', {
             headers: { Cookie: cookie }
         });
         assert.strictEqual(resMe.statusCode, 200);
-        assert.strictEqual(resMe.body.curator.handle, 'dhanush');
-        console.log('✓ Session verification /api/auth/me confirms authenticated curator identity');
+        assert.strictEqual(resMe.body.curator.handle, 'admin');
+        console.log('✓ Session verification /api/auth/me confirms authenticated admin identity');
 
         console.log('\n--- 5. Curator Management Capabilities (All 3 Pillars) ---');
         // Pillar 1: Update Announcements (Theme, Reading, Gathering, Discussion Points, Notes)

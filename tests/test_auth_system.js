@@ -64,34 +64,31 @@ async function runTests() {
     let readerCookie = null;
     let applicantCookie = null;
 
-    console.log('\n--- 2. Testing Curator Authentication (Dhanush) ---');
+    console.log('\n--- 2. Testing Admin Authentication (wabisabiofficial3@gmail.com) ---');
     const curRes = await request('POST', '/api/auth/login', {
-        email: 'ganganidhanush@gmail.com',
-        password: 'curator123'
+        email: 'wabisabiofficial3@gmail.com',
+        password: 'DsL@678_'
     });
     console.assert(curRes.status === 200, `Expected 200, got ${curRes.status}`);
-    console.assert(curRes.data.user.role === 'CURATOR', `Expected CURATOR role, got ${curRes.data.user.role}`);
+    console.assert(curRes.data.user.role === 'CURATOR' || curRes.data.user.role === 'ADMIN', `Expected CURATOR/ADMIN role, got ${curRes.data.user.role}`);
     console.assert(curRes.data.redirectUrl === '/curator.html', `Expected /curator.html, got ${curRes.data.redirectUrl}`);
     console.assert(curRes.cookie, 'Expected wabisabi_session cookie');
     curatorCookie = curRes.cookie;
-    console.log('✓ Curator Dhanush login & Argon2id verification passed.');
+    console.log('✓ Admin login & Argon2id verification passed.');
 
-    console.log('\n--- 3. Testing Authorized Curators (Likith & Sarvasree) ---');
-    const likRes = await request('POST', '/api/auth/login', {
+    console.log('\n--- 3. Testing Purged Legacy Accounts Are Rejected ---');
+    const oldRes1 = await request('POST', '/api/auth/login', {
         email: 'nrlikith6@gmail.com',
         password: 'curator123'
     });
-    console.assert(likRes.status === 200, `Expected 200, got ${likRes.status}`);
-    console.assert(likRes.data.user.role === 'CURATOR', 'Expected CURATOR');
-    console.log('✓ Curator Likith login verified.');
+    console.assert(oldRes1.status === 401, `Expected 401 for purged account, got ${oldRes1.status}`);
 
-    const sarRes = await request('POST', '/api/auth/login', {
-        email: 'sarvasreeyuvaraj02@gmail.com',
+    const oldRes2 = await request('POST', '/api/auth/login', {
+        email: 'ganganidhanush@gmail.com',
         password: 'curator123'
     });
-    console.assert(sarRes.status === 200, `Expected 200, got ${sarRes.status}`);
-    console.assert(sarRes.data.user.role === 'CURATOR', 'Expected CURATOR');
-    console.log('✓ Curator Sarvasree login verified.');
+    console.assert(oldRes2.status === 401, `Expected 401 for purged account, got ${oldRes2.status}`);
+    console.log('✓ All purged legacy curator accounts correctly rejected with 401.');
 
     console.log('\n--- 4. Testing RBAC Middleware Protection ---');
     // Unauthenticated request to curator API

@@ -44,6 +44,13 @@ router.get('/', (req, res) => {
 
         const importantNotes = settings.important_notes || 'Bring your notes / finish chapters 1–4 before the gathering.';
 
+        const stickyNotes = settings.sticky_notes || {
+            books: '“Ideas that take quiet root, and stay with you for years.”',
+            films: '“Quiet frames that open unexpected rooms in the mind.”',
+            discussions: 'Conversations held with patience, without judgment.',
+            community: '“Kindred souls who feel the quiet rhythm of life.”'
+        };
+
         const connectLinks = settings.connect_links || settings.platform_links || {
             community_chat_url: 'https://chat.whatsapp.com',
             book_drive_url: 'https://drive.google.com',
@@ -85,6 +92,9 @@ router.get('/', (req, res) => {
                 connect: {
                     links: connectLinks
                 },
+                buttons: connectLinks,
+                button_links: connectLinks,
+                sticky_notes: stickyNotes,
                 updates,
                 current_book: reading,
                 next_meeting: gathering,
@@ -105,6 +115,7 @@ router.get('/', (req, res) => {
             connect: {
                 links: connectLinks
             },
+            sticky_notes: stickyNotes,
             updates,
             current_book: reading,
             next_meeting: gathering,

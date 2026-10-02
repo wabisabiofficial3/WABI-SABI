@@ -77,7 +77,15 @@ router.post('/login', checkLoginRateLimit, async (req, res) => {
                 email: curator.email,
                 displayName: curator.display_name,
                 handle: curator.handle
-            }
+            },
+            user: {
+                id: curator.id,
+                email: curator.email,
+                displayName: curator.display_name,
+                handle: curator.handle,
+                role: 'ADMIN'
+            },
+            redirectUrl: '/curator.html'
         });
     } catch (err) {
         console.error('Curator login error:', err);
@@ -108,22 +116,26 @@ router.post('/logout', (req, res) => {
 });
 
 /**
- * GET /api/auth/me
+ * GET /api/auth/me & /api/auth/session
  * Retrieves current authenticated curator profile
  */
-router.get('/me', (req, res) => {
+router.get(['/me', '/session'], (req, res) => {
     const curator = getAuthenticatedCurator(req);
     if (!curator) {
         return res.json({
             success: false,
+            authenticated: false,
             curator: null,
+            user: null,
             message: 'Visitor mode (not logged in as a curator).'
         });
     }
 
     return res.json({
         success: true,
-        curator
+        authenticated: true,
+        curator,
+        user: curator
     });
 });
 

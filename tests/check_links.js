@@ -47,10 +47,38 @@ for (const { file, fullPath } of htmlFiles) {
             continue;
         }
         
-        const targetOnDisk = path.resolve(fileDir, cleanPath);
+        // Resolve web route paths or file paths
+        let targetOnDisk;
+        if (cleanPath === '/' || cleanPath === '') {
+            targetOnDisk = path.join(pagesDir, 'home.html');
+        } else if (cleanPath === '/my-space') {
+            targetOnDisk = path.join(pagesDir, 'my-space.html');
+        } else if (cleanPath === '/sanctuary') {
+            targetOnDisk = path.join(pagesDir, 'sanctuary.html');
+        } else if (cleanPath.startsWith('/')) {
+            const pageCandidate = path.join(pagesDir, cleanPath.slice(1).endsWith('.html') ? cleanPath.slice(1) : `${cleanPath.slice(1)}.html`);
+            if (fs.existsSync(pageCandidate)) {
+                targetOnDisk = pageCandidate;
+            } else {
+                targetOnDisk = path.join(rootDir, cleanPath.slice(1));
+            }
+        } else {
+            targetOnDisk = path.resolve(fileDir, cleanPath);
+        }
+        
         if (!fs.existsSync(targetOnDisk)) {
             linkIssues.push({ file, type: 'page_missing', href });
-        } else if (hash) {
+        } else if (fs.statSync(targetOnDisk).isDirectory()) {
+            const homeCandidate = path.join(targetOnDisk, 'pages', 'home.html');
+            const indexCandidate = path.join(targetOnDisk, 'index.html');
+            if (fs.existsSync(homeCandidate)) {
+                targetOnDisk = homeCandidate;
+            } else if (fs.existsSync(indexCandidate)) {
+                targetOnDisk = indexCandidate;
+            }
+        }
+        
+        if (fs.existsSync(targetOnDisk) && !fs.statSync(targetOnDisk).isDirectory() && hash) {
             // Check if hash exists in target page
             const targetContent = fs.readFileSync(targetOnDisk, 'utf8');
             if (!targetContent.includes(`id="${hash}"`) && !targetContent.includes(`id='${hash}'`)) {

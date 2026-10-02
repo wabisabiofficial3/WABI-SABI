@@ -1,90 +1,102 @@
 /**
- * Wabi Sabi — Curator Dashboard Client Controller (js/curator.js)
- * Clean, lightweight 3-pillar CMS for Likith, Sarvasree, and Dhanush:
- * 1. Announcements (Weekly Theme, Reading, Gathering, Discussion Points, Important Notes, Bulletins)
- * 2. Community (Add/Remove members, roles, DPs)
- * 3. Connect (External platform links)
+ * Wabi Sabi — Curator Atelier Client Controller (js/curator.js)
+ * Super-Advanced 5-Pillar Command Center:
+ * 1. Announcements & Editorial (Theme, Reading, Gathering, Discussion Inquiries, Bulletins)
+ * 2. Community Directory (Member portraits, Secret Codes, physical QR cards, suspend/restore)
+ * 3. Buttons & Links Command Center (Full button URL & label customization with live test previews)
+ * 4. Tactile Desk Sticky Notes (Books, Films, Discussions, Community musings)
+ * 5. Admin Profile & Security Sanctuary (Profile details, handle, email, Argon2id password encryption)
  */
 
 (function () {
     'use strict';
 
     let currentCurator = null;
+    let currentMembersList = [];
+    let memberSearchQuery = '';
+    let latestCreatedMember = null;
 
-    // Toast helper
+    // Toast Notification Helper
     function showToast(message, isError = false) {
         const toast = document.getElementById('curatorToast');
         if (!toast) return;
         toast.textContent = message;
-        toast.style.background = isError ? '#c93b2b' : 'var(--wabi-forest-green, #273B2B)';
+        toast.style.background = isError ? '#A23434' : 'var(--moss-dark, #273B2B)';
         toast.style.display = 'block';
+        toast.style.animation = 'fadeInToast 0.25s ease';
         setTimeout(() => {
             toast.style.display = 'none';
-        }, 3200);
+        }, 3400);
     }
 
-    // Verify authenticated curator
+    // Verify Authenticated Curator
     async function checkAuth() {
         try {
             const res = await fetch('/api/auth/me', { credentials: 'include' });
             const data = await res.json();
             if (!data.success || !data.curator) {
-                window.location.href = 'login.html?redirect=curator.html';
+                window.location.href = '/sanctuary?redirect=/curator.html';
                 return false;
             }
             currentCurator = data.curator;
             const nameEl = document.getElementById('curatorIdentityName');
             if (nameEl) {
-                nameEl.textContent = `⚜ ${currentCurator.displayName || 'Curator'}`;
+                nameEl.textContent = currentCurator.displayName || 'Wabi Sabi Admin';
             }
             return true;
         } catch (err) {
             console.error('Curator auth check failed:', err);
-            window.location.href = 'login.html?redirect=curator.html';
+            window.location.href = '/sanctuary?redirect=/curator.html';
             return false;
         }
     }
 
-    // Tab Switching Controller
+    // Tab Switching Controller (5 Pillars)
     function setupTabs() {
         const tabs = [
-            { btn: document.getElementById('curTabAnnouncements'), sec: document.getElementById('curatorSectionAnnouncements') },
-            { btn: document.getElementById('curTabCommunity'), sec: document.getElementById('curatorSectionCommunity') },
-            { btn: document.getElementById('curTabConnect'), sec: document.getElementById('curatorSectionConnect') }
+            { btn: document.getElementById('curTabAnnouncements'), sec: document.getElementById('curatorSectionAnnouncements'), key: 'announcements' },
+            { btn: document.getElementById('curTabCommunity'), sec: document.getElementById('curatorSectionCommunity'), key: 'community' },
+            { btn: document.getElementById('curTabButtons'), sec: document.getElementById('curatorSectionButtons'), key: 'buttons' },
+            { btn: document.getElementById('curTabStickies'), sec: document.getElementById('curatorSectionStickies'), key: 'stickies' },
+            { btn: document.getElementById('curTabProfile'), sec: document.getElementById('curatorSectionProfile'), key: 'profile' }
         ];
 
         tabs.forEach(t => {
             if (t.btn && t.sec) {
                 t.btn.addEventListener('click', () => {
                     tabs.forEach(other => {
-                        other.btn.classList.remove('active');
-                        other.sec.classList.remove('active');
+                        if (other.btn) other.btn.classList.remove('active');
+                        if (other.sec) other.sec.classList.remove('active');
                     });
                     t.btn.classList.add('active');
                     t.sec.classList.add('active');
-                    history.replaceState(null, '', `#${t.btn.getAttribute('data-curator-tab')}`);
+                    history.replaceState(null, '', `#${t.key}`);
                 });
             }
         });
 
-        // Activate tab based on URL hash
+        // Activate Tab Based on URL Hash
         const hash = (window.location.hash || '').replace('#', '').toLowerCase();
-        if (hash === 'community') {
+        if (hash === 'community' || hash === 'members') {
             document.getElementById('curTabCommunity')?.click();
-        } else if (hash === 'connect') {
-            document.getElementById('curTabConnect')?.click();
-        } else if (hash === 'announcements') {
+        } else if (hash === 'buttons' || hash === 'connect' || hash === 'links') {
+            document.getElementById('curTabButtons')?.click();
+        } else if (hash === 'stickies' || hash === 'notes') {
+            document.getElementById('curTabStickies')?.click();
+        } else if (hash === 'profile' || hash === 'security') {
+            document.getElementById('curTabProfile')?.click();
+        } else {
             document.getElementById('curTabAnnouncements')?.click();
         }
     }
 
-    // Load initial data
+    // Load Initial Overview Data
     async function loadDashboardData() {
         try {
             const res = await fetch('/api/curator/overview', { credentials: 'include' });
             if (!res.ok) {
                 if (res.status === 401) {
-                    window.location.href = 'login.html?redirect=curator.html';
+                    window.location.href = '/sanctuary?redirect=/curator.html';
                 }
                 return;
             }
@@ -93,17 +105,56 @@
 
             const announcements = data.announcements || {};
             const members = data.members || [];
-            const connectLinks = (data.connect && data.connect.links) || data.settings?.connect_links || {};
+            const connectLinks = data.connect?.links || data.settings?.connect_links || data.settings?.button_links || {};
+            const stickyNotes = data.settings?.sticky_notes || {};
 
+            // 1. Populate Metrics Bar
+            populateStatsDeck(announcements, members);
+
+            // 2. Populate Announcements & Bulletins
             populateAnnouncements(announcements, data.updates);
+
+            // 3. Populate Members Directory
             renderMembers(members);
-            populateConnectLinks(connectLinks);
+
+            // 4. Populate Buttons & Links Manager
+            populateButtonManager(connectLinks);
+
+            // 5. Populate Sticky Notes
+            populateStickyNotes(stickyNotes);
+
+            // 6. Populate Admin Profile Form
+            populateAdminProfile(data.curator || currentCurator);
+
         } catch (err) {
             console.error('Error loading curator overview:', err);
         }
     }
 
-    // 1. Populate Announcements forms & lists
+    // Populate Top Quick Stats Deck
+    function populateStatsDeck(announcements, members) {
+        const activeCount = members.filter(m => m.status !== 'suspended').length;
+        const totalCount = members.length;
+
+        const statMembersCount = document.getElementById('statMembersCount');
+        const statMembersTotal = document.getElementById('statMembersTotal');
+        if (statMembersCount) statMembersCount.textContent = `${activeCount} Soul${activeCount === 1 ? '' : 's'}`;
+        if (statMembersTotal) statMembersTotal.textContent = `${totalCount} Registered in Circle`;
+
+        const r = announcements.this_weeks_reading || {};
+        const statBookTitle = document.getElementById('statBookTitle');
+        const statBookAuthor = document.getElementById('statBookAuthor');
+        if (statBookTitle) statBookTitle.textContent = r.title || 'The Stranger';
+        if (statBookAuthor) statBookAuthor.textContent = r.author ? `by ${r.author}` : 'by Albert Camus';
+
+        const g = announcements.gathering || {};
+        const statMeetingDate = document.getElementById('statMeetingDate');
+        const statMeetingLoc = document.getElementById('statMeetingLoc');
+        if (statMeetingDate) statMeetingDate.textContent = g.date || 'Saturday, 4 Oct';
+        if (statMeetingLoc) statMeetingLoc.textContent = `${g.location || 'MRDU Campus'} • ${g.time || '4:00 PM'}`;
+    }
+
+    // 1. Populate Announcements Forms & Active Bulletins List
     function populateAnnouncements(announcements, bulletins) {
         // Theme
         const theme = announcements.weekly_theme || {};
@@ -157,15 +208,15 @@
                 listEl.innerHTML = '<p style="font-size: 13px; color: var(--wabi-ink-muted); margin: 0;">No notices published yet.</p>';
             } else {
                 listEl.innerHTML = list.map(u => `
-                    <div class="active-announcement-card" id="card-${u.id}">
+                    <div style="border: 1px solid var(--wabi-border-subtle); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; background: var(--wabi-card-subtle);">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
                             <div>
-                                <strong style="font-size: 14.5px; color: var(--wabi-ink);">${escapeHtml(u.title)}</strong>
-                                ${u.is_pinned ? '<span style="font-size: 10px; text-transform: uppercase; background: var(--wabi-sage-soft); color: var(--wabi-forest-green); padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 700;">Pinned</span>' : ''}
-                                <p style="font-size: 13px; color: var(--wabi-ink-secondary); margin: 6px 0 0; line-height: 1.4;">${escapeHtml(u.content)}</p>
+                                <strong style="font-size: 14px; color: var(--wabi-ink);">${escapeHtml(u.title)}</strong>
+                                ${u.is_pinned ? '<span style="font-size: 9px; text-transform: uppercase; background: rgba(39, 59, 43, 0.12); color: var(--moss-dark); padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 700;">Pinned</span>' : ''}
+                                <p style="font-size: 12.5px; color: var(--wabi-ink-secondary); margin: 5px 0 0; line-height: 1.4;">${escapeHtml(u.content)}</p>
                             </div>
-                            <button type="button" class="c-btn c-btn-danger" onclick="window.deleteCuratorUpdate('${u.id}')">
-                                Delete
+                            <button type="button" class="c-btn-action" style="color: #A23434; border-color: rgba(180, 50, 50, 0.3);" onclick="window.deleteCuratorUpdate('${u.id}')" title="Delete Notice">
+                                <span>✕</span>
                             </button>
                         </div>
                     </div>
@@ -174,101 +225,181 @@
         }
     }
 
-    // 2. Render Community Members Directory
+    // 2. Render Members Directory
     function renderMembers(members) {
+        if (members) currentMembersList = members;
         const container = document.getElementById('curatorMembersList');
+        const countBadge = document.getElementById('curatorPeopleCountBadge');
+
+        const activeCount = currentMembersList.filter(m => m.status !== 'suspended').length;
+        const totalCount = currentMembersList.length;
+
+        if (countBadge) {
+            countBadge.textContent = `${activeCount} soul${activeCount === 1 ? '' : 's'} active · ${totalCount} total`;
+        }
+
         if (!container) return;
 
-        if (!members || members.length === 0) {
-            container.innerHTML = '<p style="font-size: 13px; color: var(--wabi-ink-muted);">No members registered yet.</p>';
+        let displayList = currentMembersList;
+        if (memberSearchQuery) {
+            const q = memberSearchQuery.toLowerCase();
+            displayList = displayList.filter(m => {
+                const name = (m.full_name || m.name || '').toLowerCase();
+                const dName = (m.display_name || '').toLowerCase();
+                const handle = (m.handle || '').toLowerCase();
+                const role = (m.role || '').toLowerCase();
+                const status = (m.status || 'active').toLowerCase();
+                return name.includes(q) || dName.includes(q) || handle.includes(q) || role.includes(q) || status.includes(q);
+            });
+        }
+
+        if (!displayList || displayList.length === 0) {
+            container.innerHTML = `<p style="font-size: 13.5px; color: var(--wabi-ink-muted); text-align: center; padding: 28px 0;">No circle members match "${escapeHtml(memberSearchQuery)}".</p>`;
             return;
         }
 
-        container.innerHTML = members.map(m => `
-            <div class="member-row-item" id="member-row-${m.id}">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <img src="${m.avatar_url || '../assets/user_avatar.jpg'}" alt="${escapeHtml(m.name)}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid var(--wabi-border-medium);" onerror="this.src='../assets/user_avatar.jpg'">
-                    <div>
-                        <div style="font-size: 14.5px; font-weight: 600; color: var(--wabi-ink);">
-                            ${escapeHtml(m.name)}
-                            <span style="font-size: 11px; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: rgba(39, 59, 43, 0.1); color: var(--wabi-forest-green); margin-left: 6px;">${escapeHtml(m.role || 'Member')}</span>
+        container.innerHTML = displayList.map(m => {
+            const isSuspended = m.status === 'suspended';
+            const displayName = escapeHtml(m.display_name || m.full_name || m.name);
+            const handleText = m.handle ? escapeHtml(m.handle) : `@${escapeHtml((m.name || 'member').toLowerCase().replace(/\s+/g, ''))}`;
+            const dateJoined = escapeHtml(m.date_joined || 'Autumn 2026');
+
+            return `
+            <div class="curator-member-card" id="member-card-${m.id}">
+                <div class="curator-member-info">
+                    <img src="${m.avatar_url || '/assets/user_avatar.jpg'}" alt="${displayName}" class="curator-member-avatar" onerror="this.src='/assets/user_avatar.jpg'">
+                    <div class="curator-member-meta">
+                        <div class="curator-member-name-row">
+                            <span class="curator-member-name">${displayName}</span>
+                            <span class="member-status-badge ${isSuspended ? 'member-status-suspended' : 'member-status-active'}">
+                                ${isSuspended ? 'Suspended' : 'Active'}
+                            </span>
+                            <span style="font-size: 9px; font-weight: 600; text-transform: uppercase; padding: 1px 6px; border-radius: 999px; background: rgba(39, 59, 43, 0.08); color: var(--wabi-ink);">
+                                ${escapeHtml(m.role || 'Member')}
+                            </span>
                         </div>
-                        <div style="font-size: 12px; color: var(--wabi-ink-muted); margin-top: 2px;">
-                            ${m.handle ? `<span>${escapeHtml(m.handle)}</span> • ` : ''}
-                            <span>${escapeHtml(m.bio || 'Wabi Sabi companion')}</span>
-                        </div>
+                        <div class="curator-member-handle">${handleText}</div>
+                        <div class="curator-member-since">Member since ${dateJoined}</div>
                     </div>
                 </div>
-                <div>
-                    <button type="button" class="c-btn c-btn-danger" onclick="window.deleteCuratorMember('${m.id}')">
-                        Remove
+                <div class="curator-member-actions">
+                    <a href="/my-space?preview=${m.id}" target="_blank" class="c-btn-action" title="Preview member desk">
+                        <span>↗ Space</span>
+                    </a>
+                    <button type="button" class="c-btn-action" onclick="window.openEditMemberModal('${m.id}')" title="Edit member portrait">
+                        <span>✎ Edit</span>
+                    </button>
+                    <button type="button" class="c-btn-action" onclick="window.regenerateMemberCode('${m.id}')" title="Regenerate secret code">
+                        <span>🔑</span>
+                    </button>
+                    <button type="button" class="c-btn-action" onclick="window.openMemberQrModal('${m.id}')" title="Generate QR card">
+                        <span>🪪</span>
+                    </button>
+                    <button type="button" class="c-btn-action" onclick="window.toggleMemberStatus('${m.id}', '${isSuspended ? 'active' : 'suspended'}')" title="${isSuspended ? 'Restore access' : 'Suspend access'}">
+                        <span>${isSuspended ? '✓' : '⏸'}</span>
+                    </button>
+                    <button type="button" class="c-btn-action" style="color: #A23434;" onclick="window.deleteCuratorMember('${m.id}')" title="Remove member">
+                        <span>✕</span>
                     </button>
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
-    // 3. Populate Connect Links Form
-    function populateConnectLinks(links) {
-        if (!links) return;
-        const chatInput = document.getElementById('chatUrlInput');
-        const driveInput = document.getElementById('globalDriveUrlInput');
-        const mapsInput = document.getElementById('globalMapsUrlInput');
-        const instaInput = document.getElementById('instagramUrlInput');
-        const waInput = document.getElementById('whatsappUrlInput');
-        const discInput = document.getElementById('discordUrlInput');
+    // 3. Populate Button & Link Command Center
+    function populateButtonManager(links) {
+        const setVal = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.value = val || '';
+        };
 
-        if (chatInput) chatInput.value = links.community_chat_url || '';
-        if (driveInput) driveInput.value = links.book_drive_url || '';
-        if (mapsInput) mapsInput.value = links.meeting_maps_url || '';
-        if (instaInput) instaInput.value = links.instagram_url || '';
-        if (waInput) waInput.value = links.whatsapp_url || '';
-        if (discInput) discInput.value = links.discord_url || '';
+        setVal('btnUrlChat', links.community_chat_url);
+        setVal('btnLabelChat', links.community_chat_label);
+
+        setVal('btnUrlDrive', links.book_drive_url);
+        setVal('btnLabelDrive', links.book_drive_label);
+
+        setVal('btnUrlMaps', links.meeting_maps_url);
+        setVal('btnLabelMaps', links.meeting_maps_label);
+
+        setVal('btnUrlWa', links.whatsapp_url);
+        setVal('btnLabelWa', links.whatsapp_label);
+
+        setVal('btnUrlDisc', links.discord_url);
+        setVal('btnLabelDisc', links.discord_label);
+
+        setVal('btnUrlInsta', links.instagram_url);
+        setVal('btnLabelInsta', links.instagram_label);
+
+        setVal('btnUrlGoodreads', links.goodreads_url);
+        setVal('btnLabelGoodreads', links.goodreads_label);
+
+        setVal('btnUrlCustom1', links.custom_btn_1_url);
+        setVal('btnLabelCustom1', links.custom_btn_1_label);
+
+        const customCheck = document.getElementById('btnCustom1Enabled');
+        if (customCheck) customCheck.checked = Boolean(links.custom_btn_1_enabled);
+
+        // Update live test button hrefs
+        updateTestLinks();
     }
 
-    // Global hook for deleting an announcement bulletin
-    window.deleteCuratorUpdate = async function (id) {
-        if (!confirm('Are you sure you want to remove this bulletin from the portal?')) return;
-        try {
-            const res = await fetch(`/api/curator/updates/${id}`, {
-                method: 'DELETE',
-                credentials: 'include'
-            });
-            const data = await res.json();
-            if (data.success) {
-                showToast('Bulletin removed.');
-                loadDashboardData();
-            } else {
-                showToast(data.error || 'Failed to delete bulletin.', true);
-            }
-        } catch (err) {
-            showToast('Network error deleting bulletin.', true);
-        }
-    };
+    function updateTestLinks() {
+        const linkMap = [
+            { input: 'btnUrlChat', btn: 'testChatLinkBtn' },
+            { input: 'btnUrlDrive', btn: 'testDriveLinkBtn' },
+            { input: 'btnUrlMaps', btn: 'testMapsLinkBtn' },
+            { input: 'btnUrlWa', btn: 'testWaLinkBtn' },
+            { input: 'btnUrlDisc', btn: 'testDiscLinkBtn' },
+            { input: 'btnUrlInsta', btn: 'testInstaLinkBtn' },
+            { input: 'btnUrlGoodreads', btn: 'testGoodreadsLinkBtn' }
+        ];
 
-    // Global hook for deleting a member
-    window.deleteCuratorMember = async function (id) {
-        if (!confirm('Are you sure you want to remove this person from the community directory?')) return;
-        try {
-            const res = await fetch(`/api/curator/members/${id}`, {
-                method: 'DELETE',
-                credentials: 'include'
-            });
-            const data = await res.json();
-            if (data.success) {
-                showToast('Person removed from community directory.');
-                renderMembers(data.members);
-            } else {
-                showToast(data.error || 'Failed to remove member.', true);
+        linkMap.forEach(item => {
+            const inputEl = document.getElementById(item.input);
+            const btnEl = document.getElementById(item.btn);
+            if (inputEl && btnEl) {
+                const update = () => {
+                    const url = (inputEl.value || '').trim();
+                    btnEl.href = url || '#';
+                    btnEl.style.opacity = url ? '1' : '0.4';
+                    btnEl.style.pointerEvents = url ? 'auto' : 'none';
+                };
+                inputEl.addEventListener('input', update);
+                update();
             }
-        } catch (err) {
-            showToast('Network error removing member.', true);
-        }
-    };
+        });
+    }
 
-    // Form Event Listeners
+    // 4. Populate Sticky Notes
+    function populateStickyNotes(notes) {
+        const booksEl = document.getElementById('stickyNoteBooks');
+        const filmsEl = document.getElementById('stickyNoteFilms');
+        const discussEl = document.getElementById('stickyNoteDiscuss');
+        const commEl = document.getElementById('stickyNoteCommunity');
+
+        if (booksEl) booksEl.value = notes.books || '“Ideas that take quiet root, and stay with you for years.”';
+        if (filmsEl) filmsEl.value = notes.films || '“Quiet frames that open unexpected rooms in the mind.”';
+        if (discussEl) discussEl.value = notes.discussions || 'Conversations held with patience, without judgment.';
+        if (commEl) commEl.value = notes.community || '“Kindred souls who feel the quiet rhythm of life.”';
+    }
+
+    // 5. Populate Admin Profile
+    function populateAdminProfile(curator) {
+        if (!curator) return;
+        const nameInput = document.getElementById('adminDisplayNameInput');
+        const handleInput = document.getElementById('adminHandleInput');
+        const emailInput = document.getElementById('adminEmailInput');
+
+        if (nameInput) nameInput.value = curator.displayName || curator.display_name || 'Wabi Sabi Admin';
+        if (handleInput) handleInput.value = (curator.handle || 'admin').replace(/^@/, '');
+        if (emailInput) emailInput.value = curator.email || 'wabisabiofficial3@gmail.com';
+    }
+
+    // Form Event Listeners & Actions
     function setupFormHandlers() {
-        // 1. Weekly Theme Form
+        // 1. Weekly Theme
         const themeForm = document.getElementById('themeForm');
         if (themeForm) {
             themeForm.addEventListener('submit', async (e) => {
@@ -287,9 +418,9 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('Weekly theme updated!');
+                        showToast('✦ Weekly Theme updated!');
                     } else {
-                        showToast(data.error || 'Failed to save theme.', true);
+                        showToast(data.error || 'Failed to update theme.', true);
                     }
                 } catch (err) {
                     showToast('Network error saving weekly theme.', true);
@@ -318,7 +449,11 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('Reading selection updated!');
+                        showToast('✦ Reading selection updated!');
+                        const statBookTitle = document.getElementById('statBookTitle');
+                        const statBookAuthor = document.getElementById('statBookAuthor');
+                        if (statBookTitle) statBookTitle.textContent = this_weeks_reading.title;
+                        if (statBookAuthor) statBookAuthor.textContent = `by ${this_weeks_reading.author}`;
                     } else {
                         showToast(data.error || 'Failed to save reading details.', true);
                     }
@@ -328,7 +463,7 @@
             });
         }
 
-        // 3. Meeting Details Form
+        // 3. Meeting Gathering Details Form
         const meetingForm = document.getElementById('meetingDetailsForm');
         if (meetingForm) {
             meetingForm.addEventListener('submit', async (e) => {
@@ -349,7 +484,11 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('Gathering details updated!');
+                        showToast('✦ Gathering salon details updated!');
+                        const statMeetingDate = document.getElementById('statMeetingDate');
+                        const statMeetingLoc = document.getElementById('statMeetingLoc');
+                        if (statMeetingDate) statMeetingDate.textContent = gathering.date;
+                        if (statMeetingLoc) statMeetingLoc.textContent = `${gathering.location} • ${gathering.time}`;
                     } else {
                         showToast(data.error || 'Failed to save gathering details.', true);
                     }
@@ -359,7 +498,7 @@
             });
         }
 
-        // 4. Discussion Points & Important Notes Form
+        // 4. Discussion Inquiries & Notice Banner Form
         const dpForm = document.getElementById('discussionPointsForm');
         if (dpForm) {
             dpForm.addEventListener('submit', async (e) => {
@@ -379,7 +518,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('Discussion points and important notice updated!');
+                        showToast('✦ Discussion inquiries and notice updated!');
                     } else {
                         showToast(data.error || 'Failed to save notes.', true);
                     }
@@ -407,7 +546,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ Bulletin published to public portal!');
+                        showToast('✦ Bulletin published to public wall!');
                         noticeForm.reset();
                         document.getElementById('announcementPinned').checked = true;
                         loadDashboardData();
@@ -420,75 +559,357 @@
             });
         }
 
-        // 6. Add Community Member Form
-        const addMemberForm = document.getElementById('addMemberForm');
-        if (addMemberForm) {
-            addMemberForm.addEventListener('submit', async (e) => {
+        // 6. Buttons & Links Command Form (User-requested feature)
+        const btnForm = document.getElementById('buttonManagerForm');
+        if (btnForm) {
+            btnForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const name = document.getElementById('memberNameInput').value.trim();
-                const role = document.getElementById('memberRoleSelect').value;
-                const handle = document.getElementById('memberHandleInput').value.trim();
-                const avatar_url = document.getElementById('memberAvatarInput').value.trim();
-                const bio = document.getElementById('memberBioInput').value.trim();
-                const display_order = parseInt(document.getElementById('memberOrderInput').value, 10) || 0;
+                const payload = {
+                    community_chat_url: document.getElementById('btnUrlChat')?.value.trim() || '',
+                    community_chat_label: document.getElementById('btnLabelChat')?.value.trim() || 'Join Community Lounge',
+                    book_drive_url: document.getElementById('btnUrlDrive')?.value.trim() || '',
+                    book_drive_label: document.getElementById('btnLabelDrive')?.value.trim() || 'Open Book Drive',
+                    meeting_maps_url: document.getElementById('btnUrlMaps')?.value.trim() || '',
+                    meeting_maps_label: document.getElementById('btnLabelMaps')?.value.trim() || 'Open in Google Maps',
+                    whatsapp_url: document.getElementById('btnUrlWa')?.value.trim() || '',
+                    whatsapp_label: document.getElementById('btnLabelWa')?.value.trim() || 'WhatsApp Channel',
+                    discord_url: document.getElementById('btnUrlDisc')?.value.trim() || '',
+                    discord_label: document.getElementById('btnLabelDisc')?.value.trim() || 'Discord Lounge',
+                    instagram_url: document.getElementById('btnUrlInsta')?.value.trim() || '',
+                    instagram_label: document.getElementById('btnLabelInsta')?.value.trim() || 'Instagram',
+                    goodreads_url: document.getElementById('btnUrlGoodreads')?.value.trim() || '',
+                    goodreads_label: document.getElementById('btnLabelGoodreads')?.value.trim() || 'Goodreads Circle',
+                    custom_btn_1_url: document.getElementById('btnUrlCustom1')?.value.trim() || '',
+                    custom_btn_1_label: document.getElementById('btnLabelCustom1')?.value.trim() || '',
+                    custom_btn_1_enabled: document.getElementById('btnCustom1Enabled')?.checked || false
+                };
+
+                try {
+                    const res = await fetch('/api/curator/buttons', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('✦ All Button Links & Labels updated live!');
+                        updateTestLinks();
+                    } else {
+                        showToast(data.error || 'Failed to save button links.', true);
+                    }
+                } catch (err) {
+                    showToast('Network error saving button links.', true);
+                }
+            });
+        }
+
+        // 7. Sticky Notes Form
+        const stickyForm = document.getElementById('stickyNotesForm');
+        if (stickyForm) {
+            stickyForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const notes = {
+                    books: document.getElementById('stickyNoteBooks')?.value || '',
+                    films: document.getElementById('stickyNoteFilms')?.value || '',
+                    discussions: document.getElementById('stickyNoteDiscuss')?.value || '',
+                    community: document.getElementById('stickyNoteCommunity')?.value || ''
+                };
+
+                try {
+                    const res = await fetch('/api/curator/sticky-notes', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify(notes)
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('✦ Desk sticky notes updated!');
+                    } else {
+                        showToast(data.error || 'Failed to save notes.', true);
+                    }
+                } catch (err) {
+                    showToast('Network error saving sticky notes.', true);
+                }
+            });
+        }
+
+        // 8. Admin Profile & Security Form
+        const profileForm = document.getElementById('adminProfileForm');
+        if (profileForm) {
+            profileForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const displayName = document.getElementById('adminDisplayNameInput')?.value.trim() || '';
+                const handle = document.getElementById('adminHandleInput')?.value.trim() || '';
+                const email = document.getElementById('adminEmailInput')?.value.trim() || '';
+                const currentPassword = document.getElementById('adminCurrentPasswordInput')?.value || '';
+                const newPassword = document.getElementById('adminNewPasswordInput')?.value || '';
+                const confirmPassword = document.getElementById('adminConfirmPasswordInput')?.value || '';
+
+                if (newPassword && newPassword !== confirmPassword) {
+                    showToast('New passwords do not match.', true);
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/api/curator/profile', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            displayName,
+                            handle,
+                            email,
+                            currentPassword,
+                            newPassword
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('✦ Admin Profile updated successfully!');
+                        const nameEl = document.getElementById('curatorIdentityName');
+                        if (nameEl) nameEl.textContent = displayName || 'Wabi Sabi Admin';
+                        document.getElementById('adminCurrentPasswordInput').value = '';
+                        document.getElementById('adminNewPasswordInput').value = '';
+                        document.getElementById('adminConfirmPasswordInput').value = '';
+                    } else {
+                        showToast(data.error || 'Failed to update admin profile.', true);
+                    }
+                } catch (err) {
+                    showToast('Network error saving admin profile.', true);
+                }
+            });
+        }
+
+        // 9. Member Directory Search
+        const searchInput = document.getElementById('curatorMemberSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                memberSearchQuery = (e.target.value || '').trim();
+                renderMembers();
+            });
+        }
+
+        // 10. Create Member Modal Handlers
+        const openCreateBtn = document.getElementById('openCreateMemberModalBtn');
+        const closeCreateBtn = document.getElementById('closeCreateMemberModalBtn');
+        const createForm = document.getElementById('createMemberForm');
+
+        if (openCreateBtn) openCreateBtn.addEventListener('click', window.openCreateMemberModal);
+        if (closeCreateBtn) closeCreateBtn.addEventListener('click', window.closeCreateMemberModal);
+
+        if (createForm) {
+            createForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const fullName = document.getElementById('newMemberFullName').value.trim();
+                const displayName = (document.getElementById('newMemberDisplayName').value || '').trim();
+                const handle = (document.getElementById('newMemberHandle').value || '').trim();
+                const gender = document.getElementById('newMemberGender').value;
+                const dateJoined = document.getElementById('newMemberDateJoined').value;
+                const avatarUrl = (document.getElementById('newMemberAvatar').value || '').trim();
+                const role = document.getElementById('newMemberRole').value || 'Member';
+                const bio = (document.getElementById('newMemberBio').value || '').trim();
+
+                const submitBtn = document.getElementById('btnSubmitCreateMember');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span>Forging Secret Key...</span>';
+                }
 
                 try {
                     const res = await fetch('/api/curator/members', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
-                        body: JSON.stringify({ name, role, handle, avatar_url, bio, display_order })
+                        body: JSON.stringify({
+                            name: fullName,
+                            full_name: fullName,
+                            display_name: displayName || fullName,
+                            handle: handle,
+                            gender: gender,
+                            date_joined: dateJoined,
+                            avatar_url: avatarUrl || '/assets/user_avatar.jpg',
+                            role: role,
+                            bio: bio
+                        })
                     });
                     const data = await res.json();
-                    if (data.success) {
-                        showToast(`✦ ${name} added to the community!`);
-                        addMemberForm.reset();
-                        document.getElementById('memberAvatarInput').value = '../assets/avatar_aishwarya.jpg';
-                        document.getElementById('memberOrderInput').value = '10';
-                        renderMembers(data.members);
+                    if (data.success && data.member && data.secretCode) {
+                        window.closeCreateMemberModal();
+                        latestCreatedMember = data.member;
+
+                        // Populate Success Modal
+                        document.getElementById('createdMemberNameDisplay').textContent = data.member.displayName || data.member.name;
+                        document.getElementById('createdMemberHandleDisplay').textContent = data.member.handle ? data.member.handle : `@${(data.member.name || 'member').toLowerCase().replace(/\s+/g, '')}`;
+                        document.getElementById('createdMemberSinceDisplay').textContent = data.member.dateJoined || data.member.date_joined || 'Autumn 2026';
+                        document.getElementById('createdMemberCodeDisplay').textContent = data.secretCode;
+
+                        const successModal = document.getElementById('memberCreatedModal');
+                        if (successModal) successModal.style.display = 'flex';
+
+                        showToast(`✦ Secret Code created for ${data.member.displayName || data.member.name}!`);
+                        if (data.members) renderMembers(data.members);
                     } else {
-                        showToast(data.error || 'Failed to add member.', true);
+                        showToast(data.error || 'Failed to create member.', true);
                     }
                 } catch (err) {
-                    showToast('Network error adding member.', true);
+                    console.error('Error creating member:', err);
+                    showToast('Network error creating member.', true);
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<span>Generate Secret Code & Register ✦</span>';
+                    }
                 }
             });
         }
 
-        // 7. Platform External Links Form (Connect)
-        const linksForm = document.getElementById('platformLinksForm');
-        if (linksForm) {
-            linksForm.addEventListener('submit', async (e) => {
+        // 11. Member Created Modal Actions
+        const closeCreatedBtn = document.getElementById('closeCreatedModalBtn');
+        const copyCreatedCodeBtn = document.getElementById('btnCopyCreatedCode');
+        const genCreatedQrBtn = document.getElementById('btnGenerateCreatedQr');
+        const openCreatedSpaceBtn = document.getElementById('btnOpenCreatedSpace');
+
+        if (closeCreatedBtn) closeCreatedBtn.addEventListener('click', window.closeMemberCreatedModal);
+
+        if (copyCreatedCodeBtn) {
+            copyCreatedCodeBtn.addEventListener('click', async () => {
+                const code = document.getElementById('createdMemberCodeDisplay')?.textContent?.trim() || '';
+                try {
+                    await navigator.clipboard.writeText(code);
+                    copyCreatedCodeBtn.innerHTML = '<span>Copied! ✓</span>';
+                    setTimeout(() => { copyCreatedCodeBtn.innerHTML = '<span>📋 Copy Code</span>'; }, 2200);
+                } catch (e) {
+                    showToast('Code: ' + code);
+                }
+            });
+        }
+
+        if (genCreatedQrBtn) {
+            genCreatedQrBtn.addEventListener('click', () => {
+                if (latestCreatedMember && latestCreatedMember.id) {
+                    window.closeMemberCreatedModal();
+                    window.openMemberQrModal(latestCreatedMember.id);
+                }
+            });
+        }
+
+        if (openCreatedSpaceBtn) {
+            openCreatedSpaceBtn.addEventListener('click', () => {
+                if (latestCreatedMember && latestCreatedMember.id) {
+                    window.open(`/my-space?preview=${latestCreatedMember.id}`, '_blank');
+                }
+            });
+        }
+
+        // 12. Edit Member Modal Form
+        const closeEditBtn = document.getElementById('closeEditMemberModalBtn');
+        const editForm = document.getElementById('editMemberForm');
+
+        if (closeEditBtn) closeEditBtn.addEventListener('click', window.closeEditMemberModal);
+
+        if (editForm) {
+            editForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const links = {
-                    community_chat_url: document.getElementById('chatUrlInput').value.trim(),
-                    book_drive_url: document.getElementById('globalDriveUrlInput').value.trim(),
-                    meeting_maps_url: document.getElementById('globalMapsUrlInput').value.trim(),
-                    instagram_url: document.getElementById('instagramUrlInput').value.trim(),
-                    whatsapp_url: document.getElementById('whatsappUrlInput').value.trim(),
-                    discord_url: document.getElementById('discordUrlInput').value.trim()
-                };
+                const id = document.getElementById('editMemberId').value;
+                const fullName = document.getElementById('editMemberFullName').value.trim();
+                const displayName = (document.getElementById('editMemberDisplayName').value || '').trim();
+                const handle = (document.getElementById('editMemberHandle').value || '').trim();
+                const gender = document.getElementById('editMemberGender').value;
+                const dateJoined = document.getElementById('editMemberDateJoined').value;
+                const role = document.getElementById('editMemberRole').value;
+                const status = document.getElementById('editMemberStatus').value;
+                const avatarUrl = (document.getElementById('editMemberAvatar').value || '').trim();
+                const bio = (document.getElementById('editMemberBio').value || '').trim();
 
                 try {
-                    const res = await fetch('/api/curator/connect', {
+                    const res = await fetch(`/api/curator/members/${id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
-                        body: JSON.stringify(links)
+                        body: JSON.stringify({
+                            name: fullName,
+                            full_name: fullName,
+                            display_name: displayName || fullName,
+                            handle,
+                            gender,
+                            date_joined: dateJoined,
+                            role,
+                            status,
+                            avatar_url: avatarUrl,
+                            bio
+                        })
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('Connect platform links updated!');
+                        showToast(`✦ Portrait updated for ${displayName || fullName}!`);
+                        window.closeEditMemberModal();
+                        if (data.members) renderMembers(data.members);
                     } else {
-                        showToast(data.error || 'Failed to save connect links.', true);
+                        showToast(data.error || 'Failed to update member.', true);
                     }
                 } catch (err) {
-                    showToast('Network error saving connect links.', true);
+                    showToast('Network error saving member details.', true);
                 }
             });
         }
 
-        // 8. Sign Out Button
+        // 13. Member Card & QR Modal Handlers
+        const closeCardBtn = document.getElementById('closeCardModalBtn');
+        const closeCardBottomBtn = document.getElementById('btnCloseCardModalBottom');
+        const copyClaimUrlBtn = document.getElementById('btnCopyClaimUrl');
+        const printCardBtn = document.getElementById('btnPrintCard');
+
+        if (closeCardBtn) closeCardBtn.addEventListener('click', window.closeMemberCardModal);
+        if (closeCardBottomBtn) closeCardBottomBtn.addEventListener('click', window.closeMemberCardModal);
+
+        if (copyClaimUrlBtn) {
+            copyClaimUrlBtn.addEventListener('click', async () => {
+                const url = document.getElementById('cardClaimUrlInput')?.value || '';
+                try {
+                    await navigator.clipboard.writeText(url);
+                    copyClaimUrlBtn.textContent = 'Copied! ✓';
+                    setTimeout(() => { copyClaimUrlBtn.textContent = 'Copy'; }, 2000);
+                } catch (e) {
+                    showToast('Pass URL: ' + url);
+                }
+            });
+        }
+
+        if (printCardBtn) {
+            printCardBtn.addEventListener('click', () => {
+                window.print();
+            });
+        }
+
+        // 14. Regenerated Code Modal Handlers
+        const closeRegenBtn = document.getElementById('closeRegenModalBtn');
+        const closeRegenBottomBtn = document.getElementById('btnCloseRegenBottom');
+        const copyRegenCodeBtn = document.getElementById('btnCopyRegenCode');
+
+        const closeRegenModal = () => {
+            const modal = document.getElementById('codeRegeneratedModal');
+            if (modal) modal.style.display = 'none';
+        };
+
+        if (closeRegenBtn) closeRegenBtn.addEventListener('click', closeRegenModal);
+        if (closeRegenBottomBtn) closeRegenBottomBtn.addEventListener('click', closeRegenModal);
+
+        if (copyRegenCodeBtn) {
+            copyRegenCodeBtn.addEventListener('click', async () => {
+                const code = document.getElementById('regenCodeDisplay')?.textContent?.trim() || '';
+                try {
+                    await navigator.clipboard.writeText(code);
+                    copyRegenCodeBtn.innerHTML = '<span>Copied! ✓</span>';
+                    setTimeout(() => { copyRegenCodeBtn.innerHTML = '<span>📋 Copy New Code</span>'; }, 2000);
+                } catch (e) {
+                    showToast('Code: ' + code);
+                }
+            });
+        }
+
+        // 15. Sign Out
         const signOutBtn = document.getElementById('curatorSignOutBtn');
         if (signOutBtn) {
             signOutBtn.addEventListener('click', async () => {
@@ -498,6 +919,199 @@
                 window.location.href = 'home.html';
             });
         }
+    }
+
+    // Modal Helpers Exposed to Global Scope
+    window.openCreateMemberModal = function () {
+        const modal = document.getElementById('createMemberModal');
+        const form = document.getElementById('createMemberForm');
+        if (form) form.reset();
+        const dateInput = document.getElementById('newMemberDateJoined');
+        if (dateInput) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
+        const avatarInput = document.getElementById('newMemberAvatar');
+        if (avatarInput) avatarInput.value = '/assets/user_avatar.jpg';
+        if (modal) modal.style.display = 'flex';
+        setTimeout(() => document.getElementById('newMemberFullName')?.focus(), 100);
+    };
+
+    window.closeCreateMemberModal = function () {
+        const modal = document.getElementById('createMemberModal');
+        if (modal) modal.style.display = 'none';
+    };
+
+    window.closeMemberCreatedModal = function () {
+        const modal = document.getElementById('memberCreatedModal');
+        if (modal) modal.style.display = 'none';
+    };
+
+    window.openEditMemberModal = function (id) {
+        const m = currentMembersList.find(item => item.id === id);
+        if (!m) return;
+
+        document.getElementById('editMemberId').value = m.id;
+        document.getElementById('editMemberFullName').value = m.full_name || m.name || '';
+        document.getElementById('editMemberDisplayName').value = m.display_name || m.name || '';
+        document.getElementById('editMemberHandle').value = m.handle || '';
+        document.getElementById('editMemberGender').value = m.gender || '';
+        document.getElementById('editMemberDateJoined').value = m.date_joined || '';
+        document.getElementById('editMemberRole').value = m.role || 'Member';
+        document.getElementById('editMemberStatus').value = m.status || 'active';
+        document.getElementById('editMemberAvatar').value = m.avatar_url || '/assets/user_avatar.jpg';
+        document.getElementById('editMemberBio').value = m.bio || '';
+
+        const modal = document.getElementById('editMemberModal');
+        if (modal) modal.style.display = 'flex';
+    };
+
+    window.closeEditMemberModal = function () {
+        const modal = document.getElementById('editMemberModal');
+        if (modal) modal.style.display = 'none';
+    };
+
+    window.regenerateMemberCode = async function (id) {
+        const m = currentMembersList.find(item => item.id === id);
+        const name = m ? (m.display_name || m.name) : 'Member';
+
+        if (!confirm(`Are you sure you want to regenerate the Secret Code for ${name}?\n\nThe existing Secret Code will immediately stop working.`)) {
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/curator/members/${id}/regenerate-code`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.success && data.secretCode) {
+                document.getElementById('regenMemberName').textContent = name;
+                document.getElementById('regenCodeDisplay').textContent = data.secretCode;
+
+                const modal = document.getElementById('codeRegeneratedModal');
+                if (modal) modal.style.display = 'flex';
+
+                showToast(`✦ New Secret Code generated for ${name}!`);
+            } else {
+                showToast(data.error || 'Failed to regenerate code.', true);
+            }
+        } catch (err) {
+            showToast('Network error regenerating code.', true);
+        }
+    };
+
+    window.openMemberQrModal = async function (id) {
+        try {
+            const res = await fetch(`/api/curator/members/${id}/generate-qr`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.success) {
+                const member = data.member;
+                document.getElementById('cardMemberNameDisplay').textContent = (member.name || 'Member').toUpperCase();
+                document.getElementById('cardMemberRoleDisplay').textContent = (member.role || 'Member').toUpperCase();
+                document.getElementById('cardMemberSinceDisplay').textContent = `Member since ${member.date_joined || 'Autumn 2026'}`;
+                document.getElementById('cardQrImage').src = data.qrDataUrl;
+                document.getElementById('cardClaimUrlInput').value = data.claimUrl;
+
+                const modal = document.getElementById('memberCardModal');
+                if (modal) modal.style.display = 'flex';
+            } else {
+                showToast(data.error || 'Failed to generate pass.', true);
+            }
+        } catch (err) {
+            showToast('Network error generating membership pass.', true);
+        }
+    };
+
+    window.closeMemberCardModal = function () {
+        const modal = document.getElementById('memberCardModal');
+        if (modal) modal.style.display = 'none';
+    };
+
+    window.toggleMemberStatus = async function (id, nextStatus) {
+        try {
+            const res = await fetch(`/api/curator/members/${id}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ status: nextStatus })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(`✦ Membership status updated to ${nextStatus}.`);
+                if (data.members) renderMembers(data.members);
+            } else {
+                showToast(data.error || 'Failed to update status.', true);
+            }
+        } catch (err) {
+            showToast('Network error updating member status.', true);
+        }
+    };
+
+    window.deleteCuratorMember = async function (id) {
+        const m = currentMembersList.find(item => item.id === id);
+        const name = m ? (m.display_name || m.name) : 'Member';
+
+        if (!confirm(`Are you sure you want to remove ${name} from the sanctuary directory?\n\nThis will revoke their access code and delete their reading space.`)) {
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/curator/members/${id}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(`✦ ${name} removed from circle.`);
+                if (data.members) renderMembers(data.members);
+            } else {
+                showToast(data.error || 'Failed to delete member.', true);
+            }
+        } catch (err) {
+            showToast('Network error deleting member.', true);
+        }
+    };
+
+    window.deleteCuratorUpdate = async function (id) {
+        if (!confirm('Are you sure you want to delete this bulletin notice from the public portal?')) {
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/curator/updates/${id}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast('✦ Notice deleted from board.');
+                loadDashboardData();
+            } else {
+                showToast(data.error || 'Failed to delete notice.', true);
+            }
+        } catch (err) {
+            showToast('Network error deleting notice.', true);
+        }
+    };
+
+    // Render Anti-Sleep Heartbeat (Zero Downtime Keep-Alive)
+    function initAdminKeepAliveHeartbeat() {
+        const pingHealth = async () => {
+            try {
+                await fetch('/api/health', { method: 'GET', cache: 'no-store' });
+            } catch (e) {}
+        };
+
+        pingHealth();
+        setInterval(pingHealth, 7 * 60 * 1000);
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') pingHealth();
+        });
+        window.addEventListener('focus', pingHealth);
     }
 
     function escapeHtml(str) {
@@ -510,7 +1124,7 @@
             .replace(/'/g, '&#39;');
     }
 
-    // Theme Restoration & Toggle Controller
+    // Theme Controller
     function setupThemeToggle() {
         const savedTheme = localStorage.getItem('wabi_sabi_theme') || 'light';
         if (savedTheme === 'dark') {
@@ -534,7 +1148,7 @@
         }
     }
 
-    // Initialize when DOM is ready
+    // Initialize on DOM Ready
     document.addEventListener('DOMContentLoaded', async () => {
         setupThemeToggle();
         const isAuthed = await checkAuth();
@@ -542,6 +1156,7 @@
             setupTabs();
             setupFormHandlers();
             loadDashboardData();
+            initAdminKeepAliveHeartbeat();
         }
     });
 

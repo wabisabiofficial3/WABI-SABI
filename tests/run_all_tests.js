@@ -7,7 +7,14 @@ const testSuites = [
     'tests/test_simplified_architecture.js',
     'tests/check_links.js',
     'tests/check_assets.js',
-    'tests/test_design_tokens_and_a11y.js'
+    'tests/test_design_tokens_and_a11y.js',
+    'tests/test_hero_ctas.js',
+    'tests/e2e_sanctuary_test.js',
+    'tests/test_interactive_and_admin_purge.js',
+    'tests/test_all_user_requirements.js',
+    'tests/test_security_seo_cookies.js',
+    'tests/test_user_memory.js',
+    'tests/test_member_access_system.js'
 ];
 
 console.log('================================================================');
