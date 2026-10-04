@@ -8,23 +8,15 @@
  */
 
 (function () {
-    const STORAGE_KEY_THEME = 'wabisabi_theme';
+    const STORAGE_KEY_THEME = 'wabi_sabi_theme';
     const STORAGE_KEY_CONTENT = 'wabisabi_content_v3';
     const STORAGE_KEY_USER = 'wabisabi_cached_user';
 
-    // Auto-detect API base URL (allows running directly from file://, Live Server, or port 3000)
+    // The application is served by Express, so use same-origin relative API URLs.
+    // This also works behind Arena/Render reverse proxies without hard-coded ports.
     function getApiBase() {
-        if (window.location.protocol === 'file:') {
-            return 'http://localhost:3000';
-        }
-        if (window.location.port && window.location.port !== '3000') {
-            const host = window.location.hostname || 'localhost';
-            return `http://${host}:3000`;
-        }
         return '';
     }
-
-    const API_BASE = getApiBase();
 
     // Seed Content (Featured Pick, Salons, Prompts) for local UI caching
     const DEFAULT_CONTENT = {
@@ -72,39 +64,22 @@
 
         // --- Server-Backed Session Management ---
         async getSession() {
-            if (this._currentUser) return this._currentUser;
-
-            // Check cached session
-            const cached = localStorage.getItem(STORAGE_KEY_USER);
-            if (cached) {
-                try {
-                    this._currentUser = JSON.parse(cached);
-                } catch (e) {}
-            }
-
             try {
-                const res = await this.apiFetch('/api/auth/session');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.success && data.user) {
-                        this._currentUser = data.user;
-                        localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(data.user));
-                        return data.user;
-                    }
-                    // Server says session is not valid — clear stale cache
-                    this._currentUser = null;
-                    localStorage.removeItem(STORAGE_KEY_USER);
-                    return null;
-                } else if (res.status === 401) {
-                    this._currentUser = null;
-                    localStorage.removeItem(STORAGE_KEY_USER);
-                    return null;
+                const res = await this.apiFetch('/api/auth/session', { cache: 'no-store' });
+                if (!res.ok) throw new Error(`Session check failed (${res.status}).`);
+                const data = await res.json();
+                if (data.success && data.user) {
+                    this._currentUser = data.user;
+                    localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(data.user));
+                    return data.user;
                 }
             } catch (err) {
-                // If API is temporarily unreachable, return cached user if available
-                if (this._currentUser) return this._currentUser;
+                // Cached profile data is never treated as proof of authentication.
+                console.warn('Unable to verify curator session:', err.message);
             }
-            return this._currentUser || null;
+            this._currentUser = null;
+            localStorage.removeItem(STORAGE_KEY_USER);
+            return null;
         },
 
         async login(email, password) {
@@ -123,27 +98,17 @@
                 }
                 return { success: false, message: data.error || 'Invalid email or password.' };
             } catch (err) {
-                console.warn('Direct server connection failed, checking local evaluation fallback:', err);
-                const normEmail = (email || '').trim().toLowerCase();
-
-                // Offline fallback strictly for the single authorized admin account
-                if ((normEmail === 'wabisabiofficial3@gmail.com' || normEmail === 'admin') && password === 'DsL@678_') {
-                    const user = { id: 'admin-wabisabi', email: 'wabisabiofficial3@gmail.com', displayName: 'Wabi Sabi Admin', handle: 'admin', role: 'ADMIN', status: 'ACTIVE' };
-                    this._currentUser = user;
-                    localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
-                    return { success: true, user, redirectUrl: 'curator.html' };
-                }
-
+                console.warn('Curator authentication request failed:', err);
                 return {
                     success: false,
-                    message: 'Authentication service unreachable or invalid credentials. Please ensure the server is active.'
+                    message: 'Authentication service is unreachable. Please try again when the server is available.'
                 };
             }
         },
 
         async logout() {
             try {
-                await fetch(`${API_BASE}/api/auth/logout`, { method: 'POST', credentials: 'include' });
+                await this.apiFetch('/api/auth/logout', { method: 'POST' });
             } catch (e) {}
             this._currentUser = null;
             localStorage.removeItem(STORAGE_KEY_USER);

@@ -262,15 +262,18 @@
         }
 
         container.innerHTML = displayList.map(m => {
+            const memberId = String(m.id || '');
+            if (!/^[A-Za-z0-9_-]{1,80}$/.test(memberId)) return '';
             const isSuspended = m.status === 'suspended';
+            const avatarUrl = safeHttpUrl(m.avatar_url || '/assets/user_avatar.jpg') || '/assets/user_avatar.jpg';
             const displayName = escapeHtml(m.display_name || m.full_name || m.name);
             const handleText = m.handle ? escapeHtml(m.handle) : `@${escapeHtml((m.name || 'member').toLowerCase().replace(/\s+/g, ''))}`;
             const dateJoined = escapeHtml(m.date_joined || 'Autumn 2026');
 
             return `
-            <div class="curator-member-card" id="member-card-${m.id}">
+            <div class="curator-member-card" id="member-card-${memberId}">
                 <div class="curator-member-info">
-                    <img src="${m.avatar_url || '/assets/user_avatar.jpg'}" alt="${displayName}" class="curator-member-avatar" onerror="this.src='/assets/user_avatar.jpg'">
+                    <img src="${escapeHtml(avatarUrl)}" alt="${displayName}" class="curator-member-avatar" onerror="this.src='/assets/user_avatar.jpg'">
                     <div class="curator-member-meta">
                         <div class="curator-member-name-row">
                             <span class="curator-member-name">${displayName}</span>
@@ -286,22 +289,22 @@
                     </div>
                 </div>
                 <div class="curator-member-actions">
-                    <a href="/my-space?preview=${m.id}" target="_blank" class="c-btn-action" title="Preview member desk">
+                    <a href="/my-space?preview=${encodeURIComponent(memberId)}" target="_blank" rel="noopener noreferrer" class="c-btn-action" title="Preview member desk">
                         <span>↗ Space</span>
                     </a>
-                    <button type="button" class="c-btn-action" onclick="window.openEditMemberModal('${m.id}')" title="Edit member portrait">
+                    <button type="button" class="c-btn-action" onclick="window.openEditMemberModal('${memberId}')" title="Edit member portrait">
                         <span>✎ Edit</span>
                     </button>
-                    <button type="button" class="c-btn-action" onclick="window.regenerateMemberCode('${m.id}')" title="Regenerate secret code">
+                    <button type="button" class="c-btn-action" onclick="window.regenerateMemberCode('${memberId}')" title="Regenerate secret code">
                         <span>🔑</span>
                     </button>
-                    <button type="button" class="c-btn-action" onclick="window.openMemberQrModal('${m.id}')" title="Generate QR card">
+                    <button type="button" class="c-btn-action" onclick="window.openMemberQrModal('${memberId}')" title="Generate QR card">
                         <span>🪪</span>
                     </button>
-                    <button type="button" class="c-btn-action" onclick="window.toggleMemberStatus('${m.id}', '${isSuspended ? 'active' : 'suspended'}')" title="${isSuspended ? 'Restore access' : 'Suspend access'}">
+                    <button type="button" class="c-btn-action" onclick="window.toggleMemberStatus('${memberId}', '${isSuspended ? 'active' : 'suspended'}')" title="${isSuspended ? 'Restore access' : 'Suspend access'}">
                         <span>${isSuspended ? '✓' : '⏸'}</span>
                     </button>
-                    <button type="button" class="c-btn-action" style="color: #A23434;" onclick="window.deleteCuratorMember('${m.id}')" title="Remove member">
+                    <button type="button" class="c-btn-action" style="color: #A23434;" onclick="window.deleteCuratorMember('${memberId}')" title="Remove member">
                         <span>✕</span>
                     </button>
                 </div>
@@ -364,12 +367,15 @@
             const btnEl = document.getElementById(item.btn);
             if (inputEl && btnEl) {
                 const update = () => {
-                    const url = (inputEl.value || '').trim();
+                    const url = safeHttpUrl((inputEl.value || '').trim());
                     btnEl.href = url || '#';
                     btnEl.style.opacity = url ? '1' : '0.4';
                     btnEl.style.pointerEvents = url ? 'auto' : 'none';
                 };
-                inputEl.addEventListener('input', update);
+                if (!inputEl._testLinkBound) {
+                    inputEl.addEventListener('input', update);
+                    inputEl._testLinkBound = true;
+                }
                 update();
             }
         });
@@ -1176,6 +1182,17 @@
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
+    }
+
+    function safeHttpUrl(value) {
+        if (typeof value !== 'string' || !value.trim()) return '';
+        try {
+            const parsed = new URL(value.trim(), window.location.origin);
+            if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password) return '';
+            return parsed.href;
+        } catch (e) {
+            return '';
+        }
     }
 
     // Theme Controller

@@ -1,6 +1,8 @@
+const path = require('node:path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const path = require('node:path');
 const { seedInitialAccounts } = require('./db');
 const { requireCuratorPage } = require('./middleware/auth');
 
@@ -10,10 +12,20 @@ const curatorRouter = require('./routes/curator');
 const userRouter = require('./routes/user');
 const memberRouter = require('./routes/member');
 
-const { securityHeaders, blockSensitiveFiles, apiRateLimiter } = require('./middleware/security');
+const { securityHeaders, blockSensitiveFiles, corsAndCsrf, apiRateLimiter } = require('./middleware/security');
 
 const app = express();
 app.disable('x-powered-by');
+
+// This app is deployed behind one reverse proxy by default (Render/Arena). Override
+// TRUST_PROXY_HOPS=0 for direct deployments, or set the exact trusted hop count.
+const trustProxyHops = process.env.TRUST_PROXY_HOPS === undefined
+    ? 1
+    : Number(process.env.TRUST_PROXY_HOPS);
+if (!Number.isInteger(trustProxyHops) || trustProxyHops < 0 || trustProxyHops > 10) {
+    throw new Error('TRUST_PROXY_HOPS must be an integer between 0 and 10.');
+}
+app.set('trust proxy', trustProxyHops);
 
 const PORT = process.env.PORT || 3000;
 const STATIC_ROOT = path.join(__dirname, '..');
@@ -22,36 +34,15 @@ const PAGES_DIR = path.join(STATIC_ROOT, 'pages');
 // Security Middlewares
 app.use(securityHeaders);
 app.use(blockSensitiveFiles);
+app.use(corsAndCsrf);
 
 // Body and Cookie Parsers
 app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: false, limit: '1kb' }));
 app.use(cookieParser());
 
-// Rate limit API routes
+// Rate limit API routes (mounted after origin checks so preflight requests are not counted).
 app.use('/api', apiRateLimiter);
-
-// Safe CORS
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    const isAllowed = !origin || 
-        origin.includes('localhost') || 
-        origin.includes('127.0.0.1') || 
-        origin.includes('render.com') || 
-        origin.includes('wabi-sabi');
-
-    if (isAllowed && origin) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-    }
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie, Accept');
-    res.setHeader('Access-Control-Allow-Private-Network', 'true');
-
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(204);
-    }
-    next();
-});
 
 // ====================================================================
 // PUBLIC PORTAL ROUTE (Zero login required - Visitors enter directly)
@@ -126,8 +117,12 @@ app.get('/sitemap.xml', (req, res) => {
     res.type('application/xml').sendFile(path.join(STATIC_ROOT, 'sitemap.xml'));
 });
 
-app.get(['/favicon.ico', '/favicon.png'], (req, res) => {
+app.get('/favicon.ico', (req, res) => {
     res.sendFile(path.join(STATIC_ROOT, 'favicon.ico'));
+});
+
+app.get('/favicon.png', (req, res) => {
+    res.sendFile(path.join(STATIC_ROOT, 'favicon.png'));
 });
 
 app.get('/site.webmanifest', (req, res) => {

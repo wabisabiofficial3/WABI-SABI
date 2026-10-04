@@ -2,18 +2,37 @@ const { DatabaseSync } = require('node:sqlite');
 const path = require('node:path');
 const fs = require('node:fs');
 const crypto = require('node:crypto');
+const { hashPassword } = require('./crypto');
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
+const DEFAULT_DATA_DIR = path.join(__dirname, '..', 'data');
+const DB_PATH = process.env.WABI_DB_PATH
+    ? path.resolve(process.env.WABI_DB_PATH)
+    : path.join(DEFAULT_DATA_DIR, 'wabisabi.db');
+const DATA_DIR = path.dirname(DB_PATH);
 if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
 }
 
-const DB_PATH = path.join(DATA_DIR, 'wabisabi.db');
 const db = new DatabaseSync(DB_PATH);
 
-// Enable WAL mode for better concurrency and foreign keys
+// Enable WAL mode, foreign keys and a bounded wait for concurrent connections.
 db.exec('PRAGMA journal_mode = WAL;');
+db.exec('PRAGMA synchronous = NORMAL;');
 db.exec('PRAGMA foreign_keys = ON;');
+db.exec('PRAGMA busy_timeout = 5000;');
+
+function withTransaction(callback) {
+    if (typeof callback !== 'function') throw new TypeError('Transaction callback must be a function.');
+    db.exec('BEGIN IMMEDIATE;');
+    try {
+        const result = callback();
+        db.exec('COMMIT;');
+        return result;
+    } catch (error) {
+        try { db.exec('ROLLBACK;'); } catch (rollbackError) {}
+        throw error;
+    }
+}
 
 /**
  * Initialize simplified Wabi Sabi database tables:
@@ -138,41 +157,122 @@ function initDatabase() {
 }
 
 /**
- * Seed single Admin account wabisabiofficial3@gmail.com (password: DsL@678_)
- * and purge any previous curator accounts.
+ * Bootstrap the single curator account without shipping a usable password in source.
+ * Set WABI_ADMIN_PASSWORD on first production boot. Local development generates a
+ * one-time password in an ignored, owner-readable file under data/.
+ */
+const COMPROMISED_ADMIN_HASH = '$argon2id$v=19$m=32768,t=2,p=1$yVbG5gRjjuN8wY8f66RpcQ$mddEvCT1DD8iAOyTJuxDUDemwPklaDeSDZ05+mKuUPE';
+const COMPROMISED_MEMBER_CODE_HASHES = new Set([
+    '9904343baad4bd072754e2888e4730f9a47ac6b9877d02305299e6f475f1aedd',
+    '188087f74f7decf4614bae5be608d754f3b5d5c8f7ca465a70772b25607830a9'
+]);
+
+async function initialAdminPasswordHash() {
+    const configuredPassword = process.env.WABI_ADMIN_PASSWORD;
+    if (configuredPassword !== undefined) {
+        if (configuredPassword.length < 12 || configuredPassword.length > 1024) {
+            throw new Error('WABI_ADMIN_PASSWORD must be between 12 and 1024 characters.');
+        }
+        return hashPassword(configuredPassword);
+    }
+
+    if (process.env.NODE_ENV === 'production') {
+        throw new Error('WABI_ADMIN_PASSWORD is required to initialize or rotate the curator account in production.');
+    }
+
+    const password = crypto.randomBytes(32).toString('base64url');
+    const passwordHash = await hashPassword(password);
+    const passwordFile = path.join(DATA_DIR, 'initial-admin-password.txt');
+    fs.writeFileSync(passwordFile, `Curator email: ${process.env.WABI_ADMIN_EMAIL || 'wabisabiofficial3@gmail.com'}\nInitial password: ${password}\n`, {
+        encoding: 'utf8',
+        mode: 0o600
+    });
+    try {
+        fs.chmodSync(passwordFile, 0o600);
+    } catch (error) {
+        // The platform may not support POSIX file modes; the file remains in ignored data/.
+    }
+    console.warn(`A one-time local curator password was generated. Read it from ${passwordFile} and change it after signing in.`);
+    return passwordHash;
+}
+
+/**
+ * Ensure exactly one curator account exists and remove superseded sessions/accounts.
+ * Old repository versions shipped a known password hash; that hash is rotated once.
  */
 async function seedInitialAccounts() {
     initDatabase();
 
+    const existingCanonical = db.prepare('SELECT * FROM curators WHERE id = ?').get('admin-wabisabi');
     const admin = {
         id: 'admin-wabisabi',
-        email: 'wabisabiofficial3@gmail.com',
-        handle: 'admin',
-        displayName: 'Wabi Sabi Admin',
-        hash: '$argon2id$v=19$m=32768,t=2,p=1$yVbG5gRjjuN8wY8f66RpcQ$mddEvCT1DD8iAOyTJuxDUDemwPklaDeSDZ05+mKuUPE'
+        email: (existingCanonical?.email || process.env.WABI_ADMIN_EMAIL || 'wabisabiofficial3@gmail.com').trim().toLowerCase(),
+        handle: (existingCanonical?.handle || process.env.WABI_ADMIN_HANDLE || 'admin').trim().replace(/^@/, '').toLowerCase(),
+        displayName: (existingCanonical?.display_name || process.env.WABI_ADMIN_NAME || 'Wabi Sabi Admin').trim()
     };
-
-    const checkStmt = db.prepare('SELECT id FROM curators WHERE email = ? OR handle = ?');
-    const insertStmt = db.prepare(`
-        INSERT INTO curators (id, email, password_hash, display_name, handle, created_at)
-        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-    `);
-    const updateStmt = db.prepare(`
-        UPDATE curators SET password_hash = ?, display_name = ?, handle = ?, email = ? WHERE id = ?
-    `);
-
-    const existing = checkStmt.get(admin.email, admin.handle);
-    if (!existing) {
-        insertStmt.run(admin.id, admin.email, admin.hash, admin.displayName, admin.handle);
-    } else {
-        updateStmt.run(admin.hash, admin.displayName, admin.handle, admin.email, existing.id);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(admin.email) || admin.email.length > 254) {
+        throw new Error('WABI_ADMIN_EMAIL must be a valid email address.');
+    }
+    if (!/^[a-z0-9_-]{3,32}$/.test(admin.handle)) {
+        throw new Error('WABI_ADMIN_HANDLE must be 3-32 lowercase letters, numbers, underscores or hyphens.');
+    }
+    if (!admin.displayName || admin.displayName.length > 100) {
+        throw new Error('WABI_ADMIN_NAME must be 1-100 characters.');
     }
 
-    // Now reassign references and purge legacy curator accounts and sessions
-    try {
-        db.prepare("UPDATE updates SET author_name = 'Wabi Sabi Admin', created_by = 'admin-wabisabi' WHERE created_by != 'admin-wabisabi'").run();
-        db.prepare("DELETE FROM curator_sessions WHERE curator_id != 'admin-wabisabi'").run();
-        db.prepare("DELETE FROM curators WHERE id != 'admin-wabisabi'").run();
+    const candidates = db.prepare(`
+        SELECT * FROM curators
+        WHERE id = ? OR email = ? OR handle = ?
+    `).all(admin.id, admin.email, admin.handle);
+    const canonical = candidates.find(row => row.id === admin.id) || candidates[0] || null;
+    const hasCompromisedPassword = !canonical || canonical.password_hash === COMPROMISED_ADMIN_HASH;
+    const passwordHash = hasCompromisedPassword
+        ? await initialAdminPasswordHash()
+        : canonical.password_hash;
+
+    const bootstrapChangedCredential = hasCompromisedPassword;
+    withTransaction(() => {
+        // Free unique email/handle values held by any legacy curator before creating/updating
+        // the canonical record. Existing audit/update references are moved transactionally.
+        const conflicts = db.prepare('SELECT id FROM curators WHERE id <> ? AND (email = ? OR handle = ?)').all(
+            admin.id,
+            admin.email,
+            admin.handle
+        );
+        for (const conflict of conflicts) {
+            const legacySuffix = crypto.randomBytes(8).toString('hex');
+            db.prepare('UPDATE curators SET email = ?, handle = ? WHERE id = ?').run(
+                `legacy-${legacySuffix}@invalid.local`,
+                `legacy-${legacySuffix}`,
+                conflict.id
+            );
+        }
+
+        const current = db.prepare('SELECT id FROM curators WHERE id = ?').get(admin.id);
+        if (current) {
+            db.prepare(`
+                UPDATE curators
+                SET email = ?, password_hash = ?, display_name = ?, handle = ?
+                WHERE id = ?
+            `).run(admin.email, passwordHash, admin.displayName, admin.handle, admin.id);
+        } else {
+            db.prepare(`
+                INSERT INTO curators (id, email, password_hash, display_name, handle, created_at)
+                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            `).run(admin.id, admin.email, passwordHash, admin.displayName, admin.handle);
+        }
+
+        db.prepare(`
+            UPDATE updates
+            SET author_name = ?, created_by = ?
+            WHERE created_by IS NOT NULL AND created_by <> ?
+        `).run(admin.displayName, admin.id, admin.id);
+
+        db.prepare('DELETE FROM curator_sessions WHERE curator_id <> ?').run(admin.id);
+        if (bootstrapChangedCredential) {
+            db.prepare('DELETE FROM curator_sessions WHERE curator_id = ?').run(admin.id);
+        }
+        db.prepare('DELETE FROM curators WHERE id <> ?').run(admin.id);
         db.prepare("DELETE FROM members WHERE id IN ('mem-dhanush', 'mem-likith', 'mem-sarvasree') OR role = 'Curator'").run();
 
         const checkAdminMem = db.prepare('SELECT id FROM members WHERE id = ?').get('mem-admin');
@@ -180,11 +280,14 @@ async function seedInitialAccounts() {
             db.prepare(`
                 INSERT INTO members (id, name, role, handle, avatar_url, bio, display_order, created_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-            `).run('mem-admin', 'Wabi Sabi Admin', 'Admin', '@wabisabi', '../assets/user_avatar.jpg', 'Sanctuary steward & literary curator', 1);
+            `).run('mem-admin', admin.displayName, 'Admin', `@${admin.handle}`, '/assets/user_avatar.jpg', 'Sanctuary steward & literary curator', 1);
         }
-    } catch (e) {
-        console.warn('Database cleanup warning:', e.message);
-    }
+    });
+
+    // Expired records no longer authorize anyone; clean them to keep the database bounded.
+    db.prepare("DELETE FROM curator_sessions WHERE datetime(expires_at) <= datetime('now')").run();
+    db.prepare("DELETE FROM member_sessions WHERE datetime(expires_at) <= datetime('now')").run();
+    db.prepare("DELETE FROM member_claims WHERE datetime(expires_at) <= datetime('now') OR used_at IS NOT NULL").run();
 
     seedDefaultSettings();
     seedDefaultUpdates();
@@ -339,7 +442,7 @@ function seedDefaultMembers() {
             display_name: 'Akshaya',
             gender: 'Female',
             date_joined: '02 October 2026',
-            secret_code_hash: hashSecretCode('WS-7K4M-X92P-LQ8A'),
+            secret_code_hash: hashSecretCode(generateSecretCode()),
             status: 'active'
         },
         {
@@ -354,7 +457,7 @@ function seedDefaultMembers() {
             display_name: 'Vaishnavi',
             gender: 'Female',
             date_joined: '28 September 2026',
-            secret_code_hash: hashSecretCode('WS-3R8B-Y65W-NK2D'),
+            secret_code_hash: hashSecretCode(generateSecretCode()),
             status: 'active'
         }
     ];
@@ -363,12 +466,15 @@ function seedDefaultMembers() {
         const existing = db.prepare('SELECT id, secret_code_hash FROM members WHERE id = ?').get(m.id);
         if (!existing) {
             insertStmt.run(m.id, m.name, m.role, m.handle, m.avatar_url, m.bio, m.order, m.full_name, m.display_name, m.gender, m.date_joined, m.secret_code_hash, m.status);
-        } else if (m.secret_code_hash && !existing.secret_code_hash) {
+        } else if (!existing.secret_code_hash || COMPROMISED_MEMBER_CODE_HASHES.has(existing.secret_code_hash)) {
+            // Rotate the two codes that were previously committed to the repository. Do not
+            // reactivate or otherwise overwrite a curator's current member-status changes.
             db.prepare(`
                 UPDATE members
-                SET full_name = ?, display_name = ?, gender = ?, date_joined = ?, secret_code_hash = ?, status = 'active'
+                SET secret_code_hash = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
-            `).run(m.full_name, m.display_name, m.gender, m.date_joined, m.secret_code_hash, m.id);
+            `).run(m.secret_code_hash, m.id);
+            db.prepare('DELETE FROM member_sessions WHERE member_id = ?').run(m.id);
         }
     }
 
@@ -459,6 +565,28 @@ function getCuratorWithPassword(id) {
     return db.prepare('SELECT * FROM curators WHERE id = ?').get(id);
 }
 
+function updateCuratorLastLogin(id) {
+    if (!id) return;
+    db.prepare('UPDATE curators SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?').run(id);
+}
+
+function clearInitialAdminPasswordFile() {
+    try {
+        fs.unlinkSync(path.join(DATA_DIR, 'initial-admin-password.txt'));
+    } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+    }
+}
+
+function revokeOtherCuratorSessions(curatorId, currentSessionId) {
+    if (!curatorId) return;
+    if (currentSessionId) {
+        db.prepare('DELETE FROM curator_sessions WHERE curator_id = ? AND id <> ?').run(curatorId, currentSessionId);
+    } else {
+        db.prepare('DELETE FROM curator_sessions WHERE curator_id = ?').run(curatorId);
+    }
+}
+
 function updateCuratorProfile(id, { email, displayName, handle, passwordHash }) {
     if (!id) return null;
     const current = db.prepare('SELECT * FROM curators WHERE id = ?').get(id);
@@ -479,11 +607,19 @@ function updateCuratorProfile(id, { email, displayName, handle, passwordHash }) 
 }
 
 function createCuratorSession(curatorId, tokenHash, expiresAt) {
-    const id = 'sess-' + Math.random().toString(36).substring(2, 10);
-    db.prepare(`
-        INSERT INTO curator_sessions (id, curator_id, token_hash, expires_at)
-        VALUES (?, ?, ?, ?)
-    `).run(id, curatorId, tokenHash, expiresAt);
+    const id = 'sess-' + crypto.randomBytes(16).toString('hex');
+    withTransaction(() => {
+        db.prepare("DELETE FROM curator_sessions WHERE datetime(expires_at) <= datetime('now')").run();
+        db.prepare(`
+            INSERT INTO curator_sessions (id, curator_id, token_hash, expires_at)
+            VALUES (?, ?, ?, ?)
+        `).run(id, curatorId, tokenHash, expiresAt);
+        const excess = db.prepare(`
+            SELECT id FROM curator_sessions WHERE curator_id = ?
+            ORDER BY created_at DESC, id DESC LIMIT -1 OFFSET 20
+        `).all(curatorId);
+        for (const session of excess) db.prepare('DELETE FROM curator_sessions WHERE id = ?').run(session.id);
+    });
     return id;
 }
 
@@ -534,16 +670,18 @@ function setSetting(key, value) {
     `).run(key, strVal);
 }
 
-function getPublicUpdates() {
+function getPublicUpdates(limit = 250) {
+    const pageSize = Math.max(1, Math.min(500, Number(limit) || 250));
     return db.prepare(`
         SELECT id, title, content, type, is_pinned, author_name, created_at, updated_at
         FROM updates
         ORDER BY is_pinned DESC, created_at DESC
-    `).all();
+        LIMIT ?
+    `).all(pageSize);
 }
 
 function createUpdate({ title, content, type = 'announcement', is_pinned = 0, created_by = null, author_name = null }) {
-    const id = 'upd-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6);
+    const id = 'upd-' + crypto.randomBytes(12).toString('hex');
     db.prepare(`
         INSERT INTO updates (id, title, content, type, is_pinned, created_by, author_name, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
@@ -552,18 +690,18 @@ function createUpdate({ title, content, type = 'announcement', is_pinned = 0, cr
 }
 
 function updateUpdate(id, { title, content, is_pinned }) {
-    db.prepare(`
+    return db.prepare(`
         UPDATE updates
         SET title = COALESCE(?, title),
             content = COALESCE(?, content),
             is_pinned = COALESCE(?, is_pinned),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
-    `).run(title, content, is_pinned !== undefined ? (is_pinned ? 1 : 0) : null, id);
+    `).run(title, content, is_pinned !== undefined ? (is_pinned ? 1 : 0) : null, id).changes;
 }
 
 function deleteUpdate(id) {
-    db.prepare('DELETE FROM updates WHERE id = ?').run(id);
+    return db.prepare('DELETE FROM updates WHERE id = ?').run(id).changes;
 }
 
 // ====================================================================
@@ -652,7 +790,7 @@ function createMember({
 }) {
     const finalFullName = (full_name || name || '').trim();
     const finalDisplayName = (display_name || name || full_name || '').trim();
-    const id = 'mem-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6);
+    const id = 'mem-' + crypto.randomBytes(12).toString('hex');
     const secretCode = generateSecretCode();
     const codeHash = hashSecretCode(secretCode);
 
@@ -661,35 +799,33 @@ function createMember({
         joinDate = new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' });
     }
 
-    db.prepare(`
-        INSERT INTO members (
-            id, name, full_name, display_name, role, handle, gender, date_joined,
-            avatar_url, bio, display_order, secret_code_hash, status, created_at, updated_at
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-    `).run(
-        id,
-        finalDisplayName,
-        finalFullName,
-        finalDisplayName,
-        (role || 'Member').trim(),
-        (handle || '').trim(),
-        (gender || '').trim(),
-        joinDate,
-        (avatar_url || '../assets/user_avatar.jpg').trim(),
-        (bio || '').trim(),
-        Number(display_order) || 0,
-        codeHash,
-        status || 'active'
-    );
-
-    // Seed default member reading item
-    try {
+    withTransaction(() => {
+        db.prepare(`
+            INSERT INTO members (
+                id, name, full_name, display_name, role, handle, gender, date_joined,
+                avatar_url, bio, display_order, secret_code_hash, status, created_at, updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        `).run(
+            id,
+            finalDisplayName,
+            finalFullName,
+            finalDisplayName,
+            (role || 'Member').trim(),
+            (handle || '').trim(),
+            (gender || '').trim(),
+            joinDate,
+            (avatar_url || '/assets/user_avatar.jpg').trim(),
+            (bio || '').trim(),
+            Number(display_order) || 0,
+            codeHash,
+            status || 'active'
+        );
         db.prepare(`
             INSERT INTO member_reading (id, member_id, book_title, book_author, progress, status)
             VALUES (?, ?, ?, ?, ?, ?)
         `).run('read-' + crypto.randomBytes(6).toString('hex'), id, 'The Stranger', 'Albert Camus', 0, 'currently_reading');
-    } catch (e) {}
+    });
 
     return { id, secretCode, member: getMemberById(id) };
 }
@@ -701,7 +837,7 @@ function updateMember(id, { name, full_name, display_name, role, handle, gender,
     const fName = full_name !== undefined ? full_name.trim() : (name !== undefined ? name.trim() : existing.full_name);
     const dName = display_name !== undefined ? display_name.trim() : (name !== undefined ? name.trim() : existing.display_name);
 
-    db.prepare(`
+    const result = db.prepare(`
         UPDATE members
         SET name = COALESCE(?, name),
             full_name = COALESCE(?, full_name),
@@ -734,6 +870,7 @@ function updateMember(id, { name, full_name, display_name, role, handle, gender,
     if (status === 'suspended') {
         revokeAllMemberSessions(id);
     }
+    return result.changes;
 }
 
 function regenerateMemberCode(memberId) {
@@ -748,49 +885,62 @@ function regenerateMemberCode(memberId) {
 
 function setMemberStatus(memberId, status) {
     const clean = status === 'suspended' ? 'suspended' : 'active';
-    db.prepare('UPDATE members SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(clean, memberId);
+    const result = db.prepare('UPDATE members SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(clean, memberId);
     if (clean === 'suspended') {
         revokeAllMemberSessions(memberId);
     }
+    return result.changes;
 }
 
 function deleteMember(id) {
-    revokeAllMemberSessions(id);
-    db.prepare('DELETE FROM member_reading WHERE member_id = ?').run(id);
-    db.prepare('DELETE FROM member_notes WHERE member_id = ?').run(id);
-    db.prepare('DELETE FROM member_claims WHERE member_id = ?').run(id);
-    db.prepare('DELETE FROM members WHERE id = ?').run(id);
+    if (id === 'mem-admin') throw new Error('The built-in admin directory entry cannot be deleted.');
+    return withTransaction(() => {
+        revokeAllMemberSessions(id);
+        db.prepare('DELETE FROM member_reading WHERE member_id = ?').run(id);
+        db.prepare('DELETE FROM member_notes WHERE member_id = ?').run(id);
+        db.prepare('DELETE FROM member_claims WHERE member_id = ?').run(id);
+        return db.prepare('DELETE FROM members WHERE id = ?').run(id).changes;
+    });
 }
 
 // Session Management Helpers
 function createMemberSession(memberId, days = 30) {
+    if (!Number.isInteger(days) || days < 1 || days > 90) throw new Error('Member session duration must be between 1 and 90 days.');
     const rawToken = crypto.randomBytes(32).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
     const id = 'msess-' + crypto.randomBytes(8).toString('hex');
     const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
 
-    db.prepare(`
-        INSERT INTO member_sessions (id, member_id, session_token_hash, expires_at)
-        VALUES (?, ?, ?, ?)
-    `).run(id, memberId, tokenHash, expiresAt);
+    withTransaction(() => {
+        db.prepare("DELETE FROM member_sessions WHERE datetime(expires_at) <= datetime('now')").run();
+        db.prepare(`
+            INSERT INTO member_sessions (id, member_id, session_token_hash, expires_at)
+            VALUES (?, ?, ?, ?)
+        `).run(id, memberId, tokenHash, expiresAt);
+        const excess = db.prepare(`
+            SELECT id FROM member_sessions WHERE member_id = ?
+            ORDER BY created_at DESC, id DESC LIMIT -1 OFFSET 20
+        `).all(memberId);
+        for (const session of excess) db.prepare('DELETE FROM member_sessions WHERE id = ?').run(session.id);
+    });
 
     return { token: rawToken, expiresAt };
 }
 
 function getMemberBySessionToken(rawToken) {
-    if (!rawToken) return null;
+    if (typeof rawToken !== 'string' || !/^[a-f0-9]{64}$/i.test(rawToken)) return null;
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
     return db.prepare(`
         SELECT m.id, m.name, m.full_name, m.display_name, m.handle, m.gender, m.date_joined,
                m.avatar_url, m.bio, m.role, m.status, s.id as session_id, s.expires_at
         FROM member_sessions s
         JOIN members m ON s.member_id = m.id
-        WHERE s.session_token_hash = ? AND datetime(s.expires_at) > datetime('now') AND m.status = 'active'
+        WHERE s.session_token_hash = ? AND datetime(s.expires_at) > datetime('now')
     `).get(tokenHash);
 }
 
 function deleteMemberSession(rawToken) {
-    if (!rawToken) return;
+    if (typeof rawToken !== 'string' || !/^[a-f0-9]{64}$/i.test(rawToken)) return;
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
     db.prepare('DELETE FROM member_sessions WHERE session_token_hash = ?').run(tokenHash);
 }
@@ -802,6 +952,9 @@ function revokeAllMemberSessions(memberId) {
 
 // QR Membership Card Claim Passes
 function createMemberClaim(memberId, days = 7) {
+    if (!Number.isInteger(days) || days < 1 || days > 30) throw new Error('Membership claim duration must be between 1 and 30 days.');
+    db.prepare("DELETE FROM member_claims WHERE datetime(expires_at) <= datetime('now') OR used_at IS NOT NULL").run();
+    db.prepare('DELETE FROM member_claims WHERE member_id = ?').run(memberId);
     const rawToken = crypto.randomBytes(24).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
     const id = 'claim-' + crypto.randomBytes(8).toString('hex');
@@ -816,19 +969,56 @@ function createMemberClaim(memberId, days = 7) {
 }
 
 function claimMemberPass(rawToken) {
-    if (!rawToken) return null;
+    if (typeof rawToken !== 'string' || rawToken.length > 128) return null;
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    // A single conditional UPDATE makes claiming one-time even when multiple server
+    // processes receive the same QR scan concurrently.
     const claim = db.prepare(`
-        SELECT c.id, c.member_id, m.status
-        FROM member_claims c
-        JOIN members m ON c.member_id = m.id
-        WHERE c.claim_token_hash = ? AND datetime(c.expires_at) > datetime('now') AND c.used_at IS NULL AND m.status = 'active'
+        UPDATE member_claims
+        SET used_at = CURRENT_TIMESTAMP
+        WHERE claim_token_hash = ?
+          AND datetime(expires_at) > datetime('now')
+          AND used_at IS NULL
+          AND member_id IN (SELECT id FROM members WHERE status = 'active')
+        RETURNING member_id
     `).get(tokenHash);
+    return claim ? claim.member_id : null;
+}
 
-    if (!claim) return null;
+function claimMemberPassWithSession(rawToken, days = 30) {
+    if (typeof rawToken !== 'string' || !/^[a-f0-9]{48}$/i.test(rawToken)) return null;
+    if (!Number.isInteger(days) || days < 1 || days > 90) throw new Error('Member session duration must be between 1 and 90 days.');
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    const memberSessionToken = crypto.randomBytes(32).toString('hex');
+    const sessionTokenHash = crypto.createHash('sha256').update(memberSessionToken).digest('hex');
+    const sessionId = 'msess-' + crypto.randomBytes(8).toString('hex');
+    const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
 
-    db.prepare('UPDATE member_claims SET used_at = CURRENT_TIMESTAMP WHERE id = ?').run(claim.id);
-    return claim.member_id;
+    const claim = withTransaction(() => {
+        const result = db.prepare(`
+            UPDATE member_claims
+            SET used_at = CURRENT_TIMESTAMP
+            WHERE claim_token_hash = ?
+              AND datetime(expires_at) > datetime('now')
+              AND used_at IS NULL
+              AND member_id IN (SELECT id FROM members WHERE status = 'active')
+            RETURNING member_id
+        `).get(tokenHash);
+        if (!result) return null;
+
+        db.prepare("DELETE FROM member_sessions WHERE datetime(expires_at) <= datetime('now')").run();
+        db.prepare(`
+            INSERT INTO member_sessions (id, member_id, session_token_hash, expires_at)
+            VALUES (?, ?, ?, ?)
+        `).run(sessionId, result.member_id, sessionTokenHash, expiresAt);
+        const excess = db.prepare(`
+            SELECT id FROM member_sessions WHERE member_id = ?
+            ORDER BY created_at DESC, id DESC LIMIT -1 OFFSET 20
+        `).all(result.member_id);
+        for (const session of excess) db.prepare('DELETE FROM member_sessions WHERE id = ?').run(session.id);
+        return { memberId: result.member_id, token: memberSessionToken, expiresAt };
+    });
+    return claim;
 }
 
 // Member Reading & Reflection Notes Helpers
@@ -848,8 +1038,15 @@ function getMemberReading(memberId) {
 }
 
 function updateMemberReading(memberId, { book_title, book_author, progress }) {
-    const existing = db.prepare('SELECT id FROM member_reading WHERE member_id = ?').get(memberId);
-    const prog = Math.max(0, Math.min(100, Number(progress) || 0));
+    const existing = db.prepare(`
+        SELECT id, progress FROM member_reading
+        WHERE member_id = ?
+        ORDER BY updated_at DESC, id DESC
+        LIMIT 1
+    `).get(memberId);
+    const requestedProgress = progress === undefined ? (existing?.progress ?? 0) : Number(progress);
+    if (!Number.isFinite(requestedProgress)) throw new Error('Reading progress must be a finite number.');
+    const prog = Math.max(0, Math.min(100, requestedProgress));
     if (existing) {
         db.prepare(`
             UPDATE member_reading
@@ -858,7 +1055,12 @@ function updateMemberReading(memberId, { book_title, book_author, progress }) {
                 progress = ?,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
-        `).run(book_title ? book_title.trim() : null, book_author ? book_author.trim() : null, prog, existing.id);
+        `).run(
+            typeof book_title === 'string' && book_title.trim() ? book_title.trim() : null,
+            typeof book_author === 'string' && book_author.trim() ? book_author.trim() : null,
+            prog,
+            existing.id
+        );
     } else {
         const id = 'read-' + crypto.randomBytes(6).toString('hex');
         db.prepare(`
@@ -873,22 +1075,35 @@ function getMemberNotes(memberId) {
         SELECT id, content, created_at, updated_at
         FROM member_notes
         WHERE member_id = ?
-        ORDER BY created_at DESC
+        ORDER BY created_at DESC, id DESC
+        LIMIT 200
     `).all(memberId);
 }
 
 function addMemberNote(memberId, content) {
-    if (!content || !content.trim()) return null;
-    const id = 'note-' + crypto.randomBytes(6).toString('hex');
+    if (typeof content !== 'string' || !content.trim()) return null;
+    const cleanContent = content.trim();
+    if (cleanContent.length > 4000) {
+        const error = new Error('A reflection must be 4000 characters or fewer.');
+        error.code = 'NOTE_TOO_LONG';
+        throw error;
+    }
+    const count = db.prepare('SELECT COUNT(*) AS count FROM member_notes WHERE member_id = ?').get(memberId).count;
+    if (count >= 200) {
+        const error = new Error('This desk has reached its 200-note limit. Delete an older note before adding another.');
+        error.code = 'NOTE_LIMIT_REACHED';
+        throw error;
+    }
+    const id = 'note-' + crypto.randomBytes(12).toString('hex');
     db.prepare(`
         INSERT INTO member_notes (id, member_id, content, created_at, updated_at)
         VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-    `).run(id, memberId, content.trim());
+    `).run(id, memberId, cleanContent);
     return id;
 }
 
 function deleteMemberNote(noteId, memberId) {
-    db.prepare('DELETE FROM member_notes WHERE id = ? AND member_id = ?').run(noteId, memberId);
+    return db.prepare('DELETE FROM member_notes WHERE id = ? AND member_id = ?').run(noteId, memberId).changes;
 }
 
 // Initialize tables immediately
@@ -896,6 +1111,7 @@ initDatabase();
 
 module.exports = {
     db,
+    withTransaction,
     initDatabase,
     seedInitialAccounts,
     seedDefaultSettings,
@@ -904,6 +1120,9 @@ module.exports = {
     getCuratorByIdentifier,
     getCuratorById,
     getCuratorWithPassword,
+    updateCuratorLastLogin,
+    clearInitialAdminPasswordFile,
+    revokeOtherCuratorSessions,
     updateCuratorProfile,
     createCuratorSession,
     getCuratorBySessionTokenHash,
@@ -934,6 +1153,7 @@ module.exports = {
     revokeAllMemberSessions,
     createMemberClaim,
     claimMemberPass,
+    claimMemberPassWithSession,
     // Reading & Notes
     getMemberReading,
     updateMemberReading,

@@ -1230,27 +1230,5 @@
     <script src="../js/store.js"></script>
     <script src="../js/auth.js"></script>
 
-    <!-- Theme management on login page -->
-    <script>
-        (function initLoginTheme() {
-            const savedTheme = localStorage.getItem('wabi_sabi_theme') || 'light';
-            if (savedTheme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
-            const toggleBtn = document.getElementById('themeToggleBtn');
-            if (toggleBtn) {
-                toggleBtn.addEventListener('click', () => {
-                    const current = document.documentElement.getAttribute('data-theme') || 'light';
-                    const next = current === 'dark' ? 'light' : 'dark';
-                    if (next === 'dark') {
-                        document.documentElement.setAttribute('data-theme', 'dark');
-                    } else {
-                        document.documentElement.removeAttribute('data-theme');
-                    }
-                    localStorage.setItem('wabi_sabi_theme', next);
-                });
-            }
-        })();
-    </script>
 </body>
 </html>

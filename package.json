@@ -15,6 +15,9 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "bugs": {
     "url": "https://github.com/wabisabiofficial3/WABI-SABI/issues"
   },

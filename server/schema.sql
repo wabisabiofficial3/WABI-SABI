@@ -1,15 +1,11 @@
 -- ==============================================================================
--- WABI SABI SUPABASE POSTGRESQL SCHEMA RESET & INITIALIZATION
+-- WABI SABI OPTIONAL SUPABASE POSTGRESQL SCHEMA
+-- Safe to apply repeatedly: this script never drops existing data.
+-- The active application currently uses SQLite (server/db.js); no credentials are seeded here.
 -- ==============================================================================
 
--- 1. DROP OLD TABLES IF THEY EXIST (CLEAN RESET)
-DROP TABLE IF EXISTS admin_audit_logs CASCADE;
-DROP TABLE IF EXISTS sessions CASCADE;
-DROP TABLE IF EXISTS membership_applications CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-
--- 2. CREATE USERS TABLE
-CREATE TABLE users (
+-- 1. CREATE USERS TABLE
+CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
@@ -23,7 +19,7 @@ CREATE TABLE users (
 );
 
 -- 3. CREATE MEMBERSHIP APPLICATIONS TABLE
-CREATE TABLE membership_applications (
+CREATE TABLE IF NOT EXISTS membership_applications (
     id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     reason TEXT NOT NULL,
@@ -39,7 +35,7 @@ CREATE TABLE membership_applications (
 );
 
 -- 4. CREATE SESSIONS TABLE
-CREATE TABLE sessions (
+CREATE TABLE IF NOT EXISTS sessions (
     id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     token_hash TEXT UNIQUE NOT NULL,
@@ -48,7 +44,7 @@ CREATE TABLE sessions (
 );
 
 -- 5. CREATE ADMIN AUDIT LOGS TABLE
-CREATE TABLE admin_audit_logs (
+CREATE TABLE IF NOT EXISTS admin_audit_logs (
     id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
     admin_id TEXT NOT NULL REFERENCES users(id),
     action TEXT NOT NULL,
@@ -71,34 +67,5 @@ ALTER TABLE membership_applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_audit_logs ENABLE ROW LEVEL SECURITY;
 
--- 8. SEED THE 3 CURATOR (ADMIN) ACCOUNTS WITH EQUAL ACCESS
--- Initial Password for all three: curator123
-INSERT INTO users (id, email, password_hash, display_name, handle, role, status)
-VALUES
-    (
-        'curator-likith',
-        'nrlikith6@gmail.com',
-        '$argon2id$v=19$m=32768,t=2,p=1$Ky+TTn2TgpE6FwJ8MeXr8Q$6u/nHzoPQ8KrLp4c0BYXoKmXLFGEN5O03g9LomjJ77Y',
-        'Likith',
-        'likith',
-        'CURATOR',
-        'ACTIVE'
-    ),
-    (
-        'curator-sarvasree',
-        'sarvasreeyuvaraj02@gmail.com',
-        '$argon2id$v=19$m=32768,t=2,p=1$O/buRkL3NuNAVRi1VJOW0w$Au7gDZ7CUHdSI3SUPbXdXH/Ai0b54XdAmlaAhA4DkiM',
-        'Sarvasree',
-        'sarvasree',
-        'CURATOR',
-        'ACTIVE'
-    ),
-    (
-        'curator-dhanush',
-        'ganganidhanush@gmail.com',
-        '$argon2id$v=19$m=32768,t=2,p=1$9Ir2p2OBOfwIILBQtGIswA$r2rZecJ44vuLwDjqofF1DHjXQSI5gTnqX2PrrIe9yMo',
-        'Dhanush',
-        'dhanush',
-        'CURATOR',
-        'ACTIVE'
-    );
+-- 8. Curator account provisioning is performed by the application bootstrap flow.
+-- Never commit passwords, even hashed defaults with a published password.

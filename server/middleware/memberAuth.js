@@ -7,11 +7,14 @@ const crypto = require('node:crypto');
  * Also supports Curator Preview mode if an authenticated Curator is viewing a member space.
  */
 function requireMember(req, res, next) {
-    // 1. Check for Curator Preview mode
-    const previewId = req.query.preview || req.headers['x-curator-preview'];
-    const curatorToken = req.cookies.wabisabi_curator_session;
+    res.setHeader('Cache-Control', 'private, no-store');
+    const cookies = req.cookies || {};
 
-    if (previewId && curatorToken) {
+    // 1. Check for Curator Preview mode
+    const previewId = req.query?.preview || req.headers['x-curator-preview'];
+    const curatorToken = cookies.wabisabi_curator_session;
+
+    if (previewId && typeof curatorToken === 'string' && /^[a-f0-9]{64}$/i.test(curatorToken)) {
         const curatorTokenHash = crypto.createHash('sha256').update(curatorToken).digest('hex');
         const curator = getCuratorBySessionTokenHash(curatorTokenHash);
         if (curator) {
@@ -26,14 +29,16 @@ function requireMember(req, res, next) {
     }
 
     // 2. Check for regular Member Session cookie
-    const memberToken = req.cookies?.wabisabi_member_session;
+    const memberToken = cookies.wabisabi_member_session;
     if (memberToken) {
         const member = getMemberBySessionToken(memberToken);
         if (member) {
-            if (member.status === 'suspended') {
+            if (member.status !== 'active') {
                 return res.status(403).json({
                     success: false,
-                    error: 'Membership is currently suspended. Please speak with your Curator.'
+                    error: member.status === 'suspended'
+                        ? 'Membership is currently suspended. Please speak with your Curator.'
+                        : 'This membership is not currently active. Please speak with your Curator.'
                 });
             }
             req.member = member;
@@ -63,7 +68,8 @@ function requireMember(req, res, next) {
  * Attaches member if cookie is present without blocking unauthenticated requests
  */
 function optionalMember(req, res, next) {
-    const memberToken = req.cookies.wabisabi_member_session;
+    res.setHeader('Cache-Control', 'private, no-store');
+    const memberToken = req.cookies?.wabisabi_member_session;
     if (memberToken) {
         const member = getMemberBySessionToken(memberToken);
         if (member && member.status === 'active') {

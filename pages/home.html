@@ -5326,7 +5326,7 @@
                 <form id="memberAccessForm" onsubmit="return false;" style="display: flex; flex-direction: column; gap: 14px; text-align: left;">
                     <div class="c-form-group">
                         <label for="memberSecretCodeInput" style="display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; color: var(--wabi-ink, #2C2621);">Secret Code</label>
-                        <input type="text" id="memberSecretCodeInput" class="c-input" placeholder="e.g. WS-7K4M-X92P-LQ8A" autocomplete="off" spellcheck="false" style="width: 100%; box-sizing: border-box; padding: 11px 14px; font-size: 14px; font-family: 'JetBrains Mono', monospace, inherit; letter-spacing: 1.2px; text-transform: uppercase; border-radius: 8px; border: 1px solid rgba(198, 182, 155, 0.6); background: rgba(255, 255, 255, 0.95); color: var(--wabi-ink, #2C2621); text-align: center;">
+                        <input type="text" id="memberSecretCodeInput" class="c-input" placeholder="WS-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false" style="width: 100%; box-sizing: border-box; padding: 11px 14px; font-size: 14px; font-family: 'JetBrains Mono', monospace, inherit; letter-spacing: 1.2px; text-transform: uppercase; border-radius: 8px; border: 1px solid rgba(198, 182, 155, 0.6); background: rgba(255, 255, 255, 0.95); color: var(--wabi-ink, #2C2621); text-align: center;">
                     </div>
 
                     <div id="memberAccessFeedback" style="display: none; font-size: 12.5px; padding: 8px 12px; border-radius: 6px; text-align: center;"></div>
@@ -5526,6 +5526,17 @@
             });
         })();
 
+        function safeHttpUrl(value) {
+            if (typeof value !== 'string' || !value.trim()) return '';
+            try {
+                const parsed = new URL(value.trim(), window.location.origin);
+                if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password) return '';
+                return parsed.href;
+            } catch (e) {
+                return '';
+            }
+        }
+
         // 4. Hydrate Live Coordination Data from /api/portal
         async function hydratePortalData() {
             let bookDriveUrl = 'https://drive.google.com';
@@ -5560,7 +5571,7 @@
                     if (jTitle && r.title) jTitle.textContent = r.title;
                     if (jAuthor && r.author) jAuthor.textContent = r.author;
                     if (ftQuote && r.notes) ftQuote.textContent = `"${r.notes}"`;
-                    if (r.drive_url) bookDriveUrl = r.drive_url;
+                    if (r.drive_url) bookDriveUrl = safeHttpUrl(r.drive_url) || bookDriveUrl;
                 }
 
                 if (announcements.gathering) {
@@ -5578,7 +5589,7 @@
                         if (mMatch && gMonth) gMonth.textContent = mMatch[1];
                         if (dMatch && gDay) gDay.textContent = dMatch[1].padStart(2, '0');
                     }
-                    if (g.maps_url) meetingMapUrl = g.maps_url;
+                    if (g.maps_url) meetingMapUrl = safeHttpUrl(g.maps_url) || meetingMapUrl;
                 }
 
                 // --- Announcements Tab Hydration ---
@@ -5599,7 +5610,7 @@
                     if (aReadTitle && r.title) aReadTitle.textContent = r.title;
                     if (aReadAuth && r.author) aReadAuth.textContent = `by ${r.author}`;
                     if (aReadNotes && r.notes) aReadNotes.textContent = r.notes;
-                    if (aReadDrive && r.drive_url) aReadDrive.href = r.drive_url;
+                    if (aReadDrive && r.drive_url) aReadDrive.href = safeHttpUrl(r.drive_url) || '#';
                 }
 
                 if (announcements.gathering) {
@@ -5611,7 +5622,7 @@
                     if (aGathDate && g.date) aGathDate.textContent = g.date;
                     if (aGathTime && g.time) aGathTime.textContent = g.time || '4:00 PM';
                     if (aGathLoc && g.location) aGathLoc.textContent = g.location;
-                    if (aGathMaps && g.maps_url) aGathMaps.href = g.maps_url;
+                    if (aGathMaps && g.maps_url) aGathMaps.href = safeHttpUrl(g.maps_url) || '#';
                 }
 
                 if (announcements.discussion_points && Array.isArray(announcements.discussion_points) && announcements.discussion_points.length > 0) {
@@ -5661,14 +5672,14 @@
                             const isCurator = (m.role || '').toLowerCase().includes('curator') || (m.role || '').toLowerCase().includes('admin');
                             const roleClass = isCurator ? 'role-curator' :
                                               (m.role || '').toLowerCase().includes('member') ? 'role-member' : 'role-reader';
-                            const avatar = m.avatar_url || '../assets/user_avatar.jpg';
+                            const avatar = safeHttpUrl(m.avatar_url || '../assets/user_avatar.jpg') || '../assets/user_avatar.jpg';
                             const rot = polaroidRotations[idx % polaroidRotations.length];
                             const tapeRot = tapeRotations[idx % tapeRotations.length];
                             return `
                                 <div class="member-polaroid-card" data-role="${escapeHtml(m.role || 'Member')}" style="--polaroid-rot: ${rot};">
                                     <div class="polaroid-tape" style="--tape-rot: ${tapeRot};"></div>
                                     <div class="member-dp-wrap">
-                                        <img src="${avatar}" alt="${escapeHtml(m.name)}" class="member-dp-img" onerror="this.src='../assets/user_avatar.jpg'">
+                                        <img src="${escapeHtml(avatar)}" alt="${escapeHtml(m.name)}" class="member-dp-img" onerror="this.src='../assets/user_avatar.jpg'">
                                     </div>
                                     <div class="member-name">${escapeHtml(m.name)}</div>
                                     <div class="member-meta-row">
@@ -5699,7 +5710,7 @@
                     if (avatarStack) {
                         const previewMembers = community.members.slice(0, 5);
                         avatarStack.innerHTML = previewMembers.map(m => `
-                            <img src="${m.avatar_url || '../assets/user_avatar.jpg'}" alt="${escapeHtml(m.name)}" class="stacked-avatar" title="${escapeHtml(m.name)}" onerror="this.src='../assets/user_avatar.jpg'">
+                            <img src="${escapeHtml(safeHttpUrl(m.avatar_url || '../assets/user_avatar.jpg') || '../assets/user_avatar.jpg')}" alt="${escapeHtml(m.name)}" class="stacked-avatar" title="${escapeHtml(m.name)}" onerror="this.src='../assets/user_avatar.jpg'">
                         `).join('');
                     }
                     if (avatarCount) {
@@ -5717,33 +5728,33 @@
                     const waBtn = document.getElementById('connectWhatsAppBtn');
                     const discBtn = document.getElementById('connectDiscordBtn');
 
-                    if (chatBtn && l.community_chat_url) {
-                        chatBtn.href = l.community_chat_url;
-                        communityUrl = l.community_chat_url;
+                    if (chatBtn && safeHttpUrl(l.community_chat_url)) {
+                        chatBtn.href = safeHttpUrl(l.community_chat_url);
+                        communityUrl = safeHttpUrl(l.community_chat_url);
                         if (l.community_chat_label) {
                             const span = chatBtn.querySelector('span:first-of-type');
                             if (span) span.textContent = l.community_chat_label;
                         }
                     }
-                    if (driveBtn && l.book_drive_url) {
-                        driveBtn.href = l.book_drive_url;
-                        bookDriveUrl = l.book_drive_url;
+                    if (driveBtn && safeHttpUrl(l.book_drive_url)) {
+                        driveBtn.href = safeHttpUrl(l.book_drive_url);
+                        bookDriveUrl = safeHttpUrl(l.book_drive_url);
                         if (l.book_drive_label) {
                             const span = driveBtn.querySelector('span:first-of-type');
                             if (span) span.textContent = l.book_drive_label;
                         }
                     }
-                    if (locBtn && l.meeting_maps_url) {
-                        locBtn.href = l.meeting_maps_url;
-                        meetingMapUrl = l.meeting_maps_url;
+                    if (locBtn && safeHttpUrl(l.meeting_maps_url)) {
+                        locBtn.href = safeHttpUrl(l.meeting_maps_url);
+                        meetingMapUrl = safeHttpUrl(l.meeting_maps_url);
                         if (l.meeting_maps_label) {
                             const span = locBtn.querySelector('span:first-of-type');
                             if (span) span.textContent = l.meeting_maps_label;
                         }
                     }
-                    if (instaBtn && l.instagram_url) instaBtn.href = l.instagram_url;
-                    if (waBtn && l.whatsapp_url) waBtn.href = l.whatsapp_url;
-                    if (discBtn && l.discord_url) discBtn.href = l.discord_url;
+                    if (instaBtn && safeHttpUrl(l.instagram_url)) instaBtn.href = safeHttpUrl(l.instagram_url);
+                    if (waBtn && safeHttpUrl(l.whatsapp_url)) waBtn.href = safeHttpUrl(l.whatsapp_url);
+                    if (discBtn && safeHttpUrl(l.discord_url)) discBtn.href = safeHttpUrl(l.discord_url);
                 }
 
                 // --- Sticky Notes Hydration from Server ---
@@ -5778,28 +5789,28 @@
             const pickCard = document.getElementById('todaysPickCard');
             if (pickCard) {
                 pickCard.addEventListener('click', () => {
-                    if (bookDriveUrl) window.open(bookDriveUrl, '_blank');
+                    if (bookDriveUrl) window.open(bookDriveUrl, '_blank', 'noopener,noreferrer');
                 });
             }
 
             const salonCard = document.getElementById('happeningSoonCard');
             if (salonCard) {
                 salonCard.addEventListener('click', () => {
-                    if (meetingMapUrl) window.open(meetingMapUrl, '_blank');
+                    if (meetingMapUrl) window.open(meetingMapUrl, '_blank', 'noopener,noreferrer');
                 });
             }
 
             const getStartedBtn = document.getElementById('getStartedBtn');
             if (getStartedBtn) {
                 getStartedBtn.addEventListener('click', () => {
-                    if (bookDriveUrl) window.open(bookDriveUrl, '_blank');
+                    if (bookDriveUrl) window.open(bookDriveUrl, '_blank', 'noopener,noreferrer');
                 });
             }
 
             const watchIntroBtn = document.getElementById('watchIntroBtn');
             if (watchIntroBtn) {
                 watchIntroBtn.addEventListener('click', () => {
-                    if (communityUrl) window.open(communityUrl, '_blank');
+                    if (communityUrl) window.open(communityUrl, '_blank', 'noopener,noreferrer');
                 });
             }
 
@@ -6618,10 +6629,12 @@
             });
         }
 
-        // Execute immediate initialization
-        runInit();
+        // Initialize exactly once; binding both immediately and at DOMContentLoaded
+        // duplicates handlers for login, member access, cookies and profile saving.
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', runInit);
+            document.addEventListener('DOMContentLoaded', runInit, { once: true });
+        } else {
+            runInit();
         }
     </script>
 </body>

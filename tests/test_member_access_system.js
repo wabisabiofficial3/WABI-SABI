@@ -1,6 +1,5 @@
+const { baseUrl: BASE_URL, ADMIN_PASSWORD } = require('./test_config');
 const assert = require('node:assert');
-
-const BASE_URL = 'http://localhost:3000';
 
 async function runMemberAccessTests() {
     console.log('================================================================');
@@ -53,11 +52,26 @@ async function runMemberAccessTests() {
     assert.strictEqual(invalidJson.success, false);
     console.log('   ✓ Non-existent secret code properly rejected with 401 Unauthorized.');
 
-    // Valid secret code (Akshaya seeded code: WS-7K4M-X92P-LQ8A)
+    // Issue a fresh code for the seeded member instead of relying on a committed code.
+    const bootstrapLoginRes = await fetch(`${BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'wabisabiofficial3@gmail.com', password: ADMIN_PASSWORD })
+    });
+    assert.strictEqual(bootstrapLoginRes.status, 200, 'Admin login must succeed for fixture setup.');
+    const bootstrapCookie = bootstrapLoginRes.headers.get('set-cookie').split(';')[0];
+    const freshCodeRes = await fetch(`${BASE_URL}/api/curator/members/mem-akshaya/regenerate-code`, {
+        method: 'POST',
+        headers: { 'Cookie': bootstrapCookie }
+    });
+    assert.strictEqual(freshCodeRes.status, 200, 'Curator must be able to issue a fresh member code.');
+    const freshCode = (await freshCodeRes.json()).secretCode;
+    assert.match(freshCode, /^WS-[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{4}-[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{4}-[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{4}$/);
+
     const validCodeRes = await fetch(`${BASE_URL}/api/member/access`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ secretCode: 'WS-7K4M-X92P-LQ8A' })
+        body: JSON.stringify({ secretCode: freshCode })
     });
     assert.strictEqual(validCodeRes.status, 200, 'Valid code must return 200 OK');
     const validJson = await validCodeRes.json();
@@ -186,7 +200,7 @@ async function runMemberAccessTests() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             email: 'wabisabiofficial3@gmail.com',
-            password: 'DsL@678_'
+            password: ADMIN_PASSWORD
         })
     });
     assert.strictEqual(curatorLoginRes.status, 200, 'Curator login must succeed');
@@ -345,24 +359,35 @@ async function runMemberAccessTests() {
     assert(qrJson.qrDataUrl && qrJson.qrDataUrl.startsWith('data:image/png;base64,'), 'QR data URL must be generated');
     console.log(`   ✓ Physical membership card pass generated with embedded QR data URL.`);
 
-    // Consume the one-time claim pass (redirect=manual to inspect cookie and redirect)
-    const claimRes = await fetch(qrJson.claimUrl, {
+    // A simple GET (such as a mail/security scanner) must not consume a pass.
+    const previewPassRes = await fetch(qrJson.claimUrl, { redirect: 'manual' });
+    assert.strictEqual(previewPassRes.status, 200, 'Opening the QR URL should show a confirmation page.');
+    assert((await previewPassRes.text()).includes('method=\"post\"'), 'Confirmation must require a deliberate POST.');
+    assert.strictEqual(previewPassRes.headers.get('set-cookie'), null, 'GET must not issue a member session.');
+
+    // Consume the one-time pass by submitting the confirmation form.
+    const claimRes = await fetch(`${BASE_URL}/api/member/claim-pass`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ token: qrJson.token }),
         redirect: 'manual'
     });
-    assert.strictEqual(claimRes.status, 302, 'Claim pass must redirect to /my-space');
+    assert.strictEqual(claimRes.status, 302, 'Claim POST must redirect to /my-space');
     assert.strictEqual(claimRes.headers.get('location'), '/my-space');
     const claimCookie = claimRes.headers.get('set-cookie');
     assert(claimCookie && claimCookie.includes('wabisabi_member_session='), 'Claim pass must establish member session cookie');
     console.log('   ✓ Claim pass successfully established authenticated member session.');
 
-    // Second claim with the same token must fail (single-use protection)
-    const replayClaimRes = await fetch(qrJson.claimUrl, { redirect: 'manual' });
+    // Second confirmation with the same token must fail (single-use protection).
+    const replayClaimRes = await fetch(`${BASE_URL}/api/member/claim-pass`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ token: qrJson.token }),
+        redirect: 'manual'
+    });
     const replayLocation = replayClaimRes.headers.get('location') || '';
-    assert(
-        replayClaimRes.status === 400 || 
-        (replayClaimRes.status === 302 && replayLocation.includes('claim_error=invalid_or_expired')),
-        'Replayed claim pass must be rejected and redirect with invalid_or_expired error'
-    );
+    assert.strictEqual(replayClaimRes.status, 302, 'Replayed claim must redirect with an error.');
+    assert(replayLocation.includes('claim_error=invalid_or_expired'), 'Replayed claim must be rejected as expired or invalid.');
     console.log('   ✓ Replayed QR pass correctly rejected (single-use guarantee).');
 
     // -------------------------------------------------------------

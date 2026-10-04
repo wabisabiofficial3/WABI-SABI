@@ -58,9 +58,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.WabiSabiStore.showToast(`Welcome back, ${name}.`);
             const urlParams = new URLSearchParams(window.location.search);
             const redirectParam = urlParams.get('redirect');
-            const target = redirectParam || res.redirectUrl || 'curator.html';
+            const requestedTarget = redirectParam || res.redirectUrl || '/curator.html';
+            let target = '/curator.html';
+            try {
+                const parsedTarget = new URL(requestedTarget, window.location.origin);
+                if (parsedTarget.origin === window.location.origin) {
+                    target = `${parsedTarget.pathname}${parsedTarget.search}${parsedTarget.hash}`;
+                }
+            } catch (e) {
+                // Fall back to the canonical curator page for malformed redirect values.
+            }
             setTimeout(() => {
-                window.location.href = target;
+                window.location.assign(target);
             }, 350);
         } else {
             showError(res.message || "Invalid credentials. Please verify your email and password.");

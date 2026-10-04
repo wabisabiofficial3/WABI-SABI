@@ -551,22 +551,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 8. Theme Toggle (Tea Glass Light / Coffee Cup Dark)
-    const themeToggleBtn = document.getElementById('themeToggleBtn');
-    const savedTheme = localStorage.getItem('wabisabi_theme') || 'light';
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-    }
-
-    if (themeToggleBtn) {
-        themeToggleBtn.addEventListener('click', () => {
-            const isDark = document.body.classList.toggle('dark-mode');
-            localStorage.setItem('wabisabi_theme', isDark ? 'dark' : 'light');
-            if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
-                window.WabiSabiStore.showToast(isDark ? '☕ Nocturne Quiet Mode' : '🍵 Morning Linen Mode');
-            }
-        });
-    }
+    // Theme initialization and toggle are consolidated near the page-end controls.
 
     // 9. Book Switcher Dropdown & Dynamic Model Switching
     const bookTitleDropdownBtn = document.getElementById('bookTitleDropdownBtn');
@@ -759,33 +744,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     attachHighlightListeners();
 
-    // 13. Reader Bottom Tools (Fullscreen, Fit Width, Table of Contents)
-    const toolFullscreen = document.getElementById('toolFullscreen');
-    const iconExpand = toolFullscreen ? toolFullscreen.querySelector('.icon-expand') : null;
-    const iconCompress = toolFullscreen ? toolFullscreen.querySelector('.icon-compress') : null;
-    const fullscreenText = document.getElementById('fullscreenToolText');
-
-    if (toolFullscreen) {
-        toolFullscreen.addEventListener('click', () => {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(() => {});
-                if (iconExpand) iconExpand.style.display = 'none';
-                if (iconCompress) iconCompress.style.display = 'block';
-                if (fullscreenText) fullscreenText.textContent = 'Exit Fullscreen';
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
-                if (iconExpand) iconExpand.style.display = 'block';
-                if (iconCompress) iconCompress.style.display = 'none';
-                if (fullscreenText) fullscreenText.textContent = 'Full Screen';
-            }
-        });
-        document.addEventListener('fullscreenchange', () => {
-            const isFull = !!document.fullscreenElement;
-            if (iconExpand) iconExpand.style.display = isFull ? 'none' : 'block';
-            if (iconCompress) iconCompress.style.display = isFull ? 'block' : 'none';
-            if (fullscreenText) fullscreenText.textContent = isFull ? 'Exit Fullscreen' : 'Full Screen';
-        });
-    }
+    // 13. Reader Bottom Tools (Fit Width, Table of Contents)
 
     const toolFitWidth = document.getElementById('toolFitWidth');
     let isFitWidth = false;

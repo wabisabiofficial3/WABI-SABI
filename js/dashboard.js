@@ -102,6 +102,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 3b. Interactive Side Cards (Bookclub Pick -> reader.html, Gathering -> table-room.html)
     const todaysPickCard = document.getElementById('todaysPickCard');
     if (todaysPickCard) {
+        todaysPickCard.style.cursor = 'pointer';
         todaysPickCard.addEventListener('click', () => {
             window.location.href = 'reader.html';
         });
@@ -469,15 +470,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             switchSection(tabKey, true);
         });
     });
-
-    // Bookclub Pick card navigates to reader.html
-    const todaysPickCard = document.getElementById('todaysPickCard');
-    if (todaysPickCard) {
-        todaysPickCard.style.cursor = 'pointer';
-        todaysPickCard.addEventListener('click', () => {
-            window.location.href = 'reader.html';
-        });
-    }
 
     // Handle initial hash routing if present
     const initialHash = window.location.hash ? window.location.hash.replace('#', '') : 'home';

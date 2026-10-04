@@ -1020,6 +1020,17 @@
                 .replace(/'/g, '&#039;');
         }
 
+        function safeHttpUrl(value) {
+            if (typeof value !== 'string' || !value.trim()) return '';
+            try {
+                const parsed = new URL(value.trim(), window.location.origin);
+                if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password) return '';
+                return parsed.href;
+            } catch (e) {
+                return '';
+            }
+        }
+
         // Hydrate Member Desk
         async function loadMemberDesk() {
             const skeleton = document.getElementById('deskSkeleton');
@@ -1065,7 +1076,8 @@
                     document.getElementById('deskMemberBio').textContent = data.member.bio;
                 }
                 if (data.member.avatar_url) {
-                    document.getElementById('deskAvatar').src = data.member.avatar_url;
+                    const avatarUrl = safeHttpUrl(data.member.avatar_url);
+                    if (avatarUrl) document.getElementById('deskAvatar').src = avatarUrl;
                 }
 
                 // Populate Reading
@@ -1095,7 +1107,7 @@
                     saveProgBtn.textContent = 'Saving...';
                     try {
                         const url = previewId ? `/api/member/reading?preview=${encodeURIComponent(previewId)}` : '/api/member/reading';
-                        await fetch(url, {
+                        const response = await fetch(url, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -1104,10 +1116,13 @@
                                 progress: Number(slider.value)
                             })
                         });
+                        const saved = await response.json();
+                        if (!response.ok || !saved.success) throw new Error(saved.error || 'Progress could not be saved.');
                         saveProgBtn.textContent = 'Saved ✓';
                         setTimeout(() => { saveProgBtn.textContent = 'Save'; }, 1500);
                     } catch (e) {
                         saveProgBtn.textContent = 'Error';
+                        setTimeout(() => { saveProgBtn.textContent = 'Save'; }, 2200);
                     }
                 });
 
@@ -1120,7 +1135,9 @@
                 saveNoteBtn.addEventListener('click', async () => {
                     const content = noteInput.value.trim();
                     if (!content) return;
+                    saveNoteBtn.disabled = true;
                     saveNoteBtn.textContent = 'Saving...';
+                    let savedSuccessfully = false;
                     try {
                         const url = previewId ? `/api/member/notes?preview=${encodeURIComponent(previewId)}` : '/api/member/notes';
                         const res = await fetch(url, {
@@ -1129,12 +1146,16 @@
                             body: JSON.stringify({ content })
                         });
                         const noteData = await res.json();
-                        if (noteData.success) {
-                            renderNotes(noteData.notes);
-                            noteInput.value = '';
-                        }
-                    } catch (e) {}
-                    saveNoteBtn.textContent = '✦ Record Reflection';
+                        if (!res.ok || !noteData.success) throw new Error(noteData.error || 'Could not save reflection.');
+                        renderNotes(noteData.notes);
+                        noteInput.value = '';
+                        savedSuccessfully = true;
+                    } catch (e) {
+                        saveNoteBtn.textContent = 'Could not save · Try again';
+                    } finally {
+                        saveNoteBtn.disabled = false;
+                        if (savedSuccessfully) saveNoteBtn.textContent = '✦ Record Reflection';
+                    }
                 });
 
                 // Populate Bookshelf
@@ -1159,7 +1180,7 @@
                     const m = document.getElementById('gatheringMapsLink');
                     if (h && g.date) h.textContent = `${g.date} • ${g.time || '4:00 PM'}`;
                     if (v && g.location) v.textContent = g.location;
-                    if (m && g.maps_url) m.href = g.maps_url;
+                    if (m && g.maps_url) m.href = safeHttpUrl(g.maps_url) || '#';
                 }
 
                 // Reveal authenticated desk

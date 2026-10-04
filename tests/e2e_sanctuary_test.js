@@ -1,8 +1,9 @@
+const { baseUrl, ADMIN_PASSWORD } = require('./test_config');
 const http = require('http');
 
 function req(path, opts = {}) {
     return new Promise((resolve, reject) => {
-        const u = new URL(path, 'http://127.0.0.1:3000');
+        const u = new URL(path, baseUrl);
         const ro = { method: opts.method || 'GET', headers: opts.headers || {} };
         const r = http.request(u, ro, res => {
             let d = '';
@@ -45,7 +46,7 @@ async function run() {
     const rAuth = await req('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: { identifier: 'wabisabiofficial3@gmail.com', password: 'DsL@678_' }
+        body: { identifier: 'wabisabiofficial3@gmail.com', password: ADMIN_PASSWORD }
     });
     const cookie = rAuth.headers['set-cookie'][0].split(';')[0];
     console.log('✓ Admin authenticated with 30-day session cookie');

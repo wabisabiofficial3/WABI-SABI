@@ -8,7 +8,7 @@
 
     // Theme toggle handling
     function initTheme() {
-        const savedTheme = localStorage.getItem('wabi_theme') || 'light';
+        const savedTheme = localStorage.getItem('wabi_sabi_theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
         if (savedTheme === 'dark') {
             document.body.classList.add('dark-mode');
@@ -27,8 +27,19 @@
                 } else {
                     document.body.classList.remove('dark-mode');
                 }
-                localStorage.setItem('wabi_theme', next);
+                localStorage.setItem('wabi_sabi_theme', next);
             });
+        }
+    }
+
+    function safeHttpUrl(value) {
+        if (typeof value !== 'string' || !value.trim()) return '';
+        try {
+            const parsed = new URL(value.trim(), window.location.origin);
+            if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password) return '';
+            return parsed.href;
+        } catch (e) {
+            return '';
         }
     }
 
@@ -65,14 +76,14 @@
             const quickBooks = document.getElementById('quickBooksBtn');
             const quickMeeting = document.getElementById('quickMeetingBtn');
 
-            if (quickChat && platform_links.community_chat_url) {
-                quickChat.href = platform_links.community_chat_url;
+            if (quickChat && safeHttpUrl(platform_links.community_chat_url)) {
+                quickChat.href = safeHttpUrl(platform_links.community_chat_url);
             }
-            if (quickBooks && (platform_links.book_drive_url || current_book.drive_url)) {
-                quickBooks.href = platform_links.book_drive_url || current_book.drive_url;
+            if (quickBooks && safeHttpUrl(platform_links.book_drive_url || current_book.drive_url)) {
+                quickBooks.href = safeHttpUrl(platform_links.book_drive_url || current_book.drive_url);
             }
-            if (quickMeeting && (platform_links.meeting_maps_url || next_meeting.maps_url)) {
-                quickMeeting.href = platform_links.meeting_maps_url || next_meeting.maps_url;
+            if (quickMeeting && safeHttpUrl(platform_links.meeting_maps_url || next_meeting.maps_url)) {
+                quickMeeting.href = safeHttpUrl(platform_links.meeting_maps_url || next_meeting.maps_url);
             }
 
             // 2. Announcements / Updates List
@@ -111,8 +122,8 @@
                 if (bookTitleEl) bookTitleEl.textContent = current_book.title || 'Untitled Selection';
                 if (bookAuthorEl) bookAuthorEl.textContent = current_book.author ? `by ${current_book.author}` : '';
                 if (bookNotesEl) bookNotesEl.textContent = `“${current_book.notes || 'A quiet read for contemplative minds.'}”`;
-                if (bookDriveBtn && (current_book.drive_url || platform_links.book_drive_url)) {
-                    bookDriveBtn.href = current_book.drive_url || platform_links.book_drive_url;
+                if (bookDriveBtn && safeHttpUrl(current_book.drive_url || platform_links.book_drive_url)) {
+                    bookDriveBtn.href = safeHttpUrl(current_book.drive_url || platform_links.book_drive_url);
                 }
             }
 
@@ -126,15 +137,15 @@
                 if (meetingDateEl) meetingDateEl.textContent = next_meeting.date || 'TBA';
                 if (meetingTimeEl) meetingTimeEl.textContent = next_meeting.time || 'TBA';
                 if (meetingLocEl) meetingLocEl.textContent = next_meeting.location || 'TBA';
-                if (meetingMapsBtn && (next_meeting.maps_url || platform_links.meeting_maps_url)) {
-                    meetingMapsBtn.href = next_meeting.maps_url || platform_links.meeting_maps_url;
+                if (meetingMapsBtn && safeHttpUrl(next_meeting.maps_url || platform_links.meeting_maps_url)) {
+                    meetingMapsBtn.href = safeHttpUrl(next_meeting.maps_url || platform_links.meeting_maps_url);
                 }
             }
 
             // 5. Community Chat Card
             const communityChatBtn = document.getElementById('communityChatBtn');
-            if (communityChatBtn && platform_links.community_chat_url) {
-                communityChatBtn.href = platform_links.community_chat_url;
+            if (communityChatBtn && safeHttpUrl(platform_links.community_chat_url)) {
+                communityChatBtn.href = safeHttpUrl(platform_links.community_chat_url);
             }
 
         } catch (err) {

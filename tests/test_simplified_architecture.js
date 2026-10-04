@@ -8,6 +8,7 @@
  * 5. Curator RBAC: Only Likith, Sarvasree, Dhanush can log in and manage the 3 pillars.
  */
 
+const { ADMIN_PASSWORD } = require('./test_config');
 const assert = require('assert');
 const http = require('http');
 const { startServer } = require('../server/index');
@@ -118,7 +119,7 @@ async function runTests() {
         const resAdminLogin = await request('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: { identifier: 'wabisabiofficial3@gmail.com', password: 'DsL@678_' }
+            body: { identifier: 'wabisabiofficial3@gmail.com', password: ADMIN_PASSWORD }
         });
         assert.strictEqual(resAdminLogin.statusCode, 200, 'Admin login should succeed');
         assert.strictEqual(resAdminLogin.body.success, true);
