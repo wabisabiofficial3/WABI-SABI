@@ -31,7 +31,14 @@ for (const stylesheet of ['css/tokens.css', 'css/dashboard.css']) {
     const css = fs.readFileSync(path.join(root, stylesheet), 'utf8');
     const spriteRule = css.match(/\.cat-sprite\s*\{([^}]*)\}/s);
     assert(spriteRule, `${stylesheet} must style the cat sprite frames.`);
-    assert.match(spriteRule[1], /transition:\s*none\s*;/, `${stylesheet} must swap frames without an opacity flash.`);
+    assert.match(
+        spriteRule[1],
+        /transition:\s*opacity 0\.12s ease-in-out,\s*visibility 0s linear 0\.12s\s*;/,
+        `${stylesheet} must keep outgoing frames visible until the fade completes.`
+    );
+    const activeRule = css.match(/\.cat-sprite\.active,[\s\S]*?\.cat-sprite:only-child\s*\{([^}]*)\}/);
+    assert(activeRule, `${stylesheet} must define the active frame transition.`);
+    assert.match(activeRule[1], /transition:\s*opacity 0\.12s ease-in-out,\s*visibility 0s\s*;/);
 }
 
-console.log('✓ Four aligned RGBA walk frames cycle without opacity-blink transitions.');
+console.log('✓ Four aligned RGBA walk frames crossfade without a visibility gap.');
