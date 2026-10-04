@@ -1,6 +1,6 @@
 # HTML page routes
 
-`server/index.js` serves the files in this directory through explicit routes. The four member spaces have clean canonical URLs and share a cross-page dock navigation; they can also be opened directly through their `.html` or `/pages/*.html` aliases.
+`server/index.js` serves the files in this directory through explicit routes. The four member spaces have clean canonical URLs and share a cross-page dock navigation; they can also be opened directly through their `.html` or `/pages/*.html` aliases. On pages with the Wabi Sabi brand mark, five clicks on the logo open `/sanctuary`, the existing Admin sign-in page. This shortcut only navigates; curator authentication remains server-validated.
 
 | Page | Canonical route | Access | Notes |
 | --- | --- | --- | --- |

@@ -6,7 +6,7 @@ The active regression suite runs sequentially against an isolated temporary SQLi
 npm test
 ```
 
-`tests/run_all_tests.js` currently executes 13 suites:
+`tests/run_all_tests.js` currently executes 14 suites:
 
 | Test | Coverage |
 | --- | --- |
@@ -16,6 +16,7 @@ npm test
 | `test_simplified_architecture.js` | Public portal, curator RBAC, and the four independent member-space routes |
 | `test_page_guards.js` | Member/curator sessions, protected aliases, no-store headers, and suspended-member denial |
 | `test_client_guards.js` | Server-verified client session checks and cross-space navigation links |
+| `test_admin_logo_shortcut.js` | Five brand-logo clicks open the existing admin sign-in route without breaking normal or modified navigation |
 | `e2e_sanctuary_test.js` | Curator sign-in, editing, public hydration, and logout |
 | `test_interactive_and_admin_purge.js` | Public directory integrity and curator-account restrictions |
 | `test_member_access_system.js` | Member codes, private desk, notes, reading progress, suspension, and QR passes |

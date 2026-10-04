@@ -16,7 +16,7 @@ The active server is an Express application backed by SQLite (`server/index.js`,
 | Protected member spaces | `/community`, `/reader`, `/table-room`, `/wabi-wall` (also `.html` and `/pages/*.html` aliases) |
 | Health | `/health`, `/api/health` |
 
-Unauthenticated requests to a member-space route redirect to `/my-space?returnTo=<space>`; after successful member-code verification, the member is returned only to an allowlisted Wabi Sabi space. Curator-only pages and write APIs remain server-guarded; browser storage is never accepted as authentication. These route changes restore the standalone pages and their shared navigation; the older `/api/community` and `/api/chat` backends are not mounted in the current server. The optional Supabase files are not used by the active SQLite application.
+Unauthenticated requests to a member-space route redirect to `/my-space?returnTo=<space>`; after successful member-code verification, the member is returned only to an allowlisted Wabi Sabi space. Five clicks on the Wabi Sabi brand mark open `/sanctuary`, the existing Admin sign-in page; the shortcut does not bypass server authentication. Curator-only pages and write APIs remain server-guarded, and browser storage is never accepted as authentication. These route changes restore the standalone pages and their shared navigation; the older `/api/community` and `/api/chat` backends are not mounted in the current server. The optional Supabase files are not used by the active SQLite application.
 
 ## Requirements and setup
 

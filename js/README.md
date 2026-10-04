@@ -8,6 +8,7 @@ The site uses native browser JavaScript. Session checks in `js/store.js` are for
 | --- | --- | --- |
 | `store.js` | Same-origin API wrapper; verifies curator sessions and member-code sessions; exposes client route guard | `/api/auth/session`, `/api/auth/login`, `/api/auth/logout`, `/api/member/status` |
 | `portal.js` | Public home theme controls and portal data hydration | `/api/portal`, `/api/user/profile` |
+| `admin-shortcut.js` | Carries a five-click logo shortcut to the existing admin sign-in page; no authentication or authorization decisions | `/sanctuary` navigation only |
 | `curator.js` | Curator console data and management actions | `/api/curator/*` |
 | `cat-engine.js` | Decorative Mochi cat and ambient interaction | None |
 
