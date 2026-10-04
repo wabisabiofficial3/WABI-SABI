@@ -1,0 +1,120 @@
+/*
+ * Wabi Sabi — subtle site-wide material realism
+ * Adds natural ambient light and tactile surface depth without changing layout,
+ * spacing, typography, or the existing paper-and-ink palette.
+ */
+:root {
+    --realism-daylight: rgba(255, 251, 242, 0.58);
+    --realism-warm-bounce: rgba(174, 132, 83, 0.075);
+    --realism-card-edge: rgba(255, 255, 255, 0.68);
+    --realism-card-lift: 0 1px 3px rgba(48, 37, 25, 0.045);
+    --realism-soft-shadow: 0 3px 10px rgba(48, 37, 25, 0.045);
+    --realism-field-inset: inset 0 1px 2px rgba(48, 37, 25, 0.055);
+}
+
+:root[data-theme="dark"],
+[data-theme="dark"] body,
+body.dark-mode {
+    --realism-daylight: rgba(244, 201, 137, 0.075);
+    --realism-warm-bounce: rgba(145, 102, 61, 0.065);
+    --realism-card-edge: rgba(255, 255, 255, 0.045);
+    --realism-card-lift: 0 1px 3px rgba(0, 0, 0, 0.22);
+    --realism-soft-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+    --realism-field-inset: inset 0 1px 3px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+/* Soft, directional daylight over the existing backgrounds. */
+body.dashboard-body,
+body.portal-body,
+.dashboard-container,
+.reading-viewport,
+.table-room-viewport,
+.auth-viewport {
+    background-image:
+        radial-gradient(ellipse 78% 62% at 8% 0%, var(--realism-daylight) 0%, transparent 72%),
+        radial-gradient(ellipse 60% 48% at 100% 100%, var(--realism-warm-bounce) 0%, transparent 74%);
+    background-repeat: no-repeat;
+}
+
+/* A fine reflected edge and soft contact shadow make the existing panels feel tactile. */
+.comm-card {
+    box-shadow: var(--shadow-card), var(--realism-card-lift), inset 0 1px 0 var(--realism-card-edge);
+}
+
+.sidebar-widget {
+    box-shadow: var(--shadow-soft), var(--realism-card-lift), inset 0 1px 0 var(--realism-card-edge);
+}
+
+.comment-card {
+    box-shadow: var(--realism-soft-shadow), inset 0 1px 0 var(--realism-card-edge);
+}
+
+.comment-card:hover {
+    box-shadow: var(--realism-soft-shadow), inset 0 1px 0 var(--realism-card-edge);
+}
+
+.members-sidebar-card,
+.chat-main-card,
+.context-card {
+    box-shadow: var(--card-shadow), var(--realism-card-lift), inset 0 1px 0 var(--realism-card-edge);
+}
+
+.context-card:hover {
+    box-shadow: 0 8px 24px rgba(35, 30, 25, 0.07), inset 0 1px 0 var(--realism-card-edge);
+}
+
+.question-banner-card {
+    box-shadow: var(--realism-soft-shadow), inset 0 1px 0 var(--realism-card-edge);
+}
+
+.msg-bubble {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.035), inset 0 1px 0 var(--realism-card-edge);
+}
+
+.marginalia-card {
+    box-shadow: var(--card-shadow), var(--realism-card-lift), inset 0 1px 0 var(--realism-card-edge);
+}
+
+.marginalia-card:hover {
+    box-shadow: 0 6px 18px rgba(35, 30, 25, 0.06), inset 0 1px 0 var(--realism-card-edge);
+}
+
+.portal-card {
+    box-shadow: var(--wabi-shadow-card), var(--realism-card-lift), inset 0 1px 0 var(--realism-card-edge);
+}
+
+.portal-card:hover {
+    box-shadow: var(--wabi-shadow-float), inset 0 1px 0 var(--realism-card-edge);
+}
+
+.update-card {
+    box-shadow: var(--wabi-shadow-sm), var(--realism-card-lift), inset 0 1px 0 var(--realism-card-edge);
+}
+
+.member-portrait-card {
+    box-shadow: var(--wabi-shadow-card), var(--realism-card-lift), inset 0 1px 0 var(--realism-card-edge);
+}
+
+.desk-module {
+    box-shadow: var(--wabi-shadow-paper), var(--realism-card-lift), inset 0 1px 0 var(--realism-card-edge);
+}
+
+.auth-paper-card {
+    box-shadow: 0 10px 30px rgba(45, 38, 28, 0.08), 0 2px 6px rgba(45, 38, 28, 0.03), inset 0 1px 0 var(--realism-card-edge);
+}
+
+:root[data-theme="dark"] .auth-paper-card {
+    box-shadow: 0 18px 46px rgba(0, 0, 0, 0.55), inset 0 1px 0 var(--realism-card-edge);
+}
+
+/* Real photo prints retain their white rim while gaining a softer cast shadow. */
+.mini-polaroid-frame {
+    box-shadow: 0 5px 14px rgba(35, 30, 20, 0.13), inset 0 1px 0 var(--realism-card-edge);
+}
+
+/* A shallow inset makes editable fields read like physical controls; focus styles remain untouched. */
+input:is([type="text"], [type="email"], [type="password"], [type="search"], [type="number"], [type="tel"], [type="url"]):not(:focus),
+textarea:not(:focus),
+select:not(:focus) {
+    box-shadow: var(--realism-field-inset);
+}

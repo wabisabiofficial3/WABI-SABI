@@ -68,4 +68,20 @@ if (!wabiWallHtml.includes('id="curatorDeskBtn"') || !wabiWallHtml.includes('dis
 }
 console.log('✓ wabi-wall.html curator desk button is securely role-gated');
 
-console.log('\n--- ALL SECTION 5 TESTS PASSED (6/6) ---');
+// 7. Verify subtle realism polish is applied to each active website destination
+const realismPages = ['home.html', 'community.html', 'reader.html', 'table-room.html', 'wabi-wall.html', 'curator.html', 'my-space.html', 'login.html', 'sanctuary.html'];
+for (const file of realismPages) {
+    const content = fs.readFileSync(path.join(pagesDir, file), 'utf8');
+    if (!content.includes('../css/realism.css')) {
+        throw new Error(`Active page ${file} does not include the shared realism stylesheet`);
+    }
+}
+const realismCss = fs.readFileSync(path.join(cssDir, 'realism.css'), 'utf8');
+for (const selector of ['--realism-daylight', ':root[data-theme="dark"]', '.comm-card', '.portal-card', '.members-sidebar-card']) {
+    if (!realismCss.includes(selector)) {
+        throw new Error(`realism.css is missing the shared visual treatment: ${selector}`);
+    }
+}
+console.log('✓ Natural lighting and tactile surface depth are shared across active destinations');
+
+console.log('\n--- ALL SECTION 5 TESTS PASSED (7/7) ---');
