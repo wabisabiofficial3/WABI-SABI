@@ -20,6 +20,7 @@ const testSuites = [
     'tests/test_cat_animation.js',
     'tests/test_js_syntax.js',
     'tests/test_simplified_architecture.js',
+    'tests/test_admin_experience.js',
     'tests/test_page_guards.js',
     'tests/test_client_guards.js',
     'tests/test_admin_logo_shortcut.js',

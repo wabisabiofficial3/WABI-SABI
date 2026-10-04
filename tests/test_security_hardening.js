@@ -3,7 +3,34 @@ require('./test_config');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { baseUrl } = require('./test_config');
-const { apiRateLimiter, securityHeaders } = require('../server/middleware/security');
+const { apiRateLimiter, corsAndCsrf, securityHeaders } = require('../server/middleware/security');
+const { curatorSessionCookieOptions } = require('../server/sessionCookies');
+
+function checkOrigin({ origin, host, forwardedHost, trustProxy, fetchSite }) {
+    const reqHeaders = {
+        origin,
+        host,
+        'x-forwarded-host': forwardedHost,
+        'sec-fetch-site': fetchSite
+    };
+    const response = { headers: {}, status: null, body: null };
+    const req = {
+        protocol: 'https',
+        method: 'POST',
+        get(name) { return reqHeaders[name.toLowerCase()]; },
+        app: { get(name) { return name === 'trust proxy' ? trustProxy : undefined; } }
+    };
+    const res = {
+        vary() { return this; },
+        setHeader(name, value) { response.headers[name.toLowerCase()] = value; },
+        status(code) { response.status = code; return this; },
+        json(body) { response.body = body; return this; },
+        sendStatus(code) { response.status = code; return this; }
+    };
+    response.nextCalled = false;
+    corsAndCsrf(req, res, () => { response.nextCalled = true; });
+    return response;
+}
 
 async function request(path, options = {}) {
     const headers = { ...(options.headers || {}) };
@@ -26,6 +53,88 @@ async function run() {
     assert.match(contentSecurityPolicy, /object-src 'none'/);
     assert.doesNotMatch(contentSecurityPolicy, /script-src[^;]*fonts\.googleapis/i);
     console.log('✓ CSP blocks plugin objects and excludes style-only origins from script execution.');
+
+    const previousPartitionedFlag = process.env.WABI_PREVIEW_PARTITIONED_COOKIES;
+    const previousAppBaseUrl = process.env.APP_BASE_URL;
+    process.env.WABI_PREVIEW_PARTITIONED_COOKIES = 'true';
+    delete process.env.APP_BASE_URL;
+    const embeddedPreviewCookie = curatorSessionCookieOptions({ secure: true });
+    assert.equal(embeddedPreviewCookie.httpOnly, true);
+    assert.equal(embeddedPreviewCookie.secure, true);
+    assert.equal(embeddedPreviewCookie.sameSite, 'none');
+    assert.equal(embeddedPreviewCookie.partitioned, true);
+    const legacyCookieCleanup = curatorSessionCookieOptions({ secure: true }, { sameSite: 'lax', partitioned: false });
+    assert.equal(legacyCookieCleanup.sameSite, 'lax');
+    assert.equal(legacyCookieCleanup.partitioned, false);
+    const insecurePreviewCookie = curatorSessionCookieOptions({ secure: false });
+    assert.equal(insecurePreviewCookie.sameSite, 'lax', 'Partitioned cookies must not be emitted without HTTPS.');
+    assert.equal(insecurePreviewCookie.partitioned, undefined);
+    process.env.APP_BASE_URL = 'https://preview.example';
+    const proxyTerminatedHttpsCookie = curatorSessionCookieOptions({ secure: false });
+    assert.equal(proxyTerminatedHttpsCookie.secure, true, 'Configured HTTPS preview cookies must stay Secure even if the proxy omits X-Forwarded-Proto.');
+    assert.equal(proxyTerminatedHttpsCookie.sameSite, 'none');
+    assert.equal(proxyTerminatedHttpsCookie.partitioned, true);
+    if (previousPartitionedFlag === undefined) delete process.env.WABI_PREVIEW_PARTITIONED_COOKIES;
+    else process.env.WABI_PREVIEW_PARTITIONED_COOKIES = previousPartitionedFlag;
+    if (previousAppBaseUrl === undefined) delete process.env.APP_BASE_URL;
+    else process.env.APP_BASE_URL = previousAppBaseUrl;
+    const ordinaryCookie = curatorSessionCookieOptions({ secure: true });
+    assert.equal(ordinaryCookie.sameSite, 'lax', 'First-party sessions must remain SameSite=Lax by default.');
+    console.log('✓ Embedded preview sessions use Secure, HttpOnly, partitioned cookies; defaults remain first-party.');
+
+    const previewOrigin = 'https://3000-preview-id.e2b.app';
+    const forwardedOrigin = checkOrigin({
+        origin: previewOrigin,
+        host: 'wabi-service.internal:3000',
+        forwardedHost: '3000-preview-id.e2b.app',
+        trustProxy: 1
+    });
+    assert.equal(forwardedOrigin.nextCalled, true, 'Trusted forwarded host should match the browser preview origin.');
+    assert.equal(forwardedOrigin.headers['access-control-allow-origin'], previewOrigin);
+    const foreignOrigin = checkOrigin({
+        origin: 'https://attacker.example',
+        host: 'wabi-service.internal:3000',
+        forwardedHost: '3000-preview-id.e2b.app',
+        trustProxy: 1
+    });
+    assert.equal(foreignOrigin.status, 403, 'A foreign Origin must remain rejected behind the proxy.');
+    const untrustedForwardedHost = checkOrigin({
+        origin: previewOrigin,
+        host: 'wabi-service.internal:3000',
+        forwardedHost: '3000-preview-id.e2b.app',
+        trustProxy: 0
+    });
+    assert.equal(untrustedForwardedHost.status, 403, 'Forwarded host must be ignored when proxy trust is disabled.');
+
+    const proxyOriginMismatch = 'https://preview-origin-mismatch.example';
+    const browserConfirmedSameOrigin = checkOrigin({
+        origin: proxyOriginMismatch,
+        host: 'wabi-service.internal:3000',
+        forwardedHost: 'proxy-service.internal:3000',
+        trustProxy: 1,
+        fetchSite: 'same-origin'
+    });
+    assert.equal(browserConfirmedSameOrigin.nextCalled, true, 'Browser-confirmed same-origin requests should survive reverse-proxy host rewriting.');
+    assert.equal(browserConfirmedSameOrigin.headers['access-control-allow-origin'], proxyOriginMismatch);
+
+    const sameSiteSiblingOrigin = checkOrigin({
+        origin: proxyOriginMismatch,
+        host: 'wabi-service.internal:3000',
+        forwardedHost: 'proxy-service.internal:3000',
+        trustProxy: 1,
+        fetchSite: 'same-site'
+    });
+    assert.equal(sameSiteSiblingOrigin.status, 403, 'Same-site sibling origins must not use the proxy fallback.');
+
+    const opaqueOrigin = checkOrigin({
+        origin: 'null',
+        host: 'wabi-service.internal:3000',
+        forwardedHost: 'proxy-service.internal:3000',
+        trustProxy: 1,
+        fetchSite: 'same-origin'
+    });
+    assert.equal(opaqueOrigin.status, 403, 'Opaque origins must remain blocked even when fetch metadata is present.');
+    console.log('✓ Trusted preview origins and browser-confirmed same-origin proxy requests work; foreign origins remain blocked.');
 
     // Express routes are case-insensitive by default; the limiter must be too.
     let allowedRequests = 0;

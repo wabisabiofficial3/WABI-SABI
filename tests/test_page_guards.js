@@ -73,6 +73,10 @@ async function testPageGuards() {
         const visitorHome = await request(baseUrl, '/');
         assert.equal(visitorHome.statusCode, 200);
 
+        const sanctuaryGate = await request(baseUrl, '/sanctuary');
+        assert.equal(sanctuaryGate.statusCode, 200);
+        assert.match(sanctuaryGate.headers['cache-control'] || '', /no-store/i, 'The sign-in shell should always revalidate after authentication updates.');
+
         // Each member space is independently addressable but requires a verified session.
         for (const pagePath of memberSpacePaths) {
             const visitor = await request(baseUrl, pagePath);

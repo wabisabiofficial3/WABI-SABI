@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getCuratorByIdentifier, createCuratorSession, deleteCuratorSession, updateCuratorLastLogin } = require('../db');
 const { verifyPassword, generateSessionToken, hashSessionToken } = require('../crypto');
+const { curatorSessionCookieOptions } = require('../sessionCookies');
 const {
     getAuthenticatedCurator,
     checkLoginRateLimit,
@@ -61,22 +62,23 @@ router.post('/login', checkLoginRateLimit, async (req, res) => {
         createCuratorSession(curator.id, tokenHash, expiresAt);
 
         // Set secure HTTP-only cookie
-        res.cookie('wabisabi_curator_session', rawToken, {
-            httpOnly: true,
-            secure: req.secure || process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 30 * 24 * 60 * 60 * 1000,
-            path: '/'
+        const sessionCookieOptions = curatorSessionCookieOptions(req, {
+            maxAge: 30 * 24 * 60 * 60 * 1000
         });
+        if (sessionCookieOptions.partitioned) {
+            // Remove any older first-party Lax cookies so duplicate cookie names cannot
+            // shadow the new partitioned preview session in a top-level browser context.
+            const legacyCookieOptions = curatorSessionCookieOptions(req, {
+                sameSite: 'lax',
+                partitioned: false
+            });
+            res.clearCookie('wabisabi_curator_session', legacyCookieOptions);
+            res.clearCookie('wabisabi_session', legacyCookieOptions);
+        }
+        res.cookie('wabisabi_curator_session', rawToken, sessionCookieOptions);
 
         // Set legacy cookie name too for backward compatibility
-        res.cookie('wabisabi_session', rawToken, {
-            httpOnly: true,
-            secure: req.secure || process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 30 * 24 * 60 * 60 * 1000,
-            path: '/'
-        });
+        res.cookie('wabisabi_session', rawToken, sessionCookieOptions);
 
         return res.json({
             success: true,
@@ -114,12 +116,7 @@ router.post('/logout', (req, res) => {
             deleteCuratorSession(tokenHash);
         }
 
-        const cookieOptions = {
-            httpOnly: true,
-            secure: req.secure || process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            path: '/'
-        };
+        const cookieOptions = curatorSessionCookieOptions(req);
         res.clearCookie('wabisabi_curator_session', cookieOptions);
         res.clearCookie('wabisabi_session', cookieOptions);
 

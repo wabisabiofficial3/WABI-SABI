@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const QRCode = require('qrcode');
+const { isDeepStrictEqual } = require('node:util');
 const {
     db,
     withTransaction,
@@ -28,6 +29,7 @@ const {
 } = require('../db');
 const { hashPassword, verifyPassword } = require('../crypto');
 const { requireCurator } = require('../middleware/auth');
+const { notifyMembersOfChange } = require('../memberNotifications');
 
 class RequestValidationError extends Error {
     constructor(message) {
@@ -172,6 +174,64 @@ function sendRouteError(res, error, fallback) {
     return res.status(500).json({ success: false, error: fallback });
 }
 
+const notificationChangeBySetting = {
+    weekly_theme: 'weekly_theme',
+    this_weeks_reading: 'reading_selection',
+    gathering: 'gathering',
+    discussion_points: 'discussion_points',
+    important_notes: 'important_notes',
+    connect_links: 'connect_links',
+    paper_plane_enabled: 'paper_plane_enabled',
+    sticky_notes: 'sticky_notes'
+};
+
+function persistSettingUpdates(updates, curatorId) {
+    const changed = new Map();
+    withTransaction(() => {
+        for (const [key, value] of updates) {
+            const change = notificationChangeBySetting[key];
+            const previous = getSetting(key);
+            if (change && !isDeepStrictEqual(previous, value)) {
+                const records = changed.get(change) || [];
+                records.push({ key, previous, value });
+                changed.set(change, records);
+            }
+            setSetting(key, value);
+        }
+
+        for (const [change, records] of changed) {
+            let details = {};
+            if (change === 'weekly_theme') {
+                details = { theme: getSetting('weekly_theme')?.theme };
+            } else if (change === 'reading_selection') {
+                const reading = getSetting('this_weeks_reading') || {};
+                details = { title: reading.title, author: reading.author };
+            } else if (change === 'gathering') {
+                details = getSetting('gathering') || {};
+            } else if (change === 'discussion_points') {
+                details = { prompts: getSetting('discussion_points') || [] };
+            } else if (change === 'important_notes') {
+                details = { note: getSetting('important_notes') || '' };
+            } else if (change === 'connect_links') {
+                const record = records.find(item => item.key === 'connect_links');
+                const previous = record?.previous && typeof record.previous === 'object' ? record.previous : {};
+                const current = getSetting('connect_links') || {};
+                details = { changedLinks: Object.keys(current).filter(key => !isDeepStrictEqual(previous[key], current[key])) };
+            } else if (change === 'sticky_notes') {
+                const record = records.find(item => item.key === 'sticky_notes');
+                const previous = record?.previous && typeof record.previous === 'object' ? record.previous : {};
+                const current = getSetting('sticky_notes') || {};
+                details = { changedNotes: Object.keys(current).filter(key => !isDeepStrictEqual(previous[key], current[key])) };
+            } else if (change === 'paper_plane_enabled') {
+                const value = getSetting('paper_plane_enabled');
+                details = { enabled: value === true || value === 'true' };
+            }
+            notifyMembersOfChange(change, curatorId, details);
+        }
+    });
+    return [...changed.keys()];
+}
+
 // Curator responses include member and account data and must never be cached.
 router.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-store');
@@ -286,10 +346,11 @@ router.put('/announcements', (req, res) => {
             settingUpdates.push(['important_notes', cleanString(body.important_notes, 'Important notes', 5000)]);
         }
 
-        withTransaction(() => settingUpdates.forEach(([key, value]) => setSetting(key, value)));
+        const notificationChanges = persistSettingUpdates(settingUpdates, req.curator.id);
         return res.json({
             success: true,
             message: 'Announcements updated successfully.',
+            notificationsCreated: notificationChanges.length,
             settings: getAllSettings()
         });
     } catch (err) {
@@ -313,10 +374,19 @@ router.get('/members', (req, res) => {
 router.post('/members', (req, res) => {
     try {
         const member = cleanMemberPayload(req.body);
-        const result = createMember(member);
+        let notificationsCreated = 0;
+        const result = createMember(member, ({ member: createdMember }) => {
+            if (createdMember?.status === 'active') {
+                notifyMembersOfChange('member_added', req.curator.id, {
+                    name: createdMember.display_name || createdMember.name
+                });
+                notificationsCreated = 1;
+            }
+        });
         return res.status(201).json({
             success: true,
             message: 'Member registered into circle.',
+            notificationsCreated,
             memberId: result.id,
             secretCode: result.secretCode,
             member: result.member,
@@ -335,11 +405,33 @@ router.put('/members/:id', (req, res) => {
         if (Object.keys(member).length === 0) {
             return res.status(400).json({ success: false, error: 'Provide at least one member field to update.' });
         }
-        updateMember(req.params.id, member);
+        let updated;
+        let notificationsCreated = 0;
+        withTransaction(() => {
+            updateMember(req.params.id, member);
+            updated = getMemberById(req.params.id);
+            const publicFields = ['display_name', 'role', 'handle', 'avatar_url', 'bio', 'display_order'];
+            const changedPublicFields = publicFields.filter(field => !isDeepStrictEqual(existing[field], updated[field]));
+            if (changedPublicFields.length) {
+                notifyMembersOfChange('member_profile_updated', req.curator.id, {
+                    name: updated.display_name || updated.name,
+                    fields: changedPublicFields
+                });
+                notificationsCreated += 1;
+            }
+            if (existing.status !== updated.status) {
+                notifyMembersOfChange('member_access_changed', req.curator.id, {
+                    name: updated.display_name || updated.name,
+                    status: updated.status
+                });
+                notificationsCreated += 1;
+            }
+        });
         return res.json({
             success: true,
             message: 'Member portrait updated.',
-            member: getMemberById(req.params.id),
+            notificationsCreated,
+            member: updated,
             members: getAllMembersCurator()
         });
     } catch (err) {
@@ -374,10 +466,21 @@ router.put('/members/:id/status', (req, res) => {
         if (member.id === 'mem-admin' && status === 'suspended') {
             return res.status(400).json({ success: false, error: 'The built-in admin directory entry cannot be suspended.' });
         }
-        setMemberStatus(req.params.id, status);
+        let notificationsCreated = 0;
+        if (member.status !== status) {
+            withTransaction(() => {
+                setMemberStatus(req.params.id, status);
+                notifyMembersOfChange('member_access_changed', req.curator.id, {
+                    name: member.display_name || member.name,
+                    status
+                });
+                notificationsCreated = 1;
+            });
+        }
         return res.json({
             success: true,
             message: `Membership status updated to ${status}.`,
+            notificationsCreated,
             status,
             members: getAllMembersCurator()
         });
@@ -442,10 +545,17 @@ router.delete('/members/:id', (req, res) => {
         const member = getMemberById(req.params.id);
         if (!member) return res.status(404).json({ success: false, error: 'Member not found.' });
         if (member.id === 'mem-admin') return res.status(400).json({ success: false, error: 'The built-in admin directory entry cannot be deleted.' });
-        deleteMember(req.params.id);
+        let notificationsCreated = 0;
+        deleteMember(req.params.id, removedMember => {
+            notifyMembersOfChange('member_removed', req.curator.id, {
+                name: removedMember?.display_name || removedMember?.name
+            });
+            notificationsCreated = 1;
+        });
         return res.json({
             success: true,
             message: 'Member removed from directory.',
+            notificationsCreated,
             members: getAllMembersCurator()
         });
     } catch (err) {
@@ -461,15 +571,16 @@ router.delete('/members/:id', (req, res) => {
 router.put(['/connect', '/buttons'], (req, res) => {
     try {
         const cleanLinks = cleanConnectLinks(req.body);
-        withTransaction(() => {
-            setSetting('connect_links', cleanLinks);
-            setSetting('button_links', cleanLinks);
-            setSetting('platform_links', cleanLinks);
-        });
+        const notificationChanges = persistSettingUpdates([
+            ['connect_links', cleanLinks],
+            ['button_links', cleanLinks],
+            ['platform_links', cleanLinks]
+        ], req.curator.id);
 
         return res.json({
             success: true,
             message: 'Button links and platform destinations updated.',
+            notificationsCreated: notificationChanges.length,
             links: cleanLinks,
             buttons: cleanLinks
         });
@@ -538,19 +649,48 @@ router.put('/profile', async (req, res) => {
             newPasswordHash = await hashPassword(newPassword);
         }
 
-        const updated = updateCuratorProfile(curatorId, {
-            displayName: typeof displayName === 'string' ? displayName.trim() : undefined,
-            handle: typeof handle === 'string' ? handle.trim() : undefined,
-            email: typeof email === 'string' ? email.trim() : undefined,
-            passwordHash: newPasswordHash
+        let updated;
+        let notificationsCreated = 0;
+        withTransaction(() => {
+            updated = updateCuratorProfile(curatorId, {
+                displayName: typeof displayName === 'string' ? displayName.trim() : undefined,
+                handle: typeof handle === 'string' ? handle.trim() : undefined,
+                email: typeof email === 'string' ? email.trim() : undefined,
+                passwordHash: newPasswordHash
+            });
+            if (!updated) {
+                const missingProfile = new Error('Curator profile not found.');
+                missingProfile.status = 404;
+                throw missingProfile;
+            }
+
+            const memberAdmin = db.prepare('SELECT id, name, display_name, handle FROM members WHERE id = ?').get('mem-admin');
+            if (memberAdmin) {
+                const nextHandle = `@${updated.handle.replace(/^@/, '')}`;
+                const changedFields = [];
+                if ((memberAdmin.display_name || memberAdmin.name) !== updated.display_name) changedFields.push('display_name');
+                if (memberAdmin.handle !== nextHandle) changedFields.push('handle');
+                db.prepare(`
+                    UPDATE members
+                    SET name = ?, display_name = ?, full_name = ?, handle = ?, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = 'mem-admin'
+                `).run(updated.display_name, updated.display_name, updated.display_name, nextHandle);
+                if (changedFields.length) {
+                    notifyMembersOfChange('member_profile_updated', req.curator.id, {
+                        name: updated.display_name,
+                        fields: changedFields
+                    });
+                    notificationsCreated = 1;
+                }
+            }
+
+            if (newPasswordHash) {
+                // Keep the active session, but invalidate any other browser/device sessions.
+                revokeOtherCuratorSessions(curatorId, req.curator.sessionId);
+            }
         });
-        if (!updated) {
-            return res.status(404).json({ success: false, error: 'Curator profile not found.' });
-        }
 
         if (newPasswordHash) {
-            // Keep the active session, but invalidate any other browser/device sessions.
-            revokeOtherCuratorSessions(curatorId, req.curator.sessionId);
             try {
                 clearInitialAdminPasswordFile();
             } catch (error) {
@@ -558,23 +698,10 @@ router.put('/profile', async (req, res) => {
             }
         }
 
-        const memberAdmin = db.prepare('SELECT id FROM members WHERE id = ?').get('mem-admin');
-        if (memberAdmin) {
-            db.prepare(`
-                UPDATE members
-                SET name = ?, display_name = ?, full_name = ?, handle = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE id = 'mem-admin'
-            `).run(
-                updated.display_name,
-                updated.display_name,
-                updated.display_name,
-                `@${updated.handle.replace(/^@/, '')}`
-            );
-        }
-
         return res.json({
             success: true,
             message: 'Admin Profile updated successfully.',
+            notificationsCreated,
             curator: {
                 id: updated.id,
                 email: updated.email,
@@ -583,6 +710,7 @@ router.put('/profile', async (req, res) => {
             }
         });
     } catch (err) {
+        if (err.status === 404) return res.status(404).json({ success: false, error: err.message });
         if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
             return res.status(409).json({ success: false, error: 'That curator email or handle is already in use.' });
         }
@@ -606,18 +734,23 @@ router.post('/updates', (req, res) => {
         if (!content) throw new RequestValidationError('Announcement content is required.');
         if (!/^[a-z0-9_-]+$/i.test(type)) throw new RequestValidationError('Announcement type contains unsupported characters.');
 
-        const id = createUpdate({
-            title,
-            content,
-            type,
-            is_pinned: isPinned,
-            created_by: req.curator.id,
-            author_name: req.curator.displayName
+        let id;
+        withTransaction(() => {
+            id = createUpdate({
+                title,
+                content,
+                type,
+                is_pinned: isPinned,
+                created_by: req.curator.id,
+                author_name: req.curator.displayName
+            });
+            notifyMembersOfChange('bulletin_published', req.curator.id, { title });
         });
 
         return res.status(201).json({
             success: true,
             message: 'Announcement published successfully.',
+            notificationsCreated: 1,
             updateId: id
         });
     } catch (err) {
@@ -641,9 +774,18 @@ router.put('/updates/:id', (req, res) => {
         if (body.is_pinned !== undefined) update.is_pinned = parseBoolean(body.is_pinned, 'is_pinned');
         if (Object.keys(update).length === 0) throw new RequestValidationError('Provide at least one announcement field to update.');
 
-        const changes = updateUpdate(req.params.id, update);
-        if (!changes) return res.status(404).json({ success: false, error: 'Announcement not found.' });
-        return res.json({ success: true, message: 'Announcement updated.' });
+        const existing = db.prepare('SELECT id, title, content, is_pinned FROM updates WHERE id = ?').get(req.params.id);
+        if (!existing) return res.status(404).json({ success: false, error: 'Announcement not found.' });
+        const changed = (update.title !== undefined && update.title !== existing.title) ||
+            (update.content !== undefined && update.content !== existing.content) ||
+            (update.is_pinned !== undefined && Boolean(update.is_pinned) !== Boolean(existing.is_pinned));
+        if (!changed) return res.json({ success: true, message: 'Announcement is already up to date.', notificationsCreated: 0 });
+
+        withTransaction(() => {
+            updateUpdate(req.params.id, update);
+            notifyMembersOfChange('bulletin_updated', req.curator.id, { title: update.title || existing.title });
+        });
+        return res.json({ success: true, message: 'Announcement updated.', notificationsCreated: 1 });
     } catch (err) {
         return sendRouteError(res, err, 'Failed to update announcement.');
     }
@@ -655,8 +797,13 @@ router.put('/updates/:id', (req, res) => {
  */
 router.delete('/updates/:id', (req, res) => {
     try {
-        if (!deleteUpdate(req.params.id)) return res.status(404).json({ success: false, error: 'Announcement not found.' });
-        return res.json({ success: true, message: 'Announcement deleted.' });
+        const existing = db.prepare('SELECT id FROM updates WHERE id = ?').get(req.params.id);
+        if (!existing) return res.status(404).json({ success: false, error: 'Announcement not found.' });
+        withTransaction(() => {
+            deleteUpdate(req.params.id);
+            notifyMembersOfChange('bulletin_removed', req.curator.id);
+        });
+        return res.json({ success: true, message: 'Announcement deleted.', notificationsCreated: 1 });
     } catch (err) {
         return sendRouteError(res, err, 'Failed to delete announcement.');
     }
@@ -744,10 +891,11 @@ router.put(['/settings', '/features'], (req, res) => {
             }]);
         }
 
-        withTransaction(() => updates.forEach(([key, value]) => setSetting(key, value)));
+        const notificationChanges = persistSettingUpdates(updates, req.curator.id);
         return res.json({
             success: true,
             message: 'Portal settings and features updated successfully.',
+            notificationsCreated: notificationChanges.length,
             settings: getAllSettings()
         });
     } catch (err) {
@@ -771,10 +919,11 @@ router.put('/sticky-notes', (req, res) => {
             community: incoming.community === undefined ? (existingNotes.community || '') : cleanString(incoming.community, 'Community note', 1000)
         };
 
-        setSetting('sticky_notes', updatedNotes);
+        const notificationChanges = persistSettingUpdates([['sticky_notes', updatedNotes]], req.curator.id);
         return res.json({
             success: true,
             message: 'Sticky notes updated successfully.',
+            notificationsCreated: notificationChanges.length,
             sticky_notes: updatedNotes
         });
     } catch (err) {

@@ -66,8 +66,8 @@ body.dark-mode {
 
     --wabi-ink: #EDE7DD;                /* Contrast on #161514: 14.2:1 (AAA) */
     --wabi-ink-secondary: #B8B0A2;      /* Contrast on #161514: 8.2:1 (AAA) */
-    --wabi-ink-muted: #968D7F;          /* Contrast on #161514: 5.1:1 (AA) */
-    --wabi-ink-subtle: #7E7568;
+    --wabi-ink-muted: #AAA196;          /* At least 5.8:1 on shared dark card surfaces (AA) */
+    --wabi-ink-subtle: #A39A8E;
 
     --wabi-forest-green: #4D7355;
     --wabi-sage: #7DA687;
@@ -83,6 +83,12 @@ body.dark-mode {
     --wabi-shadow-card: 0 4px 18px rgba(0, 0, 0, 0.35);
     --wabi-shadow-float: 0 12px 32px rgba(0, 0, 0, 0.45);
     --wabi-shadow-book: 0 16px 45px rgba(0, 0, 0, 0.55);
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: var(--ink-muted, var(--wabi-ink-muted, #AAA196));
+    opacity: 1;
 }
 
 /* ==============================================================================

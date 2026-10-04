@@ -58,9 +58,22 @@ body.dark-mode {
     --bubble-sage: #232B25;
     --ink-primary: #EDE7DD;
     --ink-secondary: #B5AD9F;
-    --ink-muted: #827A6E;
+    --ink-muted: #AAA196;
     --border-soft: rgba(235, 225, 210, 0.08);
     --border-card: rgba(235, 225, 210, 0.06);
+}
+
+[data-theme="dark"] .brand-bookclub-text,
+[data-theme="dark"] .week-menu-badge,
+[data-theme="dark"] .more-members-btn:hover,
+[data-theme="dark"] .action-link-item:hover {
+    color: #A7D2AF;
+}
+
+[data-theme="dark"] .brand-bookclub-text,
+[data-theme="dark"] .week-menu-badge {
+    background: rgba(150, 178, 153, 0.16);
+    border-color: rgba(150, 178, 153, 0.32);
 }
 
 /* Zero Window Scroll Reset */

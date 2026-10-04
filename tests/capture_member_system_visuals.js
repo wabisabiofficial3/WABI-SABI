@@ -2,7 +2,7 @@ const { ADMIN_PASSWORD } = require('./test_config');
 const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
-const { createMemberSession, getMemberById, regenerateMemberCode } = require('../server/db');
+const { createMember, createMemberSession, deleteMember } = require('../server/db');
 
 const ARTIFACT_DIR = 'C:\\Users\\dhanu\\.gemini\\antigravity\\brain\\7a63a30c-3ac9-4783-9524-aa29aea1bc85';
 const PORT = 3000;
@@ -11,11 +11,16 @@ const BASE_URL = `http://localhost:${PORT}`;
 async function captureVisuals() {
     console.log('► Starting visual screenshot capture of Member-Access System...');
 
-    // 1. Get Akshaya and issue a fresh random code/session for this optional capture.
-    const akshaya = getMemberById('mem-akshaya');
-    if (!akshaya) throw new Error('Akshaya not found in db');
-    regenerateMemberCode(akshaya.id);
-    const session = createMemberSession(akshaya.id, 7);
+    // 1. Create a temporary member fixture for this optional capture.
+    const visualMember = createMember({
+        name: 'Visual Test Member',
+        full_name: 'Visual Test Member',
+        display_name: 'Visual Test Member',
+        role: 'Member',
+        handle: '@visual-test-member',
+        bio: 'Temporary screenshot fixture.'
+    });
+    const session = createMemberSession(visualMember.id, 7);
 
     // 2. Launch headless edge
     const edgePath = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
@@ -124,7 +129,7 @@ async function captureVisuals() {
         });
         await new Promise(r => setTimeout(r, 1200));
 
-        // Open QR card modal for Akshaya
+        // Open QR card modal for the temporary test member
         await send('Runtime.evaluate', {
             expression: `
                 const qrBtns = Array.from(document.querySelectorAll('button')).filter(b => b.textContent.includes('QR Card'));
@@ -143,6 +148,8 @@ async function captureVisuals() {
     } catch (err) {
         edgeProcess.kill();
         console.error('Screenshot capture failed:', err);
+    } finally {
+        deleteMember(visualMember.id);
     }
 }
 

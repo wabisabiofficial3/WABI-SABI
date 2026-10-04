@@ -50,6 +50,12 @@ async function verifyAll() {
     assert(!html.includes('curated by Likith, Sarvasree & Dhanush'), 'Old curator copy removed');
     console.log('✓ Hardcoded old curator tri-name strings removed');
 
+    assert(!html.includes('Akshaya') && !html.includes('Vaishnavi'), 'Sample member identities must not remain in public-page fallbacks.');
+    assert(!html.includes('Next Discussion Gathering: Saturday, 4 October at 4:00 PM'), 'Sample announcement must not remain in the static page.');
+    assert(!html.includes('Welcome to Wabi Sabi Bookclub • Vol. 1'), 'Sample welcome bulletin must not remain in the static page.');
+    assert(html.includes('No curator notices posted yet. Check back soon.'), 'An empty-state message should replace sample notices.');
+    console.log('✓ Sample member cards and bulletins are removed from static public markup');
+
     console.log('\n--- 2. Verifying Single Admin Account & Purged Accounts ---');
     // Attempt login with purged legacy curator Dhanush
     const oldLogin1 = await request('/api/auth/login', {

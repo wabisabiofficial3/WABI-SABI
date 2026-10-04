@@ -85,32 +85,54 @@ const allowedOrigins = new Set(
 
 function requestOrigin(req) {
     try {
-        return new URL(`${req.protocol}://${req.get('host')}`).origin;
+        const proxySetting = req.app && typeof req.app.get === 'function'
+            ? req.app.get('trust proxy')
+            : false;
+        const trustsProxy = proxySetting === true ||
+            (typeof proxySetting === 'number' && proxySetting > 0) ||
+            typeof proxySetting === 'function' || Array.isArray(proxySetting);
+        const forwardedHost = trustsProxy ? req.get('x-forwarded-host') : null;
+        const effectiveHost = typeof forwardedHost === 'string' && forwardedHost.trim()
+            ? forwardedHost.split(',')[0].trim()
+            : req.get('host');
+        return new URL(`${req.protocol}://${effectiveHost}`).origin;
+    } catch (error) {
+        return null;
+    }
+}
+
+function normalizeOrigin(origin) {
+    if (typeof origin !== 'string' || !origin.trim() || origin.trim() === 'null') return null;
+    try {
+        return new URL(origin).origin;
     } catch (error) {
         return null;
     }
 }
 
 function isAllowedOrigin(req, origin) {
-    if (!origin || origin === 'null') return false;
-    try {
-        const normalizedOrigin = new URL(origin).origin;
-        return normalizedOrigin === requestOrigin(req) || allowedOrigins.has(normalizedOrigin);
-    } catch (error) {
-        return false;
-    }
+    const normalizedOrigin = normalizeOrigin(origin);
+    if (!normalizedOrigin) return false;
+    return normalizedOrigin === requestOrigin(req) || allowedOrigins.has(normalizedOrigin);
 }
 
 /**
  * Same-origin by default. Cross-origin credentials are permitted only for an exact
- * origin listed in CORS_ALLOWED_ORIGINS. Unsafe browser requests with a foreign Origin
- * are rejected; when Origin is absent, Fetch Metadata must identify a same-origin request.
+ * origin listed in CORS_ALLOWED_ORIGINS. A reverse proxy can obscure the browser-facing
+ * host from Express, so a valid Origin paired with the browser-controlled
+ * Sec-Fetch-Site: same-origin is accepted as a narrow same-origin fallback. Foreign,
+ * same-site, opaque, and malformed origins are not covered by that fallback.
  */
 function corsAndCsrf(req, res, next) {
     const origin = req.get('origin');
+    const normalizedOrigin = normalizeOrigin(origin);
+    const fetchSite = (req.get('sec-fetch-site') || '').trim().toLowerCase();
+    const browserConfirmsSameOrigin = fetchSite === 'same-origin';
     const method = req.method.toUpperCase();
     const isUnsafeMethod = !['GET', 'HEAD', 'OPTIONS'].includes(method);
-    const allowed = origin ? isAllowedOrigin(req, origin) : false;
+    const allowed = Boolean(normalizedOrigin) && (
+        isAllowedOrigin(req, normalizedOrigin) || browserConfirmsSameOrigin
+    );
 
     res.vary('Origin');
 
@@ -118,13 +140,12 @@ function corsAndCsrf(req, res, next) {
         return res.status(403).json({ success: false, error: 'Request origin is not allowed.' });
     }
 
-    const fetchSite = req.get('sec-fetch-site');
     if (!origin && isUnsafeMethod && fetchSite && fetchSite !== 'same-origin') {
         return res.status(403).json({ success: false, error: 'Cross-site state changes are not allowed.' });
     }
 
     if (origin && allowed) {
-        res.setHeader('Access-Control-Allow-Origin', new URL(origin).origin);
+        res.setHeader('Access-Control-Allow-Origin', normalizedOrigin);
         res.setHeader('Access-Control-Allow-Credentials', 'true');
         res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, X-Curator-Preview');

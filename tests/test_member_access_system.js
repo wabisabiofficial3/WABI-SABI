@@ -1,4 +1,5 @@
 const { baseUrl: BASE_URL, ADMIN_PASSWORD } = require('./test_config');
+const { createMember, deleteMember } = require('../server/db');
 const assert = require('node:assert');
 
 async function runMemberAccessTests() {
@@ -60,7 +61,16 @@ async function runMemberAccessTests() {
     });
     assert.strictEqual(bootstrapLoginRes.status, 200, 'Admin login must succeed for fixture setup.');
     const bootstrapCookie = bootstrapLoginRes.headers.get('set-cookie').split(';')[0];
-    const freshCodeRes = await fetch(`${BASE_URL}/api/curator/members/mem-akshaya/regenerate-code`, {
+    const fixtureMember = createMember({
+        name: 'Member Access Fixture',
+        full_name: 'Member Access Fixture',
+        display_name: 'Member Access Fixture',
+        role: 'Member',
+        handle: '@member-access-fixture',
+        bio: 'Temporary member-access test record.'
+    });
+    const fixtureMemberId = fixtureMember.id;
+    const freshCodeRes = await fetch(`${BASE_URL}/api/curator/members/${fixtureMemberId}/regenerate-code`, {
         method: 'POST',
         headers: { 'Cookie': bootstrapCookie }
     });
@@ -77,7 +87,7 @@ async function runMemberAccessTests() {
     const validJson = await validCodeRes.json();
     assert.strictEqual(validJson.success, true);
     assert.strictEqual(validJson.redirectUrl, '/my-space');
-    assert.strictEqual(validJson.member.name, 'Akshaya');
+    assert.strictEqual(validJson.member.name, 'Member Access Fixture');
 
     // Validate Set-Cookie header
     const setCookieHeader = validCodeRes.headers.get('set-cookie');
@@ -100,7 +110,7 @@ async function runMemberAccessTests() {
     assert.strictEqual(memberStatusRes.status, 200);
     const memberStatusData = await memberStatusRes.json();
     assert.strictEqual(memberStatusData.authenticated, true);
-    assert.strictEqual(memberStatusData.member.name, 'Akshaya');
+    assert.strictEqual(memberStatusData.member.name, 'Member Access Fixture');
     console.log('   ✓ Member session recognized on server (/api/member/status).');
 
     // Full desk data hydration (/api/member/me)
@@ -110,8 +120,8 @@ async function runMemberAccessTests() {
     assert.strictEqual(meRes.status, 200);
     const meData = await meRes.json();
     assert.strictEqual(meData.success, true);
-    assert.strictEqual(meData.member.name, 'Akshaya');
-    assert.strictEqual(meData.member.handle, '@akshaya');
+    assert.strictEqual(meData.member.name, 'Member Access Fixture');
+    assert.strictEqual(meData.member.handle, '@member-access-fixture');
     assert.strictEqual(meData.member.status, 'active');
     assert(meData.reading && meData.reading.bookTitle, 'Member reading data must be populated');
     assert(Array.isArray(meData.notes), 'Member private notes array must be populated');
@@ -187,7 +197,8 @@ async function runMemberAccessTests() {
         headers: { 'Cookie': memberCookie }
     });
     assert.strictEqual(unauthedRes.status, 401, 'Invalidated session must return 401');
-    console.log('   ✓ Member session securely revoked and cleared on leave.');
+    assert.strictEqual(deleteMember(fixtureMemberId), 1, 'Temporary member fixture must be removed after verification.');
+    console.log('   ✓ Member session securely revoked and temporary fixture removed.');
 
     // -------------------------------------------------------------
     // 6. CURATOR STUDIO MEMBER DIRECTORY OPERATIONS

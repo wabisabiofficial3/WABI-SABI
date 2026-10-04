@@ -29,6 +29,11 @@
         }, 3400);
     }
 
+    function showSaveToast(message, data) {
+        const hasMemberNotice = Number(data?.notificationsCreated) > 0;
+        showToast(`${message}${hasMemberNotice ? ' • Members notified.' : ''}`);
+    }
+
     // Verify Authenticated Curator
     async function checkAuth() {
         try {
@@ -448,7 +453,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ Weekly Theme updated!');
+                        showSaveToast('✦ Weekly Theme updated!', data);
                     } else {
                         showToast(data.error || 'Failed to update theme.', true);
                     }
@@ -479,7 +484,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ Reading selection updated!');
+                        showSaveToast('✦ Reading selection updated!', data);
                         const statBookTitle = document.getElementById('statBookTitle');
                         const statBookAuthor = document.getElementById('statBookAuthor');
                         if (statBookTitle) statBookTitle.textContent = this_weeks_reading.title;
@@ -514,7 +519,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ Gathering salon details updated!');
+                        showSaveToast('✦ Gathering salon details updated!', data);
                         const statMeetingDate = document.getElementById('statMeetingDate');
                         const statMeetingLoc = document.getElementById('statMeetingLoc');
                         if (statMeetingDate) statMeetingDate.textContent = gathering.date;
@@ -548,7 +553,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ Discussion inquiries and notice updated!');
+                        showSaveToast('✦ Discussion inquiries and notice updated!', data);
                     } else {
                         showToast(data.error || 'Failed to save notes.', true);
                     }
@@ -576,7 +581,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ Bulletin published to public wall!');
+                        showSaveToast('✦ Bulletin published to public wall!', data);
                         noticeForm.reset();
                         document.getElementById('announcementPinned').checked = true;
                         loadDashboardData();
@@ -623,7 +628,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ All Button Links & Labels updated live!');
+                        showSaveToast('✦ All Button Links & Labels updated live!', data);
                         updateTestLinks();
                     } else {
                         showToast(data.error || 'Failed to save button links.', true);
@@ -655,7 +660,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ Desk sticky notes updated!');
+                        showSaveToast('✦ Desk sticky notes updated!', data);
                     } else {
                         showToast(data.error || 'Failed to save notes.', true);
                     }
@@ -697,7 +702,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ Admin Profile updated successfully!');
+                        showSaveToast('✦ Admin Profile updated successfully!', data);
                         const nameEl = document.getElementById('curatorIdentityName');
                         if (nameEl) nameEl.textContent = displayName || 'Wabi Sabi Admin';
                         document.getElementById('adminCurrentPasswordInput').value = '';
@@ -728,7 +733,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast(isEnabled ? '✈️ Paper Airplane feature enabled on portal!' : '✦ Paper Airplane feature turned off (Default)');
+                        showSaveToast(isEnabled ? '✈️ Paper Airplane feature enabled on portal!' : '✦ Paper Airplane feature turned off (Default)', data);
                     } else {
                         showToast(data.error || 'Failed to update feature setting.', true);
                         e.target.checked = !isEnabled;
@@ -808,7 +813,7 @@
                         const successModal = document.getElementById('memberCreatedModal');
                         if (successModal) successModal.style.display = 'flex';
 
-                        showToast(`✦ Secret Code created for ${data.member.displayName || data.member.name}!`);
+                        showSaveToast(`✦ Secret Code created for ${data.member.displayName || data.member.name}!`, data);
                         if (data.members) renderMembers(data.members);
                     } else {
                         showToast(data.error || 'Failed to create member.', true);
@@ -903,7 +908,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast(`✦ Portrait updated for ${displayName || fullName}!`);
+                        showSaveToast(`✦ Portrait updated for ${displayName || fullName}!`, data);
                         window.closeEditMemberModal();
                         if (data.members) renderMembers(data.members);
                     } else {
@@ -1100,7 +1105,7 @@
             });
             const data = await res.json();
             if (data.success) {
-                showToast(`✦ Membership status updated to ${nextStatus}.`);
+                showSaveToast(`✦ Membership status updated to ${nextStatus}.`, data);
                 if (data.members) renderMembers(data.members);
             } else {
                 showToast(data.error || 'Failed to update status.', true);
@@ -1125,7 +1130,7 @@
             });
             const data = await res.json();
             if (data.success) {
-                showToast(`✦ ${name} removed from circle.`);
+                showSaveToast(`✦ ${name} removed from circle.`, data);
                 if (data.members) renderMembers(data.members);
             } else {
                 showToast(data.error || 'Failed to delete member.', true);
@@ -1147,7 +1152,7 @@
             });
             const data = await res.json();
             if (data.success) {
-                showToast('✦ Notice deleted from board.');
+                showSaveToast('✦ Notice deleted from board.', data);
                 loadDashboardData();
             } else {
                 showToast(data.error || 'Failed to delete notice.', true);

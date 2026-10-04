@@ -95,15 +95,18 @@ function showCuratorControls() {
    ========================================================================== */
 async function loadNotices() {
     try {
-        const res = await fetch('/api/notices');
-        if (!res.ok) throw new Error('Failed to load notices');
+        const res = await fetch('/api/notices', { credentials: 'include', cache: 'no-store' });
         const data = await res.json();
-        if (data.success && data.notices) {
-            allNotices = data.notices;
-            renderBoard(allNotices);
+        if (!res.ok || !data.success || !Array.isArray(data.notices)) {
+            throw new Error(data.error || 'The Wabi Wall could not be loaded.');
         }
+        allNotices = data.notices;
+        renderBoard(allNotices);
+        return true;
     } catch (err) {
-        console.error('Error loading notices from backend:', err);
+        console.error('Error loading Wabi Wall notices:', err);
+        renderBoardMessage('The board could not connect just now. Refresh to try again.', 'error');
+        return false;
     }
 }
 
@@ -111,11 +114,26 @@ function renderBoard(notices) {
     const canvas = document.getElementById('noticesCanvas');
     if (!canvas) return;
     canvas.innerHTML = '';
+    if (!notices.length) {
+        renderBoardMessage('The board is quiet for now. New circle notices will appear here.');
+        return;
+    }
 
     notices.forEach((notice, index) => {
         const el = createNoticeElement(notice, index);
         canvas.appendChild(el);
     });
+}
+
+function renderBoardMessage(message, state = 'empty') {
+    const canvas = document.getElementById('noticesCanvas');
+    if (!canvas) return;
+    canvas.innerHTML = '';
+    const status = document.createElement('p');
+    status.className = `notice-board-status${state === 'error' ? ' is-error' : ''}`;
+    status.setAttribute('role', state === 'error' ? 'alert' : 'status');
+    status.textContent = message;
+    canvas.appendChild(status);
 }
 
 /* ==========================================================================
@@ -194,13 +212,15 @@ function createNoticeElement(input, index) {
             break;
 
         case 'films_list':
-            const filmsList = Array.isArray(meta.films) ? meta.films : [
-                'Interstellar (2014)',
-                'Her (2013)',
-                'The Perks of Being a Wallflower (2012)',
-                'Lost in Translation (2003)',
-                'Into the Wild (2007)'
-            ];
+            const filmsList = Array.isArray(meta.films)
+                ? meta.films.filter(film => typeof film === 'string').slice(0, 30)
+                : [
+                    'Interstellar (2014)',
+                    'Her (2013)',
+                    'The Perks of Being a Wallflower (2012)',
+                    'Lost in Translation (2003)',
+                    'Into the Wild (2007)'
+                ];
             innerHtml = `
                 ${pinHtml}
                 ${curatorActionsHtml}
@@ -220,13 +240,15 @@ function createNoticeElement(input, index) {
             break;
 
         case 'timeline':
-            const weeksList = Array.isArray(meta.weeks) ? meta.weeks : [
-                { week: 'Week 1', film: 'Interstellar' },
-                { week: 'Week 2', film: 'Her' },
-                { week: 'Week 3', film: 'Perks of Being a Wallflower' },
-                { week: 'Week 4', film: 'Lost in Translation' },
-                { week: 'Week 5', film: 'Into the Wild' }
-            ];
+            const weeksList = Array.isArray(meta.weeks)
+                ? meta.weeks.filter(week => week && typeof week === 'object' && !Array.isArray(week)).slice(0, 30)
+                : [
+                    { week: 'Week 1', film: 'Interstellar' },
+                    { week: 'Week 2', film: 'Her' },
+                    { week: 'Week 3', film: 'Perks of Being a Wallflower' },
+                    { week: 'Week 4', film: 'Lost in Translation' },
+                    { week: 'Week 5', film: 'Into the Wild' }
+                ];
             innerHtml = `
                 ${pinHtml}
                 ${curatorActionsHtml}
@@ -248,12 +270,14 @@ function createNoticeElement(input, index) {
             break;
 
         case 'participation':
-            const steps = Array.isArray(meta.steps) ? meta.steps : [
-                'Watch the film of the week',
-                'Share your thoughts',
-                'Join the Table Room discussion',
-                'Be open to different perspectives'
-            ];
+            const steps = Array.isArray(meta.steps)
+                ? meta.steps.filter(step => typeof step === 'string').slice(0, 30)
+                : [
+                    'Watch the film of the week',
+                    'Share your thoughts',
+                    'Join the Table Room discussion',
+                    'Be open to different perspectives'
+                ];
             innerHtml = `
                 ${pinHtml}
                 ${curatorActionsHtml}
@@ -405,7 +429,7 @@ function setupCardDragging(card, notice) {
 
         // Auto-save position to backend for both mouse and touch/pen input.
         try {
-            await fetch(`/api/notices/${notice.id}/position`, {
+            const response = await fetch(`/api/notices/${encodeURIComponent(String(notice.id))}/position`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -415,8 +439,12 @@ function setupCardDragging(card, notice) {
                     rotation: Number(rot)
                 })
             });
+            const data = await response.json();
+            if (!response.ok || !data.success) throw new Error(data.error || 'Position could not be saved.');
         } catch (err) {
             console.error('Failed to save notice position:', err);
+            if (window.WabiSabiStore?.showToast) window.WabiSabiStore.showToast('Board position could not be saved.');
+            await loadNotices();
         }
     }
 }
@@ -530,7 +558,7 @@ function closeModal() {
 /* ==========================================================================
    CURATOR ACTIONS (Add / Edit / Archive)
    ========================================================================== */
-function handleEditNotice(noticeId, event) {
+async function handleEditNotice(noticeId, event) {
     event.stopPropagation();
     const notice = allNotices.find(n => String(n.id) === String(noticeId));
     if (!notice) return;
@@ -540,71 +568,81 @@ function handleEditNotice(noticeId, event) {
     const newContent = prompt('Edit Notice Content:', notice.content);
     if (newContent === null) return;
 
-    fetch(`/api/notices/${encodeURIComponent(String(noticeId))}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-            title: newTitle.trim(),
-            content: newContent.trim()
-        })
-    }).then(res => res.json()).then(data => {
-        if (data.success) {
-            loadNotices();
-        } else {
-            if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
-                window.WabiSabiStore.showToast(data.error || 'Failed to update notice');
-            }
-        }
-    });
+    try {
+        const res = await fetch(`/api/notices/${encodeURIComponent(String(noticeId))}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ title: newTitle.trim(), content: newContent.trim() })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed to update notice.');
+        showNoticeSaveFeedback(data, 'Wabi Wall was updated.', 'Wabi Wall was already up to date.');
+        await loadNotices();
+    } catch (err) {
+        showNoticeFeedback(err.message || 'Could not connect to save the notice.', true);
+    }
 }
 
-function handleArchiveNotice(noticeId, event) {
+async function handleArchiveNotice(noticeId, event) {
     event.stopPropagation();
     if (!confirm('Are you sure you want to archive this notice from the board?')) return;
 
-    fetch(`/api/notices/${encodeURIComponent(String(noticeId))}/archive`, {
-        method: 'POST',
-        credentials: 'include'
-    }).then(res => res.json()).then(data => {
-        if (data.success) {
-            loadNotices();
-        } else {
-            if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
-                window.WabiSabiStore.showToast(data.error || 'Failed to archive notice');
-            }
-        }
-    });
+    try {
+        const res = await fetch(`/api/notices/${encodeURIComponent(String(noticeId))}/archive`, {
+            method: 'POST',
+            credentials: 'include'
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed to archive notice.');
+        showNoticeSaveFeedback(data, 'Notice archived.', 'Notice was already archived.');
+        await loadNotices();
+    } catch (err) {
+        showNoticeFeedback(err.message || 'Could not connect to archive the notice.', true);
+    }
 }
 
-function openCreateNoticeModal() {
+async function openCreateNoticeModal() {
     const title = prompt('New Notice Title:');
     if (!title || !title.trim()) return;
     const content = prompt('New Notice Content / Message:') || '';
     const pinColor = prompt('Pin Color (brass / red / green / purple / bronze):', 'brass') || 'brass';
 
-    fetch('/api/notices', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-            title: title.trim(),
-            content: content.trim(),
-            type: 'announcement',
-            pin_color: pinColor.toLowerCase(),
-            position_x: 200 + Math.random() * 200,
-            position_y: 100 + Math.random() * 150,
-            rotation: (Math.random() * 4 - 2)
-        })
-    }).then(res => res.json()).then(data => {
-        if (data.success) {
-            loadNotices();
-        } else {
-            if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
-                window.WabiSabiStore.showToast(data.error || 'Failed to create notice');
-            }
-        }
-    });
+    try {
+        const res = await fetch('/api/notices', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                title: title.trim(),
+                content: content.trim(),
+                type: 'announcement',
+                pin_color: pinColor.toLowerCase(),
+                position_x: 200 + Math.random() * 200,
+                position_y: 100 + Math.random() * 150,
+                rotation: Math.random() * 4 - 2
+            })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed to create notice.');
+        showNoticeSaveFeedback(data, 'Notice added to Wabi Wall.', 'Notice was saved, but no member alert was created.');
+        await loadNotices();
+    } catch (err) {
+        showNoticeFeedback(err.message || 'Could not connect to add the notice.', true);
+    }
+}
+
+function showNoticeSaveFeedback(data, savedMessage, noNoticeMessage) {
+    const hasMemberNotice = Number(data?.notificationsCreated) > 0;
+    showNoticeFeedback(hasMemberNotice ? `${savedMessage} Members notified.` : noNoticeMessage);
+}
+
+function showNoticeFeedback(message, isError = false) {
+    if (window.WabiSabiStore?.showToast) {
+        window.WabiSabiStore.showToast(message, isError ? 5000 : 3400);
+    } else if (isError) {
+        console.error(message);
+    }
 }
 
 /* ==========================================================================

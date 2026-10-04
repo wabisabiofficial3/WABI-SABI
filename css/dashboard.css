@@ -57,8 +57,8 @@
 
             --ink-primary: #F5EFE6;
             --ink-secondary: #CBBFB0;
-            --ink-muted: #968B7C;
-            --ink-faint: #4E463E;
+            --ink-muted: #AAA196;
+            --ink-faint: #A39A8E;
 
             /* Cozy Illuminated Parchment Sticky Notes under Warm Reading Lamp */
             --sticky-books-bg: #D4E3D5;
@@ -846,6 +846,10 @@
             margin: 2px 0;
             font-size: 18px;
             color: var(--forest-green);
+        }
+
+        [data-theme="dark"] .stamp-icon {
+            color: var(--accent-sage);
         }
 
         /* ==========================================================================

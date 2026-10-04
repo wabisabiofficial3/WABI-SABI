@@ -6,6 +6,10 @@ const {
     deleteMemberSession,
     claimMemberPassWithSession,
     getMemberReading,
+    getMemberBookshelf,
+    getMemberNotifications,
+    markMemberNotificationRead,
+    markAllMemberNotificationsRead,
     updateMemberReading,
     getMemberNotes,
     addMemberNote,
@@ -137,6 +141,17 @@ router.get('/me', requireMember, (req, res) => {
             noteText: n.content,
             created_at: n.created_at
         }));
+        const storedBookshelf = getMemberBookshelf(member.id);
+        const bookshelf = storedBookshelf.length > 0
+            ? storedBookshelf
+            : [{
+                id: rawReading.id || null,
+                title: reading.book_title,
+                author: reading.book_author,
+                status: reading.status,
+                progress: reading.progress,
+                updated_at: reading.updated_at || null
+            }];
 
         const gathering = getSetting('gathering') || getSetting('next_meeting') || {
             date: 'Saturday, 4 October',
@@ -163,30 +178,52 @@ router.get('/me', requireMember, (req, res) => {
             reading,
             notes,
             gathering,
-            bookshelf: [
-                {
-                    title: 'The Stranger',
-                    author: 'Albert Camus',
-                    status: 'currently_reading',
-                    progress: reading.progress ?? 0
-                },
-                {
-                    title: 'In Praise of Shadows',
-                    author: 'Jun’ichirō Tanizaki',
-                    status: 'saved',
-                    progress: 100
-                },
-                {
-                    title: 'Norwegian Wood',
-                    author: 'Haruki Murakami',
-                    status: 'saved',
-                    progress: 30
-                }
-            ]
+            bookshelf
         });
     } catch (err) {
         console.error('Error fetching member desk:', err);
         return res.status(500).json({ success: false, error: 'Failed to open personal space.' });
+    }
+});
+
+/**
+ * GET /api/member/notifications
+ * Returns the signed-in member's broadcast notifications and unread count.
+ * Curator previews may read a target member's feed, but cannot mark it as read.
+ */
+router.get('/notifications', requireMember, (req, res) => {
+    try {
+        const result = getMemberNotifications(req.member.id);
+        return res.json({ success: true, ...result, isCuratorPreview: Boolean(req.isCuratorPreview) });
+    } catch (err) {
+        console.error('Error fetching member notifications:', err);
+        return res.status(500).json({ success: false, error: 'Could not load notifications.' });
+    }
+});
+
+/** Mark one notification as read for the authenticated member only. */
+router.post('/notifications/read-all', requireMember, (req, res) => {
+    try {
+        markAllMemberNotificationsRead(req.member.id);
+        return res.json({ success: true, ...getMemberNotifications(req.member.id) });
+    } catch (err) {
+        console.error('Error marking member notifications as read:', err);
+        return res.status(500).json({ success: false, error: 'Could not update notifications.' });
+    }
+});
+
+router.post('/notifications/:id/read', requireMember, (req, res) => {
+    try {
+        if (!/^notif-[a-f0-9]{24}$/i.test(req.params.id)) {
+            return res.status(404).json({ success: false, error: 'Notification not found.' });
+        }
+        if (!markMemberNotificationRead(req.member.id, req.params.id)) {
+            return res.status(404).json({ success: false, error: 'Notification not found.' });
+        }
+        return res.json({ success: true, ...getMemberNotifications(req.member.id) });
+    } catch (err) {
+        console.error('Error marking member notification as read:', err);
+        return res.status(500).json({ success: false, error: 'Could not update notification.' });
     }
 });
 

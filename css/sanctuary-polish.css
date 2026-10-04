@@ -1,0 +1,328 @@
+/* Sanctuary sign-in — cohesive paper, moss and brass finishing.
+   Kept page-scoped so the shared authentication screens remain unchanged. */
+body.sanctuary-page {
+    --moss-dark: #3b5545;
+    --moss-mid: #718a76;
+    --moss-light: #b5c4b3;
+    --contour-gold: #b3a17a;
+    --contour-gold-faint: rgba(179, 161, 122, 0.42);
+    --sanctuary-sage: #526f59;
+    --sanctuary-edge: rgba(160, 143, 105, 0.43);
+    --sanctuary-edge-soft: rgba(160, 143, 105, 0.22);
+    --sanctuary-edge-highlight: rgba(255, 255, 255, 0.88);
+    --sanctuary-leaf-fill: rgba(82, 107, 92, 0.26);
+    --sanctuary-field-paper: #fbf9f4;
+    --sanctuary-focus: rgba(71, 105, 78, 0.17);
+    --sanctuary-forest: #294334;
+    background-color: var(--bg-paper);
+    background-image:
+        radial-gradient(ellipse 78% 70% at 52% 43%, rgba(255, 255, 255, 0.46), transparent 76%),
+        linear-gradient(to right, rgba(160, 145, 125, 0.085) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(160, 145, 125, 0.085) 1px, transparent 1px);
+    background-size: auto, 28px 28px, 28px 28px;
+    background-position: center, center top, center top;
+}
+
+:root[data-theme="dark"] body.sanctuary-page {
+    --moss-dark: #304a37;
+    --moss-mid: #506c55;
+    --moss-light: #779078;
+    --contour-gold: #a08e69;
+    --contour-gold-faint: rgba(160, 142, 105, 0.34);
+    --sanctuary-sage: #9ab19a;
+    --sanctuary-edge: rgba(190, 171, 133, 0.32);
+    --sanctuary-edge-soft: rgba(190, 171, 133, 0.17);
+    --sanctuary-edge-highlight: rgba(255, 255, 255, 0.055);
+    --sanctuary-leaf-fill: rgba(151, 178, 151, 0.26);
+    --sanctuary-field-paper: #211e1b;
+    --sanctuary-focus: rgba(141, 175, 143, 0.23);
+    --sanctuary-forest: #35523d;
+    background-image:
+        radial-gradient(ellipse 78% 70% at 52% 43%, rgba(214, 185, 137, 0.075), transparent 76%),
+        linear-gradient(to right, rgba(235, 220, 205, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(235, 220, 205, 0.04) 1px, transparent 1px);
+}
+
+/* Reuse the same muted brass-and-sage palette in the SVG frame and its leaves. */
+body.sanctuary-page .wabi-organic-frame-svg g[stroke="#2C3D32"] {
+    stroke: var(--moss-dark);
+}
+
+body.sanctuary-page .wabi-organic-frame-svg path[fill="rgba(82, 107, 92, 0.3)"],
+body.sanctuary-page .wabi-organic-frame-svg path[fill="rgba(82, 107, 92, 0.25)"],
+body.sanctuary-page .c-botanical-left path[fill],
+body.sanctuary-page .c-botanical-right path[fill],
+body.sanctuary-page .auth-footer-bar svg path[fill] {
+    fill: var(--sanctuary-leaf-fill);
+}
+
+body.sanctuary-page .c-botanical-left,
+body.sanctuary-page .c-botanical-right,
+body.sanctuary-page .auth-footer-bar svg {
+    stroke: var(--moss-dark);
+}
+
+body.sanctuary-page .auth-header {
+    border-bottom: 1px solid var(--sanctuary-edge-soft);
+    padding-bottom: 12px;
+}
+
+body.sanctuary-page .brand-bookclub-tag {
+    border: 1px solid var(--sanctuary-edge-soft);
+    background: rgba(235, 229, 216, 0.58);
+    color: var(--moss-dark);
+}
+
+:root[data-theme="dark"] body.sanctuary-page .brand-bookclub-tag {
+    border-color: var(--sanctuary-edge-soft);
+    background: rgba(255, 255, 255, 0.055);
+    color: var(--sanctuary-sage);
+}
+
+body.sanctuary-page .theme-btn {
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--sanctuary-edge);
+    background: rgba(255, 253, 248, 0.66);
+    box-shadow: 0 3px 10px rgba(54, 47, 35, 0.06), inset 0 1px 0 var(--sanctuary-edge-highlight);
+    color: var(--sanctuary-forest);
+}
+
+body.sanctuary-page .theme-btn:hover {
+    transform: rotate(5deg) scale(1.04);
+    border-color: var(--contour-gold);
+    background: rgba(255, 253, 248, 0.94);
+}
+
+:root[data-theme="dark"] body.sanctuary-page .theme-btn {
+    background: rgba(37, 34, 30, 0.78);
+    color: var(--sanctuary-sage);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.24), inset 0 1px 0 var(--sanctuary-edge-highlight);
+}
+
+:root[data-theme="dark"] body.sanctuary-page .theme-btn:hover {
+    background: rgba(48, 57, 45, 0.92);
+}
+
+body.sanctuary-page .auth-stage-layout {
+    grid-template-columns: minmax(0, 1.42fr) clamp(350px, 28vw, 410px);
+    gap: clamp(30px, 3.5vw, 56px);
+}
+
+body.sanctuary-page .auth-card-stage-wrap {
+    width: 100%;
+    max-width: 410px;
+}
+
+body.sanctuary-page .marg-curious-tag {
+    color: var(--sanctuary-sage);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+:root[data-theme="dark"] body.sanctuary-page .marg-curious-tag {
+    color: #b3c6ae;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28);
+}
+
+body.sanctuary-page .auth-paper-card {
+    isolation: isolate;
+    border: 1px solid var(--sanctuary-edge);
+    border-radius: 22px;
+    background: linear-gradient(145deg, rgba(255, 255, 252, 0.94), rgba(250, 247, 239, 0.9));
+    box-shadow:
+        0 22px 54px rgba(48, 43, 32, 0.12),
+        0 4px 12px rgba(48, 43, 32, 0.055),
+        inset 0 1px 0 var(--sanctuary-edge-highlight);
+    padding: clamp(28px, 2.5vw, 36px) clamp(22px, 2.35vw, 34px) 30px;
+    transition: border-color 180ms ease, box-shadow 220ms ease;
+}
+
+body.sanctuary-page .auth-paper-card::before {
+    content: "";
+    position: absolute;
+    inset: 7px;
+    z-index: 0;
+    border: 1px solid var(--sanctuary-edge-soft);
+    border-radius: 15px;
+    pointer-events: none;
+}
+
+body.sanctuary-page .auth-paper-card::after {
+    content: "";
+    position: absolute;
+    inset: 0 28px auto;
+    z-index: 0;
+    height: 2px;
+    border-radius: 0 0 3px 3px;
+    background: linear-gradient(90deg, transparent, var(--contour-gold) 34%, var(--sanctuary-sage) 68%, transparent);
+    opacity: 0.78;
+    pointer-events: none;
+}
+
+body.sanctuary-page .auth-paper-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+:root[data-theme="dark"] body.sanctuary-page .auth-paper-card {
+    border-color: var(--sanctuary-edge);
+    background: linear-gradient(145deg, rgba(38, 35, 31, 0.96), rgba(29, 27, 24, 0.94));
+    box-shadow:
+        0 22px 58px rgba(0, 0, 0, 0.48),
+        0 4px 14px rgba(0, 0, 0, 0.24),
+        inset 0 1px 0 var(--sanctuary-edge-highlight);
+}
+
+body.sanctuary-page .card-eyebrow {
+    color: var(--sanctuary-sage);
+    letter-spacing: 1.15px;
+}
+
+body.sanctuary-page .card-main-title {
+    font-size: clamp(30px, 2.6vw, 35px);
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+}
+
+body.sanctuary-page .field-label {
+    color: var(--sanctuary-sage);
+    letter-spacing: 1.1px;
+}
+
+body.sanctuary-page .field-input-box {
+    height: 48px;
+    border: 1px solid rgba(104, 122, 96, 0.27);
+    border-radius: 11px;
+    background: var(--sanctuary-field-paper);
+    box-shadow: inset 0 1px 2px rgba(49, 44, 34, 0.035);
+    transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+:root[data-theme="dark"] body.sanctuary-page .field-input-box {
+    border-color: rgba(186, 174, 146, 0.23);
+    background: var(--sanctuary-field-paper);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.24);
+}
+
+body.sanctuary-page .field-input-box:focus-within {
+    border-color: var(--sanctuary-sage);
+    background: #fffefa;
+    box-shadow: 0 0 0 3px var(--sanctuary-focus), inset 0 1px 2px rgba(49, 44, 34, 0.025);
+}
+
+:root[data-theme="dark"] body.sanctuary-page .field-input-box:focus-within {
+    border-color: #9ab49b;
+    background: #292621;
+    box-shadow: 0 0 0 3px var(--sanctuary-focus), inset 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+body.sanctuary-page .field-icon {
+    color: var(--sanctuary-sage);
+}
+
+body.sanctuary-page .auth-checkbox-label input[type="checkbox"] {
+    accent-color: var(--sanctuary-forest);
+}
+
+body.sanctuary-page .auth-forgot-link {
+    color: var(--sanctuary-sage);
+}
+
+body.sanctuary-page .auth-forgot-link:hover,
+body.sanctuary-page .card-bottom-link a:hover,
+body.sanctuary-page .auth-footer-bar a:hover {
+    color: var(--sanctuary-forest);
+}
+
+body.sanctuary-page .auth-cta-btn {
+    height: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 11px;
+    background: linear-gradient(115deg, #263f31, #3d5a43);
+    box-shadow: 0 5px 14px rgba(37, 62, 47, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+body.sanctuary-page .auth-cta-btn:hover {
+    background: linear-gradient(115deg, #20382a, #34523b);
+    box-shadow: 0 8px 18px rgba(37, 62, 47, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+}
+
+body.sanctuary-page .auth-cta-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 9px rgba(37, 62, 47, 0.2);
+}
+
+:root[data-theme="dark"] body.sanctuary-page .auth-cta-btn {
+    background: linear-gradient(115deg, #34513b, #46694b);
+}
+
+:root[data-theme="dark"] body.sanctuary-page .auth-cta-btn:hover {
+    background: linear-gradient(115deg, #3d5d44, #527751);
+}
+
+body.sanctuary-page .auth-footer-bar {
+    border-top-color: var(--sanctuary-edge-soft);
+}
+
+body.sanctuary-page :is(a, button):focus-visible {
+    outline: 2px solid var(--contour-gold);
+    outline-offset: 3px;
+}
+
+@media (max-width: 1060px) {
+    body.sanctuary-page .auth-stage-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 32px;
+    }
+
+    body.sanctuary-page .auth-card-stage-wrap {
+        justify-self: center;
+    }
+}
+
+@media (max-width: 600px) {
+    body.sanctuary-page .auth-paper-card {
+        padding: 27px 20px 24px;
+        border-radius: 19px;
+    }
+
+    body.sanctuary-page .auth-paper-card::before {
+        inset: 6px;
+        border-radius: 13px;
+    }
+
+    body.sanctuary-page .card-main-title {
+        font-size: clamp(27px, 8vw, 32px);
+    }
+
+    body.sanctuary-page .field-input-box {
+        min-height: 46px;
+    }
+
+    body.sanctuary-page .auth-cta-btn {
+        min-height: 50px;
+    }
+
+    body.sanctuary-page .auth-footer-bar {
+        border-top-color: var(--sanctuary-edge-soft);
+    }
+}
+
+@media (max-width: 380px) {
+    body.sanctuary-page .auth-paper-card {
+        padding: 24px 17px 21px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.sanctuary-page *,
+    body.sanctuary-page *::before,
+    body.sanctuary-page *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

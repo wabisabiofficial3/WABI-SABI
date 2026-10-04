@@ -9,15 +9,18 @@ The site uses native browser JavaScript. Session checks in `js/store.js` are for
 | `store.js` | Same-origin API wrapper; verifies curator sessions and member-code sessions; exposes client route guard | `/api/auth/session`, `/api/auth/login`, `/api/auth/logout`, `/api/member/status` |
 | `portal.js` | Public home theme controls and portal data hydration | `/api/portal`, `/api/user/profile` |
 | `admin-shortcut.js` | Carries a five-click logo shortcut to the existing admin sign-in page; no authentication or authorization decisions | `/sanctuary` navigation only |
-| `curator.js` | Curator console data and management actions | `/api/curator/*` |
+| `curator.js` | Curator console data, content and member-management actions; reports when a save produced a member broadcast | `/api/curator/*` |
+| `member-notifications.js` | Shared notification center, unread/read state, and validated same-site destinations | `/api/member/notifications*` |
 | `cat-engine.js` | Decorative Mochi cat and ambient interaction | None |
 
-## Standalone member-space scripts
+## Standalone member spaces
 
 `community.js`, `reader.js`, `table-room.js`, and `wabi-wall.js` are loaded by their own HTML pages. Their shared navigation uses the canonical routes `/community`, `/reader`, `/table-room`, and `/wabi-wall`. The store verifies `/api/auth/session` or `/api/member/status` before client initialization; this supplements, but never replaces, the server-side `requireMemberPage` guard.
 
-Some interactions in these older page controllers still call legacy routes (`/api/community/*`, `/api/chat/*`, or old `/api/notices` write operations) that are not mounted by the current server. `GET /api/notices` is a compatibility redirect to `/api/portal`. Do not treat these calls as persisted or authorized until a corresponding server router and tests are added. See [`../server/routes/README.md`](../server/routes/README.md) for the active endpoint inventory.
+`wabi-wall.js` uses the active `/api/notices` router: it loads active cards, saves curator content, archives cards, and persists drag positions. Curator changes receive a member-facing success message only when the server confirms a notification was created; position-only saves are silent. See [`../server/routes/README.md`](../server/routes/README.md) for the endpoint contract.
 
-## Other files
+Some older Community and Table Room interactions still call `/api/community/*` or `/api/chat/*`, which are not mounted by the current server. Those legacy calls do not persist data in this version. The Wabi Wall API is active and should not be confused with the retired theme-week route.
 
-`auth.js`, `onboarding.js`, `application.js`, and `theme-weeks.js` remain as legacy page scripts for retired flows. They are not part of the active public portal or member-code session flow. `vendor/` contains local third-party browser libraries.
+## Legacy scripts
+
+`onboarding.js`, `application.js`, and `theme-weeks.js` remain as scripts from retired flows. The corresponding membership-application and theme-week page routes redirect to the public portal; these scripts are not part of the active member-code flow. `vendor/` contains local third-party browser libraries.

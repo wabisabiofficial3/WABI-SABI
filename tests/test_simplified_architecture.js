@@ -5,7 +5,7 @@
  * 2. Pillar 2: Community (People Directory with Profile Pics, Names, Roles, Handles)
  * 3. Pillar 3: Connect (External Platforms: Chat, Book Drive, Location, Socials)
  * 4. Zero-Auth Visitor Access: Everyone enters directly without account/login.
- * 5. Curator RBAC: Only Likith, Sarvasree, Dhanush can log in and manage the 3 pillars.
+ * 5. Curator RBAC: Only the configured Wabi Sabi Admin can manage the 3 pillars.
  */
 
 const { ADMIN_PASSWORD } = require('./test_config');
@@ -81,7 +81,9 @@ async function runTests() {
 
         assert(resPortal.body.portal.community, 'Should return community pillar');
         assert(Array.isArray(resPortal.body.portal.community.members), 'Should return members directory');
-        assert(resPortal.body.portal.community.members.length >= 3, 'Should contain seeded members');
+        assert.strictEqual(resPortal.body.portal.community.members.length, 1, 'A fresh database should contain only its built-in admin directory entry.');
+        assert.strictEqual(resPortal.body.portal.community.members[0].id, 'mem-admin');
+        assert.strictEqual(resPortal.body.portal.updates.length, 0, 'Fresh databases should not publish hardcoded sample announcements.');
 
         assert(resPortal.body.portal.connect, 'Should return connect pillar');
         assert(resPortal.body.portal.connect.links.community_chat_url, 'Should return external chat link');

@@ -62,8 +62,8 @@
     
     --ink-primary: #EDE8DF;
     --ink-secondary: #C8C0B5;
-    --ink-muted: #8E857A;
-    --ink-faint: #5E564C;
+    --ink-muted: #AAA196;
+    --ink-faint: #A39A8E;
     
     --accent-sage: #6D9578;
     --accent-sage-dark: #324D3C;
@@ -1214,6 +1214,11 @@ main.community-stage {
 .step-done .step-icon-circle {
     background-color: var(--accent-sage-dark);
     color: #FFFFFF;
+}
+
+[data-theme="dark"] .step-current .step-icon-circle {
+    border-color: #A2D4B0;
+    color: #A2D4B0;
 }
 
 .step-current .step-icon-circle {

@@ -991,6 +991,12 @@
             line-height: 1;
         }
 
+        [data-theme="dark"] .stamp-title,
+        [data-theme="dark"] .stamp-sub,
+        [data-theme="dark"] .stamp-vol {
+            color: #D4BE98;
+        }
+
         /* 3. Realistic Torn Kraft Masking Tape Strip */
         .torn-tape-kraft {
             position: absolute;
@@ -1691,6 +1697,14 @@
             color: var(--wabi-sage, #7DA687);
         }
 
+        [data-theme="dark"] .nav-member-access-btn .member-key-icon {
+            color: #A7D2AF;
+        }
+
+        [data-theme="dark"] #statVisitsCount {
+            color: #A7D2AF !important;
+        }
+
         /* ==========================================================================
            TACTILE HUB PANELS: ANNOUNCEMENTS, COMMUNITY, CONNECT
            Pure Museum-Grade Aesthetic matching the Desk & Orbit
@@ -2125,6 +2139,10 @@
             font-weight: 700;
         }
 
+        [data-theme="dark"] .artifact-vol-tag {
+            color: #C6AF88;
+        }
+
         .ann-card-title {
             font-family: 'Cormorant Garamond', Georgia, serif;
             font-size: 30px;
@@ -2469,6 +2487,10 @@
             min-width: 22px;
         }
 
+        [data-theme="dark"] .discussion-num {
+            color: #C6AF88;
+        }
+
         .nested-reminders-note {
             background-color: #FFF9E6;
             background-image: linear-gradient(175deg, #FFFDF5 0%, #FFF8E2 100%);
@@ -2551,12 +2573,21 @@
             border-radius: 999px;
         }
 
+        [data-theme="dark"] .live-indicator {
+            color: #A3D4B2;
+            background: rgba(125, 166, 135, 0.16);
+        }
+
         .live-dot {
             width: 6px;
             height: 6px;
             border-radius: 50%;
             background: #2C6E49;
             animation: pulseDot 2s infinite ease-in-out;
+        }
+
+        [data-theme="dark"] .live-dot {
+            background: #8EBF9B;
         }
 
         @keyframes pulseDot {
@@ -3152,16 +3183,16 @@
             color: #EBDCB8;
         }
 
-        /* Inter-card Botanical Branch (Between Card 1 and Card 2) */
+        /* Keep the botanical branch centered in the gutter and behind card content. */
         .inter-card-botanical-branch {
             position: absolute;
-            left: 31.5%;
+            left: calc(33.333% - 32px);
             top: 25px;
             width: 55px;
             height: 160px;
             pointer-events: none;
-            z-index: 5;
-            opacity: 0.9;
+            z-index: 1;
+            opacity: 0.72;
         }
 
         @media (max-width: 980px) {
@@ -3196,11 +3227,24 @@
             flex-direction: column;
             justify-content: space-between;
             position: relative;
+            z-index: 2;
             box-shadow: 
                 0 2px 6px rgba(45, 35, 20, 0.05),
                 0 10px 24px -6px rgba(45, 35, 20, 0.07);
             box-sizing: border-box;
             transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease;
+        }
+
+        /* Keep the pale library card readable when the rest of the portal is in dark mode. */
+        .connect-main-card[data-category="library"] {
+            --ink-primary: #283A2C;
+            --ink-secondary: #4B5C4F;
+            --ink-muted: #586A5B;
+            color: var(--ink-primary);
+        }
+
+        .connect-main-card[data-category="library"] .pill-drive {
+            color: #31583C;
         }
 
         .connect-main-card:hover {
@@ -3734,6 +3778,11 @@
             flex-shrink: 0;
         }
 
+        [data-theme="dark"] .platform-badge-more {
+            background: rgba(198, 175, 136, 0.16);
+            color: #C6AF88;
+        }
+
         .platform-name {
             font-size: 14.5px;
             font-weight: 700;
@@ -4012,6 +4061,78 @@
         [data-theme="dark"] .btn-tactile-secondary:hover {
             background: rgba(60, 54, 48, 0.85);
             border-color: #EDE7DD;
+        }
+
+        /* Preserve a single-row portal header at common laptop widths without clipping the theme SVG. */
+        @media (min-width: 1101px) and (max-width: 1450px) {
+            header {
+                gap: 10px;
+            }
+
+            header .brand-container {
+                gap: 12px;
+                min-width: 0;
+            }
+
+            header .header-nav-tokens {
+                gap: 3px;
+                padding: 4px;
+                min-width: 0;
+            }
+
+            header .nav-token-btn {
+                gap: 6px;
+                padding: 7px 11px;
+                font-size: 12px;
+            }
+
+            header .header-controls {
+                gap: 8px;
+            }
+
+            header .nav-member-access-btn {
+                gap: 5px;
+                padding: 5px 9px;
+                font-size: 10.75px;
+            }
+
+            header .reader-memory-chip {
+                gap: 5px;
+                padding: 6px 10px;
+                font-size: 11.5px;
+            }
+
+            header .reader-chip-name {
+                max-width: 100px;
+            }
+
+            header .theme-btn {
+                width: 34px;
+                height: 34px;
+            }
+        }
+
+        /* Give the nav a clear second row once the full brand/nav/control set cannot breathe. */
+        @media (min-width: 961px) and (max-width: 1280px) {
+            header {
+                flex-wrap: wrap;
+                gap: 12px 18px;
+            }
+
+            header .brand-container {
+                min-width: 0;
+            }
+
+            header .header-nav-tokens {
+                order: 3;
+                flex: 1 1 100%;
+                justify-content: center;
+                max-width: 100%;
+            }
+
+            header .header-controls {
+                margin-left: auto;
+            }
         }
 
         /* Responsive layout safeguards for the home, bulletin, and connect views. */
@@ -5106,20 +5227,7 @@
 
                         <!-- Notices Slips Container -->
                         <div id="annBulletinsList" class="curator-slips-container">
-                            <div class="curator-notice-slip">
-                                <div class="curator-notice-header">
-                                    <span class="curator-notice-title">● Next Discussion Gathering: Saturday, 4 October at 4:00 PM</span>
-                                    <span class="curator-notice-author">Likith</span>
-                                </div>
-                                <p class="curator-notice-body">Our upcoming gathering has been confirmed for 4:00 PM at MRDU. Tap the meeting link to open the location directly in Google Maps.</p>
-                            </div>
-                            <div class="curator-notice-slip">
-                                <div class="curator-notice-header">
-                                    <span class="curator-notice-title">● Welcome to Wabi Sabi Bookclub • Vol. 1</span>
-                                    <span class="curator-notice-author">Dhanush</span>
-                                </div>
-                                <p class="curator-notice-body">A quiet coordination sanctuary for curious minds. No accounts or applications required—everyone can explore the book drive, find our next meeting location, and join our discussions.</p>
-                            </div>
+                            <p class="curator-notice-empty" role="status">No curator notices posted yet. Check back soon.</p>
                         </div>
                     </div>
 
@@ -5147,54 +5255,16 @@
 
                     <!-- Interactive Filter Pills -->
                     <div class="community-filter-bar" style="margin-bottom: 0;">
-                        <button type="button" class="community-filter-pill active" data-filter="all">All Souls <span class="filter-count" id="countAllMembers">3</span></button>
-                        <button type="button" class="community-filter-pill" data-filter="curator">Admin / Curator <span class="filter-count" id="countCuratorMembers">1</span></button>
-                        <button type="button" class="community-filter-pill" data-filter="member">Members <span class="filter-count" id="countRegularMembers">2</span></button>
+                        <button type="button" class="community-filter-pill active" data-filter="all">All Souls <span class="filter-count" id="countAllMembers">0</span></button>
+                        <button type="button" class="community-filter-pill" data-filter="curator">Admin / Curator <span class="filter-count" id="countCuratorMembers">0</span></button>
+                        <button type="button" class="community-filter-pill" data-filter="member">Members <span class="filter-count" id="countRegularMembers">0</span></button>
                     </div>
                 </div>
 
                 <!-- Tactile Polaroid Gallery Grid -->
                 <div class="community-directory-grid" id="communityDirectoryGrid">
-                    <!-- Member 1: Admin -->
-                    <div class="member-polaroid-card" data-role="Admin" style="--polaroid-rot: -1.8deg;">
-                        <div class="polaroid-tape" style="--tape-rot: -1.2deg;"></div>
-                        <div class="member-dp-wrap">
-                            <img src="../assets/user_avatar.jpg" alt="Wabi Sabi Admin" class="member-dp-img" onerror="this.src='../assets/user_avatar.jpg'">
-                        </div>
-                        <div class="member-name">Wabi Sabi Admin</div>
-                        <div class="member-meta-row">
-                            <span class="member-role-badge role-curator">Admin</span>
-                            <span class="member-handle">@wabisabi</span>
-                        </div>
-                        <p class="member-bio">“Sanctuary steward & literary curator”</p>
-                    </div>
-
-                    <!-- Member 2: Akshaya -->
-                    <div class="member-polaroid-card" data-role="Member" style="--polaroid-rot: 1.4deg;">
-                        <div class="polaroid-tape" style="--tape-rot: 1.5deg;"></div>
-                        <div class="member-dp-wrap">
-                            <img src="../assets/avatar_aishwarya.jpg" alt="Akshaya" class="member-dp-img" onerror="this.src='../assets/user_avatar.jpg'">
-                        </div>
-                        <div class="member-name">Akshaya</div>
-                        <div class="member-meta-row">
-                            <span class="member-role-badge role-member">Member</span>
-                            <span class="member-handle">@akshaya</span>
-                        </div>
-                        <p class="member-bio">“Literature, existential fiction & poetry”</p>
-                    </div>
-
-                    <!-- Member 3: Vaishnavi -->
-                    <div class="member-polaroid-card" data-role="Member" style="--polaroid-rot: -1.1deg;">
-                        <div class="polaroid-tape" style="--tape-rot: -0.8deg;"></div>
-                        <div class="member-dp-wrap">
-                            <img src="../assets/avatar_meera.jpg" alt="Vaishnavi" class="member-dp-img" onerror="this.src='../assets/user_avatar.jpg'">
-                        </div>
-                        <div class="member-name">Vaishnavi</div>
-                        <div class="member-meta-row">
-                            <span class="member-role-badge role-member">Member</span>
-                            <span class="member-handle">@vaishnavi</span>
-                        </div>
-                        <p class="member-bio">“Cinema, narratives & quiet thoughts”</p>
+                    <div class="community-directory-empty" role="status" style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--wabi-ink-muted);">
+                        Loading member profiles…
                     </div>
                 </div>
             </div>
@@ -5276,7 +5346,7 @@
                 <div class="connect-top-3-grid" id="connectMainCardsGrid">
                     
                     <!-- Inter-card Botanical Branch (Leaning between Card 1 and Card 2) -->
-                    <svg class="inter-card-botanical-branch" viewBox="0 0 60 180" fill="none">
+                    <svg class="inter-card-botanical-branch" viewBox="0 0 60 180" fill="none" aria-hidden="true" focusable="false">
                         <path d="M 12 175 C 24 120, 28 60, 48 5" stroke="#3D5438" stroke-width="2" stroke-linecap="round"/>
                         <path d="M 18 140 C 35 132, 50 142, 45 156 C 30 158, 22 148, 18 140 Z" fill="#5E7D63"/>
                         <path d="M 16 115 C -2 108, -8 122, 2 130 C 12 128, 15 120, 16 115 Z" fill="#6B8E72"/>
@@ -5311,10 +5381,8 @@
 
                             <!-- Social Avatars Overlapping Row -->
                             <div class="connect-avatars-row">
-                                <div class="avatar-stack" id="connectAvatarStack">
-                                    <img src="../assets/user_avatar.jpg" alt="Admin" class="stacked-avatar" onerror="this.src='../assets/user_avatar.jpg'">
-                                </div>
-                                <span class="avatar-count-label" id="connectAvatarCount">3 members</span>
+                                <div class="avatar-stack" id="connectAvatarStack"></div>
+                                <span class="avatar-count-label" id="connectAvatarCount">Loading members…</span>
                             </div>
                         </div>
 
@@ -5795,12 +5863,12 @@
 
                 <div class="c-form-group" style="margin-bottom: 12px;">
                     <label for="readerNameInput" style="display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; color: var(--wabi-ink);">Your Name or Pseudonym</label>
-                    <input type="text" id="readerNameInput" class="c-input" placeholder="e.g. Dhanush / Quiet Inquirer" style="width: 100%; box-sizing: border-box; padding: 9px 12px; font-size: 13.5px; border-radius: 8px; border: 1px solid rgba(198, 182, 155, 0.6); background: rgba(255, 255, 255, 0.9);">
+                    <input type="text" id="readerNameInput" class="c-input" placeholder="e.g. Dhanush / Quiet Inquirer" style="width: 100%; box-sizing: border-box; padding: 9px 12px; font-size: 13.5px; border-radius: 8px; border: 1px solid rgba(198, 182, 155, 0.6); background: var(--wabi-card-subtle, #FAF7F0); color: var(--wabi-ink, #2C2621);">
                 </div>
 
                 <div class="c-form-group" style="margin-bottom: 14px;">
                     <label for="readerGenreInput" style="display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; color: var(--wabi-ink);">Literary Interests & Reflection Focus</label>
-                    <input type="text" id="readerGenreInput" class="c-input" placeholder="e.g. Existential fiction, Camus, poetry, slow living" style="width: 100%; box-sizing: border-box; padding: 9px 12px; font-size: 13.5px; border-radius: 8px; border: 1px solid rgba(198, 182, 155, 0.6); background: rgba(255, 255, 255, 0.9);">
+                    <input type="text" id="readerGenreInput" class="c-input" placeholder="e.g. Existential fiction, Camus, poetry, slow living" style="width: 100%; box-sizing: border-box; padding: 9px 12px; font-size: 13.5px; border-radius: 8px; border: 1px solid rgba(198, 182, 155, 0.6); background: var(--wabi-card-subtle, #FAF7F0); color: var(--wabi-ink, #2C2621);">
                 </div>
 
                 <div style="font-size: 11.5px; color: var(--wabi-ink-secondary); line-height: 1.4;">
@@ -5841,7 +5909,7 @@
                 <form id="memberAccessForm" onsubmit="return false;" style="display: flex; flex-direction: column; gap: 14px; text-align: left;">
                     <div class="c-form-group">
                         <label for="memberSecretCodeInput" style="display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; color: var(--wabi-ink, #2C2621);">Secret Code</label>
-                        <input type="text" id="memberSecretCodeInput" class="c-input" placeholder="WS-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false" style="width: 100%; box-sizing: border-box; padding: 11px 14px; font-size: 14px; font-family: 'JetBrains Mono', monospace, inherit; letter-spacing: 1.2px; text-transform: uppercase; border-radius: 8px; border: 1px solid rgba(198, 182, 155, 0.6); background: rgba(255, 255, 255, 0.95); color: var(--wabi-ink, #2C2621); text-align: center;">
+                        <input type="text" id="memberSecretCodeInput" class="c-input" placeholder="WS-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false" style="width: 100%; box-sizing: border-box; padding: 11px 14px; font-size: 14px; font-family: 'JetBrains Mono', monospace, inherit; letter-spacing: 1.2px; text-transform: uppercase; border-radius: 8px; border: 1px solid rgba(198, 182, 155, 0.6); background: var(--wabi-card-subtle, #FAF7F0); color: var(--wabi-ink, #2C2621); text-align: center;">
                     </div>
 
                     <div id="memberAccessFeedback" style="display: none; font-size: 12.5px; padding: 8px 12px; border-radius: 6px; text-align: center;"></div>
@@ -5890,7 +5958,7 @@
 
     <!-- Scripts -->
     <script src="../js/cat-engine.js"></script>
-    <script src="../js/admin-shortcut.js"></script>
+    <script src="../js/admin-shortcut.js?v=5tap-reliable-2"></script>
     <script>
         // 1. Theme Management (Light: Tea Glass / Dark: Coffee Cup)
         (function initTheme() {
@@ -6158,18 +6226,20 @@
                     if (impEl) impEl.textContent = announcements.important_notes;
                 }
 
-                if (portalData.updates && Array.isArray(portalData.updates) && portalData.updates.length > 0) {
+                if (Array.isArray(portalData.updates)) {
                     const bullEl = document.getElementById('annBulletinsList');
                     if (bullEl) {
-                        bullEl.innerHTML = portalData.updates.map(u => `
-                            <div class="curator-notice-slip">
-                                <div class="curator-notice-header">
-                                    <span class="curator-notice-title">${escapeHtml(u.title)}</span>
-                                    <span class="curator-notice-author">${escapeHtml(u.author_name || 'Curator')}</span>
+                        bullEl.innerHTML = portalData.updates.length
+                            ? portalData.updates.map(u => `
+                                <div class="curator-notice-slip">
+                                    <div class="curator-notice-header">
+                                        <span class="curator-notice-title">${escapeHtml(u.title)}</span>
+                                        <span class="curator-notice-author">${escapeHtml(u.author_name || 'Curator')}</span>
+                                    </div>
+                                    <p class="curator-notice-body">${escapeHtml(u.content)}</p>
                                 </div>
-                                <p class="curator-notice-body">${escapeHtml(u.content)}</p>
-                            </div>
-                        `).join('');
+                            `).join('')
+                            : '<p class="curator-notice-empty" role="status">No curator notices posted yet. Check back soon.</p>';
                     }
                 }
 
@@ -6179,7 +6249,7 @@
 
                 // --- Community Directory ---
                 // --- Community Directory & Dynamic Real-Time Counts ---
-                if (community.members && Array.isArray(community.members) && community.members.length > 0) {
+                if (Array.isArray(community.members)) {
                     const gridEl = document.getElementById('communityDirectoryGrid');
                     if (gridEl) {
                         const polaroidRotations = ['-1.8deg', '1.4deg', '-1.1deg', '2.1deg', '-1.5deg', '1.6deg'];
@@ -6205,7 +6275,7 @@
                                     ${m.bio ? `<p class="member-bio">“${escapeHtml(m.bio)}”</p>` : ''}
                                 </div>
                             `;
-                        }).join('');
+                        }).join('') || '<div class="community-directory-empty" role="status" style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--wabi-ink-muted);">No member profiles have been added yet.</div>';
                     }
 
                     // Dynamically update Community filter count pills

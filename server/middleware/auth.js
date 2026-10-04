@@ -1,6 +1,7 @@
 const crypto = require('node:crypto');
 const { getCuratorBySessionTokenHash } = require('../db');
 const { hashSessionToken } = require('../crypto');
+const { curatorSessionCookieOptions } = require('../sessionCookies');
 const { getClientIp } = require('./security');
 
 /**
@@ -31,12 +32,7 @@ function getAuthenticatedCurator(req) {
 }
 
 function clearCuratorSessionCookies(req, res) {
-    const cookieOptions = {
-        httpOnly: true,
-        secure: req.secure || process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/'
-    };
+    const cookieOptions = curatorSessionCookieOptions(req);
     res.clearCookie('wabisabi_curator_session', cookieOptions);
     res.clearCookie('wabisabi_session', cookieOptions);
 }

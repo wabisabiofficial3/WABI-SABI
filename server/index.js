@@ -12,6 +12,7 @@ const authRouter = require('./routes/auth');
 const curatorRouter = require('./routes/curator');
 const userRouter = require('./routes/user');
 const memberRouter = require('./routes/member');
+const noticesRouter = require('./routes/notices');
 
 const { securityHeaders, blockSensitiveFiles, corsAndCsrf, apiRateLimiter } = require('./middleware/security');
 
@@ -67,6 +68,7 @@ app.get([
     '/home/sanctuary',
     '/dashboard/sanctuary'
 ], (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
     res.sendFile(path.join(PAGES_DIR, 'sanctuary.html'));
 });
 
@@ -115,11 +117,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/curator', curatorRouter);
 app.use('/api/user', userRouter);
 app.use('/api/member', memberRouter);
-
-// Compatibility route for existing notice queries
-app.get('/api/notices', (req, res) => {
-    res.redirect(307, '/api/portal');
-});
+app.use('/api/notices', noticesRouter);
 
 // ====================================================================
 // SEO & ROOT WEB ASSETS

@@ -1,5 +1,6 @@
 const { getMemberBySessionToken, getMemberById, getCuratorBySessionTokenHash } = require('../db');
 const { getAuthenticatedCurator } = require('./auth');
+const { curatorSessionCookieOptions } = require('../sessionCookies');
 const crypto = require('node:crypto');
 
 const MEMBER_PAGE_PATHS = new Map([
@@ -54,12 +55,7 @@ function requireMemberPage(req, res, next) {
     }
 
     if (req.cookies?.wabisabi_curator_session || req.cookies?.wabisabi_session) {
-        const cookieOptions = {
-            httpOnly: true,
-            secure: req.secure || process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            path: '/'
-        };
+        const cookieOptions = curatorSessionCookieOptions(req);
         res.clearCookie('wabisabi_curator_session', cookieOptions);
         res.clearCookie('wabisabi_session', cookieOptions);
     }
@@ -91,6 +87,12 @@ function requireMember(req, res, next) {
                 req.member = targetMember;
                 req.isCuratorPreview = true;
                 req.curator = curator;
+                if (!['GET', 'HEAD'].includes(String(req.method || '').toUpperCase())) {
+                    return res.status(403).json({
+                        success: false,
+                        error: 'Curator previews are read-only. Member data was not changed.'
+                    });
+                }
                 return next();
             }
         }

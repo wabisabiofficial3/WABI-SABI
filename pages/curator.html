@@ -37,6 +37,7 @@
             --wabi-border-subtle: rgba(45, 40, 35, 0.08);
             --wabi-border-medium: rgba(45, 40, 35, 0.16);
             --wabi-card-subtle: #FAF7F0;
+            --danger-ink: #A23434;
         }
 
         [data-theme="dark"] {
@@ -44,16 +45,23 @@
             --bg-card: #1E1C1A;
             --moss-dark: #1A2E21;
             --moss-mid: #2C4233;
-            --moss-light: #44614E;
-            --contour-gold: #8E7E65;
+            --moss-light: #91B69A;
+            --contour-gold: #C4AD84;
             --contour-gold-faint: rgba(142, 126, 101, 0.35);
             --wabi-ochre: #D48C46;
             --wabi-ink: #F2ECE1;
             --wabi-ink-secondary: #C8BFB3;
-            --wabi-ink-muted: #948A7D;
+            --wabi-ink-muted: #AAA196;
             --wabi-border-subtle: rgba(235, 225, 210, 0.08);
             --wabi-border-medium: rgba(235, 225, 210, 0.15);
             --wabi-card-subtle: #181614;
+            --danger-ink: #F0A39C;
+        }
+
+        [data-theme="dark"] #createdMemberCodeDisplay,
+        [data-theme="dark"] #regenCodeDisplay {
+            background: rgba(145, 182, 154, 0.14) !important;
+            border-color: rgba(145, 182, 154, 0.65) !important;
         }
 
         body.portal-body {
@@ -653,8 +661,14 @@
 
         .member-status-suspended {
             background: rgba(180, 50, 50, 0.1);
-            color: #A23434;
+            color: var(--danger-ink, #A23434);
             border: 1px solid rgba(180, 50, 50, 0.2);
+        }
+
+        [data-theme="dark"] .member-status-suspended {
+            background: rgba(240, 163, 156, 0.12);
+            color: var(--danger-ink);
+            border-color: rgba(240, 163, 156, 0.32);
         }
 
         .curator-member-handle {
@@ -1575,7 +1589,7 @@
                     </div>
 
                     <div style="border-top: 1px dashed var(--wabi-border-medium); margin: 20px 0 16px; padding-top: 16px;">
-                        <span class="c-label" style="color: var(--moss-dark); font-size: 12px; margin-bottom: 12px;">Change Admin Password (Optional)</span>
+                        <span class="c-label" style="font-size: 12px; margin-bottom: 12px;">Change Admin Password (Optional)</span>
                         
                         <div class="c-form-group">
                             <label for="adminCurrentPasswordInput" class="c-label">Current Password (Required only if changing password)</label>
@@ -1726,7 +1740,7 @@
                     <span style="font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--wabi-ink-muted); display: block; margin-bottom: 6px;">
                         Secret Code
                     </span>
-                    <div id="createdMemberCodeDisplay" style="font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 700; letter-spacing: 2px; padding: 13px; background: rgba(39, 59, 43, 0.08); border: 1.5px dashed rgba(198, 182, 155, 0.7); border-radius: 8px; color: var(--moss-dark); user-select: all;">
+                    <div id="createdMemberCodeDisplay" style="font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 700; letter-spacing: 2px; padding: 13px; background: rgba(39, 59, 43, 0.08); border: 1.5px dashed rgba(198, 182, 155, 0.7); border-radius: 8px; color: var(--wabi-ink-secondary); user-select: all;">
                         WS-XXXX-XXXX-XXXX
                     </div>
                 </div>
@@ -1885,11 +1899,11 @@
                 <p style="font-size: 13.5px; color: var(--wabi-ink); margin: 0 0 14px;">
                     A new Secret Code has been issued for <strong id="regenMemberName">Member</strong>.
                 </p>
-                <div style="font-size: 12px; color: #A23434; background: rgba(180, 50, 50, 0.08); padding: 8px 12px; border-radius: 6px; margin-bottom: 16px;">
+                <div style="font-size: 12px; color: var(--danger-ink, #A23434); background: rgba(180, 50, 50, 0.08); padding: 8px 12px; border-radius: 6px; margin-bottom: 16px;">
                     ⚠️ The previous Secret Code has been invalidated immediately.
                 </div>
 
-                <div id="regenCodeDisplay" style="font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 700; letter-spacing: 2px; padding: 13px; background: rgba(39, 59, 43, 0.08); border: 1.5px dashed rgba(198, 182, 155, 0.7); border-radius: 8px; color: var(--moss-dark); user-select: all; margin-bottom: 18px;">
+                <div id="regenCodeDisplay" style="font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 700; letter-spacing: 2px; padding: 13px; background: rgba(39, 59, 43, 0.08); border: 1.5px dashed rgba(198, 182, 155, 0.7); border-radius: 8px; color: var(--wabi-ink-secondary); user-select: all; margin-bottom: 18px;">
                     WS-XXXX-XXXX-XXXX
                 </div>
 

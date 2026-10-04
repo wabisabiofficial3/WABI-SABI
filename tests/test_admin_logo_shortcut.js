@@ -6,12 +6,29 @@ const vm = require('node:vm');
 const root = path.join(__dirname, '..');
 const script = fs.readFileSync(path.join(root, 'js', 'admin-shortcut.js'), 'utf8');
 
-function createHarness() {
+function createHarness({ pathname = '/', storageAvailable = true } = {}) {
     const values = new Map();
     const navigations = [];
     let clickHandler = null;
     let brandLogo;
-
+    const location = {
+        pathname,
+        assign(destination) { navigations.push(destination); }
+    };
+    const sessionStorage = {
+        getItem(key) {
+            if (!storageAvailable) throw new Error('Storage unavailable');
+            return values.has(key) ? values.get(key) : null;
+        },
+        setItem(key, value) {
+            if (!storageAvailable) throw new Error('Storage unavailable');
+            values.set(key, String(value));
+        },
+        removeItem(key) {
+            if (!storageAvailable) throw new Error('Storage unavailable');
+            values.delete(key);
+        }
+    };
     const context = {
         document: {
             querySelector(selector) {
@@ -19,23 +36,16 @@ function createHarness() {
                 return brandLogo;
             }
         },
-        window: {
-            sessionStorage: {
-                getItem(key) { return values.has(key) ? values.get(key) : null; },
-                setItem(key, value) { values.set(key, String(value)); },
-                removeItem(key) { values.delete(key); }
-            },
-            location: {
-                assign(destination) { navigations.push(destination); }
-            }
-        },
+        window: { sessionStorage, location },
         Date,
         JSON,
         Number,
-        Math
+        Math,
+        Set
     };
 
-    function reloadAndBind() {
+    function reloadAndBind(nextPath = location.pathname) {
+        location.pathname = nextPath;
         clickHandler = null;
         brandLogo = {
             dataset: {},
@@ -64,22 +74,45 @@ function createHarness() {
     return { values, navigations, reloadAndBind, click };
 }
 
-function testFiveLogoTaps() {
-    const harness = createHarness();
+function testFiveRapidTapsOnHome() {
+    const harness = createHarness({ pathname: '/' });
+    harness.reloadAndBind();
     for (let tap = 1; tap <= 4; tap += 1) {
-        harness.reloadAndBind();
-        assert.equal(harness.click(), false, `Tap ${tap} should preserve normal logo navigation`);
+        assert.equal(harness.click(), true, `Home tap ${tap} should avoid reloading the page`);
         assert.equal(harness.navigations.length, 0, 'The sign-in route should not open early');
     }
-
-    harness.reloadAndBind();
     assert.equal(harness.click(), true, 'The fifth tap should intercept the home link');
     assert.deepEqual(harness.navigations, ['/sanctuary']);
     assert.equal(harness.values.size, 0, 'The tap counter should reset after opening sign-in');
 }
 
+function testShortcutAcrossInitialHomeNavigation() {
+    const harness = createHarness({ pathname: '/community' });
+    harness.reloadAndBind('/community');
+    assert.equal(harness.click(), false, 'The first logo click from another page should keep normal navigation');
+    assert.equal(JSON.parse(harness.values.get('wabi_admin_logo_taps')).count, 1);
+
+    harness.reloadAndBind('/home.html');
+    for (let tap = 2; tap <= 4; tap += 1) {
+        assert.equal(harness.click(), true, 'Subsequent taps on the home page should not reload it');
+        assert.equal(harness.navigations.length, 0);
+    }
+    assert.equal(harness.click(), true, 'The fifth total tap should open the sign-in page');
+    assert.deepEqual(harness.navigations, ['/sanctuary']);
+}
+
+function testWorksWhenSessionStorageIsUnavailable() {
+    const harness = createHarness({ pathname: '/', storageAvailable: false });
+    harness.reloadAndBind();
+    for (let tap = 1; tap <= 4; tap += 1) {
+        assert.equal(harness.click(), true, 'Home taps should remain countable without browser storage');
+    }
+    assert.equal(harness.click(), true);
+    assert.deepEqual(harness.navigations, ['/sanctuary']);
+}
+
 function testModifiedClicksStayNative() {
-    const harness = createHarness();
+    const harness = createHarness({ pathname: '/' });
     harness.reloadAndBind();
     assert.equal(harness.click({ ctrlKey: true }), false);
     assert.equal(harness.values.size, 0, 'Modified clicks must not increment the hidden shortcut');
@@ -97,7 +130,9 @@ function testLogoPagesLoadShortcut() {
     assert.match(script, /location\.assign\('\/sanctuary'\)/);
 }
 
-testFiveLogoTaps();
+testFiveRapidTapsOnHome();
+testShortcutAcrossInitialHomeNavigation();
+testWorksWhenSessionStorageIsUnavailable();
 testModifiedClicksStayNative();
 testLogoPagesLoadShortcut();
-console.log('✓ Five logo clicks open the existing admin sign-in route; normal navigation and modified clicks remain intact.');
+console.log('✓ Five rapid logo clicks navigate to admin sign-in without reloading home; browser storage fallback and native modified clicks are covered.');
