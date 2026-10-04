@@ -1,10 +1,10 @@
 # Wabi Sabi
 
-A quiet digital home for the Wabi Sabi bookclub: public announcements, a curated member directory, external gathering links, a private member reading desk, and a curator console.
+A quiet digital home for the Wabi Sabi bookclub: public announcements, a curated member directory, external gathering links, a private member reading desk, four standalone member spaces, and a curator console.
 
 ## Current application
 
-The active server is an Express application backed by SQLite (`server/index.js`, `server/db.js`). The public home page is served at `/` and `/home.html`. The curator console is served at `/curator` only after a valid curator session; `/sanctuary` is the curator sign-in page. `/my-space` serves the member desk, which requires a member code to load private data.
+The active server is an Express application backed by SQLite (`server/index.js`, `server/db.js`). The public home page is served at `/` and `/home.html`. The curator console is served at `/curator` only after a valid curator session; `/sanctuary` is the curator sign-in page. `/my-space` serves the member desk, which requires a member code to load private data. `/community`, `/reader`, `/table-room`, and `/wabi-wall` are independent, cross-linked member-space pages; each route (including its `.html` and `/pages/*.html` aliases) is protected by a server-verified active member or curator session.
 
 | Area | Active endpoints |
 | --- | --- |
@@ -13,9 +13,10 @@ The active server is an Express application backed by SQLite (`server/index.js`,
 | Curator console | `/api/curator/overview`, `/api/curator/announcements`, `/api/curator/updates`, `/api/curator/members`, `/api/curator/connect`, `/api/curator/profile`, `/api/curator/settings`, `/api/curator/features`, `/api/curator/sticky-notes` |
 | Member desk | `/api/member/access`, `/api/member/status`, `/api/member/me`, `/api/member/reading`, `/api/member/notes`, `/api/member/leave`, `/api/member/claim-pass` |
 | Remembered public-reader profile | `/api/user/profile` |
+| Protected member spaces | `/community`, `/reader`, `/table-room`, `/wabi-wall` (also `.html` and `/pages/*.html` aliases) |
 | Health | `/health`, `/api/health` |
 
-Older reading-room/community pages and their older APIs are not part of the active three-pillar portal; those page routes redirect to `/`. The optional Supabase files are not used by the active SQLite application.
+Unauthenticated requests to a member-space route redirect to `/my-space?returnTo=<space>`; after successful member-code verification, the member is returned only to an allowlisted Wabi Sabi space. Curator-only pages and write APIs remain server-guarded; browser storage is never accepted as authentication. These route changes restore the standalone pages and their shared navigation; the older `/api/community` and `/api/chat` backends are not mounted in the current server. The optional Supabase files are not used by the active SQLite application.
 
 ## Requirements and setup
 

@@ -256,14 +256,40 @@ async function runTests() {
         assert.strictEqual(resDelUpd.statusCode, 200);
         console.log('✓ Curator deleted test bulletin');
 
-        console.log('\n--- 6. Legacy Route Redirects ---');
-        const legacyRoutes = ['/join', '/community', '/application-status', '/table-room'];
-        for (const route of legacyRoutes) {
+        console.log('\n--- 6. Independent, Connected Member Space Routes ---');
+        const memberSpaces = ['/community', '/reader', '/table-room', '/wabi-wall'];
+        for (const route of memberSpaces) {
+            const denied = await request(route);
+            assert.strictEqual(denied.statusCode, 302, `${route} should require a valid member or curator session`);
+            assert.strictEqual(denied.headers.location, `/my-space?returnTo=${encodeURIComponent(route)}`);
+
+            const allowed = await request(route, { headers: { Cookie: cookie } });
+            assert.strictEqual(allowed.statusCode, 200, `${route} should serve its own page after authentication`);
+            assert.match(String(allowed.body), /<!DOCTYPE html>/i, `${route} should serve a standalone HTML page`);
+            assert.match(allowed.headers['cache-control'] || '', /private, no-store/i, `${route} must not be cached`);
+        }
+
+        const directPageAlias = await request('/pages/community.html');
+        assert.strictEqual(directPageAlias.statusCode, 302, 'Direct /pages/*.html aliases must keep the page guard');
+        assert.strictEqual(directPageAlias.headers.location, '/my-space?returnTo=%2Fcommunity');
+        const allowedPageAlias = await request('/pages/community.html', { headers: { Cookie: cookie } });
+        assert.strictEqual(allowedPageAlias.statusCode, 200, 'Authenticated members must be able to open direct page aliases');
+
+        const homeSpaces = await request('/');
+        assert.strictEqual(homeSpaces.statusCode, 200);
+        for (const route of memberSpaces) {
+            assert(String(homeSpaces.body).includes(`href=\"${route}\"`), `Home should connect to ${route}`);
+        }
+        console.log('✓ Member spaces are independently served, private, and cross-linked from the public portal');
+
+        console.log('\n--- 7. Retired Route Redirects ---');
+        const retiredRoutes = ['/join', '/application-status', '/theme-weeks'];
+        for (const route of retiredRoutes) {
             const resLegacy = await request(route);
             assert.strictEqual(resLegacy.statusCode, 302, `${route} should redirect to /`);
             assert.strictEqual(resLegacy.headers.location, '/', `${route} should redirect to /`);
         }
-        console.log('✓ All legacy membership/chat routes gracefully redirect to the public portal');
+        console.log('✓ Retired membership-application routes still redirect to the public portal');
 
         console.log('\n================================================================');
         console.log('   ✦ ALL 3-PILLAR WABI SABI PORTAL TESTS PASSED CLEANLY! ✦');

@@ -94,9 +94,11 @@ router.get('/status', optionalMember, (req, res) => {
             authenticated: true,
             isMember: true,
             member: {
+                id: req.member.id,
                 name: req.member.display_name || req.member.name,
                 displayName: req.member.display_name || req.member.name,
-                handle: req.member.handle
+                handle: req.member.handle,
+                role: 'USER'
             }
         });
     }

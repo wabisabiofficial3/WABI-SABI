@@ -1,64 +1,21 @@
-# 🛡️ Wabi Sabi — Middleware Architecture Manual (`server/middleware/`)
+# Server authentication and access middleware
 
-This directory contains the request interceptors and security access guards for both REST API endpoints and Express HTML page routes.
+The middleware in this directory separates curator sessions, member-code sessions, page delivery, and API authorization. Page guards are a usability boundary; API routes must still use their own role/session middleware.
 
----
+## `auth.js` — curator access
 
-## 📂 File Inventory
+- `getAuthenticatedCurator(req)` verifies the curator session cookie against the hashed, unexpired token in SQLite.
+- `requireCurator(req, res, next)` protects curator APIs and returns `401` JSON when there is no valid curator session. `requireAuth` remains an alias for compatibility; it is also curator-only.
+- `requireCuratorPage(req, res, next)` protects `/curator` page aliases, sets `Cache-Control: private, no-store`, and redirects visitors to `/sanctuary?redirect=<local-path>`.
+- Login throttling helpers track failures by IP and account/IP pair.
 
-```
-server/middleware/
-└── auth.js       # Centralized session verification, API guards, and HTTP 302 Page Guards
-```
+## `memberAuth.js` — member access
 
----
+- `getAuthenticatedMember(req)` verifies the HTTP-only `wabisabi_member_session` cookie against the active SQLite session record.
+- `requireMember(req, res, next)` protects member APIs. It returns `401` when no session exists and `403` when the membership is inactive. The existing explicit curator-preview flow is supported only where a route opts into it.
+- `optionalMember(req, res, next)` attaches an active member when present without blocking visitors; `/api/member/status` uses this for navigation state.
+- `requireMemberPage(req, res, next)` protects `/community`, `/reader`, `/table-room`, and `/wabi-wall`, including `.html` and `/pages/*.html` aliases. It serves no HTML to an unauthenticated visitor, sets `Cache-Control: private, no-store`, and sends the visitor to the member-code page with a local allowlisted return destination. Active curator sessions are also permitted to view these spaces.
 
-## 🔒 Security Functions Reference (`server/middleware/auth.js`)
+## Security boundary
 
-### 1. `requireAuth(req, res, next)` — API Member Guard
-- **Target:** REST API endpoints under `/api/*` that require an active member session (e.g. `POST /api/chat/messages`, `POST /api/community/poll/vote`, `POST /api/community/thoughts`).
-- **Behavior:**
-  1. Inspects the incoming `req.cookies.wabisabi_session`.
-  2. If missing, responds immediately with **401 Unauthorized**:
-     ```json
-     { "success": false, "error": "Authentication required. Please sign in." }
-     ```
-  3. Computes the SHA-256 hash of the token and queries the `sessions` table joined with `users`.
-  4. If expired or not found, responds with **401 Unauthorized**.
-  5. If valid, attaches the authenticated user profile to `req.user` and calls `next()`.
-
----
-
-### 2. `requireCurator(req, res, next)` — API Curator RBAC Guard
-- **Target:** Sensitive administrative endpoints (e.g. `PUT /api/content/:section`, `PUT /api/curator/applications/:id/status`, `POST /api/notices`).
-- **Behavior:**
-  1. Runs the same session validation as `requireAuth`.
-  2. Checks: `if (req.user.role !== 'CURATOR')`
-  3. If not a curator, responds with **403 Forbidden**:
-     ```json
-     { "success": false, "error": "Curator privileges required." }
-     ```
-  4. If the user possesses the `CURATOR` role, allows execution to proceed to the route handler.
-
----
-
-### 3. `requirePageAuth(req, res, next)` — HTTP 302 Page Redirect Guard
-- **Target:** Express page routes serving member HTML files (`/home`, `/community`, `/reader`, `/table-room`, `/wabi-wall`, and direct `.html` file requests).
-- **Behavior:**
-  1. Inspects `req.cookies.wabisabi_session`.
-  2. If missing or invalid, catches the unauthorized user at the network layer and issues an **HTTP 302 Redirect**:
-     ```http
-     HTTP/1.1 302 Found
-     Location: /login?redirect=/table-room
-     ```
-  3. Prevents unauthenticated users from ever seeing the protected page markup or downloading member-only DOM trees.
-  4. If authenticated, attaches `req.user` and calls `next()` to send the static HTML file.
-
----
-
-### 4. `requireCuratorPage(req, res, next)` — HTTP 302 Curator Studio Guard
-- **Target:** Curator Studio page routes (`/curator` and `/curator.html`).
-- **Behavior:**
-  1. If unauthenticated, redirects with **HTTP 302 to `/login?redirect=/curator`**.
-  2. If logged in as a normal member (`role === 'USER'`), prevents access and redirects with **HTTP 302 to `/home`**.
-  3. If logged in with `role === 'CURATOR'`, renders and serves `curator.html`.
+`js/store.js` verifies sessions for client behavior, but localStorage and client guards are never accepted as authentication. Member APIs continue to require member sessions, and curator writes continue to require curator sessions even when a page shell is available. Session cookies are HTTP-only; member and curator tokens are separate and only token hashes are stored in the database.

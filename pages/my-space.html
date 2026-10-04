@@ -1238,6 +1238,8 @@
             // Check if preview query param is present
             const params = new URLSearchParams(window.location.search);
             const previewId = params.get('preview');
+            const returnTo = params.get('returnTo');
+            const allowedReturnPaths = new Set(['/community', '/reader', '/table-room', '/wabi-wall']);
             const endpoint = previewId ? `/api/member/me?preview=${encodeURIComponent(previewId)}` : '/api/member/me';
 
             try {
@@ -1254,6 +1256,12 @@
                     skeleton.style.display = 'none';
                     unauth.style.display = 'block';
                     desk.style.display = 'none';
+                    return;
+                }
+
+                // Return to a member space only after the server confirms this member session.
+                if (!previewId && allowedReturnPaths.has(returnTo)) {
+                    window.location.replace(returnTo);
                     return;
                 }
 

@@ -5,6 +5,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const { seedInitialAccounts } = require('./db');
 const { requireCuratorPage } = require('./middleware/auth');
+const { requireMemberPage } = require('./middleware/memberAuth');
 
 const portalRouter = require('./routes/portal');
 const authRouter = require('./routes/auth');
@@ -76,19 +77,31 @@ app.get(['/curator', '/curator.html', '/pages/curator.html'], requireCuratorPage
     res.sendFile(path.join(PAGES_DIR, 'curator.html'));
 });
 
-// Redirect legacy membership/community pages to the public home portal
+// Standalone Member Spaces: independently addressable and cross-linked destinations.
+// Server-side authentication is required even when a page is opened by its /pages/*.html alias.
+const memberSpacePages = [
+    { routes: ['/community', '/community.html', '/pages/community.html'], file: 'community.html' },
+    { routes: ['/reader', '/reader.html', '/pages/reader.html'], file: 'reader.html' },
+    { routes: ['/table-room', '/table-room.html', '/pages/table-room.html'], file: 'table-room.html' },
+    { routes: ['/wabi-wall', '/wabi-wall.html', '/pages/wabi-wall.html'], file: 'wabi-wall.html' }
+];
+
+for (const page of memberSpacePages) {
+    app.get(page.routes, requireMemberPage, (req, res) => {
+        res.sendFile(path.join(PAGES_DIR, page.file));
+    });
+}
+
+// Obsolete membership application and theme-week paths still return to the public portal.
 app.get(['/join', '/join.html', '/pages/join.html',
          '/application-status', '/application-status.html', '/pages/application-status.html',
-         '/community', '/community.html', '/pages/community.html',
-         '/reader', '/reader.html', '/pages/reader.html',
-         '/table-room', '/table-room.html', '/pages/table-room.html',
-         '/wabi-wall', '/wabi-wall.html', '/pages/wabi-wall.html',
          '/theme-weeks', '/theme-weeks.html', '/pages/theme-weeks.html'], (req, res) => {
     res.redirect('/');
 });
 
 // Member Space route (The Member's Personal Literary Desk)
 app.get(['/my-space', '/my-space.html', '/pages/my-space.html'], (req, res) => {
+    res.setHeader('Cache-Control', 'private, no-store');
     res.sendFile(path.join(PAGES_DIR, 'my-space.html'));
 });
 

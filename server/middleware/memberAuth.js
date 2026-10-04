@@ -1,5 +1,66 @@
 const { getMemberBySessionToken, getMemberById, getCuratorBySessionTokenHash } = require('../db');
+const { getAuthenticatedCurator } = require('./auth');
 const crypto = require('node:crypto');
+
+const MEMBER_PAGE_PATHS = new Map([
+    ['/community', '/community'],
+    ['/community.html', '/community'],
+    ['/pages/community.html', '/community'],
+    ['/reader', '/reader'],
+    ['/reader.html', '/reader'],
+    ['/pages/reader.html', '/reader'],
+    ['/table-room', '/table-room'],
+    ['/table-room.html', '/table-room'],
+    ['/pages/table-room.html', '/table-room'],
+    ['/wabi-wall', '/wabi-wall'],
+    ['/wabi-wall.html', '/wabi-wall'],
+    ['/pages/wabi-wall.html', '/wabi-wall']
+]);
+
+function getAuthenticatedMember(req) {
+    const memberToken = req.cookies?.wabisabi_member_session;
+    if (typeof memberToken !== 'string') return null;
+    return getMemberBySessionToken(memberToken);
+}
+
+/**
+ * Page-level guard for the standalone member spaces. The page shell is served only
+ * to a valid active member or curator; member-only API authorization remains separate.
+ */
+function requireMemberPage(req, res, next) {
+    res.setHeader('Cache-Control', 'private, no-store');
+
+    const curator = getAuthenticatedCurator(req);
+    if (curator) {
+        req.curator = curator;
+        req.user = curator;
+        return next();
+    }
+
+    const member = getAuthenticatedMember(req);
+    if (member && member.status === 'active') {
+        req.member = member;
+        req.isCuratorPreview = false;
+        return next();
+    }
+
+    if (req.cookies?.wabisabi_member_session && !member) {
+        res.clearCookie('wabisabi_member_session', {
+            httpOnly: true,
+            sameSite: 'lax',
+            path: '/'
+        });
+    }
+
+    if (req.cookies?.wabisabi_curator_session || req.cookies?.wabisabi_session) {
+        res.clearCookie('wabisabi_curator_session', { httpOnly: true, sameSite: 'lax', path: '/' });
+        res.clearCookie('wabisabi_session', { httpOnly: true, sameSite: 'lax', path: '/' });
+    }
+
+    const pathname = String(req.path || '').replace(/\/+$/, '').toLowerCase() || '/';
+    const returnTo = MEMBER_PAGE_PATHS.get(pathname) || '/';
+    return res.redirect(`/my-space?returnTo=${encodeURIComponent(returnTo)}`);
+}
 
 /**
  * requireMember middleware
@@ -29,22 +90,19 @@ function requireMember(req, res, next) {
     }
 
     // 2. Check for regular Member Session cookie
-    const memberToken = cookies.wabisabi_member_session;
-    if (memberToken) {
-        const member = getMemberBySessionToken(memberToken);
-        if (member) {
-            if (member.status !== 'active') {
-                return res.status(403).json({
-                    success: false,
-                    error: member.status === 'suspended'
-                        ? 'Membership is currently suspended. Please speak with your Curator.'
-                        : 'This membership is not currently active. Please speak with your Curator.'
-                });
-            }
-            req.member = member;
-            req.isCuratorPreview = false;
-            return next();
+    const member = getAuthenticatedMember(req);
+    if (member) {
+        if (member.status !== 'active') {
+            return res.status(403).json({
+                success: false,
+                error: member.status === 'suspended'
+                    ? 'Membership is currently suspended. Please speak with your Curator.'
+                    : 'This membership is not currently active. Please speak with your Curator.'
+            });
         }
+        req.member = member;
+        req.isCuratorPreview = false;
+        return next();
     }
 
     // Unauthenticated: API endpoints MUST return 401
@@ -69,14 +127,11 @@ function requireMember(req, res, next) {
  */
 function optionalMember(req, res, next) {
     res.setHeader('Cache-Control', 'private, no-store');
-    const memberToken = req.cookies?.wabisabi_member_session;
-    if (memberToken) {
-        const member = getMemberBySessionToken(memberToken);
-        if (member && member.status === 'active') {
-            req.member = member;
-            req.isCuratorPreview = false;
-            return next();
-        }
+    const member = getAuthenticatedMember(req);
+    if (member && member.status === 'active') {
+        req.member = member;
+        req.isCuratorPreview = false;
+        return next();
     }
     req.member = null;
     req.isCuratorPreview = false;
@@ -85,5 +140,7 @@ function optionalMember(req, res, next) {
 
 module.exports = {
     requireMember,
-    optionalMember
+    requireMemberPage,
+    optionalMember,
+    getAuthenticatedMember
 };

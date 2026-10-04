@@ -73,11 +73,7 @@ async function checkUserRole() {
             }
         }
     } catch (e) {
-        const storedRole = localStorage.getItem('wabi_user_role');
-        if (storedRole === 'CURATOR') {
-            isCurator = true;
-            showCuratorControls();
-        }
+        // Cached browser state never grants curator UI; only a verified server session does.
     }
 }
 
@@ -481,17 +477,17 @@ function openNoticeModal(notice) {
     let actionButtons = '';
     if (notice.type === 'theme_poster' || notice.type === 'films_list') {
         actionButtons = `
-            <a href="table-room.html" class="btn-modal-action">
+            <a href="/table-room" class="btn-modal-action">
                 <span>Enter Table Room Discussion</span>
                 <span>→</span>
             </a>
-            <a href="reader.html" class="btn-modal-action" style="background:var(--bg-card-solid); color:var(--ink-primary); border:1px solid var(--border-card);">
+            <a href="/reader" class="btn-modal-action" style="background:var(--bg-card-solid); color:var(--ink-primary); border:1px solid var(--border-card);">
                 <span>Read Literary Essays</span>
             </a>
         `;
     } else if (notice.type === 'discussion') {
         actionButtons = `
-            <a href="table-room.html" class="btn-modal-action">
+            <a href="/table-room" class="btn-modal-action">
                 <span>Join Sunday Salon (7:00 PM)</span>
                 <span>→</span>
             </a>

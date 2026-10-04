@@ -18,6 +18,22 @@
         return '';
     }
 
+    function cacheUser(user) {
+        try {
+            localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
+        } catch (err) {
+            // Session validity comes from the server; cached identity is optional UI state.
+        }
+    }
+
+    function clearCachedUser() {
+        try {
+            localStorage.removeItem(STORAGE_KEY_USER);
+        } catch (err) {
+            // Storage can be unavailable in strict/private browser contexts.
+        }
+    }
+
     // Seed Content (Featured Pick, Salons, Prompts) for local UI caching
     const DEFAULT_CONTENT = {
         featuredBook: {
@@ -64,21 +80,45 @@
 
         // --- Server-Backed Session Management ---
         async getSession() {
+            // Curators and members use separate, HTTP-only session cookies and APIs.
+            // Verify both server-side; browser storage is display cache only, never proof of access.
             try {
-                const res = await this.apiFetch('/api/auth/session', { cache: 'no-store' });
-                if (!res.ok) throw new Error(`Session check failed (${res.status}).`);
-                const data = await res.json();
-                if (data.success && data.user) {
-                    this._currentUser = data.user;
-                    localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(data.user));
-                    return data.user;
+                const curatorRes = await this.apiFetch('/api/auth/session', { cache: 'no-store' });
+                if (curatorRes.ok) {
+                    const data = await curatorRes.json();
+                    if (data.success && data.user) {
+                        this._currentUser = data.user;
+                        cacheUser(data.user);
+                        return data.user;
+                    }
                 }
             } catch (err) {
-                // Cached profile data is never treated as proof of authentication.
                 console.warn('Unable to verify curator session:', err.message);
             }
+
+            try {
+                const memberRes = await this.apiFetch('/api/member/status', { cache: 'no-store' });
+                if (memberRes.ok) {
+                    const data = await memberRes.json();
+                    if (data.authenticated && data.member) {
+                        const member = {
+                            id: data.member.id,
+                            name: data.member.name || data.member.displayName || 'Circle Member',
+                            displayName: data.member.displayName || data.member.name || 'Circle Member',
+                            handle: data.member.handle || '',
+                            role: 'USER'
+                        };
+                        this._currentUser = member;
+                        cacheUser(member);
+                        return member;
+                    }
+                }
+            } catch (err) {
+                console.warn('Unable to verify member session:', err.message);
+            }
+
             this._currentUser = null;
-            localStorage.removeItem(STORAGE_KEY_USER);
+            clearCachedUser();
             return null;
         },
 
@@ -92,7 +132,7 @@
                 const data = await res.json();
                 if (res.ok && data.success) {
                     this._currentUser = data.user;
-                    localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(data.user));
+                    cacheUser(data.user);
                     const cleanRedirect = data.redirectUrl ? data.redirectUrl.replace(/^\//, '') : 'curator.html';
                     return { success: true, user: data.user, redirectUrl: cleanRedirect };
                 }
@@ -111,7 +151,7 @@
                 await this.apiFetch('/api/auth/logout', { method: 'POST' });
             } catch (e) {}
             this._currentUser = null;
-            localStorage.removeItem(STORAGE_KEY_USER);
+            clearCachedUser();
             window.location.href = 'home.html';
         },
 
@@ -119,16 +159,37 @@
         async requireAuth(allowedRoles) {
             const user = await this.getSession();
             if (!user) {
-                window.location.href = '/sanctuary';
+                const memberSpaceReturnTargets = {
+                    '/community': '/community', '/community.html': '/community', '/pages/community.html': '/community',
+                    '/reader': '/reader', '/reader.html': '/reader', '/pages/reader.html': '/reader',
+                    '/table-room': '/table-room', '/table-room.html': '/table-room', '/pages/table-room.html': '/table-room',
+                    '/wabi-wall': '/wabi-wall', '/wabi-wall.html': '/wabi-wall', '/pages/wabi-wall.html': '/wabi-wall'
+                };
+                const returnTo = memberSpaceReturnTargets[window.location.pathname] || '/';
+                window.location.href = `/my-space?returnTo=${encodeURIComponent(returnTo)}`;
                 return null;
             }
+
+            if (Array.isArray(allowedRoles) && allowedRoles.length) {
+                const aliases = { MEMBER: 'USER', READER: 'USER', ADMIN: 'CURATOR' };
+                const currentRole = aliases[String(user.role || '').toUpperCase()] || String(user.role || '').toUpperCase();
+                const allowed = new Set(allowedRoles.map((role) => {
+                    const normalized = String(role).toUpperCase();
+                    return aliases[normalized] || normalized;
+                }));
+                if (!allowed.has(currentRole)) {
+                    window.location.href = currentRole === 'CURATOR' ? '/curator' : '/';
+                    return null;
+                }
+            }
+
             return user;
         },
 
         async requireGuest() {
             const user = await this.getSession();
             if (user) {
-                window.location.href = 'curator.html';
+                window.location.href = user.role === 'CURATOR' ? '/curator' : '/my-space';
                 return true;
             }
             return false;

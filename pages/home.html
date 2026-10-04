@@ -3214,6 +3214,104 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
         }
 
+        .member-spaces-entry {
+            max-width: 1120px;
+            margin: 8px auto 28px;
+            padding: 20px 22px;
+            display: grid;
+            grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
+            align-items: center;
+            gap: 22px;
+            border: 1px solid var(--contour-gold-faint);
+            border-radius: 12px;
+            background: rgba(250, 248, 243, 0.78);
+            box-shadow: 0 8px 24px rgba(45, 35, 20, 0.05);
+        }
+
+        [data-theme="dark"] .member-spaces-entry {
+            background: rgba(36, 33, 29, 0.92);
+            border-color: rgba(235, 225, 210, 0.12);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+        }
+
+        .member-spaces-copy h2 {
+            margin: 5px 0 4px;
+            font-family: var(--font-serif, 'Cormorant Garamond', Georgia, serif);
+            font-size: clamp(21px, 2.4vw, 28px);
+            line-height: 1.12;
+            color: var(--ink-primary, #2C2621);
+        }
+
+        .member-spaces-copy p {
+            margin: 0;
+            max-width: 420px;
+            color: var(--ink-secondary, #71685B);
+            font-size: 12.5px;
+            line-height: 1.55;
+        }
+
+        .member-spaces-links {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 9px;
+        }
+
+        .member-spaces-link {
+            min-width: 0;
+            min-height: 44px;
+            padding: 9px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            border: 1px solid rgba(94, 120, 100, 0.26);
+            border-radius: 999px;
+            background: rgba(126, 151, 134, 0.12);
+            color: var(--moss-dark, #3F5547);
+            text-decoration: none;
+            font-size: 11.5px;
+            font-weight: 700;
+            line-height: 1.25;
+            transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .member-spaces-link:hover,
+        .member-spaces-link:focus-visible {
+            transform: translateY(-2px);
+            background: rgba(126, 151, 134, 0.22);
+            border-color: rgba(94, 120, 100, 0.5);
+            outline: none;
+        }
+
+        [data-theme="dark"] .member-spaces-link {
+            color: var(--ink-primary, #EAE6DF);
+            background: rgba(126, 151, 134, 0.12);
+            border-color: rgba(139, 168, 146, 0.28);
+        }
+
+        @media (max-width: 980px) {
+            .member-spaces-entry {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 14px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .member-spaces-entry {
+                margin: 8px 0 22px;
+                padding: 16px 14px;
+            }
+
+            .member-spaces-links {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+            }
+
+            .member-spaces-link {
+                padding: 9px 10px;
+            }
+        }
+
         .connect-card-meta-row {
             display: flex;
             align-items: center;
@@ -5475,6 +5573,20 @@
 
                     </div>
                 </div>
+
+                <section class="member-spaces-entry" aria-labelledby="memberSpacesHeading">
+                    <div class="member-spaces-copy">
+                        <span class="hub-eyebrow">MEMBER SPACES • CONNECTED DOORS</span>
+                        <h2 id="memberSpacesHeading">Four spaces, one circle</h2>
+                        <p>Open a dedicated room with your member code. The shared navigation inside each space keeps the journey connected.</p>
+                    </div>
+                    <nav class="member-spaces-links" aria-label="Explore member spaces">
+                        <a class="member-spaces-link" href="/community"><span>Community</span><span aria-hidden="true">↗</span></a>
+                        <a class="member-spaces-link" href="/reader"><span>Reader</span><span aria-hidden="true">↗</span></a>
+                        <a class="member-spaces-link" href="/table-room"><span>Table Room</span><span aria-hidden="true">↗</span></a>
+                        <a class="member-spaces-link" href="/wabi-wall"><span>Wabi Wall</span><span aria-hidden="true">↗</span></a>
+                    </nav>
+                </section>
 
                 <!-- Bottom Desk Surface Still-Life Atmosphere -->
                 <div class="connect-desk-still-life">
