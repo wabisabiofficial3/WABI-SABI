@@ -55,13 +55,28 @@ body.dark-mode {
     --paper-book: #1F1D1A;
     --ink-primary: #EDE7DD;
     --ink-secondary: #B5AD9F;
-    --ink-muted: #827A6E;
+    --ink-muted: #AAA196;
     --border-soft: rgba(235, 225, 210, 0.08);
     --border-card: rgba(235, 225, 210, 0.06);
     --book-shadow: 0 16px 50px rgba(0, 0, 0, 0.45), 0 3px 14px rgba(0, 0, 0, 0.25);
     --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
     --washi-highlight: rgba(142, 168, 147, 0.28);
     --spine-crease: linear-gradient(to right, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.45) 48%, rgba(0,0,0,0.65) 50%, rgba(0,0,0,0.45) 52%, rgba(0,0,0,0.25) 100%);
+}
+
+[data-theme="dark"] .reader-handle-badge,
+[data-theme="dark"] .chapter-number-tag,
+[data-theme="dark"] .comment-you-pill,
+[data-theme="dark"] .reader-about-tag,
+[data-theme="dark"] .companion-title {
+    color: #A7D2AF;
+}
+
+[data-theme="dark"] .reader-handle-badge,
+[data-theme="dark"] .chapter-number-tag,
+[data-theme="dark"] .comment-you-pill {
+    background: rgba(150, 178, 153, 0.16);
+    border-color: rgba(150, 178, 153, 0.32);
 }
 
 /* Strict Zero Window Scroll Reset */
@@ -1508,4 +1523,368 @@ body.dark-mode .dock-item:hover {
 
 .reader-about-action-btn.secondary:hover {
     background: var(--paper-bg);
+}
+
+/* Tablet layout: convert the locked desktop canvas into a naturally scrollable reading flow. */
+@media (max-width: 1200px) {
+    html,
+    body {
+        height: auto;
+        min-height: 100%;
+        max-height: none;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .reading-viewport {
+        width: 100%;
+        height: auto;
+        min-height: 100vh;
+        min-height: 100dvh;
+        max-height: none;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto auto auto auto;
+        gap: 10px;
+        padding: 10px clamp(12px, 3vw, 24px) 16px;
+        overflow: visible;
+    }
+
+    .reader-top-header {
+        grid-column: 1;
+        height: auto;
+        min-height: 0;
+        flex-wrap: wrap;
+        gap: 10px 14px;
+        padding: 0 0 10px;
+    }
+
+    .reading-book-nav-cluster {
+        min-width: 0;
+        flex: 1 1 100%;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+    }
+
+    .reading-subtabs {
+        max-width: 100%;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+
+    .reader-top-header .search-pill-container {
+        flex: 1 1 280px;
+        width: auto;
+        max-width: none;
+        order: 1;
+    }
+
+    .reader-top-header .header-controls {
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-left: auto;
+        order: 2;
+    }
+
+    .reader-top-header .search-pill {
+        min-height: 40px;
+    }
+
+    .reading-viewport > aside.nav-dock {
+        grid-column: 1;
+        width: 100%;
+        min-width: 0;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0 0 4px;
+    }
+
+    .reading-viewport .dock-capsule {
+        width: 100%;
+        max-width: 100%;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 4px;
+        padding: 6px;
+        border-radius: 18px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .reading-viewport .dock-item {
+        width: auto;
+        min-width: 76px;
+        min-height: 44px;
+        flex: 0 0 auto;
+        padding: 6px 9px;
+        border-radius: 14px;
+    }
+
+    .reading-viewport .calmer-tagline {
+        width: auto;
+        margin: 0;
+        padding: 0 8px;
+        text-align: left;
+    }
+
+    .reader-main-stage {
+        grid-column: 1;
+        height: auto;
+        min-height: min(72dvh, 760px);
+        align-items: stretch;
+        justify-content: flex-start;
+        overflow: visible;
+    }
+
+    .open-book-casing {
+        width: 100%;
+        max-width: none;
+        min-height: 540px;
+    }
+
+    .reader-bottom-dock {
+        width: 100%;
+        max-width: none;
+    }
+
+    .right-marginalia-panel {
+        grid-column: 1;
+        height: auto;
+        min-height: 0;
+        max-height: none;
+        overflow: visible;
+    }
+
+    .marginalia-cards-feed {
+        flex: 0 1 auto;
+        min-height: 96px;
+        max-height: 380px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .reading-editorial-footer {
+        grid-column: 1;
+        height: auto;
+        min-height: 30px;
+        flex-wrap: wrap;
+        gap: 8px 14px;
+        padding: 8px 0 0;
+    }
+
+    .book-switcher-menu {
+        max-width: calc(100vw - 32px);
+    }
+}
+
+@media (max-width: 600px) {
+    .reading-viewport {
+        gap: 8px;
+        padding: 8px 10px 14px;
+    }
+
+    .reader-top-header {
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .reading-book-nav-cluster {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 8px 10px;
+    }
+
+    .book-nav-back-btn {
+        grid-column: 1;
+        grid-row: 1;
+        width: 44px;
+        height: 44px;
+    }
+
+    .book-meta-dropdown-wrap {
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
+    }
+
+    .reader-book-title {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .reading-subtabs {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        width: 100%;
+        gap: 8px;
+        padding-bottom: 2px;
+    }
+
+    .subtab-item,
+    .subtab-more-btn {
+        min-height: 44px;
+        flex: 0 0 auto;
+        padding: 8px 10px;
+    }
+
+    .reader-top-header .search-pill-container {
+        flex-basis: 100%;
+        width: 100%;
+        order: 1;
+    }
+
+    .reader-top-header .search-pill {
+        height: 44px;
+        font-size: 16px;
+    }
+
+    .reader-top-header .header-controls {
+        width: 100%;
+        justify-content: space-between;
+        margin-left: 0;
+        order: 2;
+    }
+
+    .fullscreen-header-btn,
+    .reader-top-header .theme-btn,
+    .reader-top-header .user-avatar-btn {
+        width: 44px;
+        min-width: 44px;
+        height: 44px;
+        min-height: 44px;
+    }
+
+    .reader-handle-badge {
+        overflow-wrap: anywhere;
+    }
+
+    .reader-main-stage {
+        min-height: 0;
+        gap: 10px;
+    }
+
+    .open-book-casing {
+        min-height: 0;
+        padding: 8px;
+        border-radius: 10px;
+    }
+
+    .book-pages-spread {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto;
+        height: auto;
+        flex: 0 0 auto;
+    }
+
+    .book-page {
+        height: auto;
+        min-height: 360px;
+        overflow: visible;
+        padding: 22px 18px;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    .page-left {
+        border-right: 0;
+        border-bottom: 1px solid rgba(35, 30, 25, 0.08);
+    }
+
+    .page-right {
+        border-left: 0;
+    }
+
+    .book-spine-crease {
+        display: none;
+    }
+
+    .book-turn-zone {
+        width: 40px;
+        min-height: 44px;
+        opacity: 0.45;
+    }
+
+    .reader-bottom-dock {
+        height: auto;
+        min-height: 52px;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 18px;
+    }
+
+    .reader-pager-left,
+    .reader-pager-right {
+        min-height: 44px;
+        gap: 6px;
+    }
+
+    .pager-circle-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .reader-pager-center {
+        order: 3;
+        flex: 1 0 100%;
+        max-width: none;
+        margin: 0;
+    }
+
+    .reader-tools-cluster {
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    .reader-tool-item {
+        min-height: 44px;
+        padding: 8px;
+    }
+
+    .right-marginalia-panel {
+        gap: 8px;
+    }
+
+    .marginalia-tabs-row {
+        gap: 3px;
+        overflow-x: auto;
+    }
+
+    .marginalia-pill-btn {
+        min-height: 44px;
+        flex: 0 0 auto;
+        padding: 8px 10px;
+    }
+
+    .marginalia-cards-feed {
+        max-height: 50dvh;
+    }
+
+    .reading-editorial-footer {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .reading-viewport.fullscreen-book-active .reading-editorial-footer {
+        display: none;
+    }
+
+    .reader-about-paper {
+        width: 100%;
+        max-height: calc(100dvh - 24px);
+        padding: 28px 20px;
+    }
+
+    .reader-about-close {
+        width: 44px;
+        height: 44px;
+        top: 12px;
+        right: 12px;
+    }
 }

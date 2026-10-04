@@ -19,6 +19,8 @@
     
     <!-- Dedicated Wabi Wall Notice Board Stylesheet -->
     <link rel="stylesheet" href="../css/wabi-wall.css">
+    <link rel="stylesheet" href="../css/realism.css">
+    <link rel="stylesheet" href="../css/member-notifications.css">
 </head>
 <body>
 
@@ -81,6 +83,7 @@
                         <path d="M11 2.5c0-.8.6-1.5 1.2-1.5s1.2.7 1.2 1.5"/>
                     </svg>
                 </button>
+                <div id="memberNotificationRoot" hidden></div>
 
                 <div class="header-divider"></div>
 
@@ -112,14 +115,14 @@
                         </svg>
                         <span>Home</span>
                     </a>
-                    <a href="reader.html" class="dock-item" data-tab="reading" title="Reading">
+                    <a href="/reader" class="dock-item" data-tab="reading" title="Reading">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M2 4.5A2.5 2.5 0 0 1 4.5 2H11v18H4.5A2.5 2.5 0 0 0 2 22.5V4.5z"></path>
                             <path d="M22 4.5A2.5 2.5 0 0 0 19.5 2H13v18h6.5A2.5 2.5 0 0 1 22 22.5V4.5z"></path>
                         </svg>
                         <span>Reading</span>
                     </a>
-                    <a href="table-room.html" class="dock-item" data-tab="table-room" title="Table Room">
+                    <a href="/table-room" class="dock-item" data-tab="table-room" title="Table Room">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <circle cx="12" cy="12" r="10"></circle>
                             <line x1="2" y1="12" x2="22" y2="12"></line>
@@ -127,7 +130,7 @@
                         </svg>
                         <span>Table Room</span>
                     </a>
-                    <a href="community.html" class="dock-item" data-tab="community" title="Community">
+                    <a href="/community" class="dock-item" data-tab="community" title="Community">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                             <circle cx="9" cy="7" r="4"></circle>
@@ -136,7 +139,7 @@
                         </svg>
                         <span>Community</span>
                     </a>
-                    <a href="wabi-wall.html" class="dock-item active" data-tab="wabi-wall" title="Wabi Wall">
+                    <a href="/wabi-wall" class="dock-item active" data-tab="wabi-wall" title="Wabi Wall">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <rect x="3" y="3" width="18" height="18" rx="2"></rect>
                             <line x1="3" y1="9" x2="21" y2="9"></line>
@@ -212,7 +215,7 @@
                         <div class="wall-quote-card">
                             “Good Books Find Better People.”
                         </div>
-                        <div class="wall-sticky-mint" onclick="window.location.href='table-room.html'">
+                        <div class="wall-sticky-mint" onclick="window.location.href='/table-room'">
                             More than just watching! ↗ —
                         </div>
                     </div>
@@ -262,5 +265,7 @@
     <!-- Wabi Sabi Store & Wabi Wall Controller -->
     <script src="../js/store.js"></script>
     <script src="../js/wabi-wall.js"></script>
+    <script src="../js/admin-shortcut.js?v=5tap-reliable-2"></script>
+    <script src="../js/member-notifications.js"></script>
 </body>
 </html>

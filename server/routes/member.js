@@ -4,8 +4,12 @@ const {
     getMemberByCode,
     createMemberSession,
     deleteMemberSession,
-    claimMemberPass,
+    claimMemberPassWithSession,
     getMemberReading,
+    getMemberBookshelf,
+    getMemberNotifications,
+    markMemberNotificationRead,
+    markAllMemberNotificationsRead,
     updateMemberReading,
     getMemberNotes,
     addMemberNote,
@@ -16,11 +20,12 @@ const { requireMember, optionalMember } = require('../middleware/memberAuth');
 
 /**
  * POST /api/member/access
- * Member enters their Secret Code (e.g. WS-7K4M-X92P-LQ8A)
+ * Member enters their unique Wabi Sabi Secret Code (WS-XXXX-XXXX-XXXX)
  * Creates a secure authenticated member session cookie.
  * No email, password, or username required.
  */
 router.post('/access', (req, res) => {
+    res.setHeader('Cache-Control', 'private, no-store');
     try {
         const rawCode = req.body?.secretCode || req.body?.code;
         if (!rawCode || typeof rawCode !== 'string') {
@@ -31,7 +36,10 @@ router.post('/access', (req, res) => {
         }
 
         const cleanCode = rawCode.trim().toUpperCase();
-        // Validate code structure WS-XXXX-XXXX-XXXX
+        // Code alphabet excludes ambiguous 0/O and 1/I to reduce entry mistakes.
+        if (!/^WS-[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{4}-[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{4}-[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{4}$/.test(cleanCode)) {
+            return res.status(401).json({ success: false, error: 'The code entered does not match an active circle member. Please check with your Curator.' });
+        }
         const member = getMemberByCode(cleanCode);
 
         if (!member) {
@@ -41,10 +49,12 @@ router.post('/access', (req, res) => {
             });
         }
 
-        if (member.status === 'suspended') {
+        if (member.status !== 'active') {
             return res.status(403).json({
                 success: false,
-                error: 'This membership is currently resting. Please speak with your Curator.'
+                error: member.status === 'suspended'
+                    ? 'This membership is currently resting. Please speak with your Curator.'
+                    : 'This membership is not currently active. Please speak with your Curator.'
             });
         }
 
@@ -55,7 +65,7 @@ router.post('/access', (req, res) => {
         res.cookie('wabisabi_member_session', session.token, {
             httpOnly: true,
             sameSite: 'Lax',
-            secure: process.env.NODE_ENV === 'production',
+            secure: req.secure || process.env.NODE_ENV === 'production',
             maxAge: 30 * 24 * 60 * 60 * 1000,
             path: '/'
         });
@@ -88,9 +98,11 @@ router.get('/status', optionalMember, (req, res) => {
             authenticated: true,
             isMember: true,
             member: {
+                id: req.member.id,
                 name: req.member.display_name || req.member.name,
                 displayName: req.member.display_name || req.member.name,
-                handle: req.member.handle
+                handle: req.member.handle,
+                role: 'USER'
             }
         });
     }
@@ -129,6 +141,17 @@ router.get('/me', requireMember, (req, res) => {
             noteText: n.content,
             created_at: n.created_at
         }));
+        const storedBookshelf = getMemberBookshelf(member.id);
+        const bookshelf = storedBookshelf.length > 0
+            ? storedBookshelf
+            : [{
+                id: rawReading.id || null,
+                title: reading.book_title,
+                author: reading.book_author,
+                status: reading.status,
+                progress: reading.progress,
+                updated_at: reading.updated_at || null
+            }];
 
         const gathering = getSetting('gathering') || getSetting('next_meeting') || {
             date: 'Saturday, 4 October',
@@ -155,30 +178,52 @@ router.get('/me', requireMember, (req, res) => {
             reading,
             notes,
             gathering,
-            bookshelf: [
-                {
-                    title: 'The Stranger',
-                    author: 'Albert Camus',
-                    status: 'currently_reading',
-                    progress: reading.progress || 62
-                },
-                {
-                    title: 'In Praise of Shadows',
-                    author: 'Jun’ichirō Tanizaki',
-                    status: 'saved',
-                    progress: 100
-                },
-                {
-                    title: 'Norwegian Wood',
-                    author: 'Haruki Murakami',
-                    status: 'saved',
-                    progress: 30
-                }
-            ]
+            bookshelf
         });
     } catch (err) {
         console.error('Error fetching member desk:', err);
         return res.status(500).json({ success: false, error: 'Failed to open personal space.' });
+    }
+});
+
+/**
+ * GET /api/member/notifications
+ * Returns the signed-in member's broadcast notifications and unread count.
+ * Curator previews may read a target member's feed, but cannot mark it as read.
+ */
+router.get('/notifications', requireMember, (req, res) => {
+    try {
+        const result = getMemberNotifications(req.member.id);
+        return res.json({ success: true, ...result, isCuratorPreview: Boolean(req.isCuratorPreview) });
+    } catch (err) {
+        console.error('Error fetching member notifications:', err);
+        return res.status(500).json({ success: false, error: 'Could not load notifications.' });
+    }
+});
+
+/** Mark one notification as read for the authenticated member only. */
+router.post('/notifications/read-all', requireMember, (req, res) => {
+    try {
+        markAllMemberNotificationsRead(req.member.id);
+        return res.json({ success: true, ...getMemberNotifications(req.member.id) });
+    } catch (err) {
+        console.error('Error marking member notifications as read:', err);
+        return res.status(500).json({ success: false, error: 'Could not update notifications.' });
+    }
+});
+
+router.post('/notifications/:id/read', requireMember, (req, res) => {
+    try {
+        if (!/^notif-[a-f0-9]{24}$/i.test(req.params.id)) {
+            return res.status(404).json({ success: false, error: 'Notification not found.' });
+        }
+        if (!markMemberNotificationRead(req.member.id, req.params.id)) {
+            return res.status(404).json({ success: false, error: 'Notification not found.' });
+        }
+        return res.json({ success: true, ...getMemberNotifications(req.member.id) });
+    } catch (err) {
+        console.error('Error marking member notification as read:', err);
+        return res.status(500).json({ success: false, error: 'Could not update notification.' });
     }
 });
 
@@ -188,11 +233,29 @@ router.get('/me', requireMember, (req, res) => {
  */
 router.post('/reading', requireMember, (req, res) => {
     try {
-        const { book_title, bookTitle, book_author, bookAuthor, progress, progressPercent } = req.body || {};
+        if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+            return res.status(400).json({ success: false, error: 'Reading update must be an object.' });
+        }
+        const body = req.body;
+        const { book_title, bookTitle, book_author, bookAuthor, progress, progressPercent } = body;
+        const title = bookTitle !== undefined ? bookTitle : book_title;
+        const author = bookAuthor !== undefined ? bookAuthor : book_author;
         const p = progressPercent !== undefined ? progressPercent : progress;
+        if (title !== undefined && (typeof title !== 'string' || title.trim().length > 200)) {
+            return res.status(400).json({ success: false, error: 'Book title must be at most 200 characters.' });
+        }
+        if (author !== undefined && (typeof author !== 'string' || author.trim().length > 200)) {
+            return res.status(400).json({ success: false, error: 'Book author must be at most 200 characters.' });
+        }
+        if (p !== undefined && ((typeof p !== 'number' && typeof p !== 'string') || String(p).trim() === '' || !Number.isFinite(Number(p)))) {
+            return res.status(400).json({ success: false, error: 'Reading progress must be a number.' });
+        }
+        if (title === undefined && author === undefined && p === undefined) {
+            return res.status(400).json({ success: false, error: 'Provide a title, author or progress value to update.' });
+        }
         updateMemberReading(req.member.id, {
-            book_title: bookTitle || book_title,
-            book_author: bookAuthor || book_author,
+            book_title: title,
+            book_author: author,
             progress: p
         });
         const rawReading = getMemberReading(req.member.id);
@@ -219,9 +282,12 @@ router.post('/reading', requireMember, (req, res) => {
  */
 router.post('/notes', requireMember, (req, res) => {
     try {
-        const text = req.body?.noteText || req.body?.content || '';
-        if (!text || !text.trim()) {
+        const text = req.body?.noteText ?? req.body?.content ?? '';
+        if (typeof text !== 'string' || !text.trim()) {
             return res.status(400).json({ success: false, error: 'Note reflection cannot be empty.' });
+        }
+        if (text.trim().length > 4000) {
+            return res.status(400).json({ success: false, error: 'A reflection must be 4000 characters or fewer.' });
         }
         const noteId = addMemberNote(req.member.id, text.trim());
         const rawNotes = getMemberNotes(req.member.id);
@@ -239,6 +305,7 @@ router.post('/notes', requireMember, (req, res) => {
             notes
         });
     } catch (err) {
+        if (err.code === 'NOTE_LIMIT_REACHED') return res.status(409).json({ success: false, error: err.message });
         console.error('Error adding reflection note:', err);
         return res.status(500).json({ success: false, error: 'Failed to record reflection.' });
     }
@@ -250,7 +317,8 @@ router.post('/notes', requireMember, (req, res) => {
  */
 router.delete('/notes/:id', requireMember, (req, res) => {
     try {
-        deleteMemberNote(req.params.id, req.member.id);
+        const deleted = deleteMemberNote(req.params.id, req.member.id);
+        if (!deleted) return res.status(404).json({ success: false, error: 'Reflection not found.' });
         const notes = getMemberNotes(req.member.id);
         return res.json({ success: true, notes });
     } catch (err) {
@@ -264,12 +332,18 @@ router.delete('/notes/:id', requireMember, (req, res) => {
  * Leaves member space and terminates active session
  */
 router.post('/leave', (req, res) => {
+    res.setHeader('Cache-Control', 'private, no-store');
     try {
-        const memberToken = req.cookies.wabisabi_member_session;
+        const memberToken = req.cookies?.wabisabi_member_session;
         if (memberToken) {
             deleteMemberSession(memberToken);
         }
-        res.clearCookie('wabisabi_member_session', { path: '/' });
+        res.clearCookie('wabisabi_member_session', {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: req.secure || process.env.NODE_ENV === 'production',
+            path: '/'
+        });
         return res.json({ success: true, message: 'You have quietly stepped out of your space.', redirect: '/' });
     } catch (err) {
         console.error('Error leaving member space:', err);
@@ -279,30 +353,61 @@ router.post('/leave', (req, res) => {
 
 /**
  * GET /api/member/claim-pass
- * Secure QR code membership card access mechanism
- * Scanning QR establishes authenticated session and redirects to /my-space
+ * Show an explicit confirmation before consuming a single-use QR pass. This keeps
+ * mail/security scanners and speculative link previews from burning a member's pass.
  */
 router.get('/claim-pass', (req, res) => {
-    try {
-        const token = req.query.token;
-        if (!token) {
-            return res.redirect('/my-space?claim_error=missing_token');
-        }
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
+    const token = req.query.token;
+    if (typeof token !== 'string' || !/^[a-f0-9]{48}$/i.test(token)) {
+        return res.redirect('/my-space?claim_error=invalid_or_expired');
+    }
 
-        const memberId = claimMemberPass(token);
-        if (!memberId) {
+    return res.status(200).type('html').send(`<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Open your Wabi Sabi space</title>
+</head>
+<body style="margin:0; min-height:100vh; display:grid; place-items:center; background:#f6f3ec; color:#273b2b; font-family:system-ui,sans-serif;">
+<main style="max-width:28rem; margin:1.5rem; padding:2rem; border:1px solid #d9d0c1; border-radius:1rem; background:#fffdf8; text-align:center;">
+<h1 style="font-family:Georgia,serif; font-weight:500;">Your member pass is ready</h1>
+<p>Continue to open your private reading desk. This pass can be used once and expires after seven days.</p>
+<form method="post" action="/api/member/claim-pass">
+<input type="hidden" name="token" value="${token}">
+<button type="submit" style="padding:.8rem 1.2rem; border:0; border-radius:.5rem; background:#273b2b; color:white; font:inherit; cursor:pointer;">Open My Space</button>
+</form>
+</main>
+</body>
+</html>`);
+});
+
+/**
+ * POST /api/member/claim-pass
+ * Consume the one-time QR pass, issue an HttpOnly session and open the member desk.
+ */
+router.post('/claim-pass', (req, res) => {
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    try {
+        const token = req.body?.token;
+        if (typeof token !== 'string' || !/^[a-f0-9]{48}$/i.test(token)) {
             return res.redirect('/my-space?claim_error=invalid_or_expired');
         }
+        const session = claimMemberPassWithSession(token, 30);
+        if (!session) return res.redirect('/my-space?claim_error=invalid_or_expired');
 
-        const session = createMemberSession(memberId, 30);
         res.cookie('wabisabi_member_session', session.token, {
             httpOnly: true,
             sameSite: 'Lax',
-            secure: process.env.NODE_ENV === 'production',
+            secure: req.secure || process.env.NODE_ENV === 'production',
             maxAge: 30 * 24 * 60 * 60 * 1000,
             path: '/'
         });
-
         return res.redirect('/my-space');
     } catch (err) {
         console.error('QR claim pass error:', err);

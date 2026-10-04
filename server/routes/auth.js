@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { getCuratorByIdentifier, createCuratorSession, deleteCuratorSession } = require('../db');
+const { getCuratorByIdentifier, createCuratorSession, deleteCuratorSession, updateCuratorLastLogin } = require('../db');
 const { verifyPassword, generateSessionToken, hashSessionToken } = require('../crypto');
+const { curatorSessionCookieOptions } = require('../sessionCookies');
 const {
     getAuthenticatedCurator,
     checkLoginRateLimit,
@@ -14,15 +15,21 @@ const {
  * Authenticates one of the 3 Curators (Likith, Sarvasree, Dhanush)
  */
 router.post('/login', checkLoginRateLimit, async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
     try {
-        const identifier = req.body.identifier || req.body.email || req.body.username;
-        const password = req.body.password;
+        const body = req.body && typeof req.body === 'object' ? req.body : {};
+        const rawIdentifier = body.identifier ?? body.email ?? body.username;
+        const identifier = typeof rawIdentifier === 'string' ? rawIdentifier.trim() : '';
+        const password = typeof body.password === 'string' ? body.password : '';
 
         if (!identifier || !password) {
             return res.status(400).json({
                 success: false,
                 error: 'Please provide both your curator username/email and password.'
             });
+        }
+        if (identifier.length > 254 || password.length > 1024) {
+            return res.status(400).json({ success: false, error: 'Login details exceed the permitted length.' });
         }
 
         const curator = getCuratorByIdentifier(identifier);
@@ -44,6 +51,8 @@ router.post('/login', checkLoginRateLimit, async (req, res) => {
         }
 
         clearLoginFailures(req);
+        updateCuratorLastLogin(curator.id);
+        res.setHeader('Cache-Control', 'no-store');
 
         // Generate cryptographically secure session token
         const rawToken = generateSessionToken();
@@ -53,22 +62,23 @@ router.post('/login', checkLoginRateLimit, async (req, res) => {
         createCuratorSession(curator.id, tokenHash, expiresAt);
 
         // Set secure HTTP-only cookie
-        res.cookie('wabisabi_curator_session', rawToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 30 * 24 * 60 * 60 * 1000,
-            path: '/'
+        const sessionCookieOptions = curatorSessionCookieOptions(req, {
+            maxAge: 30 * 24 * 60 * 60 * 1000
         });
+        if (sessionCookieOptions.partitioned) {
+            // Remove any older first-party Lax cookies so duplicate cookie names cannot
+            // shadow the new partitioned preview session in a top-level browser context.
+            const legacyCookieOptions = curatorSessionCookieOptions(req, {
+                sameSite: 'lax',
+                partitioned: false
+            });
+            res.clearCookie('wabisabi_curator_session', legacyCookieOptions);
+            res.clearCookie('wabisabi_session', legacyCookieOptions);
+        }
+        res.cookie('wabisabi_curator_session', rawToken, sessionCookieOptions);
 
         // Set legacy cookie name too for backward compatibility
-        res.cookie('wabisabi_session', rawToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 30 * 24 * 60 * 60 * 1000,
-            path: '/'
-        });
+        res.cookie('wabisabi_session', rawToken, sessionCookieOptions);
 
         return res.json({
             success: true,
@@ -98,6 +108,7 @@ router.post('/login', checkLoginRateLimit, async (req, res) => {
  * Terminates curator session
  */
 router.post('/logout', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
     try {
         const rawToken = req.cookies ? (req.cookies.wabisabi_curator_session || req.cookies.wabisabi_session) : null;
         if (rawToken) {
@@ -105,8 +116,9 @@ router.post('/logout', (req, res) => {
             deleteCuratorSession(tokenHash);
         }
 
-        res.clearCookie('wabisabi_curator_session', { httpOnly: true, sameSite: 'lax', path: '/' });
-        res.clearCookie('wabisabi_session', { httpOnly: true, sameSite: 'lax', path: '/' });
+        const cookieOptions = curatorSessionCookieOptions(req);
+        res.clearCookie('wabisabi_curator_session', cookieOptions);
+        res.clearCookie('wabisabi_session', cookieOptions);
 
         return res.json({ success: true, message: 'Curator session terminated.' });
     } catch (err) {
@@ -120,6 +132,7 @@ router.post('/logout', (req, res) => {
  * Retrieves current authenticated curator profile
  */
 router.get(['/me', '/session'], (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
     const curator = getAuthenticatedCurator(req);
     if (!curator) {
         return res.json({

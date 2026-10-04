@@ -6,8 +6,8 @@ const crypto = require('node:crypto');
  * Uses RFC-standard Argon2 parameters suitable for interactive logins.
  */
 async function hashPassword(password) {
-    if (typeof password !== 'string' || password.length === 0) {
-        throw new Error('Password must be a non-empty string');
+    if (typeof password !== 'string' || password.length === 0 || password.length > 1024) {
+        throw new Error('Password must be a non-empty string of at most 1024 characters.');
     }
     const salt = crypto.randomBytes(16);
     const encoded = await argon2id({
@@ -27,43 +27,50 @@ async function hashPassword(password) {
  * Extracts parameters and salt from the encoded string and computes hash for comparison.
  */
 async function verifyPassword(password, storedHash) {
-    if (!password || !storedHash || typeof storedHash !== 'string') {
+    if (typeof password !== 'string' || password.length === 0 || password.length > 1024 ||
+        typeof storedHash !== 'string' || storedHash.length > 512) {
         return false;
     }
     try {
         const parts = storedHash.split('$');
         // Standard Argon2 string format: $argon2id$v=19$m=32768,t=2,p=1$salt$hash
-        if (parts.length !== 6 || parts[1] !== 'argon2id') {
+        if (parts.length !== 6 || parts[0] !== '' || parts[1] !== 'argon2id' || parts[2] !== 'v=19') {
             return false;
         }
 
-        const params = parts[3].split(',').reduce((acc, p) => {
-            const [k, v] = p.split('=');
-            acc[k] = parseInt(v, 10);
-            return acc;
-        }, {});
+        const parsed = Object.create(null);
+        for (const entry of parts[3].split(',')) {
+            const match = /^(m|t|p)=(\d+)$/.exec(entry);
+            if (!match) return false;
+            parsed[match[1]] = Number(match[2]);
+        }
+        const { m: memorySize, t: iterations, p: parallelism } = parsed;
+        if (!Number.isInteger(memorySize) || memorySize < 8192 || memorySize > 131072 ||
+            !Number.isInteger(iterations) || iterations < 1 || iterations > 10 ||
+            !Number.isInteger(parallelism) || parallelism < 1 || parallelism > 8) {
+            return false;
+        }
 
-        const saltB64 = parts[4];
-        const saltBuf = Buffer.from(saltB64, 'base64');
+        if (!/^[A-Za-z0-9+/]+$/.test(parts[4]) || !/^[A-Za-z0-9+/]+$/.test(parts[5])) return false;
+        const saltBuf = Buffer.from(parts[4], 'base64');
+        const expectedHash = Buffer.from(parts[5], 'base64');
+        if (saltBuf.length < 8 || saltBuf.length > 64 || expectedHash.length < 16 || expectedHash.length > 64) return false;
 
         const recomputed = await argon2id({
             password,
             salt: new Uint8Array(saltBuf),
-            parallelism: params.p || 1,
-            memorySize: params.m || 32768,
-            iterations: params.t || 2,
-            hashLength: 32,
+            parallelism,
+            memorySize,
+            iterations,
+            hashLength: expectedHash.length,
             outputType: 'encoded'
         });
 
-        const bufA = Buffer.from(storedHash);
-        const bufB = Buffer.from(recomputed);
-        if (bufA.length !== bufB.length) {
-            return false;
-        }
-        return crypto.timingSafeEqual(bufA, bufB);
+        const stored = Buffer.from(storedHash);
+        const actual = Buffer.from(recomputed);
+        if (stored.length !== actual.length) return false;
+        return crypto.timingSafeEqual(stored, actual);
     } catch (err) {
-        console.error('Password verification error:', err);
         return false;
     }
 }

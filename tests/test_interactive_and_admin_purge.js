@@ -1,9 +1,10 @@
+const { baseUrl, ADMIN_PASSWORD } = require('./test_config');
 const assert = require('assert');
 const http = require('http');
 
 async function request(path, options = {}) {
     return new Promise((resolve, reject) => {
-        const req = http.request(`http://localhost:3000${path}`, options, (res) => {
+        const req = http.request(new URL(path, baseUrl), { method: options.method || 'GET', headers: options.headers || {} }, (res) => {
             let data = '';
             res.on('data', chunk => data += chunk);
             res.on('end', () => {
@@ -49,6 +50,12 @@ async function verifyAll() {
     assert(!html.includes('curated by Likith, Sarvasree & Dhanush'), 'Old curator copy removed');
     console.log('✓ Hardcoded old curator tri-name strings removed');
 
+    assert(!html.includes('Akshaya') && !html.includes('Vaishnavi'), 'Sample member identities must not remain in public-page fallbacks.');
+    assert(!html.includes('Next Discussion Gathering: Saturday, 4 October at 4:00 PM'), 'Sample announcement must not remain in the static page.');
+    assert(!html.includes('Welcome to Wabi Sabi Bookclub • Vol. 1'), 'Sample welcome bulletin must not remain in the static page.');
+    assert(html.includes('No curator notices posted yet. Check back soon.'), 'An empty-state message should replace sample notices.');
+    console.log('✓ Sample member cards and bulletins are removed from static public markup');
+
     console.log('\n--- 2. Verifying Single Admin Account & Purged Accounts ---');
     // Attempt login with purged legacy curator Dhanush
     const oldLogin1 = await request('/api/auth/login', {
@@ -79,7 +86,7 @@ async function verifyAll() {
     const adminLogin = await request('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: { identifier: 'wabisabiofficial3@gmail.com', password: 'DsL@678_' }
+        body: { identifier: 'wabisabiofficial3@gmail.com', password: ADMIN_PASSWORD }
     });
     assert.strictEqual(adminLogin.statusCode, 200, 'Admin login must succeed with 200');
     assert.strictEqual(adminLogin.body.success, true);
@@ -91,7 +98,7 @@ async function verifyAll() {
     const adminHandleLogin = await request('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: { identifier: 'admin', password: 'DsL@678_' }
+        body: { identifier: 'admin', password: ADMIN_PASSWORD }
     });
     assert.strictEqual(adminHandleLogin.statusCode, 200, 'Admin login by handle must succeed with 200');
     console.log('✓ Admin account login by handle "admin" verified');

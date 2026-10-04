@@ -454,6 +454,13 @@ body.dark-mode .portal-brand-img.dark-brand {
     transform: translateY(-1px);
 }
 
+[data-theme="dark"] .update-meta-badge,
+[data-theme="dark"] .feature-cta-btn-outline:hover,
+[data-theme="dark"] .footer-nav a:hover,
+[data-theme="dark"] .footer-nav button:hover {
+    color: #A7D2AF !important;
+}
+
 /* Meeting Specific Layout */
 .meeting-details-box {
     display: flex;

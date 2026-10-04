@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const QRCode = require('qrcode');
+const { isDeepStrictEqual } = require('node:util');
 const {
+    db,
+    withTransaction,
     createUpdate,
     updateUpdate,
     deleteUpdate,
@@ -20,12 +23,220 @@ const {
     deleteMember,
     getCuratorById,
     getCuratorWithPassword,
+    clearInitialAdminPasswordFile,
+    revokeOtherCuratorSessions,
     updateCuratorProfile
 } = require('../db');
 const { hashPassword, verifyPassword } = require('../crypto');
 const { requireCurator } = require('../middleware/auth');
+const { notifyMembersOfChange } = require('../memberNotifications');
 
-// All curator routes require authentication
+class RequestValidationError extends Error {
+    constructor(message) {
+        super(message);
+        this.status = 400;
+    }
+}
+
+function objectBody(value, field = 'Request body') {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+        throw new RequestValidationError(`${field} must be an object.`);
+    }
+    return value;
+}
+
+function cleanString(value, field, maxLength, { optional = false } = {}) {
+    if (value === undefined && optional) return undefined;
+    if (typeof value !== 'string') throw new RequestValidationError(`${field} must be text.`);
+    const clean = value.trim();
+    if (clean.length > maxLength) throw new RequestValidationError(`${field} must be ${maxLength} characters or fewer.`);
+    return clean;
+}
+
+function cleanHttpUrl(value, field, { optional = false } = {}) {
+    const clean = cleanString(value, field, 2048, { optional });
+    if (clean === undefined || clean === '') return clean;
+    let parsed;
+    try {
+        parsed = new URL(clean);
+    } catch (error) {
+        throw new RequestValidationError(`${field} must be a valid http(s) URL.`);
+    }
+    if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password) {
+        throw new RequestValidationError(`${field} must be a valid http(s) URL.`);
+    }
+    return parsed.href;
+}
+
+function cleanAvatarUrl(value) {
+    if (value === undefined || value === null || value === '') return '/assets/user_avatar.jpg';
+    const clean = cleanString(value, 'Avatar URL', 2048);
+    const localPath = clean.replace(/^\.\.\//, '/');
+    if (/^\/assets\/[A-Za-z0-9_./-]+$/.test(localPath) && !localPath.split('/').includes('..')) {
+        return localPath;
+    }
+    return cleanHttpUrl(clean, 'Avatar URL');
+}
+
+function parseBoolean(value, field) {
+    if (typeof value === 'boolean') return value;
+    if (value === 1 || value === 0) return Boolean(value);
+    if (typeof value === 'string' && /^(true|false)$/i.test(value.trim())) return value.trim().toLowerCase() === 'true';
+    throw new RequestValidationError(`${field} must be a boolean.`);
+}
+
+function cleanConnectLinks(input) {
+    const links = objectBody(input, 'Links');
+    const defaults = {
+        community_chat_label: 'Join Community Lounge',
+        book_drive_label: 'Open Book Drive',
+        meeting_maps_label: 'Open in Google Maps',
+        instagram_label: 'Instagram',
+        whatsapp_label: 'WhatsApp Channel',
+        discord_label: 'Discord Lounge',
+        goodreads_label: 'Goodreads Circle',
+        custom_btn_1_label: '',
+        custom_btn_2_label: ''
+    };
+    const result = {};
+    const urlKeys = [
+        'community_chat_url', 'book_drive_url', 'meeting_maps_url', 'instagram_url',
+        'whatsapp_url', 'discord_url', 'goodreads_url', 'custom_btn_1_url', 'custom_btn_2_url'
+    ];
+    for (const key of urlKeys) {
+        result[key] = cleanHttpUrl(links[key] === undefined ? '' : links[key], key);
+    }
+    for (const [key, fallback] of Object.entries(defaults)) {
+        result[key] = links[key] === undefined ? fallback : cleanString(links[key], key, 120);
+    }
+    for (const key of ['custom_btn_1_enabled', 'custom_btn_2_enabled']) {
+        result[key] = links[key] === undefined ? false : parseBoolean(links[key], key);
+    }
+    return result;
+}
+
+function cleanMemberPayload(body, { partial = false } = {}) {
+    const input = objectBody(body, 'Member data');
+    const result = {};
+    const fields = [
+        ['name', 100], ['full_name', 100], ['display_name', 100], ['role', 40],
+        ['handle', 50], ['gender', 50], ['date_joined', 80], ['bio', 1200]
+    ];
+    for (const [field, maxLength] of fields) {
+        if (input[field] !== undefined) result[field] = cleanString(input[field], field, maxLength);
+    }
+    if (!partial) {
+        const name = result.full_name || result.display_name || result.name || '';
+        if (!name.trim()) throw new RequestValidationError('Member name is required.');
+        result.name = name.trim();
+        result.full_name = (result.full_name || name).trim();
+        result.display_name = (result.display_name || name).trim();
+        result.role = result.role || 'Member';
+        result.handle = result.handle || '';
+        result.gender = result.gender || '';
+        result.date_joined = result.date_joined || '';
+        result.bio = result.bio || '';
+        result.status = input.status === undefined ? 'active' : input.status;
+    } else if (input.status !== undefined) {
+        result.status = input.status;
+    }
+
+    if (result.role !== undefined && !['Member', 'Curator', 'Reader', 'Admin'].includes(result.role)) {
+        throw new RequestValidationError('Role must be Member, Curator, Reader or Admin.');
+    }
+    if (result.handle && !/^@[a-z0-9_.-]{2,32}$/i.test(result.handle)) {
+        throw new RequestValidationError('Handle must start with @ and contain 2-32 letters, numbers, dots, underscores or hyphens.');
+    }
+    if (result.date_joined && /^\d{4}-\d{2}-\d{2}$/.test(result.date_joined)) {
+        const date = new Date(`${result.date_joined}T00:00:00.000Z`);
+        if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== result.date_joined) {
+            throw new RequestValidationError('Date joined must be a real calendar date.');
+        }
+    }
+    if (!partial || input.avatar_url !== undefined) result.avatar_url = cleanAvatarUrl(input.avatar_url);
+    if (input.status !== undefined && !['active', 'suspended'].includes(input.status)) {
+        throw new RequestValidationError('Status must be active or suspended.');
+    }
+    if (input.display_order !== undefined) {
+        const order = Number(input.display_order);
+        if (!Number.isInteger(order) || Math.abs(order) > 100000) {
+            throw new RequestValidationError('Display order must be a whole number between -100000 and 100000.');
+        }
+        result.display_order = order;
+    }
+    return result;
+}
+
+function sendRouteError(res, error, fallback) {
+    if (error.status === 400) return res.status(400).json({ success: false, error: error.message });
+    if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') return res.status(409).json({ success: false, error: 'A record with those details already exists.' });
+    console.error(fallback, error);
+    return res.status(500).json({ success: false, error: fallback });
+}
+
+const notificationChangeBySetting = {
+    weekly_theme: 'weekly_theme',
+    this_weeks_reading: 'reading_selection',
+    gathering: 'gathering',
+    discussion_points: 'discussion_points',
+    important_notes: 'important_notes',
+    connect_links: 'connect_links',
+    paper_plane_enabled: 'paper_plane_enabled',
+    sticky_notes: 'sticky_notes'
+};
+
+function persistSettingUpdates(updates, curatorId) {
+    const changed = new Map();
+    withTransaction(() => {
+        for (const [key, value] of updates) {
+            const change = notificationChangeBySetting[key];
+            const previous = getSetting(key);
+            if (change && !isDeepStrictEqual(previous, value)) {
+                const records = changed.get(change) || [];
+                records.push({ key, previous, value });
+                changed.set(change, records);
+            }
+            setSetting(key, value);
+        }
+
+        for (const [change, records] of changed) {
+            let details = {};
+            if (change === 'weekly_theme') {
+                details = { theme: getSetting('weekly_theme')?.theme };
+            } else if (change === 'reading_selection') {
+                const reading = getSetting('this_weeks_reading') || {};
+                details = { title: reading.title, author: reading.author };
+            } else if (change === 'gathering') {
+                details = getSetting('gathering') || {};
+            } else if (change === 'discussion_points') {
+                details = { prompts: getSetting('discussion_points') || [] };
+            } else if (change === 'important_notes') {
+                details = { note: getSetting('important_notes') || '' };
+            } else if (change === 'connect_links') {
+                const record = records.find(item => item.key === 'connect_links');
+                const previous = record?.previous && typeof record.previous === 'object' ? record.previous : {};
+                const current = getSetting('connect_links') || {};
+                details = { changedLinks: Object.keys(current).filter(key => !isDeepStrictEqual(previous[key], current[key])) };
+            } else if (change === 'sticky_notes') {
+                const record = records.find(item => item.key === 'sticky_notes');
+                const previous = record?.previous && typeof record.previous === 'object' ? record.previous : {};
+                const current = getSetting('sticky_notes') || {};
+                details = { changedNotes: Object.keys(current).filter(key => !isDeepStrictEqual(previous[key], current[key])) };
+            } else if (change === 'paper_plane_enabled') {
+                const value = getSetting('paper_plane_enabled');
+                details = { enabled: value === true || value === 'true' };
+            }
+            notifyMembersOfChange(change, curatorId, details);
+        }
+    });
+    return [...changed.keys()];
+}
+
+// Curator responses include member and account data and must never be cached.
+router.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store');
+    next();
+});
 router.use(requireCurator);
 
 /**
@@ -71,45 +282,79 @@ router.get('/overview', (req, res) => {
  */
 router.put('/announcements', (req, res) => {
     try {
-        const { weekly_theme, this_weeks_reading, gathering, discussion_points, important_notes } = req.body || {};
+        const body = objectBody(req.body);
+        const settingUpdates = [];
 
-        if (weekly_theme !== undefined) {
-            setSetting('weekly_theme', weekly_theme);
+        if (body.weekly_theme !== undefined) {
+            const input = objectBody(body.weekly_theme, 'Weekly theme');
+            const previous = getSetting('weekly_theme', {});
+            const base = previous && typeof previous === 'object' && !Array.isArray(previous) ? previous : {};
+            settingUpdates.push(['weekly_theme', {
+                theme: input.theme === undefined ? (base.theme || '') : cleanString(input.theme, 'Theme', 200),
+                subtitle: input.subtitle === undefined
+                    ? (base.subtitle || '')
+                    : cleanString(input.subtitle, 'Theme subtitle', 1000)
+            }]);
         }
 
-        if (this_weeks_reading !== undefined) {
-            setSetting('this_weeks_reading', this_weeks_reading);
-            // Sync with current_book for backward-compatibility
-            setSetting('current_book', this_weeks_reading);
+        if (body.this_weeks_reading !== undefined) {
+            const input = objectBody(body.this_weeks_reading, 'Reading selection');
+            const previous = getSetting('this_weeks_reading', {});
+            const base = previous && typeof previous === 'object' && !Array.isArray(previous) ? previous : {};
+            const reading = {
+                title: input.title === undefined ? (base.title || '') : cleanString(input.title, 'Book title', 200),
+                author: input.author === undefined ? (base.author || '') : cleanString(input.author, 'Book author', 200),
+                notes: input.notes === undefined ? (base.notes || '') : cleanString(input.notes, 'Reading notes', 2000),
+                drive_url: input.drive_url === undefined
+                    ? (base.drive_url || '')
+                    : cleanHttpUrl(input.drive_url, 'Book Drive URL')
+            };
+            settingUpdates.push(['this_weeks_reading', reading], ['current_book', reading]);
         }
 
-        if (gathering !== undefined) {
-            setSetting('gathering', gathering);
-            // Sync with next_meeting
-            setSetting('next_meeting', gathering);
+        if (body.gathering !== undefined) {
+            const input = objectBody(body.gathering, 'Gathering');
+            const previous = getSetting('gathering', {});
+            const base = previous && typeof previous === 'object' && !Array.isArray(previous) ? previous : {};
+            const gathering = {
+                date: input.date === undefined ? (base.date || '') : cleanString(input.date, 'Gathering date', 120),
+                time: input.time === undefined ? (base.time || '') : cleanString(input.time, 'Gathering time', 80),
+                location: input.location === undefined ? (base.location || '') : cleanString(input.location, 'Gathering location', 300),
+                maps_url: input.maps_url === undefined
+                    ? (base.maps_url || '')
+                    : cleanHttpUrl(input.maps_url, 'Map URL'),
+                note: input.note === undefined ? (base.note || '') : cleanString(input.note, 'Gathering note', 1000)
+            };
+            settingUpdates.push(['gathering', gathering], ['next_meeting', gathering]);
         }
 
-        if (discussion_points !== undefined) {
-            // Can be array or string with newlines
-            let pts = discussion_points;
-            if (typeof pts === 'string') {
-                pts = pts.split('\n').map(s => s.trim().replace(/^[-*•]\s*/, '')).filter(Boolean);
+        if (body.discussion_points !== undefined) {
+            let points = body.discussion_points;
+            if (typeof points === 'string') {
+                points = cleanString(points, 'Discussion points', 10000)
+                    .split('\n')
+                    .map(value => value.trim().replace(/^[-*•]\s*/, ''))
+                    .filter(Boolean);
             }
-            setSetting('discussion_points', pts);
+            if (!Array.isArray(points) || points.length > 20) {
+                throw new RequestValidationError('Discussion points must be an array of at most 20 items.');
+            }
+            settingUpdates.push(['discussion_points', points.map((point, index) => cleanString(point, `Discussion point ${index + 1}`, 500))]);
         }
 
-        if (important_notes !== undefined) {
-            setSetting('important_notes', important_notes);
+        if (body.important_notes !== undefined) {
+            settingUpdates.push(['important_notes', cleanString(body.important_notes, 'Important notes', 5000)]);
         }
 
+        const notificationChanges = persistSettingUpdates(settingUpdates, req.curator.id);
         return res.json({
             success: true,
             message: 'Announcements updated successfully.',
+            notificationsCreated: notificationChanges.length,
             settings: getAllSettings()
         });
     } catch (err) {
-        console.error('Error updating announcements:', err);
-        return res.status(500).json({ success: false, error: 'Failed to update announcements.' });
+        return sendRouteError(res, err, 'Failed to update announcements.');
     }
 });
 
@@ -128,58 +373,75 @@ router.get('/members', (req, res) => {
 
 router.post('/members', (req, res) => {
     try {
-        const { name, full_name, display_name, role, handle, gender, date_joined, avatar_url, bio, display_order, status } = req.body || {};
-        const memberName = (full_name || display_name || name || '').trim();
-        if (!memberName) {
-            return res.status(400).json({ success: false, error: 'Member name is required.' });
-        }
-
-        const result = createMember({
-            name: memberName,
-            full_name: (full_name || memberName).trim(),
-            display_name: (display_name || memberName).trim(),
-            role: role || 'Member',
-            handle: handle || '',
-            gender: gender || '',
-            date_joined: date_joined || '',
-            avatar_url: avatar_url || '../assets/user_avatar.jpg',
-            bio: bio || '',
-            display_order: display_order || 0,
-            status: status || 'active'
+        const member = cleanMemberPayload(req.body);
+        let notificationsCreated = 0;
+        const result = createMember(member, ({ member: createdMember }) => {
+            if (createdMember?.status === 'active') {
+                notifyMembersOfChange('member_added', req.curator.id, {
+                    name: createdMember.display_name || createdMember.name
+                });
+                notificationsCreated = 1;
+            }
         });
-
         return res.status(201).json({
             success: true,
             message: 'Member registered into circle.',
+            notificationsCreated,
             memberId: result.id,
             secretCode: result.secretCode,
             member: result.member,
             members: getAllMembersCurator()
         });
     } catch (err) {
-        console.error('Error creating member:', err);
-        return res.status(500).json({ success: false, error: 'Failed to add member.' });
+        return sendRouteError(res, err, 'Failed to add member.');
     }
 });
 
 router.put('/members/:id', (req, res) => {
     try {
-        const { name, full_name, display_name, role, handle, gender, date_joined, avatar_url, bio, display_order, status } = req.body || {};
-        updateMember(req.params.id, { name, full_name, display_name, role, handle, gender, date_joined, avatar_url, bio, display_order, status });
+        const existing = getMemberById(req.params.id);
+        if (!existing) return res.status(404).json({ success: false, error: 'Member not found.' });
+        const member = cleanMemberPayload(req.body, { partial: true });
+        if (Object.keys(member).length === 0) {
+            return res.status(400).json({ success: false, error: 'Provide at least one member field to update.' });
+        }
+        let updated;
+        let notificationsCreated = 0;
+        withTransaction(() => {
+            updateMember(req.params.id, member);
+            updated = getMemberById(req.params.id);
+            const publicFields = ['display_name', 'role', 'handle', 'avatar_url', 'bio', 'display_order'];
+            const changedPublicFields = publicFields.filter(field => !isDeepStrictEqual(existing[field], updated[field]));
+            if (changedPublicFields.length) {
+                notifyMembersOfChange('member_profile_updated', req.curator.id, {
+                    name: updated.display_name || updated.name,
+                    fields: changedPublicFields
+                });
+                notificationsCreated += 1;
+            }
+            if (existing.status !== updated.status) {
+                notifyMembersOfChange('member_access_changed', req.curator.id, {
+                    name: updated.display_name || updated.name,
+                    status: updated.status
+                });
+                notificationsCreated += 1;
+            }
+        });
         return res.json({
             success: true,
             message: 'Member portrait updated.',
-            member: getMemberById(req.params.id),
+            notificationsCreated,
+            member: updated,
             members: getAllMembersCurator()
         });
     } catch (err) {
-        console.error('Error updating member:', err);
-        return res.status(500).json({ success: false, error: 'Failed to update member.' });
+        return sendRouteError(res, err, 'Failed to update member.');
     }
 });
 
 router.post('/members/:id/regenerate-code', (req, res) => {
     try {
+        if (!getMemberById(req.params.id)) return res.status(404).json({ success: false, error: 'Member not found.' });
         const newCode = regenerateMemberCode(req.params.id);
         return res.json({
             success: true,
@@ -194,14 +456,31 @@ router.post('/members/:id/regenerate-code', (req, res) => {
 
 router.put('/members/:id/status', (req, res) => {
     try {
-        const { status } = req.body || {};
-        if (!status || (status !== 'active' && status !== 'suspended')) {
+        const member = getMemberById(req.params.id);
+        if (!member) return res.status(404).json({ success: false, error: 'Member not found.' });
+        const body = objectBody(req.body);
+        const status = body.status;
+        if (typeof status !== 'string' || !['active', 'suspended'].includes(status)) {
             return res.status(400).json({ success: false, error: 'Valid status (active or suspended) is required.' });
         }
-        setMemberStatus(req.params.id, status);
+        if (member.id === 'mem-admin' && status === 'suspended') {
+            return res.status(400).json({ success: false, error: 'The built-in admin directory entry cannot be suspended.' });
+        }
+        let notificationsCreated = 0;
+        if (member.status !== status) {
+            withTransaction(() => {
+                setMemberStatus(req.params.id, status);
+                notifyMembersOfChange('member_access_changed', req.curator.id, {
+                    name: member.display_name || member.name,
+                    status
+                });
+                notificationsCreated = 1;
+            });
+        }
         return res.json({
             success: true,
             message: `Membership status updated to ${status}.`,
+            notificationsCreated,
             status,
             members: getAllMembersCurator()
         });
@@ -214,33 +493,38 @@ router.put('/members/:id/status', (req, res) => {
 router.post('/members/:id/generate-qr', async (req, res) => {
     try {
         const member = getMemberById(req.params.id);
-        if (!member) {
-            return res.status(404).json({ success: false, error: 'Member not found.' });
+        if (!member) return res.status(404).json({ success: false, error: 'Member not found.' });
+        if (member.status !== 'active') return res.status(409).json({ success: false, error: 'A QR pass cannot be created for a suspended member.' });
+        if (process.env.NODE_ENV === 'production' && !process.env.APP_BASE_URL) {
+            return res.status(503).json({ success: false, error: 'APP_BASE_URL must be configured before membership passes can be issued.' });
+        }
+
+        const baseValue = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
+        let baseUrl;
+        try {
+            baseUrl = new URL(baseValue);
+        } catch (error) {
+            return res.status(503).json({ success: false, error: 'The configured application URL is invalid.' });
+        }
+        if (!['http:', 'https:'].includes(baseUrl.protocol) || baseUrl.username || baseUrl.password ||
+            (process.env.NODE_ENV === 'production' && baseUrl.protocol !== 'https:')) {
+            return res.status(503).json({ success: false, error: 'APP_BASE_URL must be an https URL in production.' });
         }
 
         const token = createMemberClaim(req.params.id, 7);
-        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
-        const host = req.get('host') || 'localhost:3000';
-        const claimUrl = `${protocol}://${host}/api/member/claim-pass?token=${token}`;
-
-        let qrDataUrl = '';
-        try {
-            qrDataUrl = await QRCode.toDataURL(claimUrl, {
-                margin: 2,
-                width: 240,
-                color: {
-                    dark: '#273B2B',
-                    light: '#FAF7F2'
-                }
-            });
-        } catch (qrErr) {
-            console.warn('QRCode generation fallback:', qrErr);
-        }
+        const claimUrl = new URL('/api/member/claim-pass', baseUrl.origin);
+        claimUrl.searchParams.set('token', token);
+        const claimUrlText = claimUrl.toString();
+        const qrDataUrl = await QRCode.toDataURL(claimUrlText, {
+            margin: 2,
+            width: 240,
+            color: { dark: '#273B2B', light: '#FAF7F2' }
+        });
 
         return res.json({
             success: true,
             token,
-            claimUrl,
+            claimUrl: claimUrlText,
             qrDataUrl,
             member: {
                 id: member.id,
@@ -252,17 +536,26 @@ router.post('/members/:id/generate-qr', async (req, res) => {
             }
         });
     } catch (err) {
-        console.error('Error generating QR pass:', err);
-        return res.status(500).json({ success: false, error: 'Failed to generate QR pass.' });
+        return sendRouteError(res, err, 'Failed to generate QR pass.');
     }
 });
 
 router.delete('/members/:id', (req, res) => {
     try {
-        deleteMember(req.params.id);
+        const member = getMemberById(req.params.id);
+        if (!member) return res.status(404).json({ success: false, error: 'Member not found.' });
+        if (member.id === 'mem-admin') return res.status(400).json({ success: false, error: 'The built-in admin directory entry cannot be deleted.' });
+        let notificationsCreated = 0;
+        deleteMember(req.params.id, removedMember => {
+            notifyMembersOfChange('member_removed', req.curator.id, {
+                name: removedMember?.display_name || removedMember?.name
+            });
+            notificationsCreated = 1;
+        });
         return res.json({
             success: true,
             message: 'Member removed from directory.',
+            notificationsCreated,
             members: getAllMembersCurator()
         });
     } catch (err) {
@@ -277,44 +570,22 @@ router.delete('/members/:id', (req, res) => {
  */
 router.put(['/connect', '/buttons'], (req, res) => {
     try {
-        const links = req.body || {};
-        const cleanLinks = {
-            community_chat_url: links.community_chat_url || '',
-            community_chat_label: links.community_chat_label || 'Join Community Lounge',
-            book_drive_url: links.book_drive_url || '',
-            book_drive_label: links.book_drive_label || 'Open Book Drive',
-            meeting_maps_url: links.meeting_maps_url || '',
-            meeting_maps_label: links.meeting_maps_label || 'Open in Google Maps',
-            instagram_url: links.instagram_url || '',
-            instagram_label: links.instagram_label || 'Instagram',
-            whatsapp_url: links.whatsapp_url || '',
-            whatsapp_label: links.whatsapp_label || 'WhatsApp Channel',
-            discord_url: links.discord_url || '',
-            discord_label: links.discord_label || 'Discord Lounge',
-            goodreads_url: links.goodreads_url || '',
-            goodreads_label: links.goodreads_label || 'Goodreads Circle',
-            custom_btn_1_url: links.custom_btn_1_url || '',
-            custom_btn_1_label: links.custom_btn_1_label || '',
-            custom_btn_1_enabled: Boolean(links.custom_btn_1_enabled),
-            custom_btn_2_url: links.custom_btn_2_url || '',
-            custom_btn_2_label: links.custom_btn_2_label || '',
-            custom_btn_2_enabled: Boolean(links.custom_btn_2_enabled)
-        };
-
-        setSetting('connect_links', cleanLinks);
-        setSetting('button_links', cleanLinks);
-        // Sync platform_links for backward-compatibility
-        setSetting('platform_links', cleanLinks);
+        const cleanLinks = cleanConnectLinks(req.body);
+        const notificationChanges = persistSettingUpdates([
+            ['connect_links', cleanLinks],
+            ['button_links', cleanLinks],
+            ['platform_links', cleanLinks]
+        ], req.curator.id);
 
         return res.json({
             success: true,
             message: 'Button links and platform destinations updated.',
+            notificationsCreated: notificationChanges.length,
             links: cleanLinks,
             buttons: cleanLinks
         });
     } catch (err) {
-        console.error('Error updating button links:', err);
-        return res.status(500).json({ success: false, error: 'Failed to update button links.' });
+        return sendRouteError(res, err, 'Failed to update button links.');
     }
 });
 
@@ -323,9 +594,28 @@ router.put(['/connect', '/buttons'], (req, res) => {
  * Update Admin profile details (Display Name, Handle, Email, Password)
  */
 router.put('/profile', async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
     try {
-        const { displayName, handle, email, currentPassword, newPassword } = req.body || {};
+        const body = req.body && typeof req.body === 'object' ? req.body : {};
+        const { displayName, handle, email, currentPassword } = body;
+        const newPassword = body.newPassword;
         const curatorId = req.curator.id;
+
+        if (displayName !== undefined && (typeof displayName !== 'string' || !displayName.trim() || displayName.trim().length > 100)) {
+            return res.status(400).json({ success: false, error: 'Display name must be 1-100 characters.' });
+        }
+        if (handle !== undefined && (typeof handle !== 'string' || !/^[a-z0-9_-]{3,32}$/i.test(handle.trim().replace(/^@/, '')))) {
+            return res.status(400).json({ success: false, error: 'Handle must be 3-32 letters, numbers, underscores or hyphens.' });
+        }
+        if (email !== undefined && (typeof email !== 'string' || email.trim().length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))) {
+            return res.status(400).json({ success: false, error: 'Please provide a valid email address.' });
+        }
+        if (currentPassword !== undefined && (typeof currentPassword !== 'string' || currentPassword.length > 1024)) {
+            return res.status(400).json({ success: false, error: 'Current password is invalid.' });
+        }
+        if (newPassword !== undefined && (typeof newPassword !== 'string' || newPassword.length > 1024)) {
+            return res.status(400).json({ success: false, error: 'New password is invalid.' });
+        }
 
         const currentRecord = getCuratorWithPassword(curatorId);
         if (!currentRecord) {
@@ -347,42 +637,71 @@ router.put('/profile', async (req, res) => {
                     error: 'Current password does not match. Profile changes aborted.'
                 });
             }
-            if (newPassword.length < 6) {
+            if (newPassword.length < 12) {
                 return res.status(400).json({
                     success: false,
-                    error: 'New password must be at least 6 characters long.'
+                    error: 'New password must be at least 12 characters long.'
                 });
+            }
+            if (newPassword === currentPassword) {
+                return res.status(400).json({ success: false, error: 'Choose a password different from your current password.' });
             }
             newPasswordHash = await hashPassword(newPassword);
         }
 
-        const updated = updateCuratorProfile(curatorId, {
-            displayName,
-            handle,
-            email,
-            passwordHash: newPasswordHash
-        });
+        let updated;
+        let notificationsCreated = 0;
+        withTransaction(() => {
+            updated = updateCuratorProfile(curatorId, {
+                displayName: typeof displayName === 'string' ? displayName.trim() : undefined,
+                handle: typeof handle === 'string' ? handle.trim() : undefined,
+                email: typeof email === 'string' ? email.trim() : undefined,
+                passwordHash: newPasswordHash
+            });
+            if (!updated) {
+                const missingProfile = new Error('Curator profile not found.');
+                missingProfile.status = 404;
+                throw missingProfile;
+            }
 
-        // Also update the seed record if it's admin-wabisabi
-        try {
-            const memberAdmin = db.prepare('SELECT id FROM members WHERE id = ?').get('mem-admin');
-            if (memberAdmin && (displayName || handle)) {
+            const memberAdmin = db.prepare('SELECT id, name, display_name, handle FROM members WHERE id = ?').get('mem-admin');
+            if (memberAdmin) {
+                const nextHandle = `@${updated.handle.replace(/^@/, '')}`;
+                const changedFields = [];
+                if ((memberAdmin.display_name || memberAdmin.name) !== updated.display_name) changedFields.push('display_name');
+                if (memberAdmin.handle !== nextHandle) changedFields.push('handle');
                 db.prepare(`
                     UPDATE members
-                    SET name = ?, display_name = ?, full_name = ?, handle = ?
+                    SET name = ?, display_name = ?, full_name = ?, handle = ?, updated_at = CURRENT_TIMESTAMP
                     WHERE id = 'mem-admin'
-                `).run(
-                    updated.display_name,
-                    updated.display_name,
-                    updated.display_name,
-                    `@${updated.handle.replace(/^@/, '')}`
-                );
+                `).run(updated.display_name, updated.display_name, updated.display_name, nextHandle);
+                if (changedFields.length) {
+                    notifyMembersOfChange('member_profile_updated', req.curator.id, {
+                        name: updated.display_name,
+                        fields: changedFields
+                    });
+                    notificationsCreated = 1;
+                }
             }
-        } catch (e) {}
+
+            if (newPasswordHash) {
+                // Keep the active session, but invalidate any other browser/device sessions.
+                revokeOtherCuratorSessions(curatorId, req.curator.sessionId);
+            }
+        });
+
+        if (newPasswordHash) {
+            try {
+                clearInitialAdminPasswordFile();
+            } catch (error) {
+                console.warn('Could not remove one-time bootstrap password file:', error.message);
+            }
+        }
 
         return res.json({
             success: true,
             message: 'Admin Profile updated successfully.',
+            notificationsCreated,
             curator: {
                 id: updated.id,
                 email: updated.email,
@@ -391,6 +710,10 @@ router.put('/profile', async (req, res) => {
             }
         });
     } catch (err) {
+        if (err.status === 404) return res.status(404).json({ success: false, error: err.message });
+        if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+            return res.status(409).json({ success: false, error: 'That curator email or handle is already in use.' });
+        }
         console.error('Error updating curator profile:', err);
         return res.status(500).json({ success: false, error: 'Failed to update admin profile.' });
     }
@@ -402,32 +725,36 @@ router.put('/profile', async (req, res) => {
  */
 router.post('/updates', (req, res) => {
     try {
-        const { title, content, type = 'announcement', is_pinned = 0 } = req.body || {};
+        const body = objectBody(req.body);
+        const title = cleanString(body.title, 'Announcement title', 200);
+        const content = cleanString(body.content, 'Announcement content', 10000);
+        const type = body.type === undefined ? 'announcement' : cleanString(body.type, 'Announcement type', 40);
+        const isPinned = body.is_pinned === undefined ? false : parseBoolean(body.is_pinned, 'is_pinned');
+        if (!title) throw new RequestValidationError('Announcement title is required.');
+        if (!content) throw new RequestValidationError('Announcement content is required.');
+        if (!/^[a-z0-9_-]+$/i.test(type)) throw new RequestValidationError('Announcement type contains unsupported characters.');
 
-        if (!title || !title.trim()) {
-            return res.status(400).json({ success: false, error: 'Announcement title is required.' });
-        }
-        if (!content || !content.trim()) {
-            return res.status(400).json({ success: false, error: 'Announcement content is required.' });
-        }
-
-        const id = createUpdate({
-            title: title.trim(),
-            content: content.trim(),
-            type,
-            is_pinned: Boolean(is_pinned),
-            created_by: req.curator.id,
-            author_name: req.curator.displayName
+        let id;
+        withTransaction(() => {
+            id = createUpdate({
+                title,
+                content,
+                type,
+                is_pinned: isPinned,
+                created_by: req.curator.id,
+                author_name: req.curator.displayName
+            });
+            notifyMembersOfChange('bulletin_published', req.curator.id, { title });
         });
 
         return res.status(201).json({
             success: true,
             message: 'Announcement published successfully.',
+            notificationsCreated: 1,
             updateId: id
         });
     } catch (err) {
-        console.error('Error creating announcement:', err);
-        return res.status(500).json({ success: false, error: 'Failed to publish announcement.' });
+        return sendRouteError(res, err, 'Failed to publish announcement.');
     }
 });
 
@@ -437,17 +764,30 @@ router.post('/updates', (req, res) => {
  */
 router.put('/updates/:id', (req, res) => {
     try {
-        const { title, content, is_pinned } = req.body || {};
-        updateUpdate(req.params.id, {
-            title: title ? title.trim() : undefined,
-            content: content ? content.trim() : undefined,
-            is_pinned
-        });
+        const body = objectBody(req.body);
+        const update = {};
+        if (body.title !== undefined) {
+            update.title = cleanString(body.title, 'Announcement title', 200);
+            if (!update.title) throw new RequestValidationError('Announcement title cannot be empty.');
+        }
+        if (body.content !== undefined) update.content = cleanString(body.content, 'Announcement content', 10000);
+        if (body.is_pinned !== undefined) update.is_pinned = parseBoolean(body.is_pinned, 'is_pinned');
+        if (Object.keys(update).length === 0) throw new RequestValidationError('Provide at least one announcement field to update.');
 
-        return res.json({ success: true, message: 'Announcement updated.' });
+        const existing = db.prepare('SELECT id, title, content, is_pinned FROM updates WHERE id = ?').get(req.params.id);
+        if (!existing) return res.status(404).json({ success: false, error: 'Announcement not found.' });
+        const changed = (update.title !== undefined && update.title !== existing.title) ||
+            (update.content !== undefined && update.content !== existing.content) ||
+            (update.is_pinned !== undefined && Boolean(update.is_pinned) !== Boolean(existing.is_pinned));
+        if (!changed) return res.json({ success: true, message: 'Announcement is already up to date.', notificationsCreated: 0 });
+
+        withTransaction(() => {
+            updateUpdate(req.params.id, update);
+            notifyMembersOfChange('bulletin_updated', req.curator.id, { title: update.title || existing.title });
+        });
+        return res.json({ success: true, message: 'Announcement updated.', notificationsCreated: 1 });
     } catch (err) {
-        console.error('Error updating announcement:', err);
-        return res.status(500).json({ success: false, error: 'Failed to update announcement.' });
+        return sendRouteError(res, err, 'Failed to update announcement.');
     }
 });
 
@@ -457,11 +797,15 @@ router.put('/updates/:id', (req, res) => {
  */
 router.delete('/updates/:id', (req, res) => {
     try {
-        deleteUpdate(req.params.id);
-        return res.json({ success: true, message: 'Announcement deleted.' });
+        const existing = db.prepare('SELECT id FROM updates WHERE id = ?').get(req.params.id);
+        if (!existing) return res.status(404).json({ success: false, error: 'Announcement not found.' });
+        withTransaction(() => {
+            deleteUpdate(req.params.id);
+            notifyMembersOfChange('bulletin_removed', req.curator.id);
+        });
+        return res.json({ success: true, message: 'Announcement deleted.', notificationsCreated: 1 });
     } catch (err) {
-        console.error('Error deleting announcement:', err);
-        return res.status(500).json({ success: false, error: 'Failed to delete announcement.' });
+        return sendRouteError(res, err, 'Failed to delete announcement.');
     }
 });
 
@@ -485,30 +829,77 @@ router.get('/settings', (req, res) => {
  */
 router.put(['/settings', '/features'], (req, res) => {
     try {
-        const { current_book, next_meeting, platform_links, weekly_theme, this_weeks_reading, gathering, discussion_points, important_notes, connect_links, paper_plane_enabled } = req.body || {};
-
-        if (current_book !== undefined) setSetting('current_book', current_book);
-        if (next_meeting !== undefined) setSetting('next_meeting', next_meeting);
-        if (platform_links !== undefined) setSetting('platform_links', platform_links);
-        if (weekly_theme !== undefined) setSetting('weekly_theme', weekly_theme);
-        if (this_weeks_reading !== undefined) setSetting('this_weeks_reading', this_weeks_reading);
-        if (gathering !== undefined) setSetting('gathering', gathering);
-        if (discussion_points !== undefined) setSetting('discussion_points', discussion_points);
-        if (important_notes !== undefined) setSetting('important_notes', important_notes);
-        if (connect_links !== undefined) setSetting('connect_links', connect_links);
-        if (paper_plane_enabled !== undefined) {
-            setSetting('paper_plane_enabled', Boolean(paper_plane_enabled));
+        const body = objectBody(req.body);
+        const updates = [];
+        const readingInput = body.this_weeks_reading !== undefined ? body.this_weeks_reading : body.current_book;
+        if (readingInput !== undefined) {
+            const input = typeof readingInput === 'string' ? { title: readingInput } : objectBody(readingInput, 'Reading selection');
+            const reading = {
+                title: input.title === undefined ? '' : cleanString(input.title, 'Book title', 200),
+                author: input.author === undefined ? '' : cleanString(input.author, 'Book author', 200),
+                notes: input.notes === undefined ? '' : cleanString(input.notes, 'Reading notes', 2000),
+                drive_url: input.drive_url === undefined ? '' : cleanHttpUrl(input.drive_url, 'Book Drive URL')
+            };
+            updates.push(['this_weeks_reading', reading], ['current_book', reading]);
         }
-        if (req.body && req.body.sticky_notes !== undefined) setSetting('sticky_notes', req.body.sticky_notes);
 
+        const gatheringInput = body.gathering !== undefined ? body.gathering : body.next_meeting;
+        if (gatheringInput !== undefined) {
+            const input = objectBody(gatheringInput, 'Gathering');
+            const gathering = {
+                date: input.date === undefined ? '' : cleanString(input.date, 'Gathering date', 120),
+                time: input.time === undefined ? '' : cleanString(input.time, 'Gathering time', 80),
+                location: input.location === undefined ? '' : cleanString(input.location, 'Gathering location', 300),
+                maps_url: input.maps_url === undefined ? '' : cleanHttpUrl(input.maps_url, 'Map URL'),
+                note: input.note === undefined ? '' : cleanString(input.note, 'Gathering note', 1000)
+            };
+            updates.push(['gathering', gathering], ['next_meeting', gathering]);
+        }
+
+        if (body.weekly_theme !== undefined) {
+            const input = objectBody(body.weekly_theme, 'Weekly theme');
+            updates.push(['weekly_theme', {
+                theme: input.theme === undefined ? '' : cleanString(input.theme, 'Theme', 200),
+                subtitle: input.subtitle === undefined ? '' : cleanString(input.subtitle, 'Theme subtitle', 1000)
+            }]);
+        }
+        if (body.discussion_points !== undefined) {
+            const points = typeof body.discussion_points === 'string'
+                ? cleanString(body.discussion_points, 'Discussion points', 10000).split('\n').map(value => value.trim()).filter(Boolean)
+                : body.discussion_points;
+            if (!Array.isArray(points) || points.length > 20) throw new RequestValidationError('Discussion points must be an array of at most 20 items.');
+            updates.push(['discussion_points', points.map((point, index) => cleanString(point, `Discussion point ${index + 1}`, 500))]);
+        }
+        if (body.important_notes !== undefined) updates.push(['important_notes', cleanString(body.important_notes, 'Important notes', 5000)]);
+
+        if (body.connect_links !== undefined || body.platform_links !== undefined) {
+            const links = cleanConnectLinks(body.connect_links ?? body.platform_links);
+            updates.push(['connect_links', links], ['platform_links', links], ['button_links', links]);
+        }
+        if (body.paper_plane_enabled !== undefined) {
+            updates.push(['paper_plane_enabled', parseBoolean(body.paper_plane_enabled, 'paper_plane_enabled')]);
+        }
+        if (body.sticky_notes !== undefined) {
+            const input = objectBody(body.sticky_notes, 'Sticky notes');
+            const old = getSetting('sticky_notes', {});
+            const previous = old && typeof old === 'object' && !Array.isArray(old) ? old : {};
+            updates.push(['sticky_notes', {
+                books: input.books === undefined ? (previous.books || '') : cleanString(input.books, 'Books note', 1000),
+                films: input.films === undefined ? (previous.films || '') : cleanString(input.films, 'Films note', 1000),
+                discussions: input.discussions === undefined ? (previous.discussions || '') : cleanString(input.discussions, 'Discussions note', 1000),
+                community: input.community === undefined ? (previous.community || '') : cleanString(input.community, 'Community note', 1000)
+            }]);
+        }
+
+        const notificationChanges = persistSettingUpdates(updates, req.curator.id);
         return res.json({
             success: true,
             message: 'Portal settings and features updated successfully.',
+            notificationsCreated: notificationChanges.length,
             settings: getAllSettings()
         });
     } catch (err) {
-        console.error('Error updating settings/features:', err);
-        return res.status(500).json({ success: false, error: 'Failed to update settings.' });
+        return sendRouteError(res, err, 'Failed to update settings.');
     }
 });
 
@@ -518,31 +909,25 @@ router.put(['/settings', '/features'], (req, res) => {
  */
 router.put('/sticky-notes', (req, res) => {
     try {
-        const existingNotes = getSetting('sticky_notes') || {
-            books: '“Ideas that take quiet root, and stay with you for years.”',
-            films: '“Quiet frames that open unexpected rooms in the mind.”',
-            discussions: 'Conversations held with patience, without judgment.',
-            community: '“Kindred souls who feel the quiet rhythm of life.”'
-        };
-
-        const incoming = req.body || {};
+        const incoming = objectBody(req.body, 'Sticky notes');
+        const current = getSetting('sticky_notes') || {};
+        const existingNotes = current && typeof current === 'object' && !Array.isArray(current) ? current : {};
         const updatedNotes = {
-            books: incoming.books !== undefined ? incoming.books : existingNotes.books,
-            films: incoming.films !== undefined ? incoming.films : existingNotes.films,
-            discussions: incoming.discussions !== undefined ? incoming.discussions : existingNotes.discussions,
-            community: incoming.community !== undefined ? incoming.community : existingNotes.community
+            books: incoming.books === undefined ? (existingNotes.books || '') : cleanString(incoming.books, 'Books note', 1000),
+            films: incoming.films === undefined ? (existingNotes.films || '') : cleanString(incoming.films, 'Films note', 1000),
+            discussions: incoming.discussions === undefined ? (existingNotes.discussions || '') : cleanString(incoming.discussions, 'Discussions note', 1000),
+            community: incoming.community === undefined ? (existingNotes.community || '') : cleanString(incoming.community, 'Community note', 1000)
         };
 
-        setSetting('sticky_notes', updatedNotes);
-
+        const notificationChanges = persistSettingUpdates([['sticky_notes', updatedNotes]], req.curator.id);
         return res.json({
             success: true,
             message: 'Sticky notes updated successfully.',
+            notificationsCreated: notificationChanges.length,
             sticky_notes: updatedNotes
         });
     } catch (err) {
-        console.error('Error updating sticky notes:', err);
-        return res.status(500).json({ success: false, error: 'Failed to update sticky notes.' });
+        return sendRouteError(res, err, 'Failed to update sticky notes.');
     }
 });
 

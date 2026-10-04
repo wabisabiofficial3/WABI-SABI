@@ -1,19 +1,33 @@
+const path = require('node:path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const path = require('node:path');
 const { seedInitialAccounts } = require('./db');
 const { requireCuratorPage } = require('./middleware/auth');
+const { requireMemberPage } = require('./middleware/memberAuth');
 
 const portalRouter = require('./routes/portal');
 const authRouter = require('./routes/auth');
 const curatorRouter = require('./routes/curator');
 const userRouter = require('./routes/user');
 const memberRouter = require('./routes/member');
+const noticesRouter = require('./routes/notices');
 
-const { securityHeaders, blockSensitiveFiles, apiRateLimiter } = require('./middleware/security');
+const { securityHeaders, blockSensitiveFiles, corsAndCsrf, apiRateLimiter } = require('./middleware/security');
 
 const app = express();
 app.disable('x-powered-by');
+
+// This app is deployed behind one reverse proxy by default (Render/Arena). Override
+// TRUST_PROXY_HOPS=0 for direct deployments, or set the exact trusted hop count.
+const trustProxyHops = process.env.TRUST_PROXY_HOPS === undefined
+    ? 1
+    : Number(process.env.TRUST_PROXY_HOPS);
+if (!Number.isInteger(trustProxyHops) || trustProxyHops < 0 || trustProxyHops > 10) {
+    throw new Error('TRUST_PROXY_HOPS must be an integer between 0 and 10.');
+}
+app.set('trust proxy', trustProxyHops);
 
 const PORT = process.env.PORT || 3000;
 const STATIC_ROOT = path.join(__dirname, '..');
@@ -22,36 +36,17 @@ const PAGES_DIR = path.join(STATIC_ROOT, 'pages');
 // Security Middlewares
 app.use(securityHeaders);
 app.use(blockSensitiveFiles);
+app.use(corsAndCsrf);
 
-// Body and Cookie Parsers
-app.use(express.json({ limit: '2mb' }));
-app.use(cookieParser());
-
-// Rate limit API routes
+// Rate-limit API traffic before parsing request bodies so oversized or malformed
+// requests cannot consume parser resources without first using the request quota.
+// corsAndCsrf handles OPTIONS requests before they reach this limiter.
 app.use('/api', apiRateLimiter);
 
-// Safe CORS
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    const isAllowed = !origin || 
-        origin.includes('localhost') || 
-        origin.includes('127.0.0.1') || 
-        origin.includes('render.com') || 
-        origin.includes('wabi-sabi');
-
-    if (isAllowed && origin) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-    }
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie, Accept');
-    res.setHeader('Access-Control-Allow-Private-Network', 'true');
-
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(204);
-    }
-    next();
-});
+// Every current JSON write payload is well below 100 KB; keep the parser bound tight.
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: false, limit: '1kb' }));
+app.use(cookieParser());
 
 // ====================================================================
 // PUBLIC PORTAL ROUTE (Zero login required - Visitors enter directly)
@@ -73,6 +68,7 @@ app.get([
     '/home/sanctuary',
     '/dashboard/sanctuary'
 ], (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
     res.sendFile(path.join(PAGES_DIR, 'sanctuary.html'));
 });
 
@@ -85,19 +81,31 @@ app.get(['/curator', '/curator.html', '/pages/curator.html'], requireCuratorPage
     res.sendFile(path.join(PAGES_DIR, 'curator.html'));
 });
 
-// Redirect legacy membership/community pages to the public home portal
+// Standalone Member Spaces: independently addressable and cross-linked destinations.
+// Server-side authentication is required even when a page is opened by its /pages/*.html alias.
+const memberSpacePages = [
+    { routes: ['/community', '/community.html', '/pages/community.html'], file: 'community.html' },
+    { routes: ['/reader', '/reader.html', '/pages/reader.html'], file: 'reader.html' },
+    { routes: ['/table-room', '/table-room.html', '/pages/table-room.html'], file: 'table-room.html' },
+    { routes: ['/wabi-wall', '/wabi-wall.html', '/pages/wabi-wall.html'], file: 'wabi-wall.html' }
+];
+
+for (const page of memberSpacePages) {
+    app.get(page.routes, requireMemberPage, (req, res) => {
+        res.sendFile(path.join(PAGES_DIR, page.file));
+    });
+}
+
+// Obsolete membership application and theme-week paths still return to the public portal.
 app.get(['/join', '/join.html', '/pages/join.html',
          '/application-status', '/application-status.html', '/pages/application-status.html',
-         '/community', '/community.html', '/pages/community.html',
-         '/reader', '/reader.html', '/pages/reader.html',
-         '/table-room', '/table-room.html', '/pages/table-room.html',
-         '/wabi-wall', '/wabi-wall.html', '/pages/wabi-wall.html',
          '/theme-weeks', '/theme-weeks.html', '/pages/theme-weeks.html'], (req, res) => {
     res.redirect('/');
 });
 
 // Member Space route (The Member's Personal Literary Desk)
 app.get(['/my-space', '/my-space.html', '/pages/my-space.html'], (req, res) => {
+    res.setHeader('Cache-Control', 'private, no-store');
     res.sendFile(path.join(PAGES_DIR, 'my-space.html'));
 });
 
@@ -109,11 +117,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/curator', curatorRouter);
 app.use('/api/user', userRouter);
 app.use('/api/member', memberRouter);
-
-// Compatibility route for existing notice queries
-app.get('/api/notices', (req, res) => {
-    res.redirect(307, '/api/portal');
-});
+app.use('/api/notices', noticesRouter);
 
 // ====================================================================
 // SEO & ROOT WEB ASSETS
@@ -126,8 +130,12 @@ app.get('/sitemap.xml', (req, res) => {
     res.type('application/xml').sendFile(path.join(STATIC_ROOT, 'sitemap.xml'));
 });
 
-app.get(['/favicon.ico', '/favicon.png'], (req, res) => {
+app.get('/favicon.ico', (req, res) => {
     res.sendFile(path.join(STATIC_ROOT, 'favicon.ico'));
+});
+
+app.get('/favicon.png', (req, res) => {
+    res.sendFile(path.join(STATIC_ROOT, 'favicon.png'));
 });
 
 app.get('/site.webmanifest', (req, res) => {
@@ -155,6 +163,30 @@ app.get(['/health', '/api/health'], (req, res) => {
 // 404 Fallback for unknown API routes
 app.use('/api', (req, res) => {
     res.status(404).json({ success: false, error: 'API endpoint not found.' });
+});
+
+// Do not let Express' development error page disclose parser or filesystem stacks.
+app.use((error, req, res, next) => {
+    if (res.headersSent) return next(error);
+
+    const requestedStatus = Number(error.statusCode || error.status);
+    const status = Number.isInteger(requestedStatus) && requestedStatus >= 400 && requestedStatus <= 599
+        ? requestedStatus
+        : 500;
+    const message = status === 400
+        ? 'Invalid request.'
+        : status === 413
+            ? 'Request body exceeds the allowed size.'
+            : status >= 500
+                ? 'An internal server error occurred.'
+                : 'The request could not be completed.';
+
+    if (status >= 500) console.error('Unhandled request error:', error);
+    res.setHeader('Cache-Control', 'no-store');
+    if (/^\/api(?:\/|$)/i.test(req.path)) {
+        return res.status(status).json({ success: false, error: message });
+    }
+    return res.status(status).type('text/plain').send(message);
 });
 
 // Start server function

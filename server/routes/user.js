@@ -7,6 +7,7 @@ const { getAuthenticatedCurator } = require('../middleware/auth');
  * Retrieves the recognized user state (either authenticated Curator or remembered Reader)
  */
 router.get('/profile', (req, res) => {
+    res.setHeader('Cache-Control', 'private, no-store');
     try {
         const curator = getAuthenticatedCurator(req);
         if (curator) {
@@ -45,8 +46,15 @@ router.get('/profile', (req, res) => {
  * Saves the visitor's reader identity and reading preferences in a persistent 1-year cookie
  */
 router.post('/profile', (req, res) => {
+    res.setHeader('Cache-Control', 'private, no-store');
     try {
-        const { name, moniker, genre } = req.body || {};
+        const body = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
+        const { name, moniker, genre } = body;
+        for (const [field, value, max] of [['name', name, 100], ['moniker', moniker, 50], ['genre', genre, 100]]) {
+            if (value !== undefined && (typeof value !== 'string' || value.trim().length > max)) {
+                return res.status(400).json({ success: false, error: `${field} must be text of at most ${max} characters.` });
+            }
+        }
         const cleanName = (name || '').trim();
         const cleanMoniker = (moniker || '').trim();
         const cleanGenre = (genre || '').trim();
@@ -65,7 +73,8 @@ router.post('/profile', (req, res) => {
         // 1-year cookie for cross-session remembrance
         res.cookie('wabisabi_reader', encodeURIComponent(JSON.stringify(readerData)), {
             maxAge: 365 * 24 * 60 * 60 * 1000,
-            httpOnly: false, // Accessible to client scripts
+            httpOnly: true,
+            secure: req.secure || process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/'
         });
@@ -86,7 +95,13 @@ router.post('/profile', (req, res) => {
  * Clears remembered reader cookie
  */
 router.delete('/profile', (req, res) => {
-    res.clearCookie('wabisabi_reader', { path: '/' });
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.clearCookie('wabisabi_reader', {
+        httpOnly: true,
+        secure: req.secure || process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+    });
     return res.json({ success: true, message: 'Reader profile traces cleared.' });
 });
 

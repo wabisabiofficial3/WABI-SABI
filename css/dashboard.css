@@ -57,8 +57,8 @@
 
             --ink-primary: #F5EFE6;
             --ink-secondary: #CBBFB0;
-            --ink-muted: #968B7C;
-            --ink-faint: #4E463E;
+            --ink-muted: #AAA196;
+            --ink-faint: #A39A8E;
 
             /* Cozy Illuminated Parchment Sticky Notes under Warm Reading Lamp */
             --sticky-books-bg: #D4E3D5;
@@ -848,6 +848,10 @@
             color: var(--forest-green);
         }
 
+        [data-theme="dark"] .stamp-icon {
+            color: var(--accent-sage);
+        }
+
         /* ==========================================================================
            REALISTIC TACTILE STICKY NOTES WITH INTERACTIVE HANDWRITING & HEADINGS
            - Genuine 3D curled paper shadow
@@ -1418,15 +1422,16 @@
             z-index: 102;
             will-change: left, transform;
             user-select: none;
+            transform-origin: bottom center;
             transition: transform 0.15s ease-out;
         }
 
         .living-cat-actor.step-up {
-            transform: translateY(-3px);
+            transform: translateY(-3px) scaleY(1.01);
         }
 
         .living-cat-actor.step-down {
-            transform: translateY(0px);
+            transform: translateY(0) scaleY(0.99);
         }
 
         /* Dynamic Soft Ground Shadow beneath Paws */
@@ -1441,7 +1446,19 @@
             border-radius: 50%;
             pointer-events: none;
             z-index: -1;
-            transition: width 0.15s ease, opacity 0.15s ease;
+            transition: width 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+        }
+
+        .living-cat-actor.step-up .cat-contact-shadow {
+            width: 66%;
+            opacity: 0.62;
+            transform: translateX(-50%) translateY(3px) scaleY(0.85);
+        }
+
+        .living-cat-actor.step-down .cat-contact-shadow {
+            width: 79%;
+            opacity: 0.96;
+            transform: translateX(-50%);
         }
 
         /* Cat Sprite Display */
@@ -1459,7 +1476,7 @@
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
-            transition: opacity 0.08s ease-in-out;
+            transition: opacity 0.12s ease-in-out, visibility 0s linear 0.12s;
         }
 
         .cat-sprite.active,
@@ -1467,6 +1484,7 @@
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
+            transition: opacity 0.12s ease-in-out, visibility 0s;
         }
 
         /* Feline Speech Bubble */

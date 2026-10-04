@@ -38,4 +38,20 @@ assert(tableJs.includes('requireAuth'), 'table-room.js missing requireAuth()');
 const readerJs = fs.readFileSync(path.join(root, 'js', 'reader.js'), 'utf8');
 assert(readerJs.includes('await window.WabiSabiStore.requireAuth'), 'reader.js missing await requireAuth()');
 
-console.log('✅ ALL CLIENT-SIDE AUTH GUARD CHECKS PASSED!');
+const storeJs = fs.readFileSync(path.join(root, 'js', 'store.js'), 'utf8');
+assert(storeJs.includes("'/api/member/status'"), 'store.js must verify member sessions with the server');
+assert(storeJs.includes('/my-space?returnTo='), 'unauthenticated member spaces should lead to member-code access');
+
+const homeHtml = fs.readFileSync(path.join(pages, 'home.html'), 'utf8');
+for (const route of ['/community', '/reader', '/table-room', '/wabi-wall']) {
+    assert(homeHtml.includes(`href="${route}"`), `home.html missing a link to ${route}`);
+}
+
+for (const page of ['community.html', 'reader.html', 'table-room.html', 'wabi-wall.html']) {
+    const html = fs.readFileSync(path.join(pages, page), 'utf8');
+    for (const route of ['/community', '/reader', '/table-room', '/wabi-wall']) {
+        assert(html.includes(`href="${route}"`), `${page} missing a shared-space navigation link to ${route}`);
+    }
+}
+
+console.log('✅ MEMBER SESSION, CLIENT GUARD, AND CROSS-LINK CHECKS PASSED!');

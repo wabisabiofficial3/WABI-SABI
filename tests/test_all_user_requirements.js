@@ -1,3 +1,4 @@
+const { ADMIN_PASSWORD } = require('./test_config');
 const http = require('http');
 const assert = require('node:assert');
 const { spawn } = require('child_process');
@@ -50,7 +51,7 @@ async function runVerification() {
     const authRes = await req('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: { identifier: 'wabisabiofficial3@gmail.com', password: 'DsL@678_' }
+        body: { identifier: 'wabisabiofficial3@gmail.com', password: ADMIN_PASSWORD }
     });
     assert.strictEqual(authRes.status, 200, 'Admin login must succeed');
     const setCookie = authRes.headers['set-cookie'];

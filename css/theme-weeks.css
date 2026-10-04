@@ -53,8 +53,8 @@
     
     --ink-primary: #EDE8DF;
     --ink-secondary: #C8C0B5;
-    --ink-muted: #8E857A;
-    --ink-faint: #5E564C;
+    --ink-muted: #AAA196;
+    --ink-faint: #A39A8E;
     
     --cork-bg: #826343;
     --cork-pattern: #6E5235;
@@ -492,6 +492,12 @@ main.board-stage {
 .curator-edit-toggle:hover {
     border-color: var(--accent-sage);
     color: var(--accent-sage-dark);
+}
+
+[data-theme="dark"] .curator-edit-toggle:hover,
+[data-theme="dark"] .films-bullet-list li::before,
+[data-theme="dark"] .modal-tag-badge {
+    color: #A7D2AF;
 }
 
 .curator-edit-toggle.active {

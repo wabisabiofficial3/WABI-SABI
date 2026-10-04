@@ -2,18 +2,55 @@ const { DatabaseSync } = require('node:sqlite');
 const path = require('node:path');
 const fs = require('node:fs');
 const crypto = require('node:crypto');
+const { hashPassword } = require('./crypto');
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
+const DEFAULT_DATA_DIR = path.join(__dirname, '..', 'data');
+const DB_PATH = process.env.WABI_DB_PATH
+    ? path.resolve(process.env.WABI_DB_PATH)
+    : path.join(DEFAULT_DATA_DIR, 'wabisabi.db');
+const DATA_DIR = path.dirname(DB_PATH);
 if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
 }
 
-const DB_PATH = path.join(DATA_DIR, 'wabisabi.db');
 const db = new DatabaseSync(DB_PATH);
 
-// Enable WAL mode for better concurrency and foreign keys
+// Enable WAL mode, foreign keys and a bounded wait for concurrent connections.
 db.exec('PRAGMA journal_mode = WAL;');
+db.exec('PRAGMA synchronous = NORMAL;');
 db.exec('PRAGMA foreign_keys = ON;');
+db.exec('PRAGMA busy_timeout = 5000;');
+
+/** Restrict the live SQLite database and WAL sidecars to the service owner. */
+function restrictDatabaseFilePermissions() {
+    if (process.platform === 'win32') return; // POSIX mode bits are not reliable on Windows.
+
+    for (const filePath of [DB_PATH, `${DB_PATH}-wal`, `${DB_PATH}-shm`, `${DB_PATH}-journal`]) {
+        try {
+            fs.chmodSync(filePath, 0o600);
+            const mode = fs.statSync(filePath).mode & 0o777;
+            if (mode & 0o077) {
+                throw new Error('SQLite file permissions still allow group or other access.');
+            }
+        } catch (error) {
+            if (error.code === 'ENOENT') continue;
+            throw new Error(`Could not restrict SQLite file permissions: ${error.message}`);
+        }
+    }
+}
+
+function withTransaction(callback) {
+    if (typeof callback !== 'function') throw new TypeError('Transaction callback must be a function.');
+    db.exec('BEGIN IMMEDIATE;');
+    try {
+        const result = callback();
+        db.exec('COMMIT;');
+        return result;
+    } catch (error) {
+        try { db.exec('ROLLBACK;'); } catch (rollbackError) {}
+        throw error;
+    }
+}
 
 /**
  * Initialize simplified Wabi Sabi database tables:
@@ -104,6 +141,43 @@ function initDatabase() {
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
 
+        CREATE TABLE IF NOT EXISTS theme_notices (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL DEFAULT '',
+            type TEXT NOT NULL DEFAULT 'announcement',
+            metadata TEXT NOT NULL DEFAULT '{}',
+            image TEXT NOT NULL DEFAULT '',
+            priority INTEGER NOT NULL DEFAULT 50,
+            position_x REAL NOT NULL DEFAULT 100,
+            position_y REAL NOT NULL DEFAULT 100,
+            rotation REAL NOT NULL DEFAULT 0,
+            is_pinned INTEGER NOT NULL DEFAULT 1,
+            pin_color TEXT NOT NULL DEFAULT 'brass',
+            created_by TEXT REFERENCES curators(id) ON DELETE SET NULL,
+            published_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            archived_at DATETIME,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS member_notifications (
+            id TEXT PRIMARY KEY,
+            kind TEXT NOT NULL,
+            title TEXT NOT NULL,
+            message TEXT NOT NULL,
+            href TEXT NOT NULL,
+            created_by TEXT REFERENCES curators(id) ON DELETE SET NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS member_notification_recipients (
+            notification_id TEXT NOT NULL REFERENCES member_notifications(id) ON DELETE CASCADE,
+            member_id TEXT NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+            read_at DATETIME,
+            PRIMARY KEY (notification_id, member_id)
+        );
+
         CREATE TABLE IF NOT EXISTS member_claims (
             id TEXT PRIMARY KEY,
             member_id TEXT NOT NULL REFERENCES members(id) ON DELETE CASCADE,
@@ -120,6 +194,10 @@ function initDatabase() {
         CREATE INDEX IF NOT EXISTS idx_members_order ON members(display_order, created_at);
         CREATE INDEX IF NOT EXISTS idx_member_sessions_token ON member_sessions(session_token_hash);
         CREATE INDEX IF NOT EXISTS idx_member_claims_token ON member_claims(claim_token_hash);
+        CREATE INDEX IF NOT EXISTS idx_theme_notices_active ON theme_notices(archived_at, priority, published_at);
+        CREATE INDEX IF NOT EXISTS idx_member_notifications_created ON member_notifications(created_at);
+        CREATE INDEX IF NOT EXISTS idx_member_notification_member_unread
+            ON member_notification_recipients(member_id, read_at, notification_id);
     `);
 
     // Ensure columns exist on pre-existing members table
@@ -135,44 +213,122 @@ function initDatabase() {
     } catch (e) {
         console.warn('Member schema check warning:', e.message);
     }
+
+    restrictDatabaseFilePermissions();
 }
 
 /**
- * Seed single Admin account wabisabiofficial3@gmail.com (password: DsL@678_)
- * and purge any previous curator accounts.
+ * Bootstrap the single curator account without shipping a usable password in source.
+ * Set WABI_ADMIN_PASSWORD on first production boot. Local development generates a
+ * one-time password in an ignored, owner-readable file under data/.
+ */
+const COMPROMISED_ADMIN_HASH = '$argon2id$v=19$m=32768,t=2,p=1$yVbG5gRjjuN8wY8f66RpcQ$mddEvCT1DD8iAOyTJuxDUDemwPklaDeSDZ05+mKuUPE';
+async function initialAdminPasswordHash() {
+    const configuredPassword = process.env.WABI_ADMIN_PASSWORD;
+    if (configuredPassword !== undefined) {
+        if (configuredPassword.length < 12 || configuredPassword.length > 1024) {
+            throw new Error('WABI_ADMIN_PASSWORD must be between 12 and 1024 characters.');
+        }
+        return hashPassword(configuredPassword);
+    }
+
+    if (process.env.NODE_ENV === 'production') {
+        throw new Error('WABI_ADMIN_PASSWORD is required to initialize or rotate the curator account in production.');
+    }
+
+    const password = crypto.randomBytes(32).toString('base64url');
+    const passwordHash = await hashPassword(password);
+    const passwordFile = path.join(DATA_DIR, 'initial-admin-password.txt');
+    fs.writeFileSync(passwordFile, `Curator email: ${process.env.WABI_ADMIN_EMAIL || 'wabisabiofficial3@gmail.com'}\nInitial password: ${password}\n`, {
+        encoding: 'utf8',
+        mode: 0o600
+    });
+    try {
+        fs.chmodSync(passwordFile, 0o600);
+    } catch (error) {
+        // The platform may not support POSIX file modes; the file remains in ignored data/.
+    }
+    console.warn(`A one-time local curator password was generated. Read it from ${passwordFile} and change it after signing in.`);
+    return passwordHash;
+}
+
+/**
+ * Ensure exactly one curator account exists and remove superseded sessions/accounts.
+ * Old repository versions shipped a known password hash; that hash is rotated once.
  */
 async function seedInitialAccounts() {
     initDatabase();
 
+    const existingCanonical = db.prepare('SELECT * FROM curators WHERE id = ?').get('admin-wabisabi');
     const admin = {
         id: 'admin-wabisabi',
-        email: 'wabisabiofficial3@gmail.com',
-        handle: 'admin',
-        displayName: 'Wabi Sabi Admin',
-        hash: '$argon2id$v=19$m=32768,t=2,p=1$yVbG5gRjjuN8wY8f66RpcQ$mddEvCT1DD8iAOyTJuxDUDemwPklaDeSDZ05+mKuUPE'
+        email: (existingCanonical?.email || process.env.WABI_ADMIN_EMAIL || 'wabisabiofficial3@gmail.com').trim().toLowerCase(),
+        handle: (existingCanonical?.handle || process.env.WABI_ADMIN_HANDLE || 'admin').trim().replace(/^@/, '').toLowerCase(),
+        displayName: (existingCanonical?.display_name || process.env.WABI_ADMIN_NAME || 'Wabi Sabi Admin').trim()
     };
-
-    const checkStmt = db.prepare('SELECT id FROM curators WHERE email = ? OR handle = ?');
-    const insertStmt = db.prepare(`
-        INSERT INTO curators (id, email, password_hash, display_name, handle, created_at)
-        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-    `);
-    const updateStmt = db.prepare(`
-        UPDATE curators SET password_hash = ?, display_name = ?, handle = ?, email = ? WHERE id = ?
-    `);
-
-    const existing = checkStmt.get(admin.email, admin.handle);
-    if (!existing) {
-        insertStmt.run(admin.id, admin.email, admin.hash, admin.displayName, admin.handle);
-    } else {
-        updateStmt.run(admin.hash, admin.displayName, admin.handle, admin.email, existing.id);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(admin.email) || admin.email.length > 254) {
+        throw new Error('WABI_ADMIN_EMAIL must be a valid email address.');
+    }
+    if (!/^[a-z0-9_-]{3,32}$/.test(admin.handle)) {
+        throw new Error('WABI_ADMIN_HANDLE must be 3-32 lowercase letters, numbers, underscores or hyphens.');
+    }
+    if (!admin.displayName || admin.displayName.length > 100) {
+        throw new Error('WABI_ADMIN_NAME must be 1-100 characters.');
     }
 
-    // Now reassign references and purge legacy curator accounts and sessions
-    try {
-        db.prepare("UPDATE updates SET author_name = 'Wabi Sabi Admin', created_by = 'admin-wabisabi' WHERE created_by != 'admin-wabisabi'").run();
-        db.prepare("DELETE FROM curator_sessions WHERE curator_id != 'admin-wabisabi'").run();
-        db.prepare("DELETE FROM curators WHERE id != 'admin-wabisabi'").run();
+    const candidates = db.prepare(`
+        SELECT * FROM curators
+        WHERE id = ? OR email = ? OR handle = ?
+    `).all(admin.id, admin.email, admin.handle);
+    const canonical = candidates.find(row => row.id === admin.id) || candidates[0] || null;
+    const hasCompromisedPassword = !canonical || canonical.password_hash === COMPROMISED_ADMIN_HASH;
+    const passwordHash = hasCompromisedPassword
+        ? await initialAdminPasswordHash()
+        : canonical.password_hash;
+
+    const bootstrapChangedCredential = hasCompromisedPassword;
+    withTransaction(() => {
+        // Free unique email/handle values held by any legacy curator before creating/updating
+        // the canonical record. Existing audit/update references are moved transactionally.
+        const conflicts = db.prepare('SELECT id FROM curators WHERE id <> ? AND (email = ? OR handle = ?)').all(
+            admin.id,
+            admin.email,
+            admin.handle
+        );
+        for (const conflict of conflicts) {
+            const legacySuffix = crypto.randomBytes(8).toString('hex');
+            db.prepare('UPDATE curators SET email = ?, handle = ? WHERE id = ?').run(
+                `legacy-${legacySuffix}@invalid.local`,
+                `legacy-${legacySuffix}`,
+                conflict.id
+            );
+        }
+
+        const current = db.prepare('SELECT id FROM curators WHERE id = ?').get(admin.id);
+        if (current) {
+            db.prepare(`
+                UPDATE curators
+                SET email = ?, password_hash = ?, display_name = ?, handle = ?
+                WHERE id = ?
+            `).run(admin.email, passwordHash, admin.displayName, admin.handle, admin.id);
+        } else {
+            db.prepare(`
+                INSERT INTO curators (id, email, password_hash, display_name, handle, created_at)
+                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            `).run(admin.id, admin.email, passwordHash, admin.displayName, admin.handle);
+        }
+
+        db.prepare(`
+            UPDATE updates
+            SET author_name = ?, created_by = ?
+            WHERE created_by IS NOT NULL AND created_by <> ?
+        `).run(admin.displayName, admin.id, admin.id);
+
+        db.prepare('DELETE FROM curator_sessions WHERE curator_id <> ?').run(admin.id);
+        if (bootstrapChangedCredential) {
+            db.prepare('DELETE FROM curator_sessions WHERE curator_id = ?').run(admin.id);
+        }
+        db.prepare('DELETE FROM curators WHERE id <> ?').run(admin.id);
         db.prepare("DELETE FROM members WHERE id IN ('mem-dhanush', 'mem-likith', 'mem-sarvasree') OR role = 'Curator'").run();
 
         const checkAdminMem = db.prepare('SELECT id FROM members WHERE id = ?').get('mem-admin');
@@ -180,15 +336,20 @@ async function seedInitialAccounts() {
             db.prepare(`
                 INSERT INTO members (id, name, role, handle, avatar_url, bio, display_order, created_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-            `).run('mem-admin', 'Wabi Sabi Admin', 'Admin', '@wabisabi', '../assets/user_avatar.jpg', 'Sanctuary steward & literary curator', 1);
+            `).run('mem-admin', admin.displayName, 'Admin', `@${admin.handle}`, '/assets/user_avatar.jpg', 'Sanctuary steward & literary curator', 1);
         }
-    } catch (e) {
-        console.warn('Database cleanup warning:', e.message);
-    }
+    });
+
+    // Remove only untouched legacy demo records; keep edited or used member data intact.
+    removeLegacySampleContent();
+
+    // Expired records no longer authorize anyone; clean them to keep the database bounded.
+    db.prepare("DELETE FROM curator_sessions WHERE datetime(expires_at) <= datetime('now')").run();
+    db.prepare("DELETE FROM member_sessions WHERE datetime(expires_at) <= datetime('now')").run();
+    db.prepare("DELETE FROM member_claims WHERE datetime(expires_at) <= datetime('now') OR used_at IS NOT NULL").run();
 
     seedDefaultSettings();
-    seedDefaultUpdates();
-    seedDefaultMembers();
+    restrictDatabaseFilePermissions();
 }
 
 /**
@@ -303,143 +464,109 @@ function seedDefaultSettings() {
 }
 
 /**
- * Seed initial community members directory
+ * Remove the old demo members, private sample reading/notes, and sample announcements.
+ * Fingerprints let us identify the original fixture values without keeping those values
+ * in the application source. Any account with changed profile/content or evidence of use
+ * is preserved so this migration cannot silently discard real member data.
  */
-function seedDefaultMembers() {
-    const insertStmt = db.prepare(`
-        INSERT INTO members (id, name, role, handle, avatar_url, bio, display_order, full_name, display_name, gender, date_joined, secret_code_hash, status, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-    `);
+function contentFingerprint(parts) {
+    return crypto.createHash('sha256')
+        .update(parts.map(value => String(value ?? '')).join('\0'))
+        .digest('hex');
+}
 
-    const defaultMembers = [
-        {
-            id: 'mem-admin',
-            name: 'Wabi Sabi Admin',
-            role: 'Admin',
-            handle: '@wabisabi',
-            avatar_url: '../assets/user_avatar.jpg',
-            bio: 'Sanctuary steward & literary curator',
-            order: 1,
-            full_name: 'Wabi Sabi Admin',
-            display_name: 'Wabi Sabi Admin',
-            gender: '',
-            date_joined: '01 September 2026',
-            secret_code_hash: null,
-            status: 'active'
-        },
+function onlyKnownRowsOrEmpty(rows, expectedRows, fingerprintRow) {
+    if (rows.length === 0) return true;
+    if (rows.length !== expectedRows.length) return false;
+    const expected = new Map(expectedRows.map(item => [item.id, item.fingerprint]));
+    return rows.every(row => expected.get(row.id) === fingerprintRow(row));
+}
+
+function removeLegacySampleContent() {
+    const legacyMembers = [
         {
             id: 'mem-akshaya',
-            name: 'Akshaya',
-            role: 'Member',
-            handle: '@akshaya',
-            avatar_url: '../assets/avatar_aishwarya.jpg',
-            bio: 'Literature, existential fiction & poetry',
-            order: 2,
-            full_name: 'Akshaya',
-            display_name: 'Akshaya',
-            gender: 'Female',
-            date_joined: '02 October 2026',
-            secret_code_hash: hashSecretCode('WS-7K4M-X92P-LQ8A'),
-            status: 'active'
+            profileFingerprint: 'a0112fce54b62fdc2160ddba6377c10e0263bab6a2d59cdb954135a66d7d5d30',
+            readings: [{
+                id: 'read-akshaya',
+                fingerprint: '998560253b46e446094e1e58e09f163e7b2ec807e800996129c68e7dc926f1df'
+            }],
+            notes: [
+                { id: 'note-ak-1', fingerprint: '01ad86a37daaa95208806ff0e21206feccf6d53db703848ac78d5a7b71f16f23' },
+                { id: 'note-ak-2', fingerprint: '6a924f019080e1216061fdab13fbc557e187cc33931240a142f79247f58c8614' }
+            ]
         },
         {
             id: 'mem-vaishnavi',
-            name: 'Vaishnavi',
-            role: 'Member',
-            handle: '@vaishnavi',
-            avatar_url: '../assets/avatar_meera.jpg',
-            bio: 'Cinema, narratives & quiet thoughts',
-            order: 3,
-            full_name: 'Vaishnavi',
-            display_name: 'Vaishnavi',
-            gender: 'Female',
-            date_joined: '28 September 2026',
-            secret_code_hash: hashSecretCode('WS-3R8B-Y65W-NK2D'),
-            status: 'active'
+            profileFingerprint: '179300bf7ac35f8dac16ada6e07a3953c87f6251a0019d8a6526fb2c3d4290c1',
+            readings: [{
+                id: 'read-vaishnavi',
+                fingerprint: '5cab13c48432488337bb9c3c8a03ac0d93bf5976a2e0e4591d0cfeed60f809ee'
+            }],
+            notes: [
+                { id: 'note-vn-1', fingerprint: '6160bce0ef9b4ebc2f96437fec2d36f08ed2710464e5f11c0e8743eb767f314e' }
+            ]
         }
     ];
+    const legacyUpdates = [
+        { id: 'update-welcome', fingerprint: 'e0e74b5fb23e42c5b0b47b1d91651c79a8e7532108960a75930c672491a81f8f' },
+        { id: 'update-meeting-notice', fingerprint: 'a7f1fd4f2251c5188243a6432610bbc6444cd5abe32286368aff5e035b6828d9' }
+    ];
 
-    for (const m of defaultMembers) {
-        const existing = db.prepare('SELECT id, secret_code_hash FROM members WHERE id = ?').get(m.id);
-        if (!existing) {
-            insertStmt.run(m.id, m.name, m.role, m.handle, m.avatar_url, m.bio, m.order, m.full_name, m.display_name, m.gender, m.date_joined, m.secret_code_hash, m.status);
-        } else if (m.secret_code_hash && !existing.secret_code_hash) {
-            db.prepare(`
-                UPDATE members
-                SET full_name = ?, display_name = ?, gender = ?, date_joined = ?, secret_code_hash = ?, status = 'active'
-                WHERE id = ?
-            `).run(m.full_name, m.display_name, m.gender, m.date_joined, m.secret_code_hash, m.id);
+    withTransaction(() => {
+        for (const sample of legacyMembers) {
+            const member = db.prepare(`
+                SELECT id, name, full_name, display_name, role, handle, avatar_url, bio,
+                       display_order, gender, date_joined, status
+                FROM members WHERE id = ?
+            `).get(sample.id);
+            if (!member) continue;
+
+            const profileFingerprint = contentFingerprint([
+                member.name, member.full_name, member.display_name, member.role, member.handle,
+                member.avatar_url, member.bio, member.display_order, member.gender,
+                member.date_joined, member.status
+            ]);
+            if (profileFingerprint !== sample.profileFingerprint) continue;
+
+            const activity = db.prepare(`
+                SELECT
+                    EXISTS(SELECT 1 FROM member_sessions WHERE member_id = ?) AS has_sessions,
+                    EXISTS(SELECT 1 FROM member_claims WHERE member_id = ?) AS has_claims,
+                    EXISTS(SELECT 1 FROM member_notification_recipients WHERE member_id = ?) AS has_notifications
+            `).get(sample.id, sample.id, sample.id);
+            if (activity.has_sessions || activity.has_claims || activity.has_notifications) continue;
+
+            const readings = db.prepare(`
+                SELECT id, book_title, book_author, progress, status
+                FROM member_reading WHERE member_id = ?
+            `).all(sample.id);
+            const notes = db.prepare(`
+                SELECT id, content FROM member_notes WHERE member_id = ?
+            `).all(sample.id);
+            const knownReading = onlyKnownRowsOrEmpty(readings, sample.readings, row => contentFingerprint([
+                row.id, row.book_title, row.book_author, row.progress, row.status
+            ]));
+            const knownNotes = onlyKnownRowsOrEmpty(notes, sample.notes, row => contentFingerprint([row.content]));
+            if (!knownReading || !knownNotes) continue;
+
+            db.prepare('DELETE FROM members WHERE id = ?').run(sample.id);
         }
-    }
 
-    // Seed sample reading and notes for Akshaya and Vaishnavi
-    try {
-        const readCheck = db.prepare('SELECT count(*) as count FROM member_reading').get();
-        if (!readCheck || readCheck.count === 0) {
-            db.prepare(`
-                INSERT INTO member_reading (id, member_id, book_title, book_author, progress, status)
-                VALUES (?, ?, ?, ?, ?, ?)
-            `).run('read-akshaya', 'mem-akshaya', 'The Stranger', 'Albert Camus', 62, 'currently_reading');
-
-            db.prepare(`
-                INSERT INTO member_reading (id, member_id, book_title, book_author, progress, status)
-                VALUES (?, ?, ?, ?, ?, ?)
-            `).run('read-vaishnavi', 'mem-vaishnavi', 'Norwegian Wood', 'Haruki Murakami', 45, 'currently_reading');
+        for (const sample of legacyUpdates) {
+            const update = db.prepare(`
+                SELECT id, title, content, type, is_pinned, created_by, author_name, created_at, updated_at
+                FROM updates WHERE id = ?
+            `).get(sample.id);
+            if (!update || update.type !== 'announcement' || Number(update.is_pinned) !== 1 ||
+                update.created_by !== 'admin-wabisabi' || update.author_name !== 'Wabi Sabi Admin' ||
+                update.created_at !== update.updated_at ||
+                contentFingerprint([update.title, update.content]) !== sample.fingerprint) {
+                continue;
+            }
+            db.prepare('DELETE FROM updates WHERE id = ?').run(sample.id);
         }
-
-        const notesCheck = db.prepare('SELECT count(*) as count FROM member_notes').get();
-        if (!notesCheck || notesCheck.count === 0) {
-            db.prepare(`
-                INSERT INTO member_notes (id, member_id, content, created_at)
-                VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-            `).run('note-ak-1', 'mem-akshaya', 'Albert Camus presents absurdism not as defeat, but as radical freedom to exist authentically.');
-
-            db.prepare(`
-                INSERT INTO member_notes (id, member_id, content, created_at)
-                VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-            `).run('note-ak-2', 'mem-akshaya', 'Reading notes for Saturday salon: In chapter 4, Meursault’s honesty stands in sharp contrast to the societal expectations of remorse.');
-
-            db.prepare(`
-                INSERT INTO member_notes (id, member_id, content, created_at)
-                VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-            `).run('note-vn-1', 'mem-vaishnavi', 'The sound of rain in the tea room makes the passages on nostalgia linger longer.');
-        }
-    } catch (e) {
-        console.warn('Member content seed warning:', e.message);
-    }
-}
-
-/**
- * Seed initial sample announcements/updates
- */
-function seedDefaultUpdates() {
-    const countRow = db.prepare('SELECT count(*) as count FROM updates').get();
-    if (!countRow || countRow.count === 0) {
-        const insertStmt = db.prepare(`
-            INSERT INTO updates (id, title, content, type, is_pinned, created_by, author_name, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-        `);
-
-        insertStmt.run(
-            'update-welcome',
-            'Welcome to Wabi Sabi Bookclub • Vol. 1',
-            'A quiet coordination sanctuary for curious minds. No accounts or applications required—everyone can explore the book drive, find our next meeting location, and join our discussions.',
-            'announcement',
-            1,
-            'admin-wabisabi',
-            'Wabi Sabi Admin'
-        );
-
-        insertStmt.run(
-            'update-meeting-notice',
-            'Next Discussion Gathering: Saturday, 4 October at 4:00 PM',
-            'Our upcoming gathering has been confirmed for 4:00 PM at MRDU. Tap the meeting link to open the location directly in Google Maps.',
-            'announcement',
-            1,
-            'admin-wabisabi',
-            'Wabi Sabi Admin'
-        );
-    }
+    });
 }
 
 // Helper query functions
@@ -457,6 +584,28 @@ function getCuratorById(id) {
 function getCuratorWithPassword(id) {
     if (!id) return null;
     return db.prepare('SELECT * FROM curators WHERE id = ?').get(id);
+}
+
+function updateCuratorLastLogin(id) {
+    if (!id) return;
+    db.prepare('UPDATE curators SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?').run(id);
+}
+
+function clearInitialAdminPasswordFile() {
+    try {
+        fs.unlinkSync(path.join(DATA_DIR, 'initial-admin-password.txt'));
+    } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+    }
+}
+
+function revokeOtherCuratorSessions(curatorId, currentSessionId) {
+    if (!curatorId) return;
+    if (currentSessionId) {
+        db.prepare('DELETE FROM curator_sessions WHERE curator_id = ? AND id <> ?').run(curatorId, currentSessionId);
+    } else {
+        db.prepare('DELETE FROM curator_sessions WHERE curator_id = ?').run(curatorId);
+    }
 }
 
 function updateCuratorProfile(id, { email, displayName, handle, passwordHash }) {
@@ -479,11 +628,19 @@ function updateCuratorProfile(id, { email, displayName, handle, passwordHash }) 
 }
 
 function createCuratorSession(curatorId, tokenHash, expiresAt) {
-    const id = 'sess-' + Math.random().toString(36).substring(2, 10);
-    db.prepare(`
-        INSERT INTO curator_sessions (id, curator_id, token_hash, expires_at)
-        VALUES (?, ?, ?, ?)
-    `).run(id, curatorId, tokenHash, expiresAt);
+    const id = 'sess-' + crypto.randomBytes(16).toString('hex');
+    withTransaction(() => {
+        db.prepare("DELETE FROM curator_sessions WHERE datetime(expires_at) <= datetime('now')").run();
+        db.prepare(`
+            INSERT INTO curator_sessions (id, curator_id, token_hash, expires_at)
+            VALUES (?, ?, ?, ?)
+        `).run(id, curatorId, tokenHash, expiresAt);
+        const excess = db.prepare(`
+            SELECT id FROM curator_sessions WHERE curator_id = ?
+            ORDER BY created_at DESC, id DESC LIMIT -1 OFFSET 20
+        `).all(curatorId);
+        for (const session of excess) db.prepare('DELETE FROM curator_sessions WHERE id = ?').run(session.id);
+    });
     return id;
 }
 
@@ -534,16 +691,18 @@ function setSetting(key, value) {
     `).run(key, strVal);
 }
 
-function getPublicUpdates() {
+function getPublicUpdates(limit = 250) {
+    const pageSize = Math.max(1, Math.min(500, Number(limit) || 250));
     return db.prepare(`
         SELECT id, title, content, type, is_pinned, author_name, created_at, updated_at
         FROM updates
         ORDER BY is_pinned DESC, created_at DESC
-    `).all();
+        LIMIT ?
+    `).all(pageSize);
 }
 
 function createUpdate({ title, content, type = 'announcement', is_pinned = 0, created_by = null, author_name = null }) {
-    const id = 'upd-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6);
+    const id = 'upd-' + crypto.randomBytes(12).toString('hex');
     db.prepare(`
         INSERT INTO updates (id, title, content, type, is_pinned, created_by, author_name, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
@@ -552,18 +711,56 @@ function createUpdate({ title, content, type = 'announcement', is_pinned = 0, cr
 }
 
 function updateUpdate(id, { title, content, is_pinned }) {
-    db.prepare(`
+    return db.prepare(`
         UPDATE updates
         SET title = COALESCE(?, title),
             content = COALESCE(?, content),
             is_pinned = COALESCE(?, is_pinned),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
-    `).run(title, content, is_pinned !== undefined ? (is_pinned ? 1 : 0) : null, id);
+    `).run(title ?? null, content ?? null, is_pinned !== undefined ? (is_pinned ? 1 : 0) : null, id).changes;
 }
 
 function deleteUpdate(id) {
-    db.prepare('DELETE FROM updates WHERE id = ?').run(id);
+    return db.prepare('DELETE FROM updates WHERE id = ?').run(id).changes;
+}
+
+/**
+ * Persist one broadcast notification and snapshot its active-member audience.
+ * Call inside the same transaction as the admin content change it describes.
+ */
+function createMemberNotification({ kind, title, message, href, created_by = null }) {
+    const cleanKind = typeof kind === 'string' ? kind.trim() : '';
+    const cleanTitle = typeof title === 'string' ? title.trim() : '';
+    const cleanMessage = typeof message === 'string' ? message.trim() : '';
+    const cleanHref = typeof href === 'string' ? href.trim() : '';
+    if (!/^[a-z][a-z0-9_-]{0,39}$/.test(cleanKind)) throw new Error('Notification kind is invalid.');
+    if (!cleanTitle || cleanTitle.length > 160) throw new Error('Notification title is invalid.');
+    if (!cleanMessage || cleanMessage.length > 500) throw new Error('Notification message is invalid.');
+    if (!cleanHref.startsWith('/') || cleanHref.startsWith('//') || cleanHref.includes('\\')) {
+        throw new Error('Notification destination must be a same-site path.');
+    }
+
+    const id = 'notif-' + crypto.randomBytes(12).toString('hex');
+    db.prepare(`
+        INSERT INTO member_notifications (id, kind, title, message, href, created_by, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    `).run(id, cleanKind, cleanTitle, cleanMessage, cleanHref, created_by || null);
+    db.prepare(`
+        INSERT INTO member_notification_recipients (notification_id, member_id)
+        SELECT ?, id FROM members WHERE status = 'active' AND id <> 'mem-admin'
+    `).run(id);
+
+    // Keep a bounded history; cascading foreign keys remove its old recipient rows.
+    db.prepare(`
+        DELETE FROM member_notifications
+        WHERE id IN (
+            SELECT id FROM member_notifications
+            ORDER BY created_at DESC, id DESC
+            LIMIT -1 OFFSET 100
+        )
+    `).run();
+    return id;
 }
 
 // ====================================================================
@@ -649,10 +846,10 @@ function createMember({
     bio = '',
     display_order = 0,
     status = 'active'
-}) {
+}, afterCreate = null) {
     const finalFullName = (full_name || name || '').trim();
     const finalDisplayName = (display_name || name || full_name || '').trim();
-    const id = 'mem-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6);
+    const id = 'mem-' + crypto.randomBytes(12).toString('hex');
     const secretCode = generateSecretCode();
     const codeHash = hashSecretCode(secretCode);
 
@@ -661,35 +858,34 @@ function createMember({
         joinDate = new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' });
     }
 
-    db.prepare(`
-        INSERT INTO members (
-            id, name, full_name, display_name, role, handle, gender, date_joined,
-            avatar_url, bio, display_order, secret_code_hash, status, created_at, updated_at
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-    `).run(
-        id,
-        finalDisplayName,
-        finalFullName,
-        finalDisplayName,
-        (role || 'Member').trim(),
-        (handle || '').trim(),
-        (gender || '').trim(),
-        joinDate,
-        (avatar_url || '../assets/user_avatar.jpg').trim(),
-        (bio || '').trim(),
-        Number(display_order) || 0,
-        codeHash,
-        status || 'active'
-    );
-
-    // Seed default member reading item
-    try {
+    withTransaction(() => {
+        db.prepare(`
+            INSERT INTO members (
+                id, name, full_name, display_name, role, handle, gender, date_joined,
+                avatar_url, bio, display_order, secret_code_hash, status, created_at, updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        `).run(
+            id,
+            finalDisplayName,
+            finalFullName,
+            finalDisplayName,
+            (role || 'Member').trim(),
+            (handle || '').trim(),
+            (gender || '').trim(),
+            joinDate,
+            (avatar_url || '/assets/user_avatar.jpg').trim(),
+            (bio || '').trim(),
+            Number(display_order) || 0,
+            codeHash,
+            status || 'active'
+        );
         db.prepare(`
             INSERT INTO member_reading (id, member_id, book_title, book_author, progress, status)
             VALUES (?, ?, ?, ?, ?, ?)
         `).run('read-' + crypto.randomBytes(6).toString('hex'), id, 'The Stranger', 'Albert Camus', 0, 'currently_reading');
-    } catch (e) {}
+        if (typeof afterCreate === 'function') afterCreate({ id, secretCode, member: getMemberById(id) });
+    });
 
     return { id, secretCode, member: getMemberById(id) };
 }
@@ -701,7 +897,7 @@ function updateMember(id, { name, full_name, display_name, role, handle, gender,
     const fName = full_name !== undefined ? full_name.trim() : (name !== undefined ? name.trim() : existing.full_name);
     const dName = display_name !== undefined ? display_name.trim() : (name !== undefined ? name.trim() : existing.display_name);
 
-    db.prepare(`
+    const result = db.prepare(`
         UPDATE members
         SET name = COALESCE(?, name),
             full_name = COALESCE(?, full_name),
@@ -734,6 +930,7 @@ function updateMember(id, { name, full_name, display_name, role, handle, gender,
     if (status === 'suspended') {
         revokeAllMemberSessions(id);
     }
+    return result.changes;
 }
 
 function regenerateMemberCode(memberId) {
@@ -748,49 +945,66 @@ function regenerateMemberCode(memberId) {
 
 function setMemberStatus(memberId, status) {
     const clean = status === 'suspended' ? 'suspended' : 'active';
-    db.prepare('UPDATE members SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(clean, memberId);
+    const result = db.prepare('UPDATE members SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(clean, memberId);
     if (clean === 'suspended') {
         revokeAllMemberSessions(memberId);
     }
+    return result.changes;
 }
 
-function deleteMember(id) {
-    revokeAllMemberSessions(id);
-    db.prepare('DELETE FROM member_reading WHERE member_id = ?').run(id);
-    db.prepare('DELETE FROM member_notes WHERE member_id = ?').run(id);
-    db.prepare('DELETE FROM member_claims WHERE member_id = ?').run(id);
-    db.prepare('DELETE FROM members WHERE id = ?').run(id);
+function deleteMember(id, afterDelete = null) {
+    if (id === 'mem-admin') throw new Error('The built-in admin directory entry cannot be deleted.');
+    return withTransaction(() => {
+        const member = getMemberById(id);
+        if (!member) return 0;
+        revokeAllMemberSessions(id);
+        db.prepare('DELETE FROM member_reading WHERE member_id = ?').run(id);
+        db.prepare('DELETE FROM member_notes WHERE member_id = ?').run(id);
+        db.prepare('DELETE FROM member_claims WHERE member_id = ?').run(id);
+        const changes = db.prepare('DELETE FROM members WHERE id = ?').run(id).changes;
+        if (changes && typeof afterDelete === 'function') afterDelete(member);
+        return changes;
+    });
 }
 
 // Session Management Helpers
 function createMemberSession(memberId, days = 30) {
+    if (!Number.isInteger(days) || days < 1 || days > 90) throw new Error('Member session duration must be between 1 and 90 days.');
     const rawToken = crypto.randomBytes(32).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
     const id = 'msess-' + crypto.randomBytes(8).toString('hex');
     const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
 
-    db.prepare(`
-        INSERT INTO member_sessions (id, member_id, session_token_hash, expires_at)
-        VALUES (?, ?, ?, ?)
-    `).run(id, memberId, tokenHash, expiresAt);
+    withTransaction(() => {
+        db.prepare("DELETE FROM member_sessions WHERE datetime(expires_at) <= datetime('now')").run();
+        db.prepare(`
+            INSERT INTO member_sessions (id, member_id, session_token_hash, expires_at)
+            VALUES (?, ?, ?, ?)
+        `).run(id, memberId, tokenHash, expiresAt);
+        const excess = db.prepare(`
+            SELECT id FROM member_sessions WHERE member_id = ?
+            ORDER BY created_at DESC, id DESC LIMIT -1 OFFSET 20
+        `).all(memberId);
+        for (const session of excess) db.prepare('DELETE FROM member_sessions WHERE id = ?').run(session.id);
+    });
 
     return { token: rawToken, expiresAt };
 }
 
 function getMemberBySessionToken(rawToken) {
-    if (!rawToken) return null;
+    if (typeof rawToken !== 'string' || !/^[a-f0-9]{64}$/i.test(rawToken)) return null;
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
     return db.prepare(`
         SELECT m.id, m.name, m.full_name, m.display_name, m.handle, m.gender, m.date_joined,
                m.avatar_url, m.bio, m.role, m.status, s.id as session_id, s.expires_at
         FROM member_sessions s
         JOIN members m ON s.member_id = m.id
-        WHERE s.session_token_hash = ? AND datetime(s.expires_at) > datetime('now') AND m.status = 'active'
+        WHERE s.session_token_hash = ? AND datetime(s.expires_at) > datetime('now')
     `).get(tokenHash);
 }
 
 function deleteMemberSession(rawToken) {
-    if (!rawToken) return;
+    if (typeof rawToken !== 'string' || !/^[a-f0-9]{64}$/i.test(rawToken)) return;
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
     db.prepare('DELETE FROM member_sessions WHERE session_token_hash = ?').run(tokenHash);
 }
@@ -802,6 +1016,9 @@ function revokeAllMemberSessions(memberId) {
 
 // QR Membership Card Claim Passes
 function createMemberClaim(memberId, days = 7) {
+    if (!Number.isInteger(days) || days < 1 || days > 30) throw new Error('Membership claim duration must be between 1 and 30 days.');
+    db.prepare("DELETE FROM member_claims WHERE datetime(expires_at) <= datetime('now') OR used_at IS NOT NULL").run();
+    db.prepare('DELETE FROM member_claims WHERE member_id = ?').run(memberId);
     const rawToken = crypto.randomBytes(24).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
     const id = 'claim-' + crypto.randomBytes(8).toString('hex');
@@ -816,19 +1033,56 @@ function createMemberClaim(memberId, days = 7) {
 }
 
 function claimMemberPass(rawToken) {
-    if (!rawToken) return null;
+    if (typeof rawToken !== 'string' || rawToken.length > 128) return null;
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    // A single conditional UPDATE makes claiming one-time even when multiple server
+    // processes receive the same QR scan concurrently.
     const claim = db.prepare(`
-        SELECT c.id, c.member_id, m.status
-        FROM member_claims c
-        JOIN members m ON c.member_id = m.id
-        WHERE c.claim_token_hash = ? AND datetime(c.expires_at) > datetime('now') AND c.used_at IS NULL AND m.status = 'active'
+        UPDATE member_claims
+        SET used_at = CURRENT_TIMESTAMP
+        WHERE claim_token_hash = ?
+          AND datetime(expires_at) > datetime('now')
+          AND used_at IS NULL
+          AND member_id IN (SELECT id FROM members WHERE status = 'active')
+        RETURNING member_id
     `).get(tokenHash);
+    return claim ? claim.member_id : null;
+}
 
-    if (!claim) return null;
+function claimMemberPassWithSession(rawToken, days = 30) {
+    if (typeof rawToken !== 'string' || !/^[a-f0-9]{48}$/i.test(rawToken)) return null;
+    if (!Number.isInteger(days) || days < 1 || days > 90) throw new Error('Member session duration must be between 1 and 90 days.');
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    const memberSessionToken = crypto.randomBytes(32).toString('hex');
+    const sessionTokenHash = crypto.createHash('sha256').update(memberSessionToken).digest('hex');
+    const sessionId = 'msess-' + crypto.randomBytes(8).toString('hex');
+    const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
 
-    db.prepare('UPDATE member_claims SET used_at = CURRENT_TIMESTAMP WHERE id = ?').run(claim.id);
-    return claim.member_id;
+    const claim = withTransaction(() => {
+        const result = db.prepare(`
+            UPDATE member_claims
+            SET used_at = CURRENT_TIMESTAMP
+            WHERE claim_token_hash = ?
+              AND datetime(expires_at) > datetime('now')
+              AND used_at IS NULL
+              AND member_id IN (SELECT id FROM members WHERE status = 'active')
+            RETURNING member_id
+        `).get(tokenHash);
+        if (!result) return null;
+
+        db.prepare("DELETE FROM member_sessions WHERE datetime(expires_at) <= datetime('now')").run();
+        db.prepare(`
+            INSERT INTO member_sessions (id, member_id, session_token_hash, expires_at)
+            VALUES (?, ?, ?, ?)
+        `).run(sessionId, result.member_id, sessionTokenHash, expiresAt);
+        const excess = db.prepare(`
+            SELECT id FROM member_sessions WHERE member_id = ?
+            ORDER BY created_at DESC, id DESC LIMIT -1 OFFSET 20
+        `).all(result.member_id);
+        for (const session of excess) db.prepare('DELETE FROM member_sessions WHERE id = ?').run(session.id);
+        return { memberId: result.member_id, token: memberSessionToken, expiresAt };
+    });
+    return claim;
 }
 
 // Member Reading & Reflection Notes Helpers
@@ -837,7 +1091,7 @@ function getMemberReading(memberId) {
         SELECT id, book_title, book_author, progress, status, updated_at
         FROM member_reading
         WHERE member_id = ?
-        ORDER BY updated_at DESC
+        ORDER BY updated_at DESC, id DESC
         LIMIT 1
     `).get(memberId) || {
         book_title: 'The Stranger',
@@ -847,9 +1101,70 @@ function getMemberReading(memberId) {
     };
 }
 
+function getMemberBookshelf(memberId, limit = 50) {
+    const pageSize = Math.max(1, Math.min(100, Number(limit) || 50));
+    return db.prepare(`
+        SELECT id, book_title AS title, book_author AS author, progress, status, updated_at
+        FROM member_reading
+        WHERE member_id = ?
+        ORDER BY updated_at DESC, id DESC
+        LIMIT ?
+    `).all(memberId, pageSize);
+}
+
+function getMemberNotifications(memberId, limit = 30) {
+    const pageSize = Math.max(1, Math.min(100, Number(limit) || 30));
+    const notifications = db.prepare(`
+        SELECT n.id, n.kind, n.title, n.message, n.href, n.created_at, r.read_at
+        FROM member_notification_recipients r
+        JOIN member_notifications n ON n.id = r.notification_id
+        WHERE r.member_id = ?
+        ORDER BY n.created_at DESC, n.id DESC
+        LIMIT ?
+    `).all(memberId, pageSize).map(item => ({
+        id: item.id,
+        kind: item.kind,
+        title: item.title,
+        message: item.message,
+        href: item.href,
+        created_at: item.created_at,
+        readAt: item.read_at,
+        isRead: Boolean(item.read_at)
+    }));
+    const unreadCount = db.prepare(`
+        SELECT COUNT(*) AS count
+        FROM member_notification_recipients
+        WHERE member_id = ? AND read_at IS NULL
+    `).get(memberId).count;
+    return { notifications, unreadCount };
+}
+
+function markMemberNotificationRead(memberId, notificationId) {
+    return db.prepare(`
+        UPDATE member_notification_recipients
+        SET read_at = COALESCE(read_at, CURRENT_TIMESTAMP)
+        WHERE member_id = ? AND notification_id = ?
+    `).run(memberId, notificationId).changes > 0;
+}
+
+function markAllMemberNotificationsRead(memberId) {
+    return db.prepare(`
+        UPDATE member_notification_recipients
+        SET read_at = CURRENT_TIMESTAMP
+        WHERE member_id = ? AND read_at IS NULL
+    `).run(memberId).changes;
+}
+
 function updateMemberReading(memberId, { book_title, book_author, progress }) {
-    const existing = db.prepare('SELECT id FROM member_reading WHERE member_id = ?').get(memberId);
-    const prog = Math.max(0, Math.min(100, Number(progress) || 0));
+    const existing = db.prepare(`
+        SELECT id, progress FROM member_reading
+        WHERE member_id = ?
+        ORDER BY updated_at DESC, id DESC
+        LIMIT 1
+    `).get(memberId);
+    const requestedProgress = progress === undefined ? (existing?.progress ?? 0) : Number(progress);
+    if (!Number.isFinite(requestedProgress)) throw new Error('Reading progress must be a finite number.');
+    const prog = Math.max(0, Math.min(100, requestedProgress));
     if (existing) {
         db.prepare(`
             UPDATE member_reading
@@ -858,7 +1173,12 @@ function updateMemberReading(memberId, { book_title, book_author, progress }) {
                 progress = ?,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
-        `).run(book_title ? book_title.trim() : null, book_author ? book_author.trim() : null, prog, existing.id);
+        `).run(
+            typeof book_title === 'string' && book_title.trim() ? book_title.trim() : null,
+            typeof book_author === 'string' && book_author.trim() ? book_author.trim() : null,
+            prog,
+            existing.id
+        );
     } else {
         const id = 'read-' + crypto.randomBytes(6).toString('hex');
         db.prepare(`
@@ -873,22 +1193,35 @@ function getMemberNotes(memberId) {
         SELECT id, content, created_at, updated_at
         FROM member_notes
         WHERE member_id = ?
-        ORDER BY created_at DESC
+        ORDER BY created_at DESC, id DESC
+        LIMIT 200
     `).all(memberId);
 }
 
 function addMemberNote(memberId, content) {
-    if (!content || !content.trim()) return null;
-    const id = 'note-' + crypto.randomBytes(6).toString('hex');
+    if (typeof content !== 'string' || !content.trim()) return null;
+    const cleanContent = content.trim();
+    if (cleanContent.length > 4000) {
+        const error = new Error('A reflection must be 4000 characters or fewer.');
+        error.code = 'NOTE_TOO_LONG';
+        throw error;
+    }
+    const count = db.prepare('SELECT COUNT(*) AS count FROM member_notes WHERE member_id = ?').get(memberId).count;
+    if (count >= 200) {
+        const error = new Error('This desk has reached its 200-note limit. Delete an older note before adding another.');
+        error.code = 'NOTE_LIMIT_REACHED';
+        throw error;
+    }
+    const id = 'note-' + crypto.randomBytes(12).toString('hex');
     db.prepare(`
         INSERT INTO member_notes (id, member_id, content, created_at, updated_at)
         VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-    `).run(id, memberId, content.trim());
+    `).run(id, memberId, cleanContent);
     return id;
 }
 
 function deleteMemberNote(noteId, memberId) {
-    db.prepare('DELETE FROM member_notes WHERE id = ? AND member_id = ?').run(noteId, memberId);
+    return db.prepare('DELETE FROM member_notes WHERE id = ? AND member_id = ?').run(noteId, memberId).changes;
 }
 
 // Initialize tables immediately
@@ -896,14 +1229,16 @@ initDatabase();
 
 module.exports = {
     db,
+    withTransaction,
     initDatabase,
     seedInitialAccounts,
     seedDefaultSettings,
-    seedDefaultUpdates,
-    seedDefaultMembers,
     getCuratorByIdentifier,
     getCuratorById,
     getCuratorWithPassword,
+    updateCuratorLastLogin,
+    clearInitialAdminPasswordFile,
+    revokeOtherCuratorSessions,
     updateCuratorProfile,
     createCuratorSession,
     getCuratorBySessionTokenHash,
@@ -915,6 +1250,7 @@ module.exports = {
     createUpdate,
     updateUpdate,
     deleteUpdate,
+    createMemberNotification,
     // Members & Secret Code Helpers
     generateSecretCode,
     hashSecretCode,
@@ -934,8 +1270,13 @@ module.exports = {
     revokeAllMemberSessions,
     createMemberClaim,
     claimMemberPass,
-    // Reading & Notes
+    claimMemberPassWithSession,
+    // Reading, notifications & notes
     getMemberReading,
+    getMemberBookshelf,
+    getMemberNotifications,
+    markMemberNotificationRead,
+    markAllMemberNotificationsRead,
     updateMemberReading,
     getMemberNotes,
     addMemberNote,

@@ -1,6 +1,7 @@
 /**
  * Automated Verification Suite for Wabi Sabi Authentication & RBAC System
  */
+const { ADMIN_PASSWORD } = require('./test_config');
 const { app, startServer } = require('../server/index');
 const http = require('node:http');
 
@@ -67,7 +68,7 @@ async function runTests() {
     console.log('\n--- 2. Testing Admin Authentication (wabisabiofficial3@gmail.com) ---');
     const curRes = await request('POST', '/api/auth/login', {
         email: 'wabisabiofficial3@gmail.com',
-        password: 'DsL@678_'
+        password: ADMIN_PASSWORD
     });
     console.assert(curRes.status === 200, `Expected 200, got ${curRes.status}`);
     console.assert(curRes.data.user.role === 'CURATOR' || curRes.data.user.role === 'ADMIN', `Expected CURATOR/ADMIN role, got ${curRes.data.user.role}`);

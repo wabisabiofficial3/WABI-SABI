@@ -130,15 +130,40 @@ document.addEventListener('DOMContentLoaded', async () => {
             .replace(/'/g, "&#039;");
     }
 
+    function safeAvatarUrl(value) {
+        const fallback = '/assets/user_avatar.jpg';
+        if (typeof value !== 'string' || !value.trim()) return fallback;
+        try {
+            const parsed = new URL(value.trim(), window.location.href);
+            if (parsed.username || parsed.password) return fallback;
+            const isLocalAsset = parsed.origin === window.location.origin
+                && parsed.pathname.startsWith('/assets/')
+                && !parsed.pathname.split('/').includes('..');
+            if (isLocalAsset) return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+            if (parsed.protocol === 'https:') return parsed.href;
+        } catch (error) {
+            return fallback;
+        }
+        return fallback;
+    }
+
+    function safeCount(value) {
+        const count = Number(value);
+        return Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
+    }
+
     // Render individual message card
     function renderMessageRow(msg, append = true) {
-        if (!chatMessagesStream) return;
+        if (!chatMessagesStream || !msg || typeof msg !== 'object') return;
         const isOwn = window.currentMemberSession && (window.currentMemberSession.id === msg.userId || window.currentMemberSession.handle === msg.handle);
         const timeStr = msg.createdAt ? formatTime(new Date(msg.createdAt)) : formatTime();
+        const messageId = String(msg.id ?? '');
+        const likesCount = safeCount(msg.likesCount);
+        const avatarUrl = safeAvatarUrl(msg.avatar);
 
         const row = document.createElement('div');
         row.className = `chat-message-row ${isOwn ? 'user-own-message' : ''}`;
-        row.dataset.msgId = msg.id;
+        row.dataset.msgId = messageId;
 
         let quoteHtml = '';
         if (msg.quoteRef) {
@@ -153,7 +178,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const curatorBadge = msg.isCurator ? `<span class="curator-chat-badge">Curator</span>` : '';
 
         row.innerHTML = `
-            <img src="${msg.avatar || 'assets/user_avatar.jpg'}" alt="${escapeHtml(msg.name)}" class="msg-avatar">
+            <img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(msg.name)}" class="msg-avatar">
             <div class="msg-content-column">
                 <div class="msg-header-line">
                     <span class="msg-author-name">${isOwn ? 'You' : escapeHtml(msg.name)}</span>
@@ -165,9 +190,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ${escapeHtml(msg.content)}
                 </div>
                 <div class="msg-actions-row">
-                    <button class="msg-react-btn msg-btn-like" data-likes="${msg.likesCount || 0}" data-msg-id="${msg.id}" title="Like reflection">
+                    <button class="msg-react-btn msg-btn-like" data-likes="${likesCount}" data-msg-id="${escapeHtml(messageId)}" title="Like reflection">
                         <span class="heart-icon">❤️</span>
-                        <span class="likes-count">${msg.likesCount || 0}</span>
+                        <span class="likes-count">${likesCount}</span>
                     </button>
                     <button class="msg-react-btn msg-btn-reply" title="Reply to ${escapeHtml(msg.name)}">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

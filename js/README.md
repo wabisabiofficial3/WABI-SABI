@@ -1,51 +1,26 @@
-# ⚡ Client JavaScript Manual (`/js`)
+# Client JavaScript
 
-This directory contains the front-end application logic for **Wabi Sabi: A Reading Sanctuary**. All scripts are written in standard ES6+ JavaScript, designed with modular separation of concerns, zero bloated framework runtimes, and clean connection to backend REST endpoints.
+The site uses native browser JavaScript. Session checks in `js/store.js` are for client behavior only; the server validates cookies and authorizes every protected page/API request.
 
----
+## Active session and portal scripts
 
-## 🧭 Client State & Data Architecture
+| Script | Responsibility | Server endpoints |
+| --- | --- | --- |
+| `store.js` | Same-origin API wrapper; verifies curator sessions and member-code sessions; exposes client route guard | `/api/auth/session`, `/api/auth/login`, `/api/auth/logout`, `/api/member/status` |
+| `portal.js` | Public home theme controls and portal data hydration | `/api/portal`, `/api/user/profile` |
+| `admin-shortcut.js` | Carries a five-click logo shortcut to the existing admin sign-in page; no authentication or authorization decisions | `/sanctuary` navigation only |
+| `curator.js` | Curator console data, content and member-management actions; reports when a save produced a member broadcast | `/api/curator/*` |
+| `member-notifications.js` | Shared notification center, unread/read state, and validated same-site destinations | `/api/member/notifications*` |
+| `cat-engine.js` | Decorative Mochi cat and ambient interaction | None |
 
-```
-                 [window.WabiStore] (store.js)
-                 ├── Session state & JWT handling
-                 ├── Theme engine (dark/light)
-                 ├── HTTP Request Client (fetchWithAuth)
-                 └── Client-side Page Guard Verification
-                                 │
-     ┌──────────────┬────────────┼─────────────┬──────────────┐
-     ▼              ▼            ▼             ▼              ▼
-dashboard.js    reader.js   table-room.js  community.js  curator.js
- (home.html)  (reader.html) (table-room)   (community)   (curator)
-```
+## Standalone member spaces
 
----
+`community.js`, `reader.js`, `table-room.js`, and `wabi-wall.js` are loaded by their own HTML pages. Their shared navigation uses the canonical routes `/community`, `/reader`, `/table-room`, and `/wabi-wall`. The store verifies `/api/auth/session` or `/api/member/status` before client initialization; this supplements, but never replaces, the server-side `requireMemberPage` guard.
 
-## 📂 File Index & Technical Responsibilities
+`wabi-wall.js` uses the active `/api/notices` router: it loads active cards, saves curator content, archives cards, and persists drag positions. Curator changes receive a member-facing success message only when the server confirms a notification was created; position-only saves are silent. See [`../server/routes/README.md`](../server/routes/README.md) for the endpoint contract.
 
-| File | Purpose | Key Dependencies | Backend API Endpoints Called | Page Loaded On |
-| :--- | :--- | :--- | :--- | :--- |
-| [`store.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/js/store.js) | Central client store, authentication session manager, theme switcher, and API wrapper | None (Native Browser API) | `/api/auth/me`, `/api/auth/logout` | **All Pages** |
-| [`auth.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/js/auth.js) | Login form submission, password toggling, demo login shortcuts, error handling | `store.js` | `/api/auth/login` | `login.html` |
-| [`onboarding.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/js/onboarding.js) | Multi-step membership questionnaire, input validation, application submission | `store.js` | `/api/application/submit` | `join.html` |
-| [`application.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/js/application.js) | Application status polling, review timeline display, decision notices | `store.js` | `/api/application/status/:id` | `application-status.html` |
-| [`dashboard.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/js/dashboard.js) | Member homepage controller, reading progress stats, notices board carousel | `store.js` | `/api/notices`, `/api/content/current-book` | `home.html` |
-| [`reader.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/js/reader.js) | E-reader canvas controller, PDF page rendering, bookmarks, margin notes dock | `store.js`, `vendor/pdf.min.js` | `/api/content/books/:id`, `/api/content/notes` | `reader.html` |
-| [`table-room.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/js/table-room.js) | 8-seat communal focus room, active seating management, live chat polling, Pomodoro timer | `store.js` | `/api/chat/messages`, `/api/chat/presence` | `table-room.html` |
-| [`community.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/js/community.js) | Salon forum board, category filtering, thread creation, comment trees, likes | `store.js` | `/api/community/threads`, `/api/community/comments` | `community.html` |
-| [`wabi-wall.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/js/wabi-wall.js) | Theme weeks showcase, masonry polaroid wall, quote clippings, card submission | `store.js` | `/api/content/wall`, `/api/content/wall/submit` | `wabi-wall.html` |
-| [`curator.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/js/curator.js) | Editorial desk, application approval/rejection queue, book catalogue CMS, notice composer | `store.js` | `/api/curator/*`, `/api/content/books`, `/api/notices` | `curator.html` |
-| [`cat-engine.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/js/cat-engine.js) | Interactive sanctuary cat mascot engine ("Mochi") with audio purrs and walking animation | `assets/cat_*.png`, `assets/meow.mp3` | None | `home.html`, `reader.html`, `table-room.html` |
-| [`theme-weeks.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/js/theme-weeks.js) | *Legacy script*: Automatically redirects legacy URL calls to `wabi-wall.js` | `store.js` | Redirects to `/wabi-wall.html` | `theme-weeks.html` |
-| [`vendor/`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/js/vendor) | Third-party vendor libraries (Mozilla PDF.js) | See subfolder README | Local PDF rendering engine | `reader.html` |
+Some older Community and Table Room interactions still call `/api/community/*` or `/api/chat/*`, which are not mounted by the current server. Those legacy calls do not persist data in this version. The Wabi Wall API is active and should not be confused with the retired theme-week route.
 
----
+## Legacy scripts
 
-## 🔒 Client-Side Route Guards
-
-Every private member page (`home.html`, `reader.html`, `table-room.html`, `community.html`, `wabi-wall.html`, `curator.html`) invokes `WabiStore.guardPage()` inside an inline `<script>` tag at the very top of `<head>` or at DOM load:
-
-1. **Member Authentication Guard**:
-   If no valid session cookie/token exists, the client is immediately redirected to `/login.html?redirect=<current_path>`.
-2. **Curator Role Guard**:
-   `curator.html` additionally checks `user.role === 'curator'`. If a standard member attempts direct URL entry, they are redirected back to `/home.html` with an access alert.
+`onboarding.js`, `application.js`, and `theme-weeks.js` remain as scripts from retired flows. The corresponding membership-application and theme-week page routes redirect to the public portal; these scripts are not part of the active member-code flow. `vendor/` contains local third-party browser libraries.

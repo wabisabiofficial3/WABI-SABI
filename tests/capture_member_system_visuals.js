@@ -1,7 +1,8 @@
+const { ADMIN_PASSWORD } = require('./test_config');
 const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
-const { createMemberSession, getMemberByCode, curatorCredentials } = require('../server/db');
+const { createMember, createMemberSession, deleteMember } = require('../server/db');
 
 const ARTIFACT_DIR = 'C:\\Users\\dhanu\\.gemini\\antigravity\\brain\\7a63a30c-3ac9-4783-9524-aa29aea1bc85';
 const PORT = 3000;
@@ -10,10 +11,16 @@ const BASE_URL = `http://localhost:${PORT}`;
 async function captureVisuals() {
     console.log('► Starting visual screenshot capture of Member-Access System...');
 
-    // 1. Get or create a session for Akshaya
-    const akshaya = getMemberByCode('WS-7K4M-X92P-LQ8A');
-    if (!akshaya) throw new Error('Akshaya not found in db');
-    const session = createMemberSession(akshaya.id, 7);
+    // 1. Create a temporary member fixture for this optional capture.
+    const visualMember = createMember({
+        name: 'Visual Test Member',
+        full_name: 'Visual Test Member',
+        display_name: 'Visual Test Member',
+        role: 'Member',
+        handle: '@visual-test-member',
+        bio: 'Temporary screenshot fixture.'
+    });
+    const session = createMemberSession(visualMember.id, 7);
 
     // 2. Launch headless edge
     const edgePath = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
@@ -107,7 +114,7 @@ async function captureVisuals() {
                 const passInput = document.getElementById('sanctuaryPassword') || document.querySelector('input[type="password"]');
                 const form = document.getElementById('sanctuaryLoginForm') || document.querySelector('form');
                 if (emailInput) emailInput.value = 'wabisabiofficial3@gmail.com';
-                if (passInput) passInput.value = 'DsL@678_';
+                if (passInput) passInput.value = ADMIN_PASSWORD;
                 if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
             `
         });
@@ -122,7 +129,7 @@ async function captureVisuals() {
         });
         await new Promise(r => setTimeout(r, 1200));
 
-        // Open QR card modal for Akshaya
+        // Open QR card modal for the temporary test member
         await send('Runtime.evaluate', {
             expression: `
                 const qrBtns = Array.from(document.querySelectorAll('button')).filter(b => b.textContent.includes('QR Card'));
@@ -141,6 +148,8 @@ async function captureVisuals() {
     } catch (err) {
         edgeProcess.kill();
         console.error('Screenshot capture failed:', err);
+    } finally {
+        deleteMember(visualMember.id);
     }
 }
 

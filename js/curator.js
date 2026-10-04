@@ -29,6 +29,11 @@
         }, 3400);
     }
 
+    function showSaveToast(message, data) {
+        const hasMemberNotice = Number(data?.notificationsCreated) > 0;
+        showToast(`${message}${hasMemberNotice ? ' • Members notified.' : ''}`);
+    }
+
     // Verify Authenticated Curator
     async function checkAuth() {
         try {
@@ -262,15 +267,18 @@
         }
 
         container.innerHTML = displayList.map(m => {
+            const memberId = String(m.id || '');
+            if (!/^[A-Za-z0-9_-]{1,80}$/.test(memberId)) return '';
             const isSuspended = m.status === 'suspended';
+            const avatarUrl = safeHttpUrl(m.avatar_url || '/assets/user_avatar.jpg') || '/assets/user_avatar.jpg';
             const displayName = escapeHtml(m.display_name || m.full_name || m.name);
             const handleText = m.handle ? escapeHtml(m.handle) : `@${escapeHtml((m.name || 'member').toLowerCase().replace(/\s+/g, ''))}`;
             const dateJoined = escapeHtml(m.date_joined || 'Autumn 2026');
 
             return `
-            <div class="curator-member-card" id="member-card-${m.id}">
+            <div class="curator-member-card" id="member-card-${memberId}">
                 <div class="curator-member-info">
-                    <img src="${m.avatar_url || '/assets/user_avatar.jpg'}" alt="${displayName}" class="curator-member-avatar" onerror="this.src='/assets/user_avatar.jpg'">
+                    <img src="${escapeHtml(avatarUrl)}" alt="${displayName}" class="curator-member-avatar" onerror="this.src='/assets/user_avatar.jpg'">
                     <div class="curator-member-meta">
                         <div class="curator-member-name-row">
                             <span class="curator-member-name">${displayName}</span>
@@ -286,22 +294,22 @@
                     </div>
                 </div>
                 <div class="curator-member-actions">
-                    <a href="/my-space?preview=${m.id}" target="_blank" class="c-btn-action" title="Preview member desk">
+                    <a href="/my-space?preview=${encodeURIComponent(memberId)}" target="_blank" rel="noopener noreferrer" class="c-btn-action" title="Preview member desk">
                         <span>↗ Space</span>
                     </a>
-                    <button type="button" class="c-btn-action" onclick="window.openEditMemberModal('${m.id}')" title="Edit member portrait">
+                    <button type="button" class="c-btn-action" onclick="window.openEditMemberModal('${memberId}')" title="Edit member portrait">
                         <span>✎ Edit</span>
                     </button>
-                    <button type="button" class="c-btn-action" onclick="window.regenerateMemberCode('${m.id}')" title="Regenerate secret code">
+                    <button type="button" class="c-btn-action" onclick="window.regenerateMemberCode('${memberId}')" title="Regenerate secret code">
                         <span>🔑</span>
                     </button>
-                    <button type="button" class="c-btn-action" onclick="window.openMemberQrModal('${m.id}')" title="Generate QR card">
+                    <button type="button" class="c-btn-action" onclick="window.openMemberQrModal('${memberId}')" title="Generate QR card">
                         <span>🪪</span>
                     </button>
-                    <button type="button" class="c-btn-action" onclick="window.toggleMemberStatus('${m.id}', '${isSuspended ? 'active' : 'suspended'}')" title="${isSuspended ? 'Restore access' : 'Suspend access'}">
+                    <button type="button" class="c-btn-action" onclick="window.toggleMemberStatus('${memberId}', '${isSuspended ? 'active' : 'suspended'}')" title="${isSuspended ? 'Restore access' : 'Suspend access'}">
                         <span>${isSuspended ? '✓' : '⏸'}</span>
                     </button>
-                    <button type="button" class="c-btn-action" style="color: #A23434;" onclick="window.deleteCuratorMember('${m.id}')" title="Remove member">
+                    <button type="button" class="c-btn-action" style="color: #A23434;" onclick="window.deleteCuratorMember('${memberId}')" title="Remove member">
                         <span>✕</span>
                     </button>
                 </div>
@@ -364,12 +372,15 @@
             const btnEl = document.getElementById(item.btn);
             if (inputEl && btnEl) {
                 const update = () => {
-                    const url = (inputEl.value || '').trim();
+                    const url = safeHttpUrl((inputEl.value || '').trim());
                     btnEl.href = url || '#';
                     btnEl.style.opacity = url ? '1' : '0.4';
                     btnEl.style.pointerEvents = url ? 'auto' : 'none';
                 };
-                inputEl.addEventListener('input', update);
+                if (!inputEl._testLinkBound) {
+                    inputEl.addEventListener('input', update);
+                    inputEl._testLinkBound = true;
+                }
                 update();
             }
         });
@@ -442,7 +453,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ Weekly Theme updated!');
+                        showSaveToast('✦ Weekly Theme updated!', data);
                     } else {
                         showToast(data.error || 'Failed to update theme.', true);
                     }
@@ -473,7 +484,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ Reading selection updated!');
+                        showSaveToast('✦ Reading selection updated!', data);
                         const statBookTitle = document.getElementById('statBookTitle');
                         const statBookAuthor = document.getElementById('statBookAuthor');
                         if (statBookTitle) statBookTitle.textContent = this_weeks_reading.title;
@@ -508,7 +519,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ Gathering salon details updated!');
+                        showSaveToast('✦ Gathering salon details updated!', data);
                         const statMeetingDate = document.getElementById('statMeetingDate');
                         const statMeetingLoc = document.getElementById('statMeetingLoc');
                         if (statMeetingDate) statMeetingDate.textContent = gathering.date;
@@ -542,7 +553,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ Discussion inquiries and notice updated!');
+                        showSaveToast('✦ Discussion inquiries and notice updated!', data);
                     } else {
                         showToast(data.error || 'Failed to save notes.', true);
                     }
@@ -570,7 +581,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ Bulletin published to public wall!');
+                        showSaveToast('✦ Bulletin published to public wall!', data);
                         noticeForm.reset();
                         document.getElementById('announcementPinned').checked = true;
                         loadDashboardData();
@@ -617,7 +628,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ All Button Links & Labels updated live!');
+                        showSaveToast('✦ All Button Links & Labels updated live!', data);
                         updateTestLinks();
                     } else {
                         showToast(data.error || 'Failed to save button links.', true);
@@ -649,7 +660,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ Desk sticky notes updated!');
+                        showSaveToast('✦ Desk sticky notes updated!', data);
                     } else {
                         showToast(data.error || 'Failed to save notes.', true);
                     }
@@ -691,7 +702,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('✦ Admin Profile updated successfully!');
+                        showSaveToast('✦ Admin Profile updated successfully!', data);
                         const nameEl = document.getElementById('curatorIdentityName');
                         if (nameEl) nameEl.textContent = displayName || 'Wabi Sabi Admin';
                         document.getElementById('adminCurrentPasswordInput').value = '';
@@ -722,7 +733,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast(isEnabled ? '✈️ Paper Airplane feature enabled on portal!' : '✦ Paper Airplane feature turned off (Default)');
+                        showSaveToast(isEnabled ? '✈️ Paper Airplane feature enabled on portal!' : '✦ Paper Airplane feature turned off (Default)', data);
                     } else {
                         showToast(data.error || 'Failed to update feature setting.', true);
                         e.target.checked = !isEnabled;
@@ -802,7 +813,7 @@
                         const successModal = document.getElementById('memberCreatedModal');
                         if (successModal) successModal.style.display = 'flex';
 
-                        showToast(`✦ Secret Code created for ${data.member.displayName || data.member.name}!`);
+                        showSaveToast(`✦ Secret Code created for ${data.member.displayName || data.member.name}!`, data);
                         if (data.members) renderMembers(data.members);
                     } else {
                         showToast(data.error || 'Failed to create member.', true);
@@ -897,7 +908,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast(`✦ Portrait updated for ${displayName || fullName}!`);
+                        showSaveToast(`✦ Portrait updated for ${displayName || fullName}!`, data);
                         window.closeEditMemberModal();
                         if (data.members) renderMembers(data.members);
                     } else {
@@ -1094,7 +1105,7 @@
             });
             const data = await res.json();
             if (data.success) {
-                showToast(`✦ Membership status updated to ${nextStatus}.`);
+                showSaveToast(`✦ Membership status updated to ${nextStatus}.`, data);
                 if (data.members) renderMembers(data.members);
             } else {
                 showToast(data.error || 'Failed to update status.', true);
@@ -1119,7 +1130,7 @@
             });
             const data = await res.json();
             if (data.success) {
-                showToast(`✦ ${name} removed from circle.`);
+                showSaveToast(`✦ ${name} removed from circle.`, data);
                 if (data.members) renderMembers(data.members);
             } else {
                 showToast(data.error || 'Failed to delete member.', true);
@@ -1141,7 +1152,7 @@
             });
             const data = await res.json();
             if (data.success) {
-                showToast('✦ Notice deleted from board.');
+                showSaveToast('✦ Notice deleted from board.', data);
                 loadDashboardData();
             } else {
                 showToast(data.error || 'Failed to delete notice.', true);
@@ -1176,6 +1187,17 @@
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
+    }
+
+    function safeHttpUrl(value) {
+        if (typeof value !== 'string' || !value.trim()) return '';
+        try {
+            const parsed = new URL(value.trim(), window.location.origin);
+            if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password) return '';
+            return parsed.href;
+        } catch (e) {
+            return '';
+        }
     }
 
     // Theme Controller

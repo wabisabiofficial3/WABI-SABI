@@ -43,12 +43,43 @@
             --wabi-earth-clay: #B68674;
             --wabi-ink: #EAE6DF;
             --wabi-ink-muted: #B8B0A2;
-            --wabi-ink-faint: #807769;
+            --wabi-ink-faint: #A39A8E;
             --wabi-border-subtle: rgba(120, 105, 85, 0.35);
             --wabi-border-medium: rgba(140, 125, 105, 0.45);
             --wabi-shadow-paper: 0 10px 30px rgba(0, 0, 0, 0.45);
             --wabi-shadow-card: 0 14px 40px rgba(0, 0, 0, 0.55);
             --wabi-gold-seal: #B85242;
+            --bg-page: #141312;
+            --bg-card-solid: #22201D;
+            --border-card: #3B3731;
+            --border-subtle: #34302B;
+            --ink-primary: #EAE6DF;
+            --ink-secondary: #B8B0A2;
+            --ink-muted: #B8B0A2;
+            --accent-sage-dark: #8BA892;
+        }
+
+        [data-theme="dark"] .btn-delete-note,
+        [data-theme="dark"] .access-error {
+            color: #F0A39C;
+        }
+
+        [data-theme="dark"] .desk-badge-vol,
+        [data-theme="dark"] .desk-nav-link:hover,
+        [data-theme="dark"] .portrait-handle,
+        [data-theme="dark"] .portrait-status-pill,
+        [data-theme="dark"] .shelf-badge,
+        [data-theme="dark"] .gathering-info h4,
+        [data-theme="dark"] .timeline-bullet,
+        [data-theme="dark"] #unauthenticatedCard p a,
+        [data-theme="dark"] #gatheringMapsLink {
+            color: #A7D2AF !important;
+        }
+
+        [data-theme="dark"] .access-input::placeholder,
+        [data-theme="dark"] .note-textarea::placeholder {
+            color: var(--wabi-ink-muted);
+            opacity: 1;
         }
 
         * {
@@ -750,20 +781,258 @@
             display: none;
         }
 
-        /* Loading Skeleton */
+        /* Loading and connection-failure states */
         #deskSkeleton {
             text-align: center;
             padding: 80px 20px;
             color: var(--wabi-ink-muted);
             font-style: italic;
         }
+
+        #deskConnectionError {
+            max-width: 520px;
+            margin: 60px auto;
+            padding: 32px 28px;
+            color: var(--wabi-ink);
+            text-align: center;
+            background: var(--wabi-cream-light);
+            border: 1px solid var(--wabi-border-medium);
+            border-radius: var(--wabi-radius-card);
+            box-shadow: var(--wabi-shadow-card);
+        }
+
+        #deskConnectionError[hidden] {
+            display: none !important;
+        }
+
+        #deskConnectionError h2 {
+            margin: 0 0 8px;
+            font: 700 20px/1.3 'Cinzel', Georgia, serif;
+        }
+
+        #deskConnectionError p {
+            margin: 0 0 18px;
+            color: var(--wabi-ink-muted);
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        #retryDeskLoadBtn {
+            min-height: 44px;
+            padding: 10px 20px;
+            color: #fff;
+            background: var(--wabi-forest-green);
+            border: 0;
+            border-radius: var(--wabi-radius-pill);
+            font: 600 13px 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+        }
+
+        @media (max-width: 760px) {
+            .desk-header {
+                align-items: flex-start;
+                flex-wrap: wrap;
+                padding: 16px 18px;
+                gap: 12px;
+            }
+
+            .desk-brand {
+                min-height: 44px;
+            }
+
+            .desk-nav-actions {
+                width: 100%;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                gap: 6px;
+            }
+
+            .desk-nav-link,
+            .btn-leave-space {
+                min-height: 44px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .desk-container {
+                padding: 24px 18px 56px;
+            }
+
+            .member-portrait-card {
+                padding: 26px 24px;
+                gap: 20px;
+                align-items: flex-start;
+            }
+
+            .portrait-left {
+                align-items: flex-start;
+                gap: 18px;
+                width: 100%;
+            }
+
+            .portrait-meta {
+                min-width: 0;
+            }
+
+            .portrait-meta h1 {
+                font-size: clamp(25px, 7vw, 32px);
+                overflow-wrap: anywhere;
+            }
+
+            .desk-module {
+                min-width: 0;
+                padding: 22px;
+            }
+
+            .module-header {
+                align-items: flex-start;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .module-title {
+                font-size: 14px;
+            }
+
+            .reading-card-inner {
+                gap: 14px;
+            }
+
+            .gathering-box {
+                align-items: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .gathering-info {
+                min-width: 0;
+                flex: 1 1 180px;
+            }
+
+            #unauthenticatedCard {
+                width: 100%;
+                margin: 32px auto;
+                padding: 32px 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #curatorPreviewBanner.active {
+                flex-wrap: wrap;
+                gap: 6px 10px;
+                padding: 10px 14px;
+                font-size: 12px;
+            }
+
+            .desk-header {
+                padding: 14px 14px;
+            }
+
+            .desk-logo-text {
+                font-size: 18px;
+            }
+
+            .desk-nav-actions {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 6px;
+            }
+
+            .desk-nav-link {
+                min-width: 0;
+                padding: 8px 6px;
+                font-size: 12px;
+                text-align: center;
+            }
+
+            .btn-leave-space {
+                grid-column: 1 / -1;
+            }
+
+            .desk-container {
+                padding: 18px 12px 44px;
+            }
+
+            .member-portrait-card {
+                padding: 22px 18px;
+                border-radius: 14px;
+            }
+
+            .portrait-stamp {
+                top: 14px;
+                right: 14px;
+                width: 36px;
+                height: 36px;
+                font-size: 13px;
+            }
+
+            .portrait-left {
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .portrait-avatar {
+                width: 72px;
+                height: 72px;
+            }
+
+            .desk-module {
+                padding: 18px 16px;
+                border-radius: 14px;
+            }
+
+            .module-tag {
+                font-size: 10px;
+            }
+
+            .reading-card-inner {
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .reading-book-title {
+                font-size: 21px;
+            }
+
+            .notes-list {
+                max-height: 42dvh;
+            }
+
+            .note-footer {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .btn-delete-note,
+            .btn-save-note,
+            .btn-update-progress,
+            .btn-access-submit {
+                min-height: 44px;
+            }
+
+            .note-textarea,
+            .access-input {
+                font-size: 16px;
+            }
+
+            #unauthenticatedCard {
+                margin: 22px auto;
+                padding: 28px 18px;
+            }
+
+            .access-card-title {
+                font-size: 20px;
+            }
+        }
     </style>
+    <link rel="stylesheet" href="../css/realism.css">
+    <link rel="stylesheet" href="../css/member-notifications.css">
 </head>
 <body>
 
     <!-- Curator Preview Banner -->
     <div id="curatorPreviewBanner">
-        <span>⚜ <strong>CURATOR VIEW</strong> • Viewing <span id="curatorTargetName">Member</span>'s Space</span>
+        <span>⚜ <strong>READ-ONLY CURATOR PREVIEW</strong> • Viewing <span id="curatorTargetName">Member</span>'s Space</span>
         <a href="/curator.html">Return to Curator Studio ↗</a>
     </div>
 
@@ -783,6 +1052,7 @@
                 <span>Leave My Space</span>
                 <span>→</span>
             </button>
+            <div id="memberNotificationRoot" hidden></div>
         </div>
     </header>
 
@@ -808,6 +1078,13 @@
         <div id="deskSkeleton">
             <p>Quietly arranging your reading desk...</p>
         </div>
+
+        <!-- Connection failures must not be mistaken for an unauthenticated account. -->
+        <section id="deskConnectionError" role="alert" aria-live="assertive" aria-labelledby="deskConnectionErrorTitle" hidden>
+            <h2 id="deskConnectionErrorTitle">Your desk is temporarily unavailable</h2>
+            <p id="deskConnectionErrorMessage">We couldn’t connect to the member service. Please try again.</p>
+            <button id="retryDeskLoadBtn" type="button">Try again</button>
+        </section>
 
         <!-- Authenticated Personal Desk -->
         <div id="authenticatedDesk" style="display: none;">
@@ -891,7 +1168,7 @@
                 <div class="desk-module">
                     <div class="module-header">
                         <h2 class="module-title"><span>📚</span> My Shelf</h2>
-                        <span class="module-tag">3 Titles</span>
+                        <span class="module-tag" id="shelfCountLabel">Loading shelf…</span>
                     </div>
 
                     <div id="shelfContainer" class="shelf-grid">
@@ -944,6 +1221,9 @@
     </main>
 
     <script>
+        let isCuratorReadOnlyPreview = false;
+        let memberDeskPreviewId = null;
+
         // Automatic secret code formatter (WS-XXXX-XXXX-XXXX)
         function formatCodeInput(val) {
             const clean = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
@@ -1002,6 +1282,7 @@
         const leaveBtn = document.getElementById('leaveSpaceBtn');
         if (leaveBtn) {
             leaveBtn.addEventListener('click', async () => {
+                if (isCuratorReadOnlyPreview) return;
                 try {
                     await fetch('/api/member/leave', { method: 'POST' });
                 } catch (e) {}
@@ -1020,32 +1301,90 @@
                 .replace(/'/g, '&#039;');
         }
 
+        function safeHttpUrl(value) {
+            if (typeof value !== 'string' || !value.trim()) return '';
+            try {
+                const parsed = new URL(value.trim(), window.location.origin);
+                if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password) return '';
+                return parsed.href;
+            } catch (e) {
+                return '';
+            }
+        }
+
         // Hydrate Member Desk
         async function loadMemberDesk() {
             const skeleton = document.getElementById('deskSkeleton');
             const desk = document.getElementById('authenticatedDesk');
             const unauth = document.getElementById('unauthenticatedCard');
             const previewBanner = document.getElementById('curatorPreviewBanner');
+            const connectionError = document.getElementById('deskConnectionError');
+            const connectionMessage = document.getElementById('deskConnectionErrorMessage');
 
             // Check if preview query param is present
             const params = new URLSearchParams(window.location.search);
             const previewId = params.get('preview');
+            const returnTo = params.get('returnTo');
+            const allowedReturnPaths = new Set(['/community', '/reader', '/table-room', '/wabi-wall']);
             const endpoint = previewId ? `/api/member/me?preview=${encodeURIComponent(previewId)}` : '/api/member/me';
 
+            function showAccessForm(message = '') {
+                skeleton.style.display = 'none';
+                desk.style.display = 'none';
+                connectionError.hidden = true;
+                unauth.style.display = 'block';
+                const accessError = document.getElementById('directAccessError');
+                if (accessError) {
+                    accessError.textContent = message;
+                    accessError.style.display = message ? 'block' : 'none';
+                }
+            }
+
+            function showConnectionError(message) {
+                skeleton.style.display = 'none';
+                desk.style.display = 'none';
+                unauth.style.display = 'none';
+                connectionMessage.textContent = message;
+                connectionError.hidden = false;
+            }
+
             try {
-                const res = await fetch(endpoint);
-                if (res.status === 401 || res.status === 403) {
-                    skeleton.style.display = 'none';
-                    unauth.style.display = 'block';
-                    desk.style.display = 'none';
+                const res = await fetch(endpoint, { credentials: 'same-origin', cache: 'no-store' });
+                const data = await res.json();
+                if (res.status === 401) {
+                    showAccessForm();
                     return;
                 }
+                if (res.status === 403) {
+                    showAccessForm(data.error || 'This membership is not currently active. Please speak with your Curator.');
+                    return;
+                }
+                if (!res.ok || !data.success || !data.member) {
+                    const message = typeof data.error === 'string' && data.error.trim()
+                        ? data.error.trim().slice(0, 220)
+                        : 'We couldn’t load your member desk. Please try again.';
+                    showConnectionError(message);
+                    return;
+                }
+                connectionError.hidden = true;
 
-                const data = await res.json();
-                if (!data.success || !data.member) {
-                    skeleton.style.display = 'none';
-                    unauth.style.display = 'block';
-                    desk.style.display = 'none';
+                // Trust preview state only when the server confirms a curator session.
+                isCuratorReadOnlyPreview = Boolean(data.isCuratorPreview);
+                memberDeskPreviewId = isCuratorReadOnlyPreview ? previewId : null;
+                if (isCuratorReadOnlyPreview) {
+                    const leaveButton = document.getElementById('leaveSpaceBtn');
+                    const progressControl = document.getElementById('progressSlider');
+                    const progressSaveButton = document.getElementById('saveProgressBtn');
+                    const addNoteBox = document.querySelector('.add-note-box');
+                    if (leaveButton) { leaveButton.hidden = true; leaveButton.style.display = 'none'; }
+                    if (progressControl) progressControl.disabled = true;
+                    if (progressSaveButton) { progressSaveButton.hidden = true; progressSaveButton.style.display = 'none'; }
+                    if (addNoteBox) { addNoteBox.hidden = true; addNoteBox.style.display = 'none'; }
+                }
+
+                // Return to a member space only after the server confirms this member session.
+                if (!previewId && allowedReturnPaths.has(returnTo)) {
+                    window.location.replace(returnTo);
                     return;
                 }
 
@@ -1065,7 +1404,8 @@
                     document.getElementById('deskMemberBio').textContent = data.member.bio;
                 }
                 if (data.member.avatar_url) {
-                    document.getElementById('deskAvatar').src = data.member.avatar_url;
+                    const avatarUrl = safeHttpUrl(data.member.avatar_url);
+                    if (avatarUrl) document.getElementById('deskAvatar').src = avatarUrl;
                 }
 
                 // Populate Reading
@@ -1075,7 +1415,8 @@
                 document.getElementById('bookJacketTitle').textContent = r.book_title || 'The Stranger';
                 document.getElementById('bookJacketAuthor').textContent = r.book_author || 'Albert Camus';
                 
-                const prog = r.progress || 0;
+                const rawProgress = Number(r.progress);
+                const prog = Number.isFinite(rawProgress) ? Math.max(0, Math.min(100, rawProgress)) : 0;
                 document.getElementById('progressPercentLabel').textContent = `${prog}% complete`;
                 document.getElementById('progressBarFill').style.width = `${prog}%`;
                 document.getElementById('progressSlider').value = prog;
@@ -1094,8 +1435,8 @@
                 saveProgBtn.addEventListener('click', async () => {
                     saveProgBtn.textContent = 'Saving...';
                     try {
-                        const url = previewId ? `/api/member/reading?preview=${encodeURIComponent(previewId)}` : '/api/member/reading';
-                        await fetch(url, {
+                        const url = memberDeskPreviewId ? `/api/member/reading?preview=${encodeURIComponent(memberDeskPreviewId)}` : '/api/member/reading';
+                        const response = await fetch(url, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -1104,10 +1445,13 @@
                                 progress: Number(slider.value)
                             })
                         });
+                        const saved = await response.json();
+                        if (!response.ok || !saved.success) throw new Error(saved.error || 'Progress could not be saved.');
                         saveProgBtn.textContent = 'Saved ✓';
                         setTimeout(() => { saveProgBtn.textContent = 'Save'; }, 1500);
                     } catch (e) {
                         saveProgBtn.textContent = 'Error';
+                        setTimeout(() => { saveProgBtn.textContent = 'Save'; }, 2200);
                     }
                 });
 
@@ -1120,35 +1464,48 @@
                 saveNoteBtn.addEventListener('click', async () => {
                     const content = noteInput.value.trim();
                     if (!content) return;
+                    saveNoteBtn.disabled = true;
                     saveNoteBtn.textContent = 'Saving...';
+                    let savedSuccessfully = false;
                     try {
-                        const url = previewId ? `/api/member/notes?preview=${encodeURIComponent(previewId)}` : '/api/member/notes';
+                        const url = memberDeskPreviewId ? `/api/member/notes?preview=${encodeURIComponent(memberDeskPreviewId)}` : '/api/member/notes';
                         const res = await fetch(url, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ content })
                         });
                         const noteData = await res.json();
-                        if (noteData.success) {
-                            renderNotes(noteData.notes);
-                            noteInput.value = '';
-                        }
-                    } catch (e) {}
-                    saveNoteBtn.textContent = '✦ Record Reflection';
+                        if (!res.ok || !noteData.success) throw new Error(noteData.error || 'Could not save reflection.');
+                        renderNotes(noteData.notes);
+                        noteInput.value = '';
+                        savedSuccessfully = true;
+                    } catch (e) {
+                        saveNoteBtn.textContent = 'Could not save · Try again';
+                    } finally {
+                        saveNoteBtn.disabled = false;
+                        if (savedSuccessfully) saveNoteBtn.textContent = '✦ Record Reflection';
+                    }
                 });
 
                 // Populate Bookshelf
                 const shelfContainer = document.getElementById('shelfContainer');
-                if (data.bookshelf && shelfContainer) {
-                    shelfContainer.innerHTML = data.bookshelf.map(b => `
+                const shelfCountLabel = document.getElementById('shelfCountLabel');
+                const books = Array.isArray(data.bookshelf) ? data.bookshelf : [];
+                if (shelfCountLabel) shelfCountLabel.textContent = `${books.length} ${books.length === 1 ? 'Title' : 'Titles'}`;
+                if (shelfContainer) {
+                    shelfContainer.innerHTML = books.length ? books.map(b => {
+                        const rawProgress = Number(b.progress);
+                        const progress = Number.isFinite(rawProgress) ? Math.max(0, Math.min(100, rawProgress)) : 0;
+                        return `
                         <div class="shelf-item">
                             <div>
                                 <h4 class="shelf-book-title">${escapeHtml(b.title)}</h4>
                                 <p class="shelf-book-author">${escapeHtml(b.author)}</p>
                             </div>
-                            <span class="shelf-badge">${b.status === 'currently_reading' ? `${b.progress}% read` : 'Saved'}</span>
+                            <span class="shelf-badge">${b.status === 'currently_reading' ? `${progress}% read` : 'Saved'}</span>
                         </div>
-                    `).join('');
+                    `;
+                    }).join('') : '<p class="shelf-empty-state">Your shelf is quiet for now.</p>';
                 }
 
                 // Populate Gathering
@@ -1159,7 +1516,7 @@
                     const m = document.getElementById('gatheringMapsLink');
                     if (h && g.date) h.textContent = `${g.date} • ${g.time || '4:00 PM'}`;
                     if (v && g.location) v.textContent = g.location;
-                    if (m && g.maps_url) m.href = g.maps_url;
+                    if (m && g.maps_url) m.href = safeHttpUrl(g.maps_url) || '#';
                 }
 
                 // Reveal authenticated desk
@@ -1168,47 +1525,66 @@
 
             } catch (err) {
                 console.error('Error loading desk:', err);
-                skeleton.style.display = 'none';
-                unauth.style.display = 'block';
+                showConnectionError('We couldn’t connect to the member service. Check your connection and try again.');
             }
         }
 
-        // Render Private Notes list
+        const retryDeskLoadButton = document.getElementById('retryDeskLoadBtn');
+        if (retryDeskLoadButton) retryDeskLoadButton.addEventListener('click', () => {
+            const skeleton = document.getElementById('deskSkeleton');
+            const connectionError = document.getElementById('deskConnectionError');
+            connectionError.hidden = true;
+            skeleton.style.display = 'block';
+            loadMemberDesk();
+        });
+
+        // Render Private Notes list; curator previews never receive write controls.
         function renderNotes(notes) {
             const container = document.getElementById('notesContainer');
             if (!container) return;
-            if (notes.length === 0) {
-                container.innerHTML = '<p style="font-size: 13.5px; font-style: italic; color: var(--wabi-ink-muted);">No private margin notes yet. Jot down your first thought below.</p>';
+            const safeNotes = Array.isArray(notes) ? notes : [];
+            if (safeNotes.length === 0) {
+                const emptyMessage = isCuratorReadOnlyPreview
+                    ? 'No private margin notes are recorded on this member desk.'
+                    : 'No private margin notes yet. Jot down your first thought below.';
+                container.innerHTML = `<p style="font-size: 13.5px; font-style: italic; color: var(--wabi-ink-muted);">${escapeHtml(emptyMessage)}</p>`;
                 return;
             }
 
-            const params = new URLSearchParams(window.location.search);
-            const previewId = params.get('preview');
-
-            container.innerHTML = notes.map(n => `
-                <div class="note-card" id="note-${n.id}">
+            container.innerHTML = safeNotes.map(n => `
+                <div class="note-card">
                     <p class="note-content">“${escapeHtml(n.content)}”</p>
                     <div class="note-footer">
                         <span>${new Date(n.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                        <button type="button" class="btn-delete-note" onclick="deleteDeskNote('${n.id}')">Erase note</button>
+                        ${isCuratorReadOnlyPreview ? '' : `<button type="button" class="btn-delete-note" data-note-id="${escapeHtml(n.id)}">Erase note</button>`}
                     </div>
                 </div>
             `).join('');
 
-            window.deleteDeskNote = async (id) => {
-                if (!confirm('Erase this quiet margin reflection?')) return;
+            if (!isCuratorReadOnlyPreview) {
+                container.querySelectorAll('.btn-delete-note').forEach(button => {
+                    button.addEventListener('click', () => deleteDeskNote(button.dataset.noteId));
+                });
+            }
+
+            async function deleteDeskNote(id) {
+                if (isCuratorReadOnlyPreview) return;
+                const noteId = String(id ?? '').trim();
+                if (!noteId || noteId.length > 128 || !confirm('Erase this quiet margin reflection?')) return;
                 try {
-                    const url = previewId ? `/api/member/notes/${id}?preview=${encodeURIComponent(previewId)}` : `/api/member/notes/${id}`;
+                    const encodedId = encodeURIComponent(noteId);
+                    const url = memberDeskPreviewId
+                        ? `/api/member/notes/${encodedId}?preview=${encodeURIComponent(memberDeskPreviewId)}`
+                        : `/api/member/notes/${encodedId}`;
                     const res = await fetch(url, { method: 'DELETE' });
                     const resData = await res.json();
-                    if (resData.success) {
-                        renderNotes(resData.notes);
-                    }
+                    if (res.ok && resData.success) renderNotes(resData.notes);
                 } catch (e) {}
-            };
+            }
         }
 
         document.addEventListener('DOMContentLoaded', loadMemberDesk);
     </script>
+    <script src="../js/member-notifications.js"></script>
 </body>
 </html>

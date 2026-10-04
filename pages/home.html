@@ -108,6 +108,8 @@
     <!-- Preload Living Cat Frames for Instant Offline/Deployed Walk-Cycle -->
     <link rel="preload" as="image" href="../assets/cat_walk1.png">
     <link rel="preload" as="image" href="../assets/cat_walk2.png">
+    <link rel="preload" as="image" href="../assets/cat_walk3.png">
+    <link rel="preload" as="image" href="../assets/cat_walk4.png">
     <link rel="preload" as="image" href="../assets/cat_look.png">
     <link rel="preload" as="image" href="../assets/cat_sit.png">
 
@@ -989,6 +991,12 @@
             line-height: 1;
         }
 
+        [data-theme="dark"] .stamp-title,
+        [data-theme="dark"] .stamp-sub,
+        [data-theme="dark"] .stamp-vol {
+            color: #D4BE98;
+        }
+
         /* 3. Realistic Torn Kraft Masking Tape Strip */
         .torn-tape-kraft {
             position: absolute;
@@ -1689,6 +1697,14 @@
             color: var(--wabi-sage, #7DA687);
         }
 
+        [data-theme="dark"] .nav-member-access-btn .member-key-icon {
+            color: #A7D2AF;
+        }
+
+        [data-theme="dark"] #statVisitsCount {
+            color: #A7D2AF !important;
+        }
+
         /* ==========================================================================
            TACTILE HUB PANELS: ANNOUNCEMENTS, COMMUNITY, CONNECT
            Pure Museum-Grade Aesthetic matching the Desk & Orbit
@@ -2123,6 +2139,10 @@
             font-weight: 700;
         }
 
+        [data-theme="dark"] .artifact-vol-tag {
+            color: #C6AF88;
+        }
+
         .ann-card-title {
             font-family: 'Cormorant Garamond', Georgia, serif;
             font-size: 30px;
@@ -2467,6 +2487,10 @@
             min-width: 22px;
         }
 
+        [data-theme="dark"] .discussion-num {
+            color: #C6AF88;
+        }
+
         .nested-reminders-note {
             background-color: #FFF9E6;
             background-image: linear-gradient(175deg, #FFFDF5 0%, #FFF8E2 100%);
@@ -2549,12 +2573,21 @@
             border-radius: 999px;
         }
 
+        [data-theme="dark"] .live-indicator {
+            color: #A3D4B2;
+            background: rgba(125, 166, 135, 0.16);
+        }
+
         .live-dot {
             width: 6px;
             height: 6px;
             border-radius: 50%;
             background: #2C6E49;
             animation: pulseDot 2s infinite ease-in-out;
+        }
+
+        [data-theme="dark"] .live-dot {
+            background: #8EBF9B;
         }
 
         @keyframes pulseDot {
@@ -3150,16 +3183,16 @@
             color: #EBDCB8;
         }
 
-        /* Inter-card Botanical Branch (Between Card 1 and Card 2) */
+        /* Keep the botanical branch centered in the gutter and behind card content. */
         .inter-card-botanical-branch {
             position: absolute;
-            left: 31.5%;
+            left: calc(33.333% - 32px);
             top: 25px;
             width: 55px;
             height: 160px;
             pointer-events: none;
-            z-index: 5;
-            opacity: 0.9;
+            z-index: 1;
+            opacity: 0.72;
         }
 
         @media (max-width: 980px) {
@@ -3194,11 +3227,24 @@
             flex-direction: column;
             justify-content: space-between;
             position: relative;
+            z-index: 2;
             box-shadow: 
                 0 2px 6px rgba(45, 35, 20, 0.05),
                 0 10px 24px -6px rgba(45, 35, 20, 0.07);
             box-sizing: border-box;
             transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease;
+        }
+
+        /* Keep the pale library card readable when the rest of the portal is in dark mode. */
+        .connect-main-card[data-category="library"] {
+            --ink-primary: #283A2C;
+            --ink-secondary: #4B5C4F;
+            --ink-muted: #586A5B;
+            color: var(--ink-primary);
+        }
+
+        .connect-main-card[data-category="library"] .pill-drive {
+            color: #31583C;
         }
 
         .connect-main-card:hover {
@@ -3212,6 +3258,104 @@
             background-color: #24211D;
             border-color: rgba(235, 225, 210, 0.08);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+        }
+
+        .member-spaces-entry {
+            max-width: 1120px;
+            margin: 8px auto 28px;
+            padding: 20px 22px;
+            display: grid;
+            grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
+            align-items: center;
+            gap: 22px;
+            border: 1px solid var(--contour-gold-faint);
+            border-radius: 12px;
+            background: rgba(250, 248, 243, 0.78);
+            box-shadow: 0 8px 24px rgba(45, 35, 20, 0.05);
+        }
+
+        [data-theme="dark"] .member-spaces-entry {
+            background: rgba(36, 33, 29, 0.92);
+            border-color: rgba(235, 225, 210, 0.12);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+        }
+
+        .member-spaces-copy h2 {
+            margin: 5px 0 4px;
+            font-family: var(--font-serif, 'Cormorant Garamond', Georgia, serif);
+            font-size: clamp(21px, 2.4vw, 28px);
+            line-height: 1.12;
+            color: var(--ink-primary, #2C2621);
+        }
+
+        .member-spaces-copy p {
+            margin: 0;
+            max-width: 420px;
+            color: var(--ink-secondary, #71685B);
+            font-size: 12.5px;
+            line-height: 1.55;
+        }
+
+        .member-spaces-links {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 9px;
+        }
+
+        .member-spaces-link {
+            min-width: 0;
+            min-height: 44px;
+            padding: 9px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            border: 1px solid rgba(94, 120, 100, 0.26);
+            border-radius: 999px;
+            background: rgba(126, 151, 134, 0.12);
+            color: var(--moss-dark, #3F5547);
+            text-decoration: none;
+            font-size: 11.5px;
+            font-weight: 700;
+            line-height: 1.25;
+            transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .member-spaces-link:hover,
+        .member-spaces-link:focus-visible {
+            transform: translateY(-2px);
+            background: rgba(126, 151, 134, 0.22);
+            border-color: rgba(94, 120, 100, 0.5);
+            outline: none;
+        }
+
+        [data-theme="dark"] .member-spaces-link {
+            color: var(--ink-primary, #EAE6DF);
+            background: rgba(126, 151, 134, 0.12);
+            border-color: rgba(139, 168, 146, 0.28);
+        }
+
+        @media (max-width: 980px) {
+            .member-spaces-entry {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 14px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .member-spaces-entry {
+                margin: 8px 0 22px;
+                padding: 16px 14px;
+            }
+
+            .member-spaces-links {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+            }
+
+            .member-spaces-link {
+                padding: 9px 10px;
+            }
         }
 
         .connect-card-meta-row {
@@ -3634,6 +3778,11 @@
             flex-shrink: 0;
         }
 
+        [data-theme="dark"] .platform-badge-more {
+            background: rgba(198, 175, 136, 0.16);
+            color: #C6AF88;
+        }
+
         .platform-name {
             font-size: 14.5px;
             font-weight: 700;
@@ -3913,7 +4062,478 @@
             background: rgba(60, 54, 48, 0.85);
             border-color: #EDE7DD;
         }
+
+        /* Preserve a single-row portal header at common laptop widths without clipping the theme SVG. */
+        @media (min-width: 1101px) and (max-width: 1450px) {
+            header {
+                gap: 10px;
+            }
+
+            header .brand-container {
+                gap: 12px;
+                min-width: 0;
+            }
+
+            header .header-nav-tokens {
+                gap: 3px;
+                padding: 4px;
+                min-width: 0;
+            }
+
+            header .nav-token-btn {
+                gap: 6px;
+                padding: 7px 11px;
+                font-size: 12px;
+            }
+
+            header .header-controls {
+                gap: 8px;
+            }
+
+            header .nav-member-access-btn {
+                gap: 5px;
+                padding: 5px 9px;
+                font-size: 10.75px;
+            }
+
+            header .reader-memory-chip {
+                gap: 5px;
+                padding: 6px 10px;
+                font-size: 11.5px;
+            }
+
+            header .reader-chip-name {
+                max-width: 100px;
+            }
+
+            header .theme-btn {
+                width: 34px;
+                height: 34px;
+            }
+        }
+
+        /* Give the nav a clear second row once the full brand/nav/control set cannot breathe. */
+        @media (min-width: 961px) and (max-width: 1280px) {
+            header {
+                flex-wrap: wrap;
+                gap: 12px 18px;
+            }
+
+            header .brand-container {
+                min-width: 0;
+            }
+
+            header .header-nav-tokens {
+                order: 3;
+                flex: 1 1 100%;
+                justify-content: center;
+                max-width: 100%;
+            }
+
+            header .header-controls {
+                margin-left: auto;
+            }
+        }
+
+        /* Responsive layout safeguards for the home, bulletin, and connect views. */
+        @media (max-width: 1100px) {
+            body.dashboard-body {
+                min-height: 100vh;
+                min-height: 100dvh;
+                overflow-x: hidden;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .dashboard {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: 100vh;
+                min-height: 100dvh;
+                height: auto;
+                padding-left: clamp(18px, 3vw, 36px) !important;
+                padding-right: clamp(18px, 3vw, 36px) !important;
+            }
+
+            header {
+                min-width: 0;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 12px 18px;
+            }
+
+            header .brand-container {
+                min-width: 0;
+            }
+
+            header .header-nav-tokens {
+                order: 3;
+                flex: 1 1 100%;
+                justify-content: center;
+                max-width: 100%;
+            }
+
+            header .header-controls {
+                margin-left: auto;
+            }
+
+            .hub-full-view {
+                max-width: 100%;
+            }
+
+            .connect-sanctuary-canvas {
+                overflow: visible;
+                padding-bottom: 28px;
+            }
+        }
+
+        @media (max-width: 960px) {
+            .dashboard {
+                grid-template-columns: minmax(0, 1fr) !important;
+                grid-template-rows: auto;
+                gap: 18px;
+                padding: 14px 20px 30px !important;
+            }
+
+            header {
+                grid-column: 1 / -1 !important;
+            }
+
+            #panelDashboard.active {
+                display: contents !important;
+            }
+
+            main.main-content,
+            aside.right-panel {
+                grid-column: 1 / -1 !important;
+                grid-row: auto;
+                min-width: 0;
+            }
+
+            main.main-content {
+                grid-template-columns: minmax(0, 1fr) !important;
+                align-items: start;
+                gap: 22px !important;
+            }
+
+            .hero-statement {
+                max-width: 720px;
+            }
+
+            .hero-headline {
+                font-size: clamp(38px, 7vw, 54px);
+            }
+
+            .orbital-stage {
+                width: 100%;
+                max-width: 760px;
+                height: auto;
+                min-height: 0;
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                align-content: start;
+                align-items: stretch;
+                justify-items: stretch;
+                gap: 16px;
+                margin: 0 auto;
+                padding: 24px 4px 16px;
+            }
+
+            .orbital-stage > .paper-desk-lighting,
+            .orbital-stage > .realistic-orbit-svg,
+            .orbital-stage > .stamp-botanical-seal,
+            .orbital-stage > .hand-anno-explore,
+            .orbital-stage > .botanical-gypsophila-sprig {
+                display: none !important;
+            }
+
+            .sticky-note-card {
+                position: relative !important;
+                inset: auto !important;
+                width: 100% !important;
+                min-width: 0;
+                min-height: 160px;
+                max-height: none;
+                transform: none !important;
+                margin: 0;
+            }
+
+            .sticky-note-card:hover {
+                transform: translateY(-3px) !important;
+            }
+
+            aside.right-panel {
+                border-left: 0;
+                border-top: 1px solid rgba(140, 135, 125, 0.2);
+                padding: 22px 0 0;
+                justify-content: flex-start;
+            }
+
+            .ann-header-left {
+                max-width: 760px;
+            }
+
+            .ann-2x2-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 18px;
+            }
+
+            .tactile-artifact-card {
+                min-width: 0;
+                padding: 22px;
+            }
+
+            .connect-header-row {
+                gap: 18px;
+            }
+
+            .connect-header-left {
+                min-width: 0;
+                max-width: none;
+            }
+
+            .connect-header-right {
+                min-width: 0;
+                gap: 16px;
+            }
+
+            .connect-filter-capsule {
+                max-width: 100%;
+            }
+
+            .connect-top-3-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 16px;
+            }
+
+            .connect-main-card {
+                min-width: 0;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .dashboard {
+                gap: 14px;
+                padding: 10px 12px 28px !important;
+            }
+
+            header {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                gap: 10px;
+                padding: 4px 0 10px;
+            }
+
+            header .brand-container,
+            header .header-nav-tokens,
+            header .header-controls {
+                grid-column: 1;
+                order: initial;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            header .brand-container {
+                justify-content: flex-start;
+            }
+
+            header .vertical-tagline-ribbon,
+            header .brand-taglines {
+                display: none;
+            }
+
+            header .brand-img {
+                max-height: 22px;
+            }
+
+            header .header-nav-tokens {
+                justify-content: flex-start;
+                gap: 3px;
+                padding: 4px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                overscroll-behavior-x: contain;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+            }
+
+            header .nav-token-btn {
+                min-height: 44px;
+                flex: 0 0 auto;
+                gap: 5px;
+                padding: 7px 10px;
+                font-size: 11.5px;
+            }
+
+            header .header-controls {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px;
+                align-items: stretch;
+                gap: 6px;
+                margin-left: 0;
+            }
+
+            header .nav-member-access-btn,
+            header .reader-memory-chip {
+                min-width: 0;
+                min-height: 44px;
+                justify-content: center;
+                padding: 7px 8px;
+                font-size: 11px;
+            }
+
+            header .nav-member-access-btn .member-btn-label {
+                white-space: normal;
+                line-height: 1.2;
+            }
+
+            header .reader-chip-name {
+                max-width: none;
+            }
+
+            header .theme-btn {
+                width: 44px;
+                height: 44px;
+            }
+
+            .hero-eyebrow {
+                font-size: 9px;
+                line-height: 1.5;
+                letter-spacing: 1.5px;
+            }
+
+            .hero-headline {
+                font-size: clamp(36px, 13vw, 48px);
+            }
+
+            .hero-statement > svg {
+                display: none;
+            }
+
+            .zen-interactive-bar {
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            .zen-action-btn {
+                width: 100%;
+                min-height: 48px;
+                justify-content: flex-start;
+                padding: 10px 14px;
+            }
+
+            .orbital-stage {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 14px;
+                padding: 14px 2px 8px;
+            }
+
+            .sticky-note-card {
+                min-height: 150px;
+                padding: 16px;
+            }
+
+            .ann-board-canvas {
+                padding: 10px 2px 22px;
+            }
+
+            .ann-2x2-grid {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 14px;
+            }
+
+            .tactile-artifact-card {
+                padding: 20px 18px;
+            }
+
+            .hub-headline,
+            .connect-header-left .hub-headline {
+                font-size: clamp(28px, 9vw, 36px);
+                overflow-wrap: anywhere;
+            }
+
+            .connect-sanctuary-canvas {
+                padding: 8px 2px 24px;
+            }
+
+            .connect-header-row {
+                gap: 14px;
+                margin-bottom: 18px;
+            }
+
+            .connect-header-right {
+                width: 100%;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            .connect-calligraphy-tagline {
+                font-size: 18px;
+                margin-top: 4px;
+            }
+
+            .connect-tall-kraft-card {
+                flex: 0 0 auto;
+                padding: 10px 12px 12px;
+            }
+
+            .tall-kraft-text {
+                font-size: 16px;
+            }
+
+            .connect-filter-capsule {
+                width: 100%;
+                justify-content: flex-start;
+                border-radius: 16px;
+                gap: 2px;
+            }
+
+            .connect-filter-btn {
+                min-height: 44px;
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .connect-top-3-grid {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 14px;
+                margin-bottom: 24px;
+            }
+
+            .connect-main-card {
+                padding: 18px 16px;
+            }
+
+            .connect-directory-box,
+            .connect-platforms-shelf {
+                min-width: 0;
+                padding: 16px;
+            }
+
+            .doodle-toolbar {
+                bottom: max(8px, env(safe-area-inset-bottom));
+                max-width: calc(100vw - 16px);
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 3px;
+                padding: 5px 8px;
+            }
+
+            .doodle-tool-btn,
+            .doodle-action-btn {
+                min-height: 40px;
+                padding: 6px 8px;
+            }
+
+            .wabi-scroll-indicator {
+                right: 10px;
+                bottom: max(12px, env(safe-area-inset-bottom));
+            }
+        }
     </style>
+    <link rel="stylesheet" href="../css/realism.css">
 </head>
 <body class="dashboard-body">
 
@@ -4607,20 +5227,7 @@
 
                         <!-- Notices Slips Container -->
                         <div id="annBulletinsList" class="curator-slips-container">
-                            <div class="curator-notice-slip">
-                                <div class="curator-notice-header">
-                                    <span class="curator-notice-title">● Next Discussion Gathering: Saturday, 4 October at 4:00 PM</span>
-                                    <span class="curator-notice-author">Likith</span>
-                                </div>
-                                <p class="curator-notice-body">Our upcoming gathering has been confirmed for 4:00 PM at MRDU. Tap the meeting link to open the location directly in Google Maps.</p>
-                            </div>
-                            <div class="curator-notice-slip">
-                                <div class="curator-notice-header">
-                                    <span class="curator-notice-title">● Welcome to Wabi Sabi Bookclub • Vol. 1</span>
-                                    <span class="curator-notice-author">Dhanush</span>
-                                </div>
-                                <p class="curator-notice-body">A quiet coordination sanctuary for curious minds. No accounts or applications required—everyone can explore the book drive, find our next meeting location, and join our discussions.</p>
-                            </div>
+                            <p class="curator-notice-empty" role="status">No curator notices posted yet. Check back soon.</p>
                         </div>
                     </div>
 
@@ -4648,54 +5255,16 @@
 
                     <!-- Interactive Filter Pills -->
                     <div class="community-filter-bar" style="margin-bottom: 0;">
-                        <button type="button" class="community-filter-pill active" data-filter="all">All Souls <span class="filter-count" id="countAllMembers">3</span></button>
-                        <button type="button" class="community-filter-pill" data-filter="curator">Admin / Curator <span class="filter-count" id="countCuratorMembers">1</span></button>
-                        <button type="button" class="community-filter-pill" data-filter="member">Members <span class="filter-count" id="countRegularMembers">2</span></button>
+                        <button type="button" class="community-filter-pill active" data-filter="all">All Souls <span class="filter-count" id="countAllMembers">0</span></button>
+                        <button type="button" class="community-filter-pill" data-filter="curator">Admin / Curator <span class="filter-count" id="countCuratorMembers">0</span></button>
+                        <button type="button" class="community-filter-pill" data-filter="member">Members <span class="filter-count" id="countRegularMembers">0</span></button>
                     </div>
                 </div>
 
                 <!-- Tactile Polaroid Gallery Grid -->
                 <div class="community-directory-grid" id="communityDirectoryGrid">
-                    <!-- Member 1: Admin -->
-                    <div class="member-polaroid-card" data-role="Admin" style="--polaroid-rot: -1.8deg;">
-                        <div class="polaroid-tape" style="--tape-rot: -1.2deg;"></div>
-                        <div class="member-dp-wrap">
-                            <img src="../assets/user_avatar.jpg" alt="Wabi Sabi Admin" class="member-dp-img" onerror="this.src='../assets/user_avatar.jpg'">
-                        </div>
-                        <div class="member-name">Wabi Sabi Admin</div>
-                        <div class="member-meta-row">
-                            <span class="member-role-badge role-curator">Admin</span>
-                            <span class="member-handle">@wabisabi</span>
-                        </div>
-                        <p class="member-bio">“Sanctuary steward & literary curator”</p>
-                    </div>
-
-                    <!-- Member 2: Akshaya -->
-                    <div class="member-polaroid-card" data-role="Member" style="--polaroid-rot: 1.4deg;">
-                        <div class="polaroid-tape" style="--tape-rot: 1.5deg;"></div>
-                        <div class="member-dp-wrap">
-                            <img src="../assets/avatar_aishwarya.jpg" alt="Akshaya" class="member-dp-img" onerror="this.src='../assets/user_avatar.jpg'">
-                        </div>
-                        <div class="member-name">Akshaya</div>
-                        <div class="member-meta-row">
-                            <span class="member-role-badge role-member">Member</span>
-                            <span class="member-handle">@akshaya</span>
-                        </div>
-                        <p class="member-bio">“Literature, existential fiction & poetry”</p>
-                    </div>
-
-                    <!-- Member 3: Vaishnavi -->
-                    <div class="member-polaroid-card" data-role="Member" style="--polaroid-rot: -1.1deg;">
-                        <div class="polaroid-tape" style="--tape-rot: -0.8deg;"></div>
-                        <div class="member-dp-wrap">
-                            <img src="../assets/avatar_meera.jpg" alt="Vaishnavi" class="member-dp-img" onerror="this.src='../assets/user_avatar.jpg'">
-                        </div>
-                        <div class="member-name">Vaishnavi</div>
-                        <div class="member-meta-row">
-                            <span class="member-role-badge role-member">Member</span>
-                            <span class="member-handle">@vaishnavi</span>
-                        </div>
-                        <p class="member-bio">“Cinema, narratives & quiet thoughts”</p>
+                    <div class="community-directory-empty" role="status" style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--wabi-ink-muted);">
+                        Loading member profiles…
                     </div>
                 </div>
             </div>
@@ -4777,7 +5346,7 @@
                 <div class="connect-top-3-grid" id="connectMainCardsGrid">
                     
                     <!-- Inter-card Botanical Branch (Leaning between Card 1 and Card 2) -->
-                    <svg class="inter-card-botanical-branch" viewBox="0 0 60 180" fill="none">
+                    <svg class="inter-card-botanical-branch" viewBox="0 0 60 180" fill="none" aria-hidden="true" focusable="false">
                         <path d="M 12 175 C 24 120, 28 60, 48 5" stroke="#3D5438" stroke-width="2" stroke-linecap="round"/>
                         <path d="M 18 140 C 35 132, 50 142, 45 156 C 30 158, 22 148, 18 140 Z" fill="#5E7D63"/>
                         <path d="M 16 115 C -2 108, -8 122, 2 130 C 12 128, 15 120, 16 115 Z" fill="#6B8E72"/>
@@ -4812,10 +5381,8 @@
 
                             <!-- Social Avatars Overlapping Row -->
                             <div class="connect-avatars-row">
-                                <div class="avatar-stack" id="connectAvatarStack">
-                                    <img src="../assets/user_avatar.jpg" alt="Admin" class="stacked-avatar" onerror="this.src='../assets/user_avatar.jpg'">
-                                </div>
-                                <span class="avatar-count-label" id="connectAvatarCount">3 members</span>
+                                <div class="avatar-stack" id="connectAvatarStack"></div>
+                                <span class="avatar-count-label" id="connectAvatarCount">Loading members…</span>
                             </div>
                         </div>
 
@@ -5078,6 +5645,20 @@
                     </div>
                 </div>
 
+                <section class="member-spaces-entry" aria-labelledby="memberSpacesHeading">
+                    <div class="member-spaces-copy">
+                        <span class="hub-eyebrow">MEMBER SPACES • CONNECTED DOORS</span>
+                        <h2 id="memberSpacesHeading">Four spaces, one circle</h2>
+                        <p>Open a dedicated room with your member code. The shared navigation inside each space keeps the journey connected.</p>
+                    </div>
+                    <nav class="member-spaces-links" aria-label="Explore member spaces">
+                        <a class="member-spaces-link" href="/community"><span>Community</span><span aria-hidden="true">↗</span></a>
+                        <a class="member-spaces-link" href="/reader"><span>Reader</span><span aria-hidden="true">↗</span></a>
+                        <a class="member-spaces-link" href="/table-room"><span>Table Room</span><span aria-hidden="true">↗</span></a>
+                        <a class="member-spaces-link" href="/wabi-wall"><span>Wabi Wall</span><span aria-hidden="true">↗</span></a>
+                    </nav>
+                </section>
+
                 <!-- Bottom Desk Surface Still-Life Atmosphere -->
                 <div class="connect-desk-still-life">
                     <!-- Left: Open Journal & Mug & Pen -->
@@ -5144,9 +5725,11 @@
     <div class="living-cat-actor" id="livingCatActor" title="Touch me for Meow!">
         <div class="cat-speech-bubble" id="catSpeechBubble">“Meooww...” 🐾</div>
         <div class="cat-contact-shadow" id="catContactShadow"></div>
-        <img src="../assets/cat_walk1.png" alt="Living ginger tabby cat - Walk Frame 1" class="cat-sprite cat-frame-walk1 active" id="catSpriteWalk1">
-        <img src="../assets/cat_walk2.png" alt="Living ginger tabby cat - Walk Frame 2" class="cat-sprite cat-frame-walk2" id="catSpriteWalk2">
-        <img src="../assets/cat_look.png" alt="Living ginger tabby cat - Look" class="cat-sprite cat-frame-look" id="catSpriteLook">
+        <img src="../assets/cat_walk1.png" alt="Living ginger tabby cat walking" class="cat-sprite cat-frame-walk1 active" id="catSpriteWalk1">
+        <img src="../assets/cat_walk2.png" alt="Living ginger tabby cat walking" class="cat-sprite cat-frame-walk2" id="catSpriteWalk2">
+        <img src="../assets/cat_walk3.png" alt="Living ginger tabby cat walking" class="cat-sprite cat-frame-walk3" id="catSpriteWalk3">
+        <img src="../assets/cat_walk4.png" alt="Living ginger tabby cat walking" class="cat-sprite cat-frame-walk4" id="catSpriteWalk4">
+        <img src="../assets/cat_look.png" alt="Living ginger tabby cat looking up" class="cat-sprite cat-frame-look" id="catSpriteLook">
         <img src="../assets/cat_sit.png" alt="Living ginger tabby cat - Sit" class="cat-sprite cat-frame-sit" id="catSpriteSit">
         <!-- Legacy compatibility element for test assertions and single-sprite fallbacks -->
         <img src="../assets/cat_walk1.png" alt="Living ginger tabby cat" class="cat-sprite-legacy" id="catSprite" style="display: none;" aria-hidden="true">
@@ -5280,12 +5863,12 @@
 
                 <div class="c-form-group" style="margin-bottom: 12px;">
                     <label for="readerNameInput" style="display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; color: var(--wabi-ink);">Your Name or Pseudonym</label>
-                    <input type="text" id="readerNameInput" class="c-input" placeholder="e.g. Dhanush / Quiet Inquirer" style="width: 100%; box-sizing: border-box; padding: 9px 12px; font-size: 13.5px; border-radius: 8px; border: 1px solid rgba(198, 182, 155, 0.6); background: rgba(255, 255, 255, 0.9);">
+                    <input type="text" id="readerNameInput" class="c-input" placeholder="e.g. Dhanush / Quiet Inquirer" style="width: 100%; box-sizing: border-box; padding: 9px 12px; font-size: 13.5px; border-radius: 8px; border: 1px solid rgba(198, 182, 155, 0.6); background: var(--wabi-card-subtle, #FAF7F0); color: var(--wabi-ink, #2C2621);">
                 </div>
 
                 <div class="c-form-group" style="margin-bottom: 14px;">
                     <label for="readerGenreInput" style="display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; color: var(--wabi-ink);">Literary Interests & Reflection Focus</label>
-                    <input type="text" id="readerGenreInput" class="c-input" placeholder="e.g. Existential fiction, Camus, poetry, slow living" style="width: 100%; box-sizing: border-box; padding: 9px 12px; font-size: 13.5px; border-radius: 8px; border: 1px solid rgba(198, 182, 155, 0.6); background: rgba(255, 255, 255, 0.9);">
+                    <input type="text" id="readerGenreInput" class="c-input" placeholder="e.g. Existential fiction, Camus, poetry, slow living" style="width: 100%; box-sizing: border-box; padding: 9px 12px; font-size: 13.5px; border-radius: 8px; border: 1px solid rgba(198, 182, 155, 0.6); background: var(--wabi-card-subtle, #FAF7F0); color: var(--wabi-ink, #2C2621);">
                 </div>
 
                 <div style="font-size: 11.5px; color: var(--wabi-ink-secondary); line-height: 1.4;">
@@ -5326,7 +5909,7 @@
                 <form id="memberAccessForm" onsubmit="return false;" style="display: flex; flex-direction: column; gap: 14px; text-align: left;">
                     <div class="c-form-group">
                         <label for="memberSecretCodeInput" style="display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; color: var(--wabi-ink, #2C2621);">Secret Code</label>
-                        <input type="text" id="memberSecretCodeInput" class="c-input" placeholder="e.g. WS-7K4M-X92P-LQ8A" autocomplete="off" spellcheck="false" style="width: 100%; box-sizing: border-box; padding: 11px 14px; font-size: 14px; font-family: 'JetBrains Mono', monospace, inherit; letter-spacing: 1.2px; text-transform: uppercase; border-radius: 8px; border: 1px solid rgba(198, 182, 155, 0.6); background: rgba(255, 255, 255, 0.95); color: var(--wabi-ink, #2C2621); text-align: center;">
+                        <input type="text" id="memberSecretCodeInput" class="c-input" placeholder="WS-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false" style="width: 100%; box-sizing: border-box; padding: 11px 14px; font-size: 14px; font-family: 'JetBrains Mono', monospace, inherit; letter-spacing: 1.2px; text-transform: uppercase; border-radius: 8px; border: 1px solid rgba(198, 182, 155, 0.6); background: var(--wabi-card-subtle, #FAF7F0); color: var(--wabi-ink, #2C2621); text-align: center;">
                     </div>
 
                     <div id="memberAccessFeedback" style="display: none; font-size: 12.5px; padding: 8px 12px; border-radius: 6px; text-align: center;"></div>
@@ -5375,6 +5958,7 @@
 
     <!-- Scripts -->
     <script src="../js/cat-engine.js"></script>
+    <script src="../js/admin-shortcut.js?v=5tap-reliable-2"></script>
     <script>
         // 1. Theme Management (Light: Tea Glass / Dark: Coffee Cup)
         (function initTheme() {
@@ -5526,6 +6110,17 @@
             });
         })();
 
+        function safeHttpUrl(value) {
+            if (typeof value !== 'string' || !value.trim()) return '';
+            try {
+                const parsed = new URL(value.trim(), window.location.origin);
+                if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password) return '';
+                return parsed.href;
+            } catch (e) {
+                return '';
+            }
+        }
+
         // 4. Hydrate Live Coordination Data from /api/portal
         async function hydratePortalData() {
             let bookDriveUrl = 'https://drive.google.com';
@@ -5560,7 +6155,7 @@
                     if (jTitle && r.title) jTitle.textContent = r.title;
                     if (jAuthor && r.author) jAuthor.textContent = r.author;
                     if (ftQuote && r.notes) ftQuote.textContent = `"${r.notes}"`;
-                    if (r.drive_url) bookDriveUrl = r.drive_url;
+                    if (r.drive_url) bookDriveUrl = safeHttpUrl(r.drive_url) || bookDriveUrl;
                 }
 
                 if (announcements.gathering) {
@@ -5578,7 +6173,7 @@
                         if (mMatch && gMonth) gMonth.textContent = mMatch[1];
                         if (dMatch && gDay) gDay.textContent = dMatch[1].padStart(2, '0');
                     }
-                    if (g.maps_url) meetingMapUrl = g.maps_url;
+                    if (g.maps_url) meetingMapUrl = safeHttpUrl(g.maps_url) || meetingMapUrl;
                 }
 
                 // --- Announcements Tab Hydration ---
@@ -5599,7 +6194,7 @@
                     if (aReadTitle && r.title) aReadTitle.textContent = r.title;
                     if (aReadAuth && r.author) aReadAuth.textContent = `by ${r.author}`;
                     if (aReadNotes && r.notes) aReadNotes.textContent = r.notes;
-                    if (aReadDrive && r.drive_url) aReadDrive.href = r.drive_url;
+                    if (aReadDrive && r.drive_url) aReadDrive.href = safeHttpUrl(r.drive_url) || '#';
                 }
 
                 if (announcements.gathering) {
@@ -5611,7 +6206,7 @@
                     if (aGathDate && g.date) aGathDate.textContent = g.date;
                     if (aGathTime && g.time) aGathTime.textContent = g.time || '4:00 PM';
                     if (aGathLoc && g.location) aGathLoc.textContent = g.location;
-                    if (aGathMaps && g.maps_url) aGathMaps.href = g.maps_url;
+                    if (aGathMaps && g.maps_url) aGathMaps.href = safeHttpUrl(g.maps_url) || '#';
                 }
 
                 if (announcements.discussion_points && Array.isArray(announcements.discussion_points) && announcements.discussion_points.length > 0) {
@@ -5631,18 +6226,20 @@
                     if (impEl) impEl.textContent = announcements.important_notes;
                 }
 
-                if (portalData.updates && Array.isArray(portalData.updates) && portalData.updates.length > 0) {
+                if (Array.isArray(portalData.updates)) {
                     const bullEl = document.getElementById('annBulletinsList');
                     if (bullEl) {
-                        bullEl.innerHTML = portalData.updates.map(u => `
-                            <div class="curator-notice-slip">
-                                <div class="curator-notice-header">
-                                    <span class="curator-notice-title">${escapeHtml(u.title)}</span>
-                                    <span class="curator-notice-author">${escapeHtml(u.author_name || 'Curator')}</span>
+                        bullEl.innerHTML = portalData.updates.length
+                            ? portalData.updates.map(u => `
+                                <div class="curator-notice-slip">
+                                    <div class="curator-notice-header">
+                                        <span class="curator-notice-title">${escapeHtml(u.title)}</span>
+                                        <span class="curator-notice-author">${escapeHtml(u.author_name || 'Curator')}</span>
+                                    </div>
+                                    <p class="curator-notice-body">${escapeHtml(u.content)}</p>
                                 </div>
-                                <p class="curator-notice-body">${escapeHtml(u.content)}</p>
-                            </div>
-                        `).join('');
+                            `).join('')
+                            : '<p class="curator-notice-empty" role="status">No curator notices posted yet. Check back soon.</p>';
                     }
                 }
 
@@ -5652,7 +6249,7 @@
 
                 // --- Community Directory ---
                 // --- Community Directory & Dynamic Real-Time Counts ---
-                if (community.members && Array.isArray(community.members) && community.members.length > 0) {
+                if (Array.isArray(community.members)) {
                     const gridEl = document.getElementById('communityDirectoryGrid');
                     if (gridEl) {
                         const polaroidRotations = ['-1.8deg', '1.4deg', '-1.1deg', '2.1deg', '-1.5deg', '1.6deg'];
@@ -5661,14 +6258,14 @@
                             const isCurator = (m.role || '').toLowerCase().includes('curator') || (m.role || '').toLowerCase().includes('admin');
                             const roleClass = isCurator ? 'role-curator' :
                                               (m.role || '').toLowerCase().includes('member') ? 'role-member' : 'role-reader';
-                            const avatar = m.avatar_url || '../assets/user_avatar.jpg';
+                            const avatar = safeHttpUrl(m.avatar_url || '../assets/user_avatar.jpg') || '../assets/user_avatar.jpg';
                             const rot = polaroidRotations[idx % polaroidRotations.length];
                             const tapeRot = tapeRotations[idx % tapeRotations.length];
                             return `
                                 <div class="member-polaroid-card" data-role="${escapeHtml(m.role || 'Member')}" style="--polaroid-rot: ${rot};">
                                     <div class="polaroid-tape" style="--tape-rot: ${tapeRot};"></div>
                                     <div class="member-dp-wrap">
-                                        <img src="${avatar}" alt="${escapeHtml(m.name)}" class="member-dp-img" onerror="this.src='../assets/user_avatar.jpg'">
+                                        <img src="${escapeHtml(avatar)}" alt="${escapeHtml(m.name)}" class="member-dp-img" onerror="this.src='../assets/user_avatar.jpg'">
                                     </div>
                                     <div class="member-name">${escapeHtml(m.name)}</div>
                                     <div class="member-meta-row">
@@ -5678,7 +6275,7 @@
                                     ${m.bio ? `<p class="member-bio">“${escapeHtml(m.bio)}”</p>` : ''}
                                 </div>
                             `;
-                        }).join('');
+                        }).join('') || '<div class="community-directory-empty" role="status" style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--wabi-ink-muted);">No member profiles have been added yet.</div>';
                     }
 
                     // Dynamically update Community filter count pills
@@ -5699,7 +6296,7 @@
                     if (avatarStack) {
                         const previewMembers = community.members.slice(0, 5);
                         avatarStack.innerHTML = previewMembers.map(m => `
-                            <img src="${m.avatar_url || '../assets/user_avatar.jpg'}" alt="${escapeHtml(m.name)}" class="stacked-avatar" title="${escapeHtml(m.name)}" onerror="this.src='../assets/user_avatar.jpg'">
+                            <img src="${escapeHtml(safeHttpUrl(m.avatar_url || '../assets/user_avatar.jpg') || '../assets/user_avatar.jpg')}" alt="${escapeHtml(m.name)}" class="stacked-avatar" title="${escapeHtml(m.name)}" onerror="this.src='../assets/user_avatar.jpg'">
                         `).join('');
                     }
                     if (avatarCount) {
@@ -5717,33 +6314,33 @@
                     const waBtn = document.getElementById('connectWhatsAppBtn');
                     const discBtn = document.getElementById('connectDiscordBtn');
 
-                    if (chatBtn && l.community_chat_url) {
-                        chatBtn.href = l.community_chat_url;
-                        communityUrl = l.community_chat_url;
+                    if (chatBtn && safeHttpUrl(l.community_chat_url)) {
+                        chatBtn.href = safeHttpUrl(l.community_chat_url);
+                        communityUrl = safeHttpUrl(l.community_chat_url);
                         if (l.community_chat_label) {
                             const span = chatBtn.querySelector('span:first-of-type');
                             if (span) span.textContent = l.community_chat_label;
                         }
                     }
-                    if (driveBtn && l.book_drive_url) {
-                        driveBtn.href = l.book_drive_url;
-                        bookDriveUrl = l.book_drive_url;
+                    if (driveBtn && safeHttpUrl(l.book_drive_url)) {
+                        driveBtn.href = safeHttpUrl(l.book_drive_url);
+                        bookDriveUrl = safeHttpUrl(l.book_drive_url);
                         if (l.book_drive_label) {
                             const span = driveBtn.querySelector('span:first-of-type');
                             if (span) span.textContent = l.book_drive_label;
                         }
                     }
-                    if (locBtn && l.meeting_maps_url) {
-                        locBtn.href = l.meeting_maps_url;
-                        meetingMapUrl = l.meeting_maps_url;
+                    if (locBtn && safeHttpUrl(l.meeting_maps_url)) {
+                        locBtn.href = safeHttpUrl(l.meeting_maps_url);
+                        meetingMapUrl = safeHttpUrl(l.meeting_maps_url);
                         if (l.meeting_maps_label) {
                             const span = locBtn.querySelector('span:first-of-type');
                             if (span) span.textContent = l.meeting_maps_label;
                         }
                     }
-                    if (instaBtn && l.instagram_url) instaBtn.href = l.instagram_url;
-                    if (waBtn && l.whatsapp_url) waBtn.href = l.whatsapp_url;
-                    if (discBtn && l.discord_url) discBtn.href = l.discord_url;
+                    if (instaBtn && safeHttpUrl(l.instagram_url)) instaBtn.href = safeHttpUrl(l.instagram_url);
+                    if (waBtn && safeHttpUrl(l.whatsapp_url)) waBtn.href = safeHttpUrl(l.whatsapp_url);
+                    if (discBtn && safeHttpUrl(l.discord_url)) discBtn.href = safeHttpUrl(l.discord_url);
                 }
 
                 // --- Sticky Notes Hydration from Server ---
@@ -5778,28 +6375,28 @@
             const pickCard = document.getElementById('todaysPickCard');
             if (pickCard) {
                 pickCard.addEventListener('click', () => {
-                    if (bookDriveUrl) window.open(bookDriveUrl, '_blank');
+                    if (bookDriveUrl) window.open(bookDriveUrl, '_blank', 'noopener,noreferrer');
                 });
             }
 
             const salonCard = document.getElementById('happeningSoonCard');
             if (salonCard) {
                 salonCard.addEventListener('click', () => {
-                    if (meetingMapUrl) window.open(meetingMapUrl, '_blank');
+                    if (meetingMapUrl) window.open(meetingMapUrl, '_blank', 'noopener,noreferrer');
                 });
             }
 
             const getStartedBtn = document.getElementById('getStartedBtn');
             if (getStartedBtn) {
                 getStartedBtn.addEventListener('click', () => {
-                    if (bookDriveUrl) window.open(bookDriveUrl, '_blank');
+                    if (bookDriveUrl) window.open(bookDriveUrl, '_blank', 'noopener,noreferrer');
                 });
             }
 
             const watchIntroBtn = document.getElementById('watchIntroBtn');
             if (watchIntroBtn) {
                 watchIntroBtn.addEventListener('click', () => {
-                    if (communityUrl) window.open(communityUrl, '_blank');
+                    if (communityUrl) window.open(communityUrl, '_blank', 'noopener,noreferrer');
                 });
             }
 
@@ -6618,10 +7215,12 @@
             });
         }
 
-        // Execute immediate initialization
-        runInit();
+        // Initialize exactly once; binding both immediately and at DOMContentLoaded
+        // duplicates handlers for login, member access, cookies and profile saving.
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', runInit);
+            document.addEventListener('DOMContentLoaded', runInit, { once: true });
+        } else {
+            runInit();
         }
     </script>
 </body>
