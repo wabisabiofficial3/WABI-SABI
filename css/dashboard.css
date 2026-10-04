@@ -1416,13 +1416,13 @@
             pointer-events: auto;
             cursor: pointer;
             z-index: 102;
-            will-change: left, transform;
+            will-change: left;
             user-select: none;
-            transition: transform 0.15s ease-out;
+            transition: none !important;
         }
 
         .living-cat-actor.step-up {
-            transform: translateY(-3px);
+            transform: translateY(-2px);
         }
 
         .living-cat-actor.step-down {
@@ -1456,17 +1456,22 @@
             display: block;
             filter: drop-shadow(0 4px 10px rgba(45, 35, 25, 0.12));
             transform-origin: bottom center;
-            opacity: 0;
-            visibility: hidden;
+            opacity: 0 !important;
+            visibility: hidden !important;
             pointer-events: none;
-            transition: opacity 0.08s ease-in-out;
+            transition: none !important; /* CRITICAL: Zero transition ensures 0ms instant frame switch, completely eliminating walking blinking */
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            z-index: 1;
         }
 
         .cat-sprite.active,
         .cat-sprite:only-child {
-            opacity: 1;
-            visibility: visible;
+            opacity: 1 !important;
+            visibility: visible !important;
             pointer-events: auto;
+            transition: none !important;
+            z-index: 2;
         }
 
         /* Feline Speech Bubble */

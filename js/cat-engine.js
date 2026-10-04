@@ -240,15 +240,18 @@ class TaskbarCatEngine {
         if (!this.poses[poseName]) return;
         this.currentPose = poseName;
 
-        // 1. If layered DOM frames exist, toggle active class instantaneously (0ms lag)
-        let hasLayeredFrames = false;
+        // 1. If layered DOM frames exist, activate target frame first (zero frame gap)
+        const targetFrame = this.frames[poseName];
+        if (targetFrame) {
+            targetFrame.classList.add('active');
+        }
+
+        let hasLayeredFrames = !!targetFrame;
         Object.keys(this.frames).forEach(key => {
-            const frameEl = this.frames[key];
-            if (frameEl) {
-                hasLayeredFrames = true;
-                if (key === poseName) {
-                    frameEl.classList.add('active');
-                } else {
+            if (key !== poseName) {
+                const frameEl = this.frames[key];
+                if (frameEl) {
+                    hasLayeredFrames = true;
                     frameEl.classList.remove('active');
                 }
             }

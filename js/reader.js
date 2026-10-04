@@ -505,7 +505,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
-                window.WabiSabiStore.showToast('⛶ Fullscreen Reading Active (Press ESC or F to exit)');
+                window.WabiSabiStore.showToast('✦ Fullscreen Reading Active (Press ESC or F to exit)');
             }
         } else {
             readingViewport.classList.remove('fullscreen-book-active');
@@ -563,7 +563,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isDark = document.body.classList.toggle('dark-mode');
             localStorage.setItem('wabisabi_theme', isDark ? 'dark' : 'light');
             if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
-                window.WabiSabiStore.showToast(isDark ? '☕ Nocturne Quiet Mode' : '🍵 Morning Linen Mode');
+                window.WabiSabiStore.showToast(isDark ? '✦ Nocturne Quiet Mode' : '✦ Morning Linen Mode');
             }
         });
     }
@@ -811,7 +811,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const label = toolFitWidth.querySelector('span');
                     if (label) label.textContent = 'Fit Width';
                     if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
-                        window.WabiSabiStore.showToast('📖 Standard book spread restored');
+                        window.WabiSabiStore.showToast('✦ Standard book spread restored');
                     }
                 }
             }
@@ -844,7 +844,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 tocModal.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-stone, #E2DAD0); padding-bottom: 8px;">
                         <strong style="font-family: var(--font-serif); font-size: 16px;">Table of Contents</strong>
-                        <button id="closeTocBtn" style="background: none; border: none; font-size: 16px; cursor: pointer; color: var(--ink-muted);">✕</button>
+                        <button id="closeTocBtn" style="background: none; border: none; font-size: 16px; cursor: pointer; color: var(--ink-muted); display: inline-flex; align-items: center; justify-content: center;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                     </div>
                     <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px; display: flex; flex-direction: column; gap: 8px;">
                         <li class="toc-jump" data-page="2" style="cursor: pointer; padding: 6px 8px; border-radius: 6px; display: flex; justify-content: space-between;">
@@ -1012,7 +1012,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             localStorage.setItem('wabisabi_theme', next);
             localStorage.setItem('wabi_sabi_theme', next);
             if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
-                window.WabiSabiStore.showToast(next === 'dark' ? '☕ Nocturne Quiet Mode' : '🍵 Morning Linen Mode');
+                window.WabiSabiStore.showToast(next === 'dark' ? '✦ Nocturne Quiet Mode' : '✦ Morning Linen Mode');
             }
         });
     }

@@ -138,8 +138,8 @@ function createNoticeElement(notice, index) {
     // Curator Action Overlay (Edit / Archive / Delete)
     const curatorActionsHtml = `
         <div class="card-curator-actions">
-            <button class="btn-card-ctrl btn-edit" title="Edit notice" onclick="handleEditNotice('${notice.id}', event)">✎</button>
-            <button class="btn-card-ctrl btn-archive" title="Archive notice" onclick="handleArchiveNotice('${notice.id}', event)">📦</button>
+            <button class="btn-card-ctrl btn-edit" title="Edit notice" onclick="handleEditNotice('${notice.id}', event)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button>
+            <button class="btn-card-ctrl btn-archive" title="Archive notice" onclick="handleArchiveNotice('${notice.id}', event)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg></button>
         </div>
     `;
 
@@ -388,12 +388,12 @@ function initCuratorToolbar() {
             isEditMode = !isEditMode;
             if (isEditMode) {
                 editToggle.classList.add('active');
-                editToggle.innerHTML = '<span>✓ Done Editing</span>';
+                editToggle.innerHTML = '<span><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 3px;" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>Done Editing</span>';
                 if (toolbar) toolbar.classList.add('active');
                 if (board) board.classList.add('curator-edit-mode');
             } else {
                 editToggle.classList.remove('active');
-                editToggle.innerHTML = '<span>✎ Edit Board</span>';
+                editToggle.innerHTML = '<span><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 3px;" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>Edit Board</span>';
                 if (toolbar) toolbar.classList.remove('active');
                 if (board) board.classList.remove('curator-edit-mode');
             }

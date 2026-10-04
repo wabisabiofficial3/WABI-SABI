@@ -219,7 +219,7 @@
                                 <p style="font-size: 12.5px; color: var(--wabi-ink-secondary); margin: 5px 0 0; line-height: 1.4;">${escapeHtml(u.content)}</p>
                             </div>
                             <button type="button" class="c-btn-action" style="color: #A23434; border-color: rgba(180, 50, 50, 0.3);" onclick="window.deleteCuratorUpdate('${u.id}')" title="Delete Notice">
-                                <span>✕</span>
+                                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                             </button>
                         </div>
                     </div>
@@ -908,8 +908,8 @@
                 const code = document.getElementById('createdMemberCodeDisplay')?.textContent?.trim() || '';
                 try {
                     await navigator.clipboard.writeText(code);
-                    copyCreatedCodeBtn.innerHTML = '<span>Copied! ✓</span>';
-                    setTimeout(() => { copyCreatedCodeBtn.innerHTML = '<span>📋 Copy Code</span>'; }, 2200);
+                    copyCreatedCodeBtn.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 5px;"><span>Copied!</span> <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg></span>';
+                    setTimeout(() => { copyCreatedCodeBtn.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 5px;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg><span>Copy Code</span></span>'; }, 2200);
                 } catch (e) {
                     showToast('Code: ' + code);
                 }
@@ -999,7 +999,7 @@
                 const url = document.getElementById('cardClaimUrlInput')?.value || '';
                 try {
                     await navigator.clipboard.writeText(url);
-                    copyClaimUrlBtn.textContent = 'Copied! ✓';
+                    copyClaimUrlBtn.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 4px;"><span>Copied!</span> <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg></span>';
                     setTimeout(() => { copyClaimUrlBtn.textContent = 'Copy'; }, 2000);
                 } catch (e) {
                     showToast('Pass URL: ' + url);
@@ -1031,8 +1031,8 @@
                 const code = document.getElementById('regenCodeDisplay')?.textContent?.trim() || '';
                 try {
                     await navigator.clipboard.writeText(code);
-                    copyRegenCodeBtn.innerHTML = '<span>Copied! ✓</span>';
-                    setTimeout(() => { copyRegenCodeBtn.innerHTML = '<span>📋 Copy New Code</span>'; }, 2000);
+                    copyRegenCodeBtn.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 5px;"><span>Copied!</span> <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg></span>';
+                    setTimeout(() => { copyRegenCodeBtn.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 5px;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg><span>Copy New Code</span></span>'; }, 2000);
                 } catch (e) {
                     showToast('Code: ' + code);
                 }

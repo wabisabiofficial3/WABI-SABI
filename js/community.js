@@ -300,10 +300,10 @@ function initDiscussionInteractions() {
                     </div>
                     <div class="comment-stats">
                         <span class="stat-item like-stat" data-thought-id="${t.id}" title="Like comment">
-                            <span>❤️</span> <span class="like-count">${t.likesCount || 0}</span>
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" stroke="none" style="vertical-align: -1px; color: #C25E5E;" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> <span class="like-count">${t.likesCount || 0}</span>
                         </span>
                         <span class="stat-item" title="Replies">
-                            <span>💬</span> <span>0</span>
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> <span>0</span>
                         </span>
                     </div>
                 </div>

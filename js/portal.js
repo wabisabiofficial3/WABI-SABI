@@ -89,7 +89,7 @@
                         <article class="update-card ${u.is_pinned ? 'pinned' : ''}">
                             <div class="update-header-row">
                                 <h3 class="update-title">${escapeHtml(u.title)}</h3>
-                                ${u.is_pinned ? '<span class="update-meta-badge">📌 Notice</span>' : ''}
+                                ${u.is_pinned ? '<span class="update-meta-badge"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 3px;" aria-hidden="true"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-2l-2-3V5a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2v7l-2 3v2z"></path></svg>Notice</span>' : ''}
                             </div>
                             <div class="update-content">${escapeHtml(u.content)}</div>
                             <div class="update-footer">

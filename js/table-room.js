@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
                 <div class="msg-actions-row">
                     <button class="msg-react-btn msg-btn-like" data-likes="${msg.likesCount || 0}" data-msg-id="${msg.id}" title="Like reflection">
-                        <span class="heart-icon">❤️</span>
+                        <span class="heart-icon"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" stroke="none" style="vertical-align: -1px; color: #C25E5E;" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></span>
                         <span class="likes-count">${msg.likesCount || 0}</span>
                     </button>
                     <button class="msg-react-btn msg-btn-reply" title="Reply to ${escapeHtml(msg.name)}">
@@ -330,7 +330,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                     <div class="msg-actions-row">
                         <button class="msg-react-btn msg-btn-like" data-likes="1" title="Like reflection">
-                            <span class="heart-icon">❤️</span>
+                            <span class="heart-icon"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" stroke="none" style="vertical-align: -1px; color: #C25E5E;" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></span>
                             <span class="likes-count">1</span>
                         </button>
                         <button class="msg-react-btn msg-btn-reply" title="Reply to ${candidate.author}">
@@ -441,7 +441,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (chatImgBtn) {
         chatImgBtn.addEventListener('click', () => {
             if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
-                window.WabiSabiStore.showToast('📷 Passage capture & margin photo attachments are enabled for verified Bookclub members.');
+                window.WabiSabiStore.showToast('Passage capture & margin photo attachments are enabled for verified Bookclub members.');
             }
         });
     }

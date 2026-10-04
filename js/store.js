@@ -302,7 +302,7 @@
             });
 
             if (this.showToast) {
-                this.showToast(next === 'dark' ? '☕ Night Mode: Warm Coffee & Dimmed Paper' : '🍵 Day Mode: Fresh Tea Glass & Natural Paper');
+                this.showToast(next === 'dark' ? 'Night Mode: Warm Coffee & Dimmed Paper' : 'Day Mode: Fresh Tea Glass & Natural Paper');
             }
 
             return next;

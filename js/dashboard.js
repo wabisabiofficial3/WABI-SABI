@@ -237,7 +237,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (nameEl) nameEl.textContent = memberName;
         if (handleEl) handleEl.textContent = `@${session.handle}`;
         if (roleEl) {
-            roleEl.textContent = isCurator ? '⚜ Curator' : '🌿 Reader';
+            roleEl.innerHTML = isCurator 
+                ? '<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" stroke="none" style="vertical-align: -1px; margin-right: 3px;" aria-hidden="true"><path d="M12 2C11 5 8 7 8 10c0 2 1.5 3.5 3 3.9V20h2v-6.1c1.5-.4 3-1.9 3-3.9 0-3-3-5-4-8z"/><path d="M5 12c1 1.5 2.5 2 4.5 1.5-1 2.5-3 4-5.5 3.5 0-2 0-3.5 1-5z"/><path d="M19 12c-1 1.5-2.5 2-4.5 1.5 1 2.5 3 4 5.5 3.5 0-2 0-3.5-1-5z"/><path d="M7 21h10v1H7z"/></svg>Curator'
+                : '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 3px;" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>Reader';
             roleEl.className = isCurator ? 'profile-modal-role-badge badge-role-curator' : 'profile-modal-role-badge badge-role-reader';
         }
         if (sinceEl) sinceEl.textContent = `Member since: ${session.joinedDate || '2025'}`;
@@ -726,7 +728,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 e.stopPropagation();
                 setDoodleMode(!isDoodleActive);
                 if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
-                    window.WabiSabiStore.showToast(isDoodleActive ? '✎ Desk Doodle Mode Active' : '✦ Desk Doodle Mode Paused');
+                    window.WabiSabiStore.showToast(isDoodleActive ? '✦ Desk Doodle Mode Active' : '✦ Desk Doodle Mode Paused');
                 }
             });
         }

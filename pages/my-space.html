@@ -763,8 +763,8 @@
 
     <!-- Curator Preview Banner -->
     <div id="curatorPreviewBanner">
-        <span>⚜ <strong>CURATOR VIEW</strong> • Viewing <span id="curatorTargetName">Member</span>'s Space</span>
-        <a href="/curator.html">Return to Curator Studio ↗</a>
+        <span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg><strong>CURATOR VIEW</strong> • Viewing <span id="curatorTargetName">Member</span>'s Space</span>
+        <a href="/curator.html">Return to Curator Studio <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></a>
     </div>
 
     <!-- Top Header -->
@@ -1135,7 +1135,7 @@
                                 progress: Number(slider.value)
                             })
                         });
-                        saveProgBtn.textContent = 'Saved ✓';
+                        saveProgBtn.innerHTML = 'Saved <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-left: 2px;" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>';
                         setTimeout(() => { saveProgBtn.textContent = 'Save'; }, 1500);
                     } catch (e) {
                         saveProgBtn.textContent = 'Error';
