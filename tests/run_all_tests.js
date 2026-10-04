@@ -17,6 +17,7 @@ const testSuites = [
     'tests/check_assets.js',
     'tests/test_design_tokens_and_a11y.js',
     'tests/test_hero_ctas.js',
+    'tests/test_cat_animation.js',
     'tests/test_js_syntax.js',
     'tests/test_simplified_architecture.js',
     'tests/test_page_guards.js',

@@ -1,0 +1,37 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const root = path.join(__dirname, '..');
+const homeHtml = fs.readFileSync(path.join(root, 'pages/home.html'), 'utf8');
+const engine = fs.readFileSync(path.join(root, 'js/cat-engine.js'), 'utf8');
+const spriteFrames = ['walk1', 'walk2', 'walk3', 'walk4'];
+
+for (const frame of spriteFrames) {
+    const asset = `cat_${frame}.png`;
+    const id = `catSprite${frame[0].toUpperCase()}${frame.slice(1)}`;
+    assert(homeHtml.includes(`id="${id}"`), `Home page must include the ${frame} sprite.`);
+    assert(homeHtml.includes(`../assets/${asset}`), `Home page must preload/render ${asset}.`);
+
+    const png = fs.readFileSync(path.join(root, 'assets', asset));
+    assert.equal(png.toString('hex', 0, 8), '89504e470d0a1a0a', `${asset} must be a valid PNG.`);
+    assert.equal(png.readUInt32BE(16), 963, `${asset} must use the shared frame width.`);
+    assert.equal(png.readUInt32BE(20), 521, `${asset} must use the shared frame height.`);
+    assert.equal(png[25], 6, `${asset} must retain an alpha channel.`);
+}
+
+const cycle = engine.match(/this\.walkSequence\s*=\s*\[([^\]]+)\]/);
+assert(cycle, 'The walking cycle must be explicitly defined.');
+const sequence = [...cycle[1].matchAll(/'([^']+)'/g)].map(match => match[1]);
+assert.equal(new Set(sequence).size, 4, 'The walking loop must use four distinct poses.');
+assert.deepEqual(new Set(sequence), new Set(spriteFrames));
+assert.match(engine, /this\.stepTimer\s*%=\s*this\.frameDuration/, 'Frame timing should preserve cadence without abrupt resets.');
+
+for (const stylesheet of ['css/tokens.css', 'css/dashboard.css']) {
+    const css = fs.readFileSync(path.join(root, stylesheet), 'utf8');
+    const spriteRule = css.match(/\.cat-sprite\s*\{([^}]*)\}/s);
+    assert(spriteRule, `${stylesheet} must style the cat sprite frames.`);
+    assert.match(spriteRule[1], /transition:\s*none\s*;/, `${stylesheet} must swap frames without an opacity flash.`);
+}
+
+console.log('✓ Four aligned RGBA walk frames cycle without opacity-blink transitions.');

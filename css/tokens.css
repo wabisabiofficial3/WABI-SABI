@@ -304,7 +304,7 @@ body.dark-mode .bottom-taskbar {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.08s ease-in-out;
+    transition: none;
 }
 
 .cat-sprite.active,

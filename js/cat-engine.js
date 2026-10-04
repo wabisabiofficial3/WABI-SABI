@@ -58,6 +58,8 @@ function resolveCatAsset(relativePath) {
 const CatAssetCache = {
     walk1: null,
     walk2: null,
+    walk3: null,
+    walk4: null,
     look: null,
     sit: null,
     preloadAll() {
@@ -65,6 +67,8 @@ const CatAssetCache = {
         const poses = {
             walk1: resolveCatAsset('assets/cat_walk1.png'),
             walk2: resolveCatAsset('assets/cat_walk2.png'),
+            walk3: resolveCatAsset('assets/cat_walk3.png'),
+            walk4: resolveCatAsset('assets/cat_walk4.png'),
             look: resolveCatAsset('assets/cat_look.png'),
             sit: resolveCatAsset('assets/cat_sit.png')
         };
@@ -171,6 +175,8 @@ class TaskbarCatEngine {
         this.frames = {
             walk1: document.getElementById('catSpriteWalk1'),
             walk2: document.getElementById('catSpriteWalk2'),
+            walk3: document.getElementById('catSpriteWalk3'),
+            walk4: document.getElementById('catSpriteWalk4'),
             look: document.getElementById('catSpriteLook'),
             sit: document.getElementById('catSpriteSit')
         };
@@ -181,6 +187,8 @@ class TaskbarCatEngine {
         this.poses = {
             walk1: resolveCatAsset('assets/cat_walk1.png'),
             walk2: resolveCatAsset('assets/cat_walk2.png'),
+            walk3: resolveCatAsset('assets/cat_walk3.png'),
+            walk4: resolveCatAsset('assets/cat_walk4.png'),
             look: resolveCatAsset('assets/cat_look.png'),
             sit: resolveCatAsset('assets/cat_sit.png')
         };
@@ -189,7 +197,9 @@ class TaskbarCatEngine {
         this.x = 120;
         this.direction = 1; // 1 = right, -1 = left
         this.speed = 1.35;  // steady stride speed
-        this.walkFrame = 0;
+        this.walkSequence = ['walk1', 'walk3', 'walk2', 'walk4'];
+        this.walkFrameIndex = 0;
+        this.frameDuration = 0.18;
         this.stepTimer = 0;
         this.isInteracting = false;
         this.isTurning = false;
@@ -232,6 +242,9 @@ class TaskbarCatEngine {
     setPose(poseName) {
         if (!this.poses[poseName]) return;
         this.currentPose = poseName;
+        if (poseName === 'look' || poseName === 'sit') {
+            this.container?.classList.remove('step-up', 'step-down');
+        }
 
         // 1. If layered DOM frames exist, toggle active class instantaneously (0ms lag)
         let hasLayeredFrames = false;
@@ -343,19 +356,14 @@ class TaskbarCatEngine {
                 this.x += this.direction * this.speed * (dt * 60);
 
                 this.stepTimer += dt;
-                if (this.stepTimer >= 0.18) {
-                    this.stepTimer = 0;
-                    this.walkFrame = (this.walkFrame + 1) % 2;
-                    
-                    if (this.walkFrame === 0) {
-                        this.setPose('walk1');
-                        this.container.classList.remove('step-up');
-                        this.container.classList.add('step-down');
-                    } else {
-                        this.setPose('walk2');
-                        this.container.classList.remove('step-down');
-                        this.container.classList.add('step-up');
-                    }
+                if (this.stepTimer >= this.frameDuration) {
+                    this.stepTimer %= this.frameDuration;
+                    this.walkFrameIndex = (this.walkFrameIndex + 1) % this.walkSequence.length;
+                    this.setPose(this.walkSequence[this.walkFrameIndex]);
+
+                    const isLiftPhase = this.walkFrameIndex % 2 === 1;
+                    this.container.classList.toggle('step-up', isLiftPhase);
+                    this.container.classList.toggle('step-down', !isLiftPhase);
                 }
 
                 if (this.direction === 1 && this.x >= this.maxX) {

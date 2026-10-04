@@ -6,12 +6,13 @@ The active regression suite runs sequentially against an isolated temporary SQLi
 npm test
 ```
 
-`tests/run_all_tests.js` currently executes 15 suites:
+`tests/run_all_tests.js` currently executes 16 suites:
 
 | Test | Coverage |
 | --- | --- |
 | `check_links.js`, `check_assets.js` | Internal routes, asset references, and local files |
 | `test_design_tokens_and_a11y.js`, `test_hero_ctas.js` | Responsive/design tokens, accessible zoom, and portal controls |
+| `test_cat_animation.js` | Four aligned RGBA walk frames and no-opacity-flash animation cycle |
 | `test_js_syntax.js` | First-party JavaScript syntax |
 | `test_simplified_architecture.js` | Public portal, curator RBAC, and the four independent member-space routes |
 | `test_page_guards.js` | Member/curator sessions, protected aliases, no-store headers, and suspended-member denial |
