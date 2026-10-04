@@ -864,6 +864,99 @@
                 text-align: center;
             }
         }
+
+        .auth-viewport {
+            min-height: 100vh;
+            min-height: 100svh;
+            min-height: 100dvh;
+            padding-bottom: calc(clamp(14px, 2vw, 24px) + env(safe-area-inset-bottom, 0px));
+        }
+
+        .auth-stage-layout,
+        .auth-card-stage-wrap,
+        .auth-paper-card {
+            min-width: 0;
+        }
+
+        @media (max-width: 600px) {
+            .auth-viewport {
+                justify-content: flex-start;
+                gap: 18px;
+                padding: 14px 14px calc(18px + env(safe-area-inset-bottom, 0px));
+            }
+
+            .auth-header {
+                align-items: flex-start;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .auth-header .brand-container {
+                min-width: 0;
+            }
+
+            .auth-header-right {
+                margin-left: auto;
+            }
+
+            .auth-stage-layout {
+                gap: 16px;
+                margin: 0;
+                padding: 4px 0 14px;
+            }
+
+            .auth-card-stage-wrap {
+                width: 100%;
+            }
+
+            .auth-paper-card {
+                padding: 26px 20px 24px;
+                border-radius: 16px;
+            }
+
+            .card-main-title {
+                font-size: clamp(27px, 8vw, 32px);
+            }
+
+            .field-input-box {
+                min-height: 46px;
+            }
+
+            .auth-cta-btn {
+                min-height: 48px;
+            }
+
+            .auth-footer-bar {
+                width: 100%;
+                gap: 8px;
+                padding-top: 12px;
+                font-size: 12px;
+            }
+
+            .c-botanical-left,
+            .c-botanical-right {
+                display: none;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .auth-viewport {
+                padding-inline: 10px;
+            }
+
+            .auth-paper-card {
+                padding: 23px 16px 20px;
+            }
+
+            .auth-actions-row {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .auth-actions-row > * {
+                min-height: 44px;
+            }
+        }
     </style>
 </head>
 <body>

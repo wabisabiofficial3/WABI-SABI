@@ -757,6 +757,203 @@
             color: var(--wabi-ink-muted);
             font-style: italic;
         }
+
+        @media (max-width: 760px) {
+            .desk-header {
+                align-items: flex-start;
+                flex-wrap: wrap;
+                padding: 16px 18px;
+                gap: 12px;
+            }
+
+            .desk-brand {
+                min-height: 44px;
+            }
+
+            .desk-nav-actions {
+                width: 100%;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                gap: 6px;
+            }
+
+            .desk-nav-link,
+            .btn-leave-space {
+                min-height: 44px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .desk-container {
+                padding: 24px 18px 56px;
+            }
+
+            .member-portrait-card {
+                padding: 26px 24px;
+                gap: 20px;
+                align-items: flex-start;
+            }
+
+            .portrait-left {
+                align-items: flex-start;
+                gap: 18px;
+                width: 100%;
+            }
+
+            .portrait-meta {
+                min-width: 0;
+            }
+
+            .portrait-meta h1 {
+                font-size: clamp(25px, 7vw, 32px);
+                overflow-wrap: anywhere;
+            }
+
+            .desk-module {
+                min-width: 0;
+                padding: 22px;
+            }
+
+            .module-header {
+                align-items: flex-start;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .module-title {
+                font-size: 14px;
+            }
+
+            .reading-card-inner {
+                gap: 14px;
+            }
+
+            .gathering-box {
+                align-items: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .gathering-info {
+                min-width: 0;
+                flex: 1 1 180px;
+            }
+
+            #unauthenticatedCard {
+                width: 100%;
+                margin: 32px auto;
+                padding: 32px 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #curatorPreviewBanner.active {
+                flex-wrap: wrap;
+                gap: 6px 10px;
+                padding: 10px 14px;
+                font-size: 12px;
+            }
+
+            .desk-header {
+                padding: 14px 14px;
+            }
+
+            .desk-logo-text {
+                font-size: 18px;
+            }
+
+            .desk-nav-actions {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 6px;
+            }
+
+            .desk-nav-link {
+                min-width: 0;
+                padding: 8px 6px;
+                font-size: 12px;
+                text-align: center;
+            }
+
+            .btn-leave-space {
+                grid-column: 1 / -1;
+            }
+
+            .desk-container {
+                padding: 18px 12px 44px;
+            }
+
+            .member-portrait-card {
+                padding: 22px 18px;
+                border-radius: 14px;
+            }
+
+            .portrait-stamp {
+                top: 14px;
+                right: 14px;
+                width: 36px;
+                height: 36px;
+                font-size: 13px;
+            }
+
+            .portrait-left {
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .portrait-avatar {
+                width: 72px;
+                height: 72px;
+            }
+
+            .desk-module {
+                padding: 18px 16px;
+                border-radius: 14px;
+            }
+
+            .module-tag {
+                font-size: 10px;
+            }
+
+            .reading-card-inner {
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .reading-book-title {
+                font-size: 21px;
+            }
+
+            .notes-list {
+                max-height: 42dvh;
+            }
+
+            .note-footer {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .btn-delete-note,
+            .btn-save-note,
+            .btn-update-progress,
+            .btn-access-submit {
+                min-height: 44px;
+            }
+
+            .note-textarea,
+            .access-input {
+                font-size: 16px;
+            }
+
+            #unauthenticatedCard {
+                margin: 22px auto;
+                padding: 28px 18px;
+            }
+
+            .access-card-title {
+                font-size: 20px;
+            }
+        }
     </style>
 </head>
 <body>

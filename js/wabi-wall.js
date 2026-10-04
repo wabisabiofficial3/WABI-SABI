@@ -331,13 +331,15 @@ function createNoticeElement(notice, index) {
 function setupCardDragging(card, notice) {
     let startX = 0, startY = 0;
     let initialLeft = 0, initialTop = 0;
+    let activePointerId = null;
 
-    card.addEventListener('mousedown', (e) => {
-        if (!isEditMode) return;
+    card.addEventListener('pointerdown', (e) => {
+        if (!isEditMode || !e.isPrimary || e.button !== 0) return;
         if (e.target.closest('.btn-card-ctrl')) return;
 
         e.preventDefault();
         activeDraggingCard = card;
+        activePointerId = e.pointerId;
         card.classList.add('dragging');
 
         startX = e.clientX;
@@ -345,35 +347,51 @@ function setupCardDragging(card, notice) {
         initialLeft = parseInt(card.style.left, 10) || 0;
         initialTop = parseInt(card.style.top, 10) || 0;
 
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
+        try { card.setPointerCapture(e.pointerId); } catch (err) {}
+        document.addEventListener('pointermove', onPointerMove, { passive: false });
+        document.addEventListener('pointerup', onPointerUp);
+        document.addEventListener('pointercancel', onPointerCancel);
     });
 
-    function onMouseMove(e) {
-        if (!activeDraggingCard) return;
+    function onPointerMove(e) {
+        if (!activeDraggingCard || e.pointerId !== activePointerId) return;
+        e.preventDefault();
+
         const dx = e.clientX - startX;
         const dy = e.clientY - startY;
-
-        let newX = Math.max(10, initialLeft + dx);
-        let newY = Math.max(10, initialTop + dy);
+        const newX = Math.max(10, initialLeft + dx);
+        const newY = Math.max(10, initialTop + dy);
 
         card.style.left = `${newX}px`;
         card.style.top = `${newY}px`;
     }
 
-    async function onMouseUp() {
-        if (!activeDraggingCard) return;
-        activeDraggingCard.classList.remove('dragging');
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
+    function cleanupDrag() {
+        card.classList.remove('dragging');
+        document.removeEventListener('pointermove', onPointerMove);
+        document.removeEventListener('pointerup', onPointerUp);
+        document.removeEventListener('pointercancel', onPointerCancel);
+        activeDraggingCard = null;
+        activePointerId = null;
+    }
+
+    function onPointerCancel(e) {
+        if (!activeDraggingCard || e.pointerId !== activePointerId) return;
+        cleanupDrag();
+    }
+
+    async function onPointerUp(e) {
+        if (!activeDraggingCard || e.pointerId !== activePointerId) return;
 
         const finalX = parseInt(card.style.left, 10);
         const finalY = parseInt(card.style.top, 10);
         const rot = card.getAttribute('data-rotation') || 0;
         card.style.transform = `rotate(${rot}deg)`;
-        activeDraggingCard = null;
+        cleanupDrag();
 
-        // Auto-save position to backend
+        if (!Number.isFinite(finalX) || !Number.isFinite(finalY)) return;
+
+        // Auto-save position to backend for both mouse and touch/pen input.
         try {
             await fetch(`/api/notices/${notice.id}/position`, {
                 method: 'PATCH',

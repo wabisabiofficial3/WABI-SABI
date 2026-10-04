@@ -3280,3 +3280,47 @@ html, body {
     border: 1px solid rgba(156, 51, 34, 0.3);
 }
 
+
+/* Consistent touch targets, safe-area spacing, and iOS form sizing for auth/onboarding views. */
+@media (max-width: 600px) {
+    .auth-viewport,
+    .onboarding-viewport {
+        padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .auth-input,
+    .auth-textarea,
+    .auth-select,
+    .handle-input,
+    .handle-input-container input,
+    .onboarding-input,
+    input[type="email"],
+    input[type="password"],
+    input[type="text"],
+    input[type="url"],
+    input[type="number"],
+    textarea,
+    select {
+        font-size: 16px;
+    }
+
+    .auth-submit-btn,
+    .auth-cta-btn,
+    .ob-back-btn,
+    .onboarding-viewport button,
+    .auth-viewport button {
+        min-height: 44px;
+    }
+
+    .story-modal-backdrop,
+    .auth-modal-overlay {
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .story-modal-sheet,
+    .auth-modal-card {
+        max-height: calc(100dvh - 24px - env(safe-area-inset-bottom, 0px));
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+}

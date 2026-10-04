@@ -430,3 +430,67 @@ body.dark-mode .cat-speech-bubble::after {
     100% { transform: translate(calc(var(--start-x) + 1150px), calc(var(--start-y) - 1050px)) scale(0.6) rotate(-15deg); opacity: 0; }
 }
 
+
+/* Responsive navigation dock shared by the public reading spaces. */
+@media (max-width: 960px) {
+    aside.nav-dock {
+        width: 100%;
+        min-width: 0;
+        flex: 0 0 auto;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 4px;
+        padding: 0 0 4px;
+        overflow-x: hidden;
+        overflow-y: visible;
+    }
+
+    .dock-capsule {
+        width: 100%;
+        max-width: 100%;
+        flex: 0 1 auto;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 4px;
+        padding: 6px;
+        border-radius: 18px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scroll-snap-type: x proximity;
+    }
+
+    .dock-item {
+        width: auto;
+        min-width: 76px;
+        min-height: 44px;
+        flex: 0 0 auto;
+        padding: 6px 9px;
+        border-radius: 14px;
+        scroll-snap-align: start;
+    }
+
+    .calmer-tagline {
+        width: auto;
+        margin: 0;
+        padding: 0 8px;
+        text-align: left;
+    }
+}
+
+@media (max-width: 480px) {
+    .dock-item {
+        min-width: 68px;
+        font-size: 11px;
+        padding-inline: 7px;
+    }
+
+    .dock-item svg {
+        width: 20px;
+        height: 20px;
+    }
+}

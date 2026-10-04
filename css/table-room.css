@@ -1475,3 +1475,295 @@ body.dark-mode .dock-item:hover {
         display: none;
     }
 }
+
+/* Restore page scrolling and a single-column reading order on tablet/phone layouts. */
+@media (max-width: 1200px) {
+    html,
+    body {
+        height: auto;
+        min-height: 100%;
+        max-height: none;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-room-viewport {
+        height: auto;
+        min-height: 100vh;
+        min-height: 100dvh;
+        max-height: none;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto auto;
+        gap: 10px;
+        padding: 10px clamp(12px, 3vw, 24px) 20px;
+        overflow: visible;
+    }
+
+    .table-header {
+        height: auto;
+        min-height: 0;
+        flex-wrap: wrap;
+        gap: 10px 14px;
+        padding: 0 0 10px;
+    }
+
+    .table-header .brand-container {
+        min-width: 0;
+    }
+
+    .table-header .search-pill-container {
+        order: 3;
+        flex: 1 1 100%;
+        width: 100%;
+        max-width: none;
+    }
+
+    .table-header .header-controls {
+        gap: 10px;
+        margin-left: auto;
+    }
+
+    .table-header .search-pill {
+        min-height: 40px;
+    }
+
+    .table-room-viewport > aside.nav-dock {
+        width: 100%;
+        min-width: 0;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0 0 4px;
+    }
+
+    .table-room-viewport .dock-capsule {
+        width: 100%;
+        max-width: 100%;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 4px;
+        padding: 6px;
+        border-radius: 18px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-room-viewport .dock-item {
+        width: auto;
+        min-width: 76px;
+        min-height: 44px;
+        flex: 0 0 auto;
+        padding: 6px 9px;
+        border-radius: 14px;
+    }
+
+    .table-room-viewport .calmer-tagline {
+        width: auto;
+        margin: 0;
+        padding: 0 8px;
+        text-align: left;
+    }
+
+    .table-room-stage {
+        height: auto;
+        min-height: 0;
+        overflow: visible;
+    }
+
+    .room-sub-header {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .room-title-cluster {
+        min-width: 0;
+    }
+
+    .table-content-grid {
+        flex: 0 0 auto;
+        min-height: 0;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+        overflow: visible;
+    }
+
+    /* The online members list remains available (desktop CSS previously hid it below 1200px). */
+    .members-sidebar-card {
+        display: flex !important;
+        height: auto;
+        min-height: 240px;
+        max-height: 380px;
+    }
+
+    .members-list-scroll {
+        min-height: 120px;
+    }
+
+    .chat-main-card {
+        height: auto;
+        min-height: min(68dvh, 680px);
+        max-height: none;
+    }
+
+    .chat-messages-stream {
+        min-height: 240px;
+        max-height: 60dvh;
+    }
+
+    .book-context-sidebar {
+        height: auto;
+        overflow: visible;
+    }
+
+    .context-card {
+        height: auto;
+    }
+
+    .week-menu-popover {
+        max-width: calc(100vw - 32px);
+    }
+}
+
+@media (max-width: 600px) {
+    .table-room-viewport {
+        gap: 8px;
+        padding: 8px 10px 16px;
+    }
+
+    .table-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .table-header .brand-container,
+    .table-header .search-pill-container,
+    .table-header .header-controls {
+        grid-column: 1;
+        order: initial;
+        width: 100%;
+        max-width: none;
+    }
+
+    .table-header .brand-container {
+        justify-content: flex-start;
+    }
+
+    .table-header .brand-img {
+        max-height: 22px;
+    }
+
+    .table-header .brand-taglines {
+        display: none;
+    }
+
+    .table-header .header-controls {
+        justify-content: space-between;
+        margin-left: 0;
+    }
+
+    .table-header .search-pill {
+        height: 44px;
+        font-size: 16px;
+    }
+
+    .table-header .theme-btn,
+    .table-header .curator-desk-pill,
+    .table-header .user-avatar-btn {
+        min-height: 44px;
+    }
+
+    .table-header .theme-btn,
+    .table-header .user-avatar-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .table-room-viewport .dock-item {
+        min-width: 68px;
+        font-size: 11px;
+        padding-inline: 7px;
+    }
+
+    .room-sub-header {
+        align-items: flex-start;
+    }
+
+    .room-title-cluster {
+        gap: 8px;
+    }
+
+    .room-back-btn {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 auto;
+    }
+
+    .room-main-title {
+        font-size: 19px;
+    }
+
+    .room-meta-cluster {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .members-sidebar-card,
+    .chat-main-card,
+    .context-card {
+        border-radius: 16px;
+    }
+
+    .members-sidebar-card {
+        min-height: 220px;
+        max-height: 340px;
+    }
+
+    .chat-main-card {
+        min-height: 68dvh;
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .question-banner-card {
+        align-items: flex-start;
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .question-headline {
+        font-size: clamp(18px, 5vw, 21px);
+    }
+
+    .chat-messages-stream {
+        min-height: 240px;
+        max-height: 60dvh;
+        gap: 12px;
+    }
+
+    .msg-bubble {
+        overflow-wrap: anywhere;
+    }
+
+    .chat-input-bar {
+        min-height: 48px;
+    }
+
+    .chat-input-bar input,
+    .chat-input-bar textarea {
+        min-width: 0;
+        font-size: 16px;
+    }
+
+    .chat-tool-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .botanical-corner-left,
+    .botanical-corner-right {
+        display: none;
+    }
+}
