@@ -12,7 +12,7 @@ npm test
 | --- | --- |
 | `check_links.js`, `check_assets.js` | Internal routes, asset references, and local files |
 | `test_design_tokens_and_a11y.js`, `test_hero_ctas.js` | Responsive/design tokens, accessible zoom, and portal controls |
-| `test_cat_animation.js` | Four aligned RGBA walk frames and gap-free sprite crossfades |
+| `test_cat_animation.js` | Four aligned RGBA frames, gap-free crossfades, and weighted step shadows |
 | `test_js_syntax.js` | First-party JavaScript syntax |
 | `test_simplified_architecture.js` | Public portal, curator RBAC, and the four independent member-space routes |
 | `test_page_guards.js` | Member/curator sessions, protected aliases, no-store headers, and suspended-member denial |

@@ -39,6 +39,19 @@ for (const stylesheet of ['css/tokens.css', 'css/dashboard.css']) {
     const activeRule = css.match(/\.cat-sprite\.active,[\s\S]*?\.cat-sprite:only-child\s*\{([^}]*)\}/);
     assert(activeRule, `${stylesheet} must define the active frame transition.`);
     assert.match(activeRule[1], /transition:\s*opacity 0\.12s ease-in-out,\s*visibility 0s\s*;/);
+
+    const liftRule = css.match(/\.living-cat-actor\.step-up\s*\{([^}]*)\}/);
+    const landingRule = css.match(/\.living-cat-actor\.step-down\s*\{([^}]*)\}/);
+    const liftShadowRule = css.match(/\.living-cat-actor\.step-up\s+\.cat-contact-shadow\s*\{([^}]*)\}/);
+    const landingShadowRule = css.match(/\.living-cat-actor\.step-down\s+\.cat-contact-shadow\s*\{([^}]*)\}/);
+    assert(liftRule && landingRule && liftShadowRule && landingShadowRule, `${stylesheet} must animate the cat's lift and ground contact.`);
+    assert.match(liftRule[1], /translateY\(-3px\)\s+scaleY\(1\.01\)/);
+    assert.match(landingRule[1], /translateY\(0\)\s+scaleY\(0\.99\)/);
+    assert.match(liftShadowRule[1], /width:\s*66%/);
+    assert.match(liftShadowRule[1], /opacity:\s*0\.62/);
+    assert.match(liftShadowRule[1], /translateY\(3px\)/, 'The ground shadow should stay anchored while the cat lifts.');
+    assert.match(landingShadowRule[1], /width:\s*79%/);
+    assert.match(landingShadowRule[1], /opacity:\s*0\.96/);
 }
 
-console.log('✓ Four aligned RGBA walk frames crossfade without a visibility gap.');
+console.log('✓ Cat frames crossfade while body bounce and contact shadow add subtle weight.');

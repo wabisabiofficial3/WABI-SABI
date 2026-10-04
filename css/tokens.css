@@ -265,15 +265,16 @@ body.dark-mode .bottom-taskbar {
     z-index: 102;
     will-change: left, transform;
     user-select: none;
+    transform-origin: bottom center;
     transition: transform 0.15s ease-out;
 }
 
 .living-cat-actor.step-up {
-    transform: translateY(-3px);
+    transform: translateY(-3px) scaleY(1.01);
 }
 
 .living-cat-actor.step-down {
-    transform: translateY(0px);
+    transform: translateY(0) scaleY(0.99);
 }
 
 .cat-contact-shadow {
@@ -287,7 +288,19 @@ body.dark-mode .bottom-taskbar {
     border-radius: 50%;
     pointer-events: none;
     z-index: -1;
-    transition: width 0.15s ease, opacity 0.15s ease;
+    transition: width 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+}
+
+.living-cat-actor.step-up .cat-contact-shadow {
+    width: 66%;
+    opacity: 0.62;
+    transform: translateX(-50%) translateY(3px) scaleY(0.85);
+}
+
+.living-cat-actor.step-down .cat-contact-shadow {
+    width: 79%;
+    opacity: 0.96;
+    transform: translateX(-50%);
 }
 
 .cat-sprite {
