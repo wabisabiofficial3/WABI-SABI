@@ -14,6 +14,7 @@ const {
  * Authenticates one of the 3 Curators (Likith, Sarvasree, Dhanush)
  */
 router.post('/login', checkLoginRateLimit, async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
     try {
         const body = req.body && typeof req.body === 'object' ? req.body : {};
         const rawIdentifier = body.identifier ?? body.email ?? body.username;
@@ -113,8 +114,14 @@ router.post('/logout', (req, res) => {
             deleteCuratorSession(tokenHash);
         }
 
-        res.clearCookie('wabisabi_curator_session', { httpOnly: true, sameSite: 'lax', path: '/' });
-        res.clearCookie('wabisabi_session', { httpOnly: true, sameSite: 'lax', path: '/' });
+        const cookieOptions = {
+            httpOnly: true,
+            secure: req.secure || process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/'
+        };
+        res.clearCookie('wabisabi_curator_session', cookieOptions);
+        res.clearCookie('wabisabi_session', cookieOptions);
 
         return res.json({ success: true, message: 'Curator session terminated.' });
     } catch (err) {

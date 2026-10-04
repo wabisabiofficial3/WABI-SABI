@@ -13,9 +13,10 @@ function securityHeaders(req, res, next) {
 
     const csp = [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "script-src 'self' 'unsafe-inline'",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com data:",
+        "object-src 'none'",
         "img-src 'self' data: https: blob:",
         "media-src 'self' https: data: blob:",
         "connect-src 'self' https://api.web3forms.com",
@@ -103,7 +104,7 @@ function isAllowedOrigin(req, origin) {
 /**
  * Same-origin by default. Cross-origin credentials are permitted only for an exact
  * origin listed in CORS_ALLOWED_ORIGINS. Unsafe browser requests with a foreign Origin
- * are rejected here rather than relying on CORS as a CSRF defense.
+ * are rejected; when Origin is absent, Fetch Metadata must identify a same-origin request.
  */
 function corsAndCsrf(req, res, next) {
     const origin = req.get('origin');
@@ -117,7 +118,8 @@ function corsAndCsrf(req, res, next) {
         return res.status(403).json({ success: false, error: 'Request origin is not allowed.' });
     }
 
-    if (!origin && isUnsafeMethod && req.get('sec-fetch-site') === 'cross-site') {
+    const fetchSite = req.get('sec-fetch-site');
+    if (!origin && isUnsafeMethod && fetchSite && fetchSite !== 'same-origin') {
         return res.status(403).json({ success: false, error: 'Cross-site state changes are not allowed.' });
     }
 
@@ -161,7 +163,7 @@ function apiRateLimiter(req, res, next) {
     // When mounted with app.use('/api', ...), req.path is relative to /api; use
     // originalUrl so the limiter does not silently skip every mounted request.
     const requestPath = (req.originalUrl || req.url || '').split('?')[0];
-    if (!/^\/api(?:\/|$)/.test(requestPath)) return next();
+    if (!/^\/api(?:\/|$)/i.test(requestPath)) return next();
 
     const ip = getClientIp(req);
     const now = Date.now();

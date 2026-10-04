@@ -30,10 +30,10 @@ Member APIs continue to use `requireMember`; curator management APIs continue to
 
 ## Security and storage
 
-- Global middleware adds security headers, blocks sensitive paths, applies same-origin/CSRF checks, and rate-limits API traffic.
-- Curator and member sessions use separate HTTP-only cookies. Only token hashes are stored in SQLite; member codes are stored as hashes.
+- Global middleware adds security headers, blocks sensitive paths, applies same-origin/CSRF checks, and rate-limits API traffic before parsing request bodies. JSON bodies are capped at 100 KB; parser errors return safe messages rather than Express stack pages.
+- Curator and member sessions use separate HTTP-only cookies. Only token hashes are stored in SQLite; member codes are stored as hashes. Remembered reader profiles also use an HTTP-only, same-site cookie.
 - Private member data endpoints require a valid active member session (or the explicit curator-preview flow where supported). Curator writes require a valid curator session.
-- SQLite uses foreign keys, WAL mode, and a bounded busy timeout. The database path defaults to `data/wabisabi.db` and can be overridden with `WABI_DB_PATH`.
+- SQLite uses foreign keys, WAL mode, a bounded busy timeout, and owner-only database/sidecar permissions on POSIX systems. The database path defaults to `data/wabisabi.db` and can be overridden with `WABI_DB_PATH`.
 - The optional Supabase files and `schema.sql` are not used by `npm start`.
 
 ## Key files

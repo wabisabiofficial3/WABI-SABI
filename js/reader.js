@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             headerHandleBadge.textContent = `@${session.handle}`;
         }
         if (headerUserAvatarImg && session.avatar) {
-            headerUserAvatarImg.src = session.avatar;
+            headerUserAvatarImg.src = safeAvatarUrl(session.avatar);
         }
     }
 
@@ -908,16 +908,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         addThoughtInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && addThoughtInput.value.trim().length > 0) {
                 const text = addThoughtInput.value.trim();
-                const userHandle = session && session.handle ? `@${session.handle}` : '@reader';
-                const userAvatar = session && session.avatar ? session.avatar : '../assets/user_avatar.jpg';
+                const userHandle = session && typeof session.handle === 'string' && session.handle
+                    ? `@${session.handle}`
+                    : '@reader';
+                const userAvatar = safeAvatarUrl(session && session.avatar ? session.avatar : '../assets/user_avatar.jpg');
 
                 const newComment = document.createElement('div');
                 newComment.className = 'thread-comment-item';
                 newComment.innerHTML = `
-                    <img src="${userAvatar}" alt="${userHandle}" class="comment-author-avatar">
+                    <img src="${escapeHtmlAttribute(userAvatar)}" alt="Member avatar" class="comment-author-avatar">
                     <div class="comment-body">
                         <div class="comment-header-line">
-                            <span class="comment-author-handle">${userHandle}</span>
+                            <span class="comment-author-handle">${escapeHtml(userHandle)}</span>
                             <span class="comment-you-pill">(You)</span>
                         </div>
                         <p class="comment-message">${escapeHtml(text)}</p>
@@ -997,8 +999,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
+        return String(str ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function escapeHtmlAttribute(str) {
+        return escapeHtml(str);
+    }
+
+    function safeAvatarUrl(value) {
+        const fallback = '/assets/user_avatar.jpg';
+        if (typeof value !== 'string' || !value.trim()) return fallback;
+        try {
+            const parsed = new URL(value.trim(), window.location.href);
+            if (parsed.username || parsed.password) return fallback;
+            const isLocalAsset = parsed.origin === window.location.origin
+                && parsed.pathname.startsWith('/assets/')
+                && !parsed.pathname.split('/').includes('..');
+            if (isLocalAsset) return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+            if (parsed.protocol === 'https:') return parsed.href;
+        } catch (error) {
+            return fallback;
+        }
+        return fallback;
     }
 });

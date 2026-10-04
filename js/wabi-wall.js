@@ -8,6 +8,8 @@ let allNotices = [];
 let isCurator = false;
 let isEditMode = false;
 let activeDraggingCard = null;
+const NOTICE_TYPES = new Set(['theme_poster', 'about', 'films_list', 'timeline', 'participation', 'discussion', 'curator_note', 'announcement']);
+const NOTICE_PIN_COLORS = new Set(['brass', 'red', 'green', 'purple', 'bronze']);
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Client-side authentication guard
@@ -119,25 +121,29 @@ function renderBoard(notices) {
 /* ==========================================================================
    CREATE NOTICE CARD ELEMENT WITH PHYSICAL DEPTH
    ========================================================================== */
-function createNoticeElement(notice, index) {
+function createNoticeElement(input, index) {
+    const notice = input && typeof input === 'object' && !Array.isArray(input) ? { ...input } : {};
+    notice.type = NOTICE_TYPES.has(notice.type) ? notice.type : 'announcement';
+    notice.id = notice.id === undefined || notice.id === null ? '' : String(notice.id);
     const card = document.createElement('div');
     card.className = `pinned-notice card-${notice.type.replace('_', '-')}`;
-    card.setAttribute('data-id', notice.id);
-    card.setAttribute('data-type', notice.type);
+    card.dataset.id = notice.id;
+    card.dataset.type = notice.type;
 
-    // Apply coordinates and natural tilt rotation
-    const posX = notice.position_x || (30 + (index % 4) * 220);
-    const posY = notice.position_y || (30 + Math.floor(index / 4) * 260);
-    const rot = notice.rotation || 0;
+    // Apply bounded numeric coordinates and natural tilt rotation.
+    const posX = safeNumber(notice.position_x, 30 + (index % 4) * 220, 0, 10000);
+    const posY = safeNumber(notice.position_y, 30 + Math.floor(index / 4) * 260, 0, 10000);
+    const rot = safeNumber(notice.rotation, 0, -20, 20);
 
     card.style.left = `${posX}px`;
     card.style.top = `${posY}px`;
     card.style.transform = `rotate(${rot}deg)`;
     card.setAttribute('data-rotation', rot);
 
-    // Render Push-Pin(s)
+    // Render Push-Pin(s) using only the board's known color classes.
     let pinHtml = '';
-    const pinClass = `push-pin pin-${notice.pin_color || 'brass'}`;
+    const pinColor = NOTICE_PIN_COLORS.has(notice.pin_color) ? notice.pin_color : 'brass';
+    const pinClass = `push-pin pin-${pinColor}`;
     if (notice.type === 'theme_poster') {
         pinHtml = `
             <div class="${pinClass} pin-top-left"></div>
@@ -150,26 +156,28 @@ function createNoticeElement(notice, index) {
     // Curator Action Overlay (Edit / Archive)
     const curatorActionsHtml = `
         <div class="card-curator-actions">
-            <button class="btn-card-ctrl btn-edit" title="Edit notice" onclick="handleEditNotice('${notice.id}', event)">✎</button>
-            <button class="btn-card-ctrl btn-archive" title="Archive notice" onclick="handleArchiveNotice('${notice.id}', event)">📦</button>
+            <button type="button" class="btn-card-ctrl btn-edit" data-notice-action="edit" title="Edit notice">✎</button>
+            <button type="button" class="btn-card-ctrl btn-archive" data-notice-action="archive" title="Archive notice">📦</button>
         </div>
     `;
 
     // Inner Card Content based on Notice Type
     let innerHtml = '';
-    const meta = notice.metadata || {};
+    const meta = notice.metadata && typeof notice.metadata === 'object' && !Array.isArray(notice.metadata)
+        ? notice.metadata
+        : {};
 
     switch (notice.type) {
         case 'theme_poster':
             innerHtml = `
                 ${pinHtml}
                 ${curatorActionsHtml}
-                <div class="poster-vol-tag">${meta.vol || 'VOL. 1'}</div>
+                <div class="poster-vol-tag">${escapeHtml(meta.vol || 'VOL. 1')}</div>
                 <h2 class="poster-title-text">${escapeHtml(notice.title)}</h2>
                 <p class="poster-subtitle-text">${escapeHtml(notice.content)}</p>
-                <div class="poster-dates-badge">${meta.dates || 'SEPT 22 – OCT 20, 2026'}</div>
+                <div class="poster-dates-badge">${escapeHtml(meta.dates || 'SEPT 22 – OCT 20, 2026')}</div>
                 <div class="poster-image-box">
-                    <img src="${notice.image || 'assets/cinema_of_solitude.jpg'}" alt="Cinema Still">
+                    <img data-notice-image alt="Cinema Still">
                 </div>
             `;
             break;
@@ -186,7 +194,7 @@ function createNoticeElement(notice, index) {
             break;
 
         case 'films_list':
-            const filmsList = meta.films || [
+            const filmsList = Array.isArray(meta.films) ? meta.films : [
                 'Interstellar (2014)',
                 'Her (2013)',
                 'The Perks of Being a Wallflower (2012)',
@@ -212,7 +220,7 @@ function createNoticeElement(notice, index) {
             break;
 
         case 'timeline':
-            const weeksList = meta.weeks || [
+            const weeksList = Array.isArray(meta.weeks) ? meta.weeks : [
                 { week: 'Week 1', film: 'Interstellar' },
                 { week: 'Week 2', film: 'Her' },
                 { week: 'Week 3', film: 'Perks of Being a Wallflower' },
@@ -240,7 +248,7 @@ function createNoticeElement(notice, index) {
             break;
 
         case 'participation':
-            const steps = meta.steps || [
+            const steps = Array.isArray(meta.steps) ? meta.steps : [
                 'Watch the film of the week',
                 'Share your thoughts',
                 'Join the Table Room discussion',
@@ -308,9 +316,17 @@ function createNoticeElement(notice, index) {
     }
 
     card.innerHTML = innerHtml;
+    const posterImage = card.querySelector('[data-notice-image]');
+    if (posterImage) posterImage.src = safeNoticeImageUrl(notice.image);
 
-    // Card Click: Open modal in read mode
+    // Keep actions bound to this trusted closure instead of embedding IDs in inline HTML.
     card.addEventListener('click', (e) => {
+        const actionButton = e.target instanceof Element ? e.target.closest('[data-notice-action]') : null;
+        if (actionButton) {
+            if (actionButton.dataset.noticeAction === 'edit') handleEditNotice(notice.id, e);
+            if (actionButton.dataset.noticeAction === 'archive') handleArchiveNotice(notice.id, e);
+            return;
+        }
         if (isEditMode) return;
         openNoticeModal(notice);
     });
@@ -494,13 +510,15 @@ function openNoticeModal(notice) {
         `;
     } else {
         actionButtons = `
-            <button class="btn-modal-action" onclick="closeModal()">
+            <button type="button" class="btn-modal-action" data-close-notice>
                 <span>Close Notice</span>
             </button>
         `;
     }
 
     actionsEl.innerHTML = actionButtons;
+    const closeNoticeButton = actionsEl.querySelector('[data-close-notice]');
+    if (closeNoticeButton) closeNoticeButton.addEventListener('click', closeModal);
     backdrop.classList.add('show');
 }
 
@@ -514,7 +532,7 @@ function closeModal() {
    ========================================================================== */
 function handleEditNotice(noticeId, event) {
     event.stopPropagation();
-    const notice = allNotices.find(n => n.id === noticeId);
+    const notice = allNotices.find(n => String(n.id) === String(noticeId));
     if (!notice) return;
 
     const newTitle = prompt('Edit Notice Title:', notice.title);
@@ -522,7 +540,7 @@ function handleEditNotice(noticeId, event) {
     const newContent = prompt('Edit Notice Content:', notice.content);
     if (newContent === null) return;
 
-    fetch(`/api/notices/${noticeId}`, {
+    fetch(`/api/notices/${encodeURIComponent(String(noticeId))}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -545,7 +563,7 @@ function handleArchiveNotice(noticeId, event) {
     event.stopPropagation();
     if (!confirm('Are you sure you want to archive this notice from the board?')) return;
 
-    fetch(`/api/notices/${noticeId}/archive`, {
+    fetch(`/api/notices/${encodeURIComponent(String(noticeId))}/archive`, {
         method: 'POST',
         credentials: 'include'
     }).then(res => res.json()).then(data => {
@@ -593,8 +611,33 @@ function openCreateNoticeModal() {
    HELPERS
    ========================================================================== */
 function escapeHtml(str) {
-    if (!str) return '';
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(str));
-    return div.innerHTML;
+    return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function safeNumber(value, fallback, minimum, maximum) {
+    if (value === null || value === undefined || value === '') return fallback;
+    const number = Number(value);
+    return Number.isFinite(number) ? Math.max(minimum, Math.min(maximum, number)) : fallback;
+}
+
+function safeNoticeImageUrl(value) {
+    const fallback = '/assets/cinema_of_solitude.jpg';
+    if (typeof value !== 'string' || !value.trim()) return fallback;
+    try {
+        const parsed = new URL(value.trim(), window.location.href);
+        if (parsed.username || parsed.password) return fallback;
+        const isLocalAsset = parsed.origin === window.location.origin
+            && parsed.pathname.startsWith('/assets/')
+            && !parsed.pathname.split('/').includes('..');
+        if (isLocalAsset) return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+        if (parsed.protocol === 'https:') return parsed.href;
+    } catch (error) {
+        return fallback;
+    }
+    return fallback;
 }

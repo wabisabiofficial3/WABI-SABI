@@ -40,10 +40,12 @@ Set `APP_BASE_URL` to the HTTPS public origin in production so QR membership pas
 
 ## Storage and security notes
 
-- SQLite data lives at `data/wabisabi.db` by default. Override it with `WABI_DB_PATH` when testing or using a different persistent volume.
+- SQLite data lives at `data/wabisabi.db` by default. Override it with `WABI_DB_PATH` when testing or using a different persistent volume. On POSIX systems, the database and active WAL sidecars are restricted to owner-only permissions.
 - Curator passwords are Argon2id hashes. Session tokens are cryptographically random and only their hashes are stored in SQLite.
 - Member codes are generated randomly and stored as hashes. Curator-issued QR passes are single-use; opening a QR URL displays a confirmation first, so link-preview scanners cannot consume a pass.
-- Sensitive API responses are not cached. Writes are same-origin by default, and curator/member APIs require server-validated sessions.
+- Sensitive API responses are not cached. Writes are same-origin by default, and curator/member APIs require server-validated sessions. API requests are rate-limited before parsing, JSON bodies are capped at 100 KB, and parser errors never return stack traces. Rate-limit counters are in-memory per Node process; use a shared limiter or trusted edge limit if scaling to multiple instances.
+- The CSP blocks plugins and narrows script origins, but retains `unsafe-inline` for the existing static pages' inline code. A nonce/hash policy is a future hardening step; active API-rendered text is escaped or assigned as text.
+- Remembered reader profiles are served through the profile API and stored in an HTTP-only, same-site cookie.
 - Never add `.env`, generated bootstrap passwords, database files, or real member access codes to Git.
 
 ## Tests

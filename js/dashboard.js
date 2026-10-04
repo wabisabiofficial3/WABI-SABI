@@ -15,6 +15,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     const isCurator = session.role === 'CURATOR' || session.role === 'Curator';
     const memberName = session.displayName || session.name || 'Member';
 
+    function safeAvatarUrl(value) {
+        const fallback = '/assets/user_avatar.jpg';
+        if (typeof value !== 'string' || !value.trim()) return fallback;
+        try {
+            const parsed = new URL(value.trim(), window.location.href);
+            if (parsed.username || parsed.password) return fallback;
+            const isLocalAsset = parsed.origin === window.location.origin
+                && parsed.pathname.startsWith('/assets/')
+                && !parsed.pathname.split('/').includes('..');
+            if (isLocalAsset) return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+            if (parsed.protocol === 'https:') return parsed.href;
+        } catch (error) {
+            return fallback;
+        }
+        return fallback;
+    }
+
     // 2. Hydrate Header with User details & role-specific actions
     const headerHandleBadge = document.getElementById('headerHandleBadge');
     const headerCuratorDeskBtn = document.getElementById('headerCuratorDeskBtn');
@@ -22,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const headerUserAvatarImg = document.getElementById('headerUserAvatarImg');
 
     if (session.avatar && headerUserAvatarImg) {
-        headerUserAvatarImg.src = session.avatar;
+        headerUserAvatarImg.src = safeAvatarUrl(session.avatar);
     }
     if (userProfileBtn) {
         userProfileBtn.title = `Signed in as ${memberName} (@${session.handle})`;
@@ -242,7 +259,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             roleEl.className = isCurator ? 'profile-modal-role-badge badge-role-curator' : 'profile-modal-role-badge badge-role-reader';
         }
         if (sinceEl) sinceEl.textContent = `Member since: ${session.joinedDate || '2025'}`;
-        if (avatarEl && session.avatar) avatarEl.src = session.avatar;
+        if (avatarEl && session.avatar) avatarEl.src = safeAvatarUrl(session.avatar);
 
         if (interestsEl) {
             interestsEl.innerHTML = '';

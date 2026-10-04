@@ -21,6 +21,24 @@ db.exec('PRAGMA synchronous = NORMAL;');
 db.exec('PRAGMA foreign_keys = ON;');
 db.exec('PRAGMA busy_timeout = 5000;');
 
+/** Restrict the live SQLite database and WAL sidecars to the service owner. */
+function restrictDatabaseFilePermissions() {
+    if (process.platform === 'win32') return; // POSIX mode bits are not reliable on Windows.
+
+    for (const filePath of [DB_PATH, `${DB_PATH}-wal`, `${DB_PATH}-shm`, `${DB_PATH}-journal`]) {
+        try {
+            fs.chmodSync(filePath, 0o600);
+            const mode = fs.statSync(filePath).mode & 0o777;
+            if (mode & 0o077) {
+                throw new Error('SQLite file permissions still allow group or other access.');
+            }
+        } catch (error) {
+            if (error.code === 'ENOENT') continue;
+            throw new Error(`Could not restrict SQLite file permissions: ${error.message}`);
+        }
+    }
+}
+
 function withTransaction(callback) {
     if (typeof callback !== 'function') throw new TypeError('Transaction callback must be a function.');
     db.exec('BEGIN IMMEDIATE;');
@@ -154,6 +172,8 @@ function initDatabase() {
     } catch (e) {
         console.warn('Member schema check warning:', e.message);
     }
+
+    restrictDatabaseFilePermissions();
 }
 
 /**
@@ -292,6 +312,7 @@ async function seedInitialAccounts() {
     seedDefaultSettings();
     seedDefaultUpdates();
     seedDefaultMembers();
+    restrictDatabaseFilePermissions();
 }
 
 /**

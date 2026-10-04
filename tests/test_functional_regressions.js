@@ -140,18 +140,18 @@ async function run() {
     await request(`/api/curator/members/${memberId}`, { method: 'DELETE', headers: { Cookie: curatorCookie } });
     console.log('✓ Member validation preserves zero progress and prevents false success for missing records.');
 
-    // Verify rate limiting is actually active on a mounted /api route. This is last,
-    // since the limiter intentionally blocks this test client's remaining requests.
+    // Verify the limiter also catches the mixed-case spelling accepted by Express.
+    // This is last because the limiter intentionally blocks remaining requests.
     let received429 = false;
     for (let i = 0; i < 200; i += 1) {
-        const { response } = await request('/api/health', { cache: 'no-store' });
+        const { response } = await request('/API/health', { cache: 'no-store' });
         if (response.status === 429) {
             received429 = true;
             break;
         }
     }
-    assert.equal(received429, true, 'Mounted API requests must eventually be rate limited.');
-    console.log('✓ The /api rate limiter runs and returns 429 when the client exceeds its quota.');
+    assert.equal(received429, true, 'Mixed-case mounted API requests must eventually be rate limited.');
+    console.log('✓ Mixed-case API paths are rate-limited and return 429 when the quota is exceeded.');
 }
 
 run().catch(error => {

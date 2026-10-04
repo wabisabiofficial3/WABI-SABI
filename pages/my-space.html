@@ -1292,7 +1292,8 @@
                 document.getElementById('bookJacketTitle').textContent = r.book_title || 'The Stranger';
                 document.getElementById('bookJacketAuthor').textContent = r.book_author || 'Albert Camus';
                 
-                const prog = r.progress || 0;
+                const rawProgress = Number(r.progress);
+                const prog = Number.isFinite(rawProgress) ? Math.max(0, Math.min(100, rawProgress)) : 0;
                 document.getElementById('progressPercentLabel').textContent = `${prog}% complete`;
                 document.getElementById('progressBarFill').style.width = `${prog}%`;
                 document.getElementById('progressSlider').value = prog;
@@ -1366,15 +1367,19 @@
                 // Populate Bookshelf
                 const shelfContainer = document.getElementById('shelfContainer');
                 if (data.bookshelf && shelfContainer) {
-                    shelfContainer.innerHTML = data.bookshelf.map(b => `
+                    shelfContainer.innerHTML = data.bookshelf.map(b => {
+                        const rawProgress = Number(b.progress);
+                        const progress = Number.isFinite(rawProgress) ? Math.max(0, Math.min(100, rawProgress)) : 0;
+                        return `
                         <div class="shelf-item">
                             <div>
                                 <h4 class="shelf-book-title">${escapeHtml(b.title)}</h4>
                                 <p class="shelf-book-author">${escapeHtml(b.author)}</p>
                             </div>
-                            <span class="shelf-badge">${b.status === 'currently_reading' ? `${b.progress}% read` : 'Saved'}</span>
+                            <span class="shelf-badge">${b.status === 'currently_reading' ? `${progress}% read` : 'Saved'}</span>
                         </div>
-                    `).join('');
+                    `;
+                    }).join('');
                 }
 
                 // Populate Gathering
@@ -1412,26 +1417,32 @@
             const previewId = params.get('preview');
 
             container.innerHTML = notes.map(n => `
-                <div class="note-card" id="note-${n.id}">
+                <div class="note-card">
                     <p class="note-content">“${escapeHtml(n.content)}”</p>
                     <div class="note-footer">
                         <span>${new Date(n.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                        <button type="button" class="btn-delete-note" onclick="deleteDeskNote('${n.id}')">Erase note</button>
+                        <button type="button" class="btn-delete-note" data-note-id="${escapeHtml(n.id)}">Erase note</button>
                     </div>
                 </div>
             `).join('');
 
-            window.deleteDeskNote = async (id) => {
-                if (!confirm('Erase this quiet margin reflection?')) return;
+            container.querySelectorAll('.btn-delete-note').forEach(button => {
+                button.addEventListener('click', () => deleteDeskNote(button.dataset.noteId, previewId));
+            });
+
+            async function deleteDeskNote(id, memberPreviewId) {
+                const noteId = String(id ?? '').trim();
+                if (!noteId || noteId.length > 128 || !confirm('Erase this quiet margin reflection?')) return;
                 try {
-                    const url = previewId ? `/api/member/notes/${id}?preview=${encodeURIComponent(previewId)}` : `/api/member/notes/${id}`;
+                    const encodedId = encodeURIComponent(noteId);
+                    const url = memberPreviewId
+                        ? `/api/member/notes/${encodedId}?preview=${encodeURIComponent(memberPreviewId)}`
+                        : `/api/member/notes/${encodedId}`;
                     const res = await fetch(url, { method: 'DELETE' });
                     const resData = await res.json();
-                    if (resData.success) {
-                        renderNotes(resData.notes);
-                    }
+                    if (resData.success) renderNotes(resData.notes);
                 } catch (e) {}
-            };
+            }
         }
 
         document.addEventListener('DOMContentLoaded', loadMemberDesk);

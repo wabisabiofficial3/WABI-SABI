@@ -6,7 +6,7 @@ The active regression suite runs sequentially against an isolated temporary SQLi
 npm test
 ```
 
-`tests/run_all_tests.js` currently executes 14 suites:
+`tests/run_all_tests.js` currently executes 15 suites:
 
 | Test | Coverage |
 | --- | --- |
@@ -21,6 +21,7 @@ npm test
 | `test_interactive_and_admin_purge.js` | Public directory integrity and curator-account restrictions |
 | `test_member_access_system.js` | Member codes, private desk, notes, reading progress, suspension, and QR passes |
 | `test_paper_plane_toggle.js` | Curator feature toggle and public portal parity |
-| `test_functional_regressions.js` | Origin/CSRF protections, sensitive paths, validation, and rate limiting |
+| `test_security_hardening.js` | CSP policy, mixed-case API protection, missing-Origin Fetch Metadata checks, parser errors, reader cookies, and SQLite permissions |
+| `test_functional_regressions.js` | Origin/CSRF protections, sensitive paths, validation, and mixed-case rate limiting |
 
 Some standalone files in `tests/` are retained from the older application and are not part of `npm test`; their endpoint expectations may describe services that are no longer mounted. The active route inventory is documented in [`server/routes/README.md`](../server/routes/README.md).

@@ -37,13 +37,15 @@ app.use(securityHeaders);
 app.use(blockSensitiveFiles);
 app.use(corsAndCsrf);
 
-// Body and Cookie Parsers
-app.use(express.json({ limit: '2mb' }));
+// Rate-limit API traffic before parsing request bodies so oversized or malformed
+// requests cannot consume parser resources without first using the request quota.
+// corsAndCsrf handles OPTIONS requests before they reach this limiter.
+app.use('/api', apiRateLimiter);
+
+// Every current JSON write payload is well below 100 KB; keep the parser bound tight.
+app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: false, limit: '1kb' }));
 app.use(cookieParser());
-
-// Rate limit API routes (mounted after origin checks so preflight requests are not counted).
-app.use('/api', apiRateLimiter);
 
 // ====================================================================
 // PUBLIC PORTAL ROUTE (Zero login required - Visitors enter directly)
@@ -163,6 +165,30 @@ app.get(['/health', '/api/health'], (req, res) => {
 // 404 Fallback for unknown API routes
 app.use('/api', (req, res) => {
     res.status(404).json({ success: false, error: 'API endpoint not found.' });
+});
+
+// Do not let Express' development error page disclose parser or filesystem stacks.
+app.use((error, req, res, next) => {
+    if (res.headersSent) return next(error);
+
+    const requestedStatus = Number(error.statusCode || error.status);
+    const status = Number.isInteger(requestedStatus) && requestedStatus >= 400 && requestedStatus <= 599
+        ? requestedStatus
+        : 500;
+    const message = status === 400
+        ? 'Invalid request.'
+        : status === 413
+            ? 'Request body exceeds the allowed size.'
+            : status >= 500
+                ? 'An internal server error occurred.'
+                : 'The request could not be completed.';
+
+    if (status >= 500) console.error('Unhandled request error:', error);
+    res.setHeader('Cache-Control', 'no-store');
+    if (/^\/api(?:\/|$)/i.test(req.path)) {
+        return res.status(status).json({ success: false, error: message });
+    }
+    return res.status(status).type('text/plain').send(message);
 });
 
 // Start server function

@@ -47,14 +47,21 @@ function requireMemberPage(req, res, next) {
     if (req.cookies?.wabisabi_member_session && !member) {
         res.clearCookie('wabisabi_member_session', {
             httpOnly: true,
+            secure: req.secure || process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/'
         });
     }
 
     if (req.cookies?.wabisabi_curator_session || req.cookies?.wabisabi_session) {
-        res.clearCookie('wabisabi_curator_session', { httpOnly: true, sameSite: 'lax', path: '/' });
-        res.clearCookie('wabisabi_session', { httpOnly: true, sameSite: 'lax', path: '/' });
+        const cookieOptions = {
+            httpOnly: true,
+            secure: req.secure || process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/'
+        };
+        res.clearCookie('wabisabi_curator_session', cookieOptions);
+        res.clearCookie('wabisabi_session', cookieOptions);
     }
 
     const pathname = String(req.path || '').replace(/\/+$/, '').toLowerCase() || '/';
@@ -106,7 +113,7 @@ function requireMember(req, res, next) {
     }
 
     // Unauthenticated: API endpoints MUST return 401
-    const isApi = (req.originalUrl || req.baseUrl || req.path || '').startsWith('/api/');
+    const isApi = /^\/api(?:\/|$)/i.test(req.originalUrl || req.baseUrl || req.path || '');
     if (isApi || req.xhr || req.headers.accept?.includes('application/json')) {
         return res.status(401).json({
             success: false,

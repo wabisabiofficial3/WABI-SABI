@@ -12,6 +12,7 @@ process.env.WABI_TEST_DB_PATH = testDbPath;
 const testConfig = require('./test_config');
 
 const testSuites = [
+    'tests/test_security_hardening.js',
     'tests/check_links.js',
     'tests/check_assets.js',
     'tests/test_design_tokens_and_a11y.js',

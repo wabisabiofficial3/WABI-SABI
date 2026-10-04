@@ -92,10 +92,14 @@ function initPollVoting() {
             if (barItem) {
                 const percentSpan = barItem.querySelector('.bar-percent');
                 const fillEl = barItem.querySelector('.bar-fill');
-                if (percentSpan) percentSpan.textContent = `${choice.percentage}%`;
+                const percentageValue = Number(choice.percentage);
+                const percentage = Number.isFinite(percentageValue)
+                    ? Math.max(0, Math.min(100, percentageValue))
+                    : 0;
+                if (percentSpan) percentSpan.textContent = `${percentage}%`;
                 if (fillEl) {
                     fillEl.style.transition = animate ? 'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)' : 'none';
-                    fillEl.style.width = `${choice.percentage}%`;
+                    fillEl.style.width = `${percentage}%`;
                 }
             }
         });
@@ -281,26 +285,28 @@ function initDiscussionInteractions() {
 
     // Render thought element into DOM
     function renderThoughtCard(t, prepend = false) {
-        if (!thoughtsContainer) return;
+        if (!thoughtsContainer || !t || typeof t !== 'object') return;
         const card = document.createElement('div');
+        const thoughtId = String(t.id ?? '');
+        const likesCount = safeCount(t.likesCount);
         card.className = 'comment-card';
-        card.dataset.thoughtId = t.id;
+        card.dataset.thoughtId = thoughtId;
         const timeAgo = formatTimeAgo(t.createdAt);
 
         card.innerHTML = `
             <div class="comment-avatar">
-                <img src="${t.avatar || 'assets/user_avatar.jpg'}" alt="${escapeHtml(t.name)}">
+                <img src="${escapeHtml(safeAvatarUrl(t.avatar))}" alt="${escapeHtml(t.name)}">
             </div>
             <div class="comment-body">
                 <div class="comment-top-row">
                     <div class="comment-author-info">
                         <span class="comment-author-name">${escapeHtml(t.name)}</span>
                         ${t.isCurator ? '<span class="curator-chat-badge" style="margin-left: 6px;">Curator</span>' : ''}
-                        <span class="comment-time">${timeAgo}</span>
+                        <span class="comment-time">${escapeHtml(timeAgo)}</span>
                     </div>
                     <div class="comment-stats">
-                        <span class="stat-item like-stat" data-thought-id="${t.id}" title="Like comment">
-                            <span>❤️</span> <span class="like-count">${t.likesCount || 0}</span>
+                        <span class="stat-item like-stat" data-thought-id="${escapeHtml(thoughtId)}" title="Like comment">
+                            <span>❤️</span> <span class="like-count">${likesCount}</span>
                         </span>
                         <span class="stat-item" title="Replies">
                             <span>💬</span> <span>0</span>
@@ -460,7 +466,32 @@ function shakeElement(el) {
 }
 
 function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(str));
-    return div.innerHTML;
+    return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function safeAvatarUrl(value) {
+    const fallback = '/assets/user_avatar.jpg';
+    if (typeof value !== 'string' || !value.trim()) return fallback;
+    try {
+        const parsed = new URL(value.trim(), window.location.href);
+        if (parsed.username || parsed.password) return fallback;
+        const isLocalAsset = parsed.origin === window.location.origin
+            && parsed.pathname.startsWith('/assets/')
+            && !parsed.pathname.split('/').includes('..');
+        if (isLocalAsset) return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+        if (parsed.protocol === 'https:') return parsed.href;
+    } catch (error) {
+        return fallback;
+    }
+    return fallback;
+}
+
+function safeCount(value) {
+    const count = Number(value);
+    return Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
 }

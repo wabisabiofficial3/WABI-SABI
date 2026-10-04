@@ -73,7 +73,8 @@ router.post('/profile', (req, res) => {
         // 1-year cookie for cross-session remembrance
         res.cookie('wabisabi_reader', encodeURIComponent(JSON.stringify(readerData)), {
             maxAge: 365 * 24 * 60 * 60 * 1000,
-            httpOnly: false, // Accessible to client scripts
+            httpOnly: true,
+            secure: req.secure || process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/'
         });
@@ -95,7 +96,12 @@ router.post('/profile', (req, res) => {
  */
 router.delete('/profile', (req, res) => {
     res.setHeader('Cache-Control', 'private, no-store');
-    res.clearCookie('wabisabi_reader', { httpOnly: false, sameSite: 'lax', path: '/' });
+    res.clearCookie('wabisabi_reader', {
+        httpOnly: true,
+        secure: req.secure || process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+    });
     return res.json({ success: true, message: 'Reader profile traces cleared.' });
 });
 

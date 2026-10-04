@@ -30,6 +30,17 @@ function getAuthenticatedCurator(req) {
     }
 }
 
+function clearCuratorSessionCookies(req, res) {
+    const cookieOptions = {
+        httpOnly: true,
+        secure: req.secure || process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+    };
+    res.clearCookie('wabisabi_curator_session', cookieOptions);
+    res.clearCookie('wabisabi_session', cookieOptions);
+}
+
 /**
  * Curator RBAC Middleware for JSON API routes:
  * Strictly verifies that the request has an active curator session.
@@ -38,8 +49,7 @@ function requireCurator(req, res, next) {
     const curator = getAuthenticatedCurator(req);
     if (!curator) {
         if (req.cookies && (req.cookies.wabisabi_curator_session || req.cookies.wabisabi_session)) {
-            res.clearCookie('wabisabi_curator_session', { httpOnly: true, sameSite: 'lax', path: '/' });
-            res.clearCookie('wabisabi_session', { httpOnly: true, sameSite: 'lax', path: '/' });
+            clearCuratorSessionCookies(req, res);
         }
         return res.status(401).json({
             success: false,
@@ -61,8 +71,7 @@ function requireCuratorPage(req, res, next) {
     const curator = getAuthenticatedCurator(req);
     if (!curator) {
         if (req.cookies && (req.cookies.wabisabi_curator_session || req.cookies.wabisabi_session)) {
-            res.clearCookie('wabisabi_curator_session', { httpOnly: true, sameSite: 'lax', path: '/' });
-            res.clearCookie('wabisabi_session', { httpOnly: true, sameSite: 'lax', path: '/' });
+            clearCuratorSessionCookies(req, res);
         }
         const returnUrl = req.originalUrl || req.url;
         return res.redirect(`/sanctuary?redirect=${encodeURIComponent(returnUrl)}`);
