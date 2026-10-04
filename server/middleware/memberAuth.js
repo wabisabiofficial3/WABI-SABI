@@ -63,7 +63,7 @@ function requireMember(req, res, next) {
  * Attaches member if cookie is present without blocking unauthenticated requests
  */
 function optionalMember(req, res, next) {
-    const memberToken = req.cookies.wabisabi_member_session;
+    const memberToken = req.cookies?.wabisabi_member_session;
     if (memberToken) {
         const member = getMemberBySessionToken(memberToken);
         if (member && member.status === 'active') {
@@ -72,6 +72,24 @@ function optionalMember(req, res, next) {
             return next();
         }
     }
+
+    const curatorToken = req.cookies?.wabisabi_curator_session;
+    if (curatorToken) {
+        const curatorTokenHash = crypto.createHash('sha256').update(curatorToken).digest('hex');
+        const curator = getCuratorBySessionTokenHash(curatorTokenHash);
+        if (curator) {
+            req.member = {
+                id: curator.id,
+                name: curator.displayName || curator.name || 'Curator Admin',
+                display_name: curator.displayName || curator.name || 'Curator Admin',
+                handle: curator.handle || '@curator',
+                role: 'Curator'
+            };
+            req.isCurator = true;
+            return next();
+        }
+    }
+
     req.member = null;
     req.isCuratorPreview = false;
     next();

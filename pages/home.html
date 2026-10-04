@@ -4137,7 +4137,7 @@
                             <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/>
                         </svg>
                     </span>
-                    <span class="reader-chip-name" id="readerChipName">Guest Reader</span>
+                    <span class="reader-chip-name" id="readerChipName">Reader</span>
                 </button>
 
                 <!-- Dark / Light Theme Toggle -->
@@ -6019,8 +6019,17 @@
             const pickCard = document.getElementById('todaysPickCard');
             if (pickCard && !pickCard.dataset.bound) {
                 pickCard.dataset.bound = 'true';
-                pickCard.addEventListener('click', () => {
+                pickCard.addEventListener('click', (e) => {
                     const u = window._currentBookDriveUrl || 'https://drive.google.com';
+                    if (!window.isCircleMemberLoggedIn || !window.isCircleMemberLoggedIn()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
+                            window.WabiSabiStore.showToast('✦ Member Access Required: Google Drive library is reserved for members.');
+                        }
+                        if (window.openMemberAccessPrompt) window.openMemberAccessPrompt('Our Google Drive Library');
+                        return;
+                    }
                     window.open(u, '_blank');
                 });
             }
@@ -6028,8 +6037,17 @@
             const salonCard = document.getElementById('happeningSoonCard');
             if (salonCard && !salonCard.dataset.bound) {
                 salonCard.dataset.bound = 'true';
-                salonCard.addEventListener('click', () => {
+                salonCard.addEventListener('click', (e) => {
                     const u = window._currentMeetingMapUrl || 'https://maps.google.com';
+                    if (!window.isCircleMemberLoggedIn || !window.isCircleMemberLoggedIn()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
+                            window.WabiSabiStore.showToast('✦ Member Access Required: Salon Coordinates are reserved for members.');
+                        }
+                        if (window.openMemberAccessPrompt) window.openMemberAccessPrompt('Gathering Salon Coordinates');
+                        return;
+                    }
                     window.open(u, '_blank');
                 });
             }
@@ -6037,8 +6055,17 @@
             const getStartedBtn = document.getElementById('getStartedBtn');
             if (getStartedBtn && !getStartedBtn.dataset.bound) {
                 getStartedBtn.dataset.bound = 'true';
-                getStartedBtn.addEventListener('click', () => {
+                getStartedBtn.addEventListener('click', (e) => {
                     const u = window._currentBookDriveUrl || 'https://drive.google.com';
+                    if (!window.isCircleMemberLoggedIn || !window.isCircleMemberLoggedIn()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
+                            window.WabiSabiStore.showToast('✦ Member Access Required: Google Drive library is reserved for members.');
+                        }
+                        if (window.openMemberAccessPrompt) window.openMemberAccessPrompt('Our Google Drive Library');
+                        return;
+                    }
                     window.open(u, '_blank');
                 });
             }
@@ -6046,8 +6073,17 @@
             const watchIntroBtn = document.getElementById('watchIntroBtn');
             if (watchIntroBtn && !watchIntroBtn.dataset.bound) {
                 watchIntroBtn.dataset.bound = 'true';
-                watchIntroBtn.addEventListener('click', () => {
+                watchIntroBtn.addEventListener('click', (e) => {
                     const u = window._currentCommunityUrl || 'https://chat.whatsapp.com';
+                    if (!window.isCircleMemberLoggedIn || !window.isCircleMemberLoggedIn()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
+                            window.WabiSabiStore.showToast('✦ Member Access Required: WhatsApp circle is reserved for members.');
+                        }
+                        if (window.openMemberAccessPrompt) window.openMemberAccessPrompt('Our WhatsApp Circle');
+                        return;
+                    }
                     window.open(u, '_blank');
                 });
             }
@@ -6664,7 +6700,7 @@
                     if (nameInput) nameInput.value = profile.name || '';
                     if (genreInput) genreInput.value = profile.genre || '';
                 } else {
-                    if (chipName) chipName.textContent = 'Guest Reader';
+                    if (chipName) chipName.textContent = 'Reader';
                     if (heroGreeting) heroGreeting.style.display = 'none';
                     if (nameInput) nameInput.value = '';
                     if (genreInput) genreInput.value = '';
@@ -6772,16 +6808,19 @@
             const feedback = document.getElementById('memberAccessFeedback');
             const submitBtn = document.getElementById('btnSubmitMemberCode');
 
-            let isMemberLoggedIn = false;
+            window._isMemberAuthenticated = false;
+            window.isCircleMemberLoggedIn = function() {
+                return Boolean(window._isMemberAuthenticated);
+            };
 
-            // Check if member already has active server session
+            // Check if member or curator already has active server session
             async function checkMemberStatus() {
                 try {
                     const res = await fetch('/api/member/status');
                     if (res.ok) {
                         const data = await res.json();
                         if (data.authenticated && data.member) {
-                            isMemberLoggedIn = true;
+                            window._isMemberAuthenticated = true;
                             const memberName = data.member.displayName || data.member.name;
                             if (btnLabel) {
                                 btnLabel.innerHTML = memberName + ' · My Space <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-left: 2px;" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
@@ -6789,6 +6828,19 @@
                             if (openBtn) {
                                 openBtn.title = 'Open your personal reading desk (' + memberName + ')';
                             }
+                            const chipName = document.getElementById('readerChipName');
+                            if (chipName && chipName.textContent === 'Reader') {
+                                chipName.textContent = `✦ ${memberName}`;
+                            }
+                        }
+                    }
+
+                    // Also check curator session
+                    const curRes = await fetch('/api/user/profile');
+                    if (curRes.ok) {
+                        const uData = await curRes.json();
+                        if (uData.isCurator) {
+                            window._isMemberAuthenticated = true;
                         }
                     }
                 } catch (e) {
@@ -6796,8 +6848,27 @@
                 }
             }
 
+            window.openMemberAccessPrompt = function(linkName = 'Circle Resources') {
+                if (window.isCircleMemberLoggedIn()) return;
+                if (modal) {
+                    modal.style.display = 'flex';
+                    requestAnimationFrame(() => modal.classList.add('active'));
+                    if (feedback) {
+                        feedback.style.display = 'block';
+                        feedback.style.background = 'rgba(142, 74, 56, 0.08)';
+                        feedback.style.color = 'var(--wabi-terracotta, #8E4A38)';
+                        feedback.style.border = '1px solid rgba(142, 74, 56, 0.2)';
+                        feedback.innerHTML = `<strong>Circle Member Access Required</strong><br>Links to ${linkName} are reserved for verified circle members. Please enter your secret code to unlock.`;
+                    }
+                    if (input) {
+                        input.value = '';
+                        setTimeout(() => input.focus(), 120);
+                    }
+                }
+            };
+
             function openModal() {
-                if (isMemberLoggedIn) {
+                if (window.isCircleMemberLoggedIn()) {
                     window.location.href = '/my-space';
                     return;
                 }
@@ -6903,6 +6974,54 @@
             }
 
             checkMemberStatus();
+            initProtectedExternalLinks();
+        }
+
+        // ====================================================================
+        // PROTECT EXTERNAL CIRCLE LINKS FOR UNLOGGED VISITORS
+        // Visitors can explore the website freely, but external Drive / WhatsApp /
+        // gathering links require verified circle membership to access.
+        // ====================================================================
+        function initProtectedExternalLinks() {
+            document.addEventListener('click', (e) => {
+                const target = e.target.closest('a, button, [data-protected-link]');
+                if (!target) return;
+
+                const href = (target.getAttribute('href') || target.dataset.targetUrl || '').toLowerCase();
+                const id = (target.id || '').toLowerCase();
+
+                const isDrive = id.includes('drive') || href.includes('drive.google.com');
+                const isWa = id.includes('whatsapp') || id.includes('chat') || href.includes('chat.whatsapp.com');
+                const isMaps = id.includes('map') || id.includes('location') || href.includes('maps.google.com');
+                const isSocial = id.includes('instagram') || id.includes('discord') || href.includes('instagram.com') || href.includes('discord.gg');
+                const isShelfCard = target.classList.contains('platform-shelf-card') && href.startsWith('http');
+
+                if (isDrive || isWa || isMaps || isSocial || isShelfCard) {
+                    if (window.isCircleMemberLoggedIn && window.isCircleMemberLoggedIn()) {
+                        return; // Let authenticated member/curator proceed
+                    }
+
+                    // Block link for unauthenticated visitor
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+
+                    let resourceName = 'Our Circle Resources';
+                    if (isDrive) resourceName = 'Our Google Drive Library';
+                    else if (isWa) resourceName = 'Our WhatsApp Circle';
+                    else if (isMaps) resourceName = 'Gathering Salon Coordinates';
+                    else if (href.includes('discord')) resourceName = 'Discord Community';
+                    else if (href.includes('instagram')) resourceName = 'Instagram Chronicles';
+
+                    if (window.WabiSabiStore && window.WabiSabiStore.showToast) {
+                        window.WabiSabiStore.showToast(`✦ Member Access Required: ${resourceName} is reserved for members.`);
+                    }
+
+                    if (window.openMemberAccessPrompt) {
+                        window.openMemberAccessPrompt(resourceName);
+                    }
+                }
+            }, true); // capture phase
         }
 
         function escapeHtml(str) {

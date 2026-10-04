@@ -105,7 +105,7 @@ async function testUserMemory() {
             returnByValue: true
         });
         console.log('   Initial Chip Name:', initialChip.result.value);
-        assert.strictEqual(initialChip.result.value, 'Guest Reader', 'Initial reader chip must show Guest Reader');
+        assert.strictEqual(initialChip.result.value, 'Reader', 'Initial reader chip must show Reader');
 
         // B. Personalize Reader Identity
         console.log('► 4. Personalizing Reader Name ("Dhanush")...');
