@@ -15,7 +15,8 @@ const testSuites = [
     'tests/test_security_seo_cookies.js',
     'tests/test_user_memory.js',
     'tests/test_member_access_system.js',
-    'tests/test_paper_plane_toggle.js'
+    'tests/test_paper_plane_toggle.js',
+    'tests/test_sanctuary_music.js'
 ];
 
 console.log('================================================================');

@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const fs = require('fs');
+const path = require('path');
 const QRCode = require('qrcode');
 const {
     createUpdate,
@@ -485,7 +487,7 @@ router.get('/settings', (req, res) => {
  */
 router.put(['/settings', '/features'], (req, res) => {
     try {
-        const { current_book, next_meeting, platform_links, weekly_theme, this_weeks_reading, gathering, discussion_points, important_notes, connect_links, paper_plane_enabled, cat_enabled } = req.body || {};
+        const { current_book, next_meeting, platform_links, weekly_theme, this_weeks_reading, gathering, discussion_points, important_notes, connect_links, paper_plane_enabled, cat_enabled, music_enabled, music_track } = req.body || {};
 
         if (current_book !== undefined) setSetting('current_book', current_book);
         if (next_meeting !== undefined) setSetting('next_meeting', next_meeting);
@@ -502,16 +504,136 @@ router.put(['/settings', '/features'], (req, res) => {
         if (cat_enabled !== undefined) {
             setSetting('cat_enabled', Boolean(cat_enabled));
         }
+        if (music_enabled !== undefined) {
+            setSetting('music_enabled', Boolean(music_enabled));
+        }
+        if (music_track !== undefined) {
+            const currentTrack = getSetting('music_track') || {};
+            const mergedTrack = (typeof music_track === 'object' && music_track !== null) ? { ...currentTrack, ...music_track } : music_track;
+            setSetting('music_track', mergedTrack);
+        }
         if (req.body && req.body.sticky_notes !== undefined) setSetting('sticky_notes', req.body.sticky_notes);
 
+        const allSettings = getAllSettings();
         return res.json({
             success: true,
             message: 'Portal settings and features updated successfully.',
-            settings: getAllSettings()
+            settings: allSettings,
+            features: {
+                paper_plane_enabled: Boolean(allSettings.paper_plane_enabled),
+                cat_enabled: Boolean(allSettings.cat_enabled),
+                music_enabled: Boolean(allSettings.music_enabled),
+                music_track: allSettings.music_track
+            }
         });
     } catch (err) {
         console.error('Error updating settings/features:', err);
         return res.status(500).json({ success: false, error: 'Failed to update settings.' });
+    }
+});
+
+/**
+ * POST /api/curator/upload-music
+ * Upload or drop local MP3/audio track for ambient sanctuary soundtrack
+ */
+router.post('/upload-music', (req, res) => {
+    try {
+        const body = req.body || {};
+        const filename = body.filename || 'ambient_track.mp3';
+        const title = body.title || filename.replace(/\.[^/.]+$/, '');
+        const dataBase64 = body.dataBase64 || body.audio_data || body.audioData;
+        const volume = typeof body.volume === 'number' ? body.volume : 0.35;
+        const loop = body.loop !== false;
+        const enableNow = body.enableNow !== undefined ? body.enableNow : body.enable_now;
+
+        if (!dataBase64) {
+            return res.status(400).json({ success: false, error: 'No audio data received.' });
+        }
+
+        // Clean filename and ensure audio directory exists
+        const cleanName = (filename || 'ambient_track.mp3').replace(/[^a-zA-Z0-9._-]/g, '_');
+        const extMatch = cleanName.match(/\.(mp3|wav|ogg|m4a|aac)$/i);
+        const ext = extMatch ? extMatch[1].toLowerCase() : 'mp3';
+        const targetFilename = `ambient_track_${Date.now()}.${ext}`;
+
+        const audioDir = path.join(__dirname, '..', '..', 'assets', 'audio');
+        if (!fs.existsSync(audioDir)) {
+            fs.mkdirSync(audioDir, { recursive: true });
+        }
+
+        // Remove base64 data URL header if present
+        const base64Data = dataBase64.replace(/^data:audio\/[a-z0-9.-]+;base64,/, '').replace(/^data:application\/octet-stream;base64,/, '');
+        const buffer = Buffer.from(base64Data, 'base64');
+
+        if (buffer.length > 50 * 1024 * 1024) {
+            return res.status(400).json({ success: false, error: 'Audio file exceeds 50MB limit.' });
+        }
+
+        const filePath = path.join(audioDir, targetFilename);
+        fs.writeFileSync(filePath, buffer);
+
+        const trackData = {
+            url: `/assets/audio/${targetFilename}`,
+            title: title || filename || 'Sanctuary Ambient Track',
+            filename: targetFilename,
+            size: buffer.length,
+            volume: typeof volume === 'number' ? volume : 0.35,
+            loop: loop !== false,
+            updated_at: new Date().toISOString()
+        };
+
+        setSetting('music_track', trackData);
+        if (enableNow !== undefined) {
+            setSetting('music_enabled', Boolean(enableNow));
+        }
+
+        return res.json({
+            success: true,
+            message: 'Ambient music track uploaded and saved successfully.',
+            track: trackData,
+            music_enabled: enableNow !== undefined ? Boolean(enableNow) : (getSetting('music_enabled') === true)
+        });
+    } catch (err) {
+        console.error('Error uploading music track:', err);
+        return res.status(500).json({ success: false, error: 'Failed to process audio track upload.' });
+    }
+});
+
+/**
+ * DELETE /api/curator/upload-music
+ * Remove ambient music track
+ */
+router.delete('/upload-music', (req, res) => {
+    try {
+        const currentTrack = getSetting('music_track');
+        if (currentTrack && currentTrack.filename) {
+            const filePath = path.join(__dirname, '..', '..', 'assets', 'audio', currentTrack.filename);
+            if (fs.existsSync(filePath)) {
+                try { fs.unlinkSync(filePath); } catch (e) {}
+            }
+        }
+
+        const emptyTrack = {
+            url: '',
+            title: 'No audio uploaded',
+            filename: '',
+            size: 0,
+            volume: 0.35,
+            loop: true
+        };
+
+        setSetting('music_track', emptyTrack);
+        setSetting('music_enabled', false);
+
+        return res.json({
+            success: true,
+            message: 'Ambient music track removed.',
+            track: emptyTrack,
+            music_enabled: false
+        });
+    } catch (err) {
+        console.error('Error deleting music track:', err);
+        return res.status(500).json({ success: false, error: 'Failed to delete audio track.' });
     }
 });
 

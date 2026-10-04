@@ -254,6 +254,21 @@ function seedDefaultSettings() {
             key: 'cat_enabled',
             value: JSON.stringify(false)
         },
+        {
+            key: 'music_enabled',
+            value: JSON.stringify(false)
+        },
+        {
+            key: 'music_track',
+            value: JSON.stringify({
+                url: '',
+                title: 'No audio uploaded',
+                filename: '',
+                volume: 0.35,
+                loop: true,
+                size: 0
+            })
+        },
         // Backwards compatibility keys
         {
             key: 'current_book',

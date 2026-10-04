@@ -465,6 +465,53 @@
                 catText.style.color = isCatEnabled ? 'var(--moss-dark, #273B2B)' : 'var(--wabi-ink-muted, #7A7264)';
             }
         }
+
+        if (settings.music_enabled !== undefined) {
+            const isMusicEnabled = Boolean(settings.music_enabled === true || settings.music_enabled === 'true');
+            const musicCheckbox = document.getElementById('musicToggleCheckbox');
+            const musicBadge = document.getElementById('musicStatusBadge');
+            const musicText = document.getElementById('musicToggleText');
+
+            if (musicCheckbox) musicCheckbox.checked = isMusicEnabled;
+            if (musicBadge) {
+                musicBadge.textContent = isMusicEnabled ? 'ON (Active)' : 'OFF (Default)';
+                musicBadge.style.background = isMusicEnabled ? 'rgba(39, 59, 43, 0.15)' : 'rgba(120, 115, 105, 0.15)';
+                musicBadge.style.color = isMusicEnabled ? 'var(--moss-dark, #273B2B)' : 'var(--wabi-ink-muted, #7A7264)';
+            }
+            if (musicText) {
+                musicText.textContent = isMusicEnabled ? 'ON' : 'OFF';
+                musicText.style.color = isMusicEnabled ? 'var(--moss-dark, #273B2B)' : 'var(--wabi-ink-muted, #7A7264)';
+            }
+        }
+
+        if (settings.music_track) {
+            const track = typeof settings.music_track === 'string' ? JSON.parse(settings.music_track) : settings.music_track;
+            const trackInfo = document.getElementById('musicTrackInfo');
+            const trackTitle = document.getElementById('musicTrackTitle');
+            const trackMeta = document.getElementById('musicTrackMeta');
+            const audioPreview = document.getElementById('curatorAudioPreview');
+            const volumeSlider = document.getElementById('musicVolumeSlider');
+            const volumeLabel = document.getElementById('musicVolumeLabel');
+
+            if (track && track.url) {
+                if (trackInfo) trackInfo.style.display = 'block';
+                if (trackTitle) trackTitle.textContent = track.title || 'Sanctuary Ambient Track';
+                if (trackMeta) {
+                    const sizeMb = track.size ? (track.size / (1024 * 1024)).toFixed(2) + ' MB' : '';
+                    trackMeta.textContent = sizeMb || 'Custom Soundtrack';
+                }
+                if (audioPreview && audioPreview.src !== track.url) {
+                    audioPreview.src = track.url;
+                }
+                const vol = typeof track.volume === 'number' ? track.volume : 0.35;
+                if (audioPreview) audioPreview.volume = vol;
+                if (volumeSlider) volumeSlider.value = vol;
+                if (volumeLabel) volumeLabel.textContent = Math.round(vol * 100) + '%';
+            } else {
+                if (trackInfo) trackInfo.style.display = 'none';
+                if (audioPreview) audioPreview.src = '';
+            }
+        }
     }
 
     // Form Event Listeners & Actions
@@ -808,6 +855,199 @@
                     showToast('Network error updating cat setting.', true);
                     e.target.checked = !isEnabled;
                     populateFeatureControls({ cat_enabled: !isEnabled });
+                }
+            });
+        }
+
+        // 9c. Sanctuary Feature Controls (Ambient Music & Audio File Upload)
+        const musicToggle = document.getElementById('musicToggleCheckbox');
+        if (musicToggle) {
+            musicToggle.addEventListener('change', async (e) => {
+                const isEnabled = e.target.checked;
+                populateFeatureControls({ music_enabled: isEnabled });
+
+                try {
+                    const res = await fetch('/api/curator/features', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ music_enabled: isEnabled })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast(isEnabled ? 'Sanctuary Ambient Music enabled on portal!' : '✦ Sanctuary Music turned off (Default)');
+                    } else {
+                        showToast(data.error || 'Failed to update music setting.', true);
+                        e.target.checked = !isEnabled;
+                        populateFeatureControls({ music_enabled: !isEnabled });
+                    }
+                } catch (err) {
+                    showToast('Network error updating music setting.', true);
+                    e.target.checked = !isEnabled;
+                    populateFeatureControls({ music_enabled: !isEnabled });
+                }
+            });
+        }
+
+        const musicDropZone = document.getElementById('musicDropZone');
+        const musicFileInput = document.getElementById('musicFileInput');
+        const musicStatusEl = document.getElementById('musicUploadStatus');
+
+        async function handleAudioUpload(file) {
+            if (!file) return;
+            if (!file.type.startsWith('audio/') && !/\.(mp3|wav|ogg|m4a)$/i.test(file.name)) {
+                showToast('Please select a valid audio file (.mp3, .wav, .ogg, .m4a)', true);
+                return;
+            }
+            if (file.size > 50 * 1024 * 1024) {
+                showToast('Audio file exceeds 50MB maximum limit.', true);
+                return;
+            }
+
+            if (musicStatusEl) {
+                musicStatusEl.style.display = 'block';
+                musicStatusEl.style.color = 'var(--moss-dark)';
+                musicStatusEl.textContent = `Uploading "${file.name}" (${(file.size / (1024 * 1024)).toFixed(2)} MB)...`;
+            }
+
+            try {
+                const reader = new FileReader();
+                reader.onload = async () => {
+                    const base64Data = reader.result;
+                    try {
+                        const res = await fetch('/api/curator/upload-music', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({
+                                audio_data: base64Data,
+                                filename: file.name,
+                                title: file.name.replace(/\.[^/.]+$/, ''),
+                                enable_now: true
+                            })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            showToast('✦ Ambient track uploaded successfully!');
+                            if (musicStatusEl) {
+                                musicStatusEl.style.color = 'var(--moss-dark)';
+                                musicStatusEl.textContent = 'Track uploaded and active.';
+                                setTimeout(() => { if (musicStatusEl) musicStatusEl.style.display = 'none'; }, 4000);
+                            }
+                            populateFeatureControls({
+                                music_enabled: true,
+                                music_track: data.track
+                            });
+                        } else {
+                            showToast(data.error || 'Audio upload failed.', true);
+                            if (musicStatusEl) {
+                                musicStatusEl.style.color = '#A23434';
+                                musicStatusEl.textContent = data.error || 'Upload failed.';
+                            }
+                        }
+                    } catch (netErr) {
+                        showToast('Server error uploading audio file.', true);
+                        if (musicStatusEl) {
+                            musicStatusEl.style.color = '#A23434';
+                            musicStatusEl.textContent = 'Server error during upload.';
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            } catch (err) {
+                showToast('Failed to process audio file.', true);
+                if (musicStatusEl) {
+                    musicStatusEl.style.color = '#A23434';
+                    musicStatusEl.textContent = 'Local file processing error.';
+                }
+            }
+        }
+
+        if (musicDropZone && musicFileInput) {
+            musicDropZone.addEventListener('click', (e) => {
+                if (e.target !== musicFileInput) {
+                    musicFileInput.click();
+                }
+            });
+
+            musicFileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    handleAudioUpload(e.target.files[0]);
+                }
+            });
+
+            musicDropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                musicDropZone.style.borderColor = 'var(--moss-dark)';
+                musicDropZone.style.background = 'rgba(39, 59, 43, 0.08)';
+            });
+
+            musicDropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                musicDropZone.style.borderColor = 'rgba(198, 182, 155, 0.65)';
+                musicDropZone.style.background = 'rgba(255, 255, 255, 0.5)';
+            });
+
+            musicDropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                musicDropZone.style.borderColor = 'rgba(198, 182, 155, 0.65)';
+                musicDropZone.style.background = 'rgba(255, 255, 255, 0.5)';
+                if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    handleAudioUpload(e.dataTransfer.files[0]);
+                }
+            });
+        }
+
+        const volumeSlider = document.getElementById('musicVolumeSlider');
+        const volumeLabel = document.getElementById('musicVolumeLabel');
+        const audioPreview = document.getElementById('curatorAudioPreview');
+
+        if (volumeSlider) {
+            volumeSlider.addEventListener('input', (e) => {
+                const vol = parseFloat(e.target.value);
+                if (volumeLabel) volumeLabel.textContent = Math.round(vol * 100) + '%';
+                if (audioPreview) audioPreview.volume = vol;
+            });
+
+            volumeSlider.addEventListener('change', async (e) => {
+                const vol = parseFloat(e.target.value);
+                try {
+                    await fetch('/api/curator/features', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            music_track: { volume: vol }
+                        })
+                    });
+                } catch (e) {}
+            });
+        }
+
+        const removeMusicBtn = document.getElementById('removeMusicTrackBtn');
+        if (removeMusicBtn) {
+            removeMusicBtn.addEventListener('click', async () => {
+                if (!confirm('Are you sure you want to remove the current ambient soundtrack?')) return;
+                try {
+                    const res = await fetch('/api/curator/upload-music', {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('✦ Ambient soundtrack removed.');
+                        populateFeatureControls({
+                            music_enabled: false,
+                            music_track: { url: '', title: '', size: 0 }
+                        });
+                    } else {
+                        showToast(data.error || 'Failed to remove track.', true);
+                    }
+                } catch (err) {
+                    showToast('Network error removing track.', true);
                 }
             });
         }

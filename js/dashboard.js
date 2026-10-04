@@ -760,4 +760,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadStrokes();
         setDoodleMode(true);
     }
+
+    // 12. Purge Connected Doors / Four spaces box if present
+    try {
+        document.querySelectorAll('.connected-doors-box, .member-spaces-doors, .member-spaces-connected-doors, #memberSpacesConnectedDoors, [data-doors-box], [data-section="connected-doors"]').forEach(el => el.remove());
+        document.querySelectorAll('div, section, aside').forEach(el => {
+            if (el.textContent && (el.textContent.includes('CONNECTED DOORS') || el.textContent.includes('Four spaces, one circle'))) {
+                el.remove();
+            }
+        });
+    } catch (e) {}
 });

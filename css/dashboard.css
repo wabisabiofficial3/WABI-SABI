@@ -1741,11 +1741,19 @@
             }
         }
 
-        /* Taskbar Subtle Rocket Trigger Button */
-        .taskbar-rocket-btn {
+        /* Taskbar Ambient Triggers Container & Buttons */
+        .taskbar-ambient-triggers {
             position: fixed;
             bottom: 8px;
             right: 24px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 105;
+        }
+
+        .taskbar-rocket-btn,
+        .portal-ambient-music-btn {
             background: transparent;
             border: 1px dashed rgba(140, 135, 125, 0.4);
             border-radius: 20px;
@@ -1753,25 +1761,54 @@
             font-size: 11px;
             color: var(--ink-muted);
             cursor: pointer;
-            z-index: 105;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 6px;
             font-family: var(--font-hand);
             transition: all 0.25s ease;
-            opacity: 0.6;
+            opacity: 0.65;
+            outline: none;
+            user-select: none;
         }
 
-        .taskbar-rocket-btn:hover {
+        .taskbar-rocket-btn:hover,
+        .portal-ambient-music-btn:hover,
+        .portal-ambient-music-btn.playing {
             opacity: 1;
-            border-color: var(--ink-primary);
-            color: var(--ink-primary);
+            border-color: var(--forest-green, #273B2B);
+            color: var(--forest-green, #273B2B);
             transform: translateY(-2px);
-            background: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.5);
         }
 
-        [data-theme="dark"] .taskbar-rocket-btn:hover {
+        [data-theme="dark"] .taskbar-rocket-btn:hover,
+        [data-theme="dark"] .portal-ambient-music-btn:hover,
+        [data-theme="dark"] .portal-ambient-music-btn.playing {
             background: rgba(255, 255, 255, 0.08);
+            border-color: #A3B899;
+            color: #C2D4B9;
+        }
+
+        .music-wave-anim {
+            animation: soundwavePulse 1.2s ease-in-out infinite alternate;
+        }
+
+        @keyframes soundwavePulse {
+            0% { transform: scaleY(0.7); }
+            100% { transform: scaleY(1.25); }
+        }
+
+        /* Purge Connected Doors & Four spaces box */
+        .connected-doors-box,
+        .member-spaces-doors,
+        .member-spaces-connected-doors,
+        #memberSpacesConnectedDoors,
+        [data-doors-box],
+        [data-section="connected-doors"] {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            overflow: hidden !important;
         }
 
         /* ==========================================================================

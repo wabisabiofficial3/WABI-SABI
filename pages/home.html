@@ -5307,11 +5307,31 @@
         </svg>
     </div>
 
-    <!-- Secret Trigger Button on Taskbar (Default: OFF / Controlled by Admin) -->
-    <button class="taskbar-rocket-btn" id="launchRocketBtn" title="Launch a paper airplane ✦" style="display: none;">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-        <span>paper thought</span>
-    </button>
+    <!-- Sanctuary Ambient Triggers Container (Default: OFF / Controlled by Admin) -->
+    <div class="taskbar-ambient-triggers" id="taskbarAmbientTriggers">
+        <!-- Sanctuary Ambient Music Audio Element & Discreet Button -->
+        <audio id="sanctuaryAmbientAudio" preload="none" loop></audio>
+        <button class="portal-ambient-music-btn" id="portalMusicBtn" title="Play Sanctuary Soundtrack ✦" style="display: none;" aria-label="Toggle Sanctuary Soundtrack">
+            <svg id="portalMusicIconPlay" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 18V5l12-2v13"></path>
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="16" r="3"></circle>
+            </svg>
+            <svg id="portalMusicIconWave" class="music-wave-anim" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display: none;">
+                <line x1="6" y1="9" x2="6" y2="15"></line>
+                <line x1="10" y1="5" x2="10" y2="19"></line>
+                <line x1="14" y1="8" x2="14" y2="16"></line>
+                <line x1="18" y1="11" x2="18" y2="13"></line>
+            </svg>
+            <span id="portalMusicText">soundtrack</span>
+        </button>
+
+        <!-- Secret Trigger Button on Taskbar (Default: OFF / Controlled by Admin) -->
+        <button class="taskbar-rocket-btn" id="launchRocketBtn" title="Launch a paper airplane ✦" style="display: none;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            <span>paper thought</span>
+        </button>
+    </div>
 
     <!-- ====================================================================
          AESTHETIC FLOATING SIDE SCROLL INDICATOR
@@ -5970,6 +5990,23 @@
                 if (livingCat) livingCat.style.display = isCatEnabled ? 'block' : 'none';
                 if (bottomTaskbar) bottomTaskbar.style.display = isCatEnabled ? 'flex' : 'none';
 
+                // --- Sanctuary Features: Ambient Music Player (Default: STRICTLY OFF) ---
+                const isMusicEnabled = Boolean(
+                    portalData.music_enabled === true ||
+                    portalData.music_enabled === 'true' ||
+                    portalData.features?.music_enabled === true ||
+                    portalData.features?.music_enabled === 'true' ||
+                    (portalData.portal && (
+                        portalData.portal.music_enabled === true ||
+                        portalData.portal.music_enabled === 'true' ||
+                        portalData.portal.features?.music_enabled === true ||
+                        portalData.portal.features?.music_enabled === 'true'
+                    ))
+                );
+                const musicTrack = portalData.music_track || portalData.features?.music_track || (portalData.portal && (portalData.portal.music_track || portalData.portal.features?.music_track));
+
+                initSanctuaryMusic(isMusicEnabled, musicTrack);
+
             } catch (err) {
                 console.warn('Coordination data load notice:', err);
             }
@@ -6018,6 +6055,74 @@
             // Wire Zen Interactive Features: Daily Reflection & Tea Room Ambience
             initZenInteractions();
             initTeaRoomAmbience();
+        }
+
+        // ====================================================================
+        // SANCTUARY AMBIENT SOUNDTRACK CONTROLLER (ADMIN CONTROLLED, DEFAULT: OFF)
+        // ====================================================================
+        function initSanctuaryMusic(isEnabled, track) {
+            const audio = document.getElementById('sanctuaryAmbientAudio');
+            const musicBtn = document.getElementById('portalMusicBtn');
+            const playIcon = document.getElementById('portalMusicIconPlay');
+            const waveIcon = document.getElementById('portalMusicIconWave');
+            const textEl = document.getElementById('portalMusicText');
+
+            if (!audio || !musicBtn) return;
+
+            if (!isEnabled || !track || !track.url) {
+                audio.pause();
+                audio.removeAttribute('src');
+                audio.load();
+                musicBtn.style.display = 'none';
+                musicBtn.classList.remove('playing');
+                if (playIcon) playIcon.style.display = 'inline-block';
+                if (waveIcon) waveIcon.style.display = 'none';
+                return;
+            }
+
+            // Music is enabled and track URL exists
+            musicBtn.style.display = 'inline-flex';
+            if (audio.src !== track.url && !audio.src.endsWith(track.url)) {
+                audio.src = track.url;
+            }
+            audio.volume = typeof track.volume === 'number' ? track.volume : 0.35;
+            audio.loop = true;
+
+            const trackTitle = track.title || 'Sanctuary Soundtrack';
+            musicBtn.title = `Sanctuary Soundtrack: ${trackTitle}`;
+            if (textEl) textEl.textContent = trackTitle.length > 18 ? trackTitle.slice(0, 16) + '…' : trackTitle;
+
+            if (!musicBtn.dataset.bound) {
+                musicBtn.dataset.bound = 'true';
+                musicBtn.addEventListener('click', () => {
+                    if (audio.paused) {
+                        audio.play().then(() => {
+                            musicBtn.classList.add('playing');
+                            if (playIcon) playIcon.style.display = 'none';
+                            if (waveIcon) waveIcon.style.display = 'inline-block';
+                        }).catch(e => {
+                            console.warn('Playback requires initial user click:', e);
+                        });
+                    } else {
+                        audio.pause();
+                        musicBtn.classList.remove('playing');
+                        if (playIcon) playIcon.style.display = 'inline-block';
+                        if (waveIcon) waveIcon.style.display = 'none';
+                    }
+                });
+
+                audio.addEventListener('play', () => {
+                    musicBtn.classList.add('playing');
+                    if (playIcon) playIcon.style.display = 'none';
+                    if (waveIcon) waveIcon.style.display = 'inline-block';
+                });
+
+                audio.addEventListener('pause', () => {
+                    musicBtn.classList.remove('playing');
+                    if (playIcon) playIcon.style.display = 'inline-block';
+                    if (waveIcon) waveIcon.style.display = 'none';
+                });
+            }
         }
 
         // ====================================================================

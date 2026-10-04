@@ -23,8 +23,9 @@ const PAGES_DIR = path.join(STATIC_ROOT, 'pages');
 app.use(securityHeaders);
 app.use(blockSensitiveFiles);
 
-// Body and Cookie Parsers
-app.use(express.json({ limit: '2mb' }));
+// Body and Cookie Parsers (50mb to support MP3/audio track uploads)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 
 // Rate limit API routes

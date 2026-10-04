@@ -62,6 +62,14 @@ router.get('/', (req, res) => {
 
         const paperPlaneEnabled = settings.paper_plane_enabled === true || settings.paper_plane_enabled === 'true';
         const catEnabled = settings.cat_enabled === true || settings.cat_enabled === 'true';
+        const musicEnabled = settings.music_enabled === true || settings.music_enabled === 'true';
+        const musicTrack = settings.music_track || {
+            url: '',
+            title: 'No audio uploaded',
+            filename: '',
+            volume: 0.35,
+            loop: true
+        };
 
         const flatSettings = {
             current_book: typeof reading === 'string' ? reading : (reading.title || 'The Stranger'),
@@ -74,7 +82,9 @@ router.get('/', (req, res) => {
             meeting_url: connectLinks.meeting_maps_url || gathering.maps_url || 'https://maps.google.com',
             community_url: connectLinks.community_chat_url || 'https://chat.whatsapp.com',
             paper_plane_enabled: paperPlaneEnabled,
-            cat_enabled: catEnabled
+            cat_enabled: catEnabled,
+            music_enabled: musicEnabled,
+            music_track: musicTrack
         };
 
         return res.json({
@@ -102,10 +112,14 @@ router.get('/', (req, res) => {
                 sticky_notes: stickyNotes,
                 features: {
                     paper_plane_enabled: paperPlaneEnabled,
-                    cat_enabled: catEnabled
+                    cat_enabled: catEnabled,
+                    music_enabled: musicEnabled,
+                    music_track: musicTrack
                 },
                 paper_plane_enabled: paperPlaneEnabled,
                 cat_enabled: catEnabled,
+                music_enabled: musicEnabled,
+                music_track: musicTrack,
                 updates,
                 current_book: reading,
                 next_meeting: gathering,

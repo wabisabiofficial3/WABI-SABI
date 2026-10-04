@@ -1561,6 +1561,79 @@
                         <span id="paperPlaneToggleText" style="font-size: 13px; font-weight: 700; color: var(--wabi-ink-muted); min-width: 34px;">OFF</span>
                     </div>
                 </div>
+
+                <!-- 3. Ambient Music Track & Local MP3 Drop Zone -->
+                <div style="background: rgba(39, 59, 43, 0.04); border: 1px solid var(--wabi-border-subtle); border-radius: 10px; padding: 18px 20px; margin-top: 14px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 12px;">
+                        <div style="flex: 1; min-width: 240px;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <span style="font-weight: 700; font-size: 14px; color: var(--wabi-ink, #23201D); display: inline-flex; align-items: center; gap: 6px;">
+                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                                    <span>Sanctuary Ambient Music & Soundtrack</span>
+                                </span>
+                                <span id="musicStatusBadge" class="curator-badge-tag" style="background: rgba(120, 115, 105, 0.15); color: var(--wabi-ink-muted, #7A7264); font-size: 11px; padding: 2px 8px; border-radius: 12px;">OFF (Default)</span>
+                            </div>
+                            <p style="margin: 0; font-size: 12.5px; color: var(--wabi-ink-secondary, #5C5549); line-height: 1.45;">
+                                Drop your local MP3 soundtrack here. When enabled, a serene ambient music button accompanies visitors on the public portal. Default is OFF.
+                            </p>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
+                            <label class="curator-switch" title="Toggle Sanctuary Music">
+                                <input type="checkbox" id="musicToggleCheckbox" aria-label="Toggle Sanctuary Music">
+                                <span class="curator-slider"></span>
+                            </label>
+                            <span id="musicToggleText" style="font-size: 13px; font-weight: 700; color: var(--wabi-ink-muted); min-width: 34px;">OFF</span>
+                        </div>
+                    </div>
+
+                    <!-- Drag and Drop Box -->
+                    <div id="musicDropZone" style="border: 2px dashed rgba(198, 182, 155, 0.65); border-radius: 8px; padding: 20px 16px; text-align: center; cursor: pointer; transition: all 0.2s ease; background: rgba(255, 255, 255, 0.5);">
+                        <input type="file" id="musicFileInput" accept="audio/*,.mp3,.wav,.ogg,.m4a" style="display: none;">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="var(--moss-mid, #526B5C)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 6px;" aria-hidden="true">
+                            <path d="M9 18V5l12-2v13"></path>
+                            <circle cx="6" cy="18" r="3"></circle>
+                            <circle cx="18" cy="16" r="3"></circle>
+                        </svg>
+                        <div style="font-size: 13px; font-weight: 600; color: var(--wabi-ink, #2C2621);">
+                            Drop local MP3 audio file here, or <span style="color: var(--moss-dark, #273B2B); text-decoration: underline;">click to browse</span>
+                        </div>
+                        <div style="font-size: 11.5px; color: var(--wabi-ink-muted, #7A7264); margin-top: 3px;">
+                            Supported formats: MP3, WAV, OGG, M4A (Max 50MB)
+                        </div>
+                    </div>
+
+                    <!-- Active Track Info & Preview Player -->
+                    <div id="musicTrackInfo" style="display: none; margin-top: 12px; padding: 12px 14px; background: rgba(255,255,255,0.7); border: 1px solid var(--wabi-border-subtle); border-radius: 8px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: rgba(39, 59, 43, 0.1); color: var(--moss-dark, #273B2B);">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                                </span>
+                                <div>
+                                    <strong id="musicTrackTitle" style="font-size: 13px; color: var(--wabi-ink); display: block;">No track loaded</strong>
+                                    <span id="musicTrackMeta" style="font-size: 11px; color: var(--wabi-ink-muted);">0.0 MB</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="font-size: 12px; color: var(--wabi-ink-secondary); display: flex; align-items: center; gap: 4px;">
+                                    <span>Vol:</span>
+                                    <input type="range" id="musicVolumeSlider" min="0" max="1" step="0.05" value="0.35" style="width: 70px; accent-color: var(--moss-dark);">
+                                    <span id="musicVolumeLabel" style="font-size: 11px; min-width: 28px;">35%</span>
+                                </label>
+                                <button type="button" class="c-btn-action" id="removeMusicTrackBtn" title="Remove track" style="color: #A23434; border-color: rgba(180, 50, 50, 0.3); padding: 4px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
+                                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                    <span>Remove</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Embedded Audio Player Preview -->
+                        <audio id="curatorAudioPreview" controls style="width: 100%; height: 32px; border-radius: 4px; outline: none;"></audio>
+                    </div>
+
+                    <div id="musicUploadStatus" style="font-size: 12px; margin-top: 6px; display: none;"></div>
+                </div>
             </div>
         </section>
 
