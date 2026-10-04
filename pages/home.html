@@ -3076,9 +3076,12 @@
         }
 
         .filter-sep {
-            color: rgba(140, 120, 91, 0.4);
-            font-size: 12px;
-            padding: 0 2px;
+            display: inline-block;
+            width: 1px;
+            height: 12px;
+            background: rgba(140, 120, 91, 0.3);
+            margin: 0 4px;
+            vertical-align: middle;
             user-select: none;
         }
 
@@ -3214,6 +3217,33 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
         }
 
+        /* Card 2 Library Specialization */
+        .connect-main-card.card-library {
+            background: linear-gradient(165deg, #EEF4EC 0%, #E2EBE0 100%);
+            border: 1px solid rgba(75, 110, 80, 0.25);
+        }
+
+        .connect-main-card.card-library .ann-card-title {
+            color: #1A3222;
+        }
+
+        .connect-main-card.card-library .connect-card-desc {
+            color: #334D3C;
+        }
+
+        [data-theme="dark"] .connect-main-card.card-library {
+            background: linear-gradient(165deg, #1D2620 0%, #151D17 100%);
+            border-color: rgba(135, 175, 145, 0.25);
+        }
+
+        [data-theme="dark"] .connect-main-card.card-library .ann-card-title {
+            color: #FAF7F0;
+        }
+
+        [data-theme="dark"] .connect-main-card.card-library .connect-card-desc {
+            color: #C8D6CA;
+        }
+
         .connect-card-meta-row {
             display: flex;
             align-items: center;
@@ -3234,9 +3264,9 @@
         }
 
         .pill-drive {
-            background: rgba(70, 110, 85, 0.12);
-            color: #274D34;
-            border: 1px solid rgba(70, 110, 85, 0.22);
+            background: rgba(70, 110, 85, 0.14);
+            color: #1F452A;
+            border: 1px solid rgba(70, 110, 85, 0.25);
         }
 
         [data-theme="dark"] .pill-drive {
@@ -3249,6 +3279,9 @@
             font-size: 11.5px;
             color: var(--ink-muted);
             font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .connect-card-desc {
@@ -3318,9 +3351,19 @@
             gap: 8px;
         }
 
+        .connect-main-card.card-library .connect-directory-box {
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid rgba(70, 105, 80, 0.18);
+        }
+
         [data-theme="dark"] .connect-directory-box {
             background: rgba(36, 32, 28, 0.65);
             border-color: rgba(235, 225, 210, 0.08);
+        }
+
+        [data-theme="dark"] .connect-main-card.card-library .connect-directory-box {
+            background: rgba(24, 34, 27, 0.75);
+            border-color: rgba(135, 175, 145, 0.2);
         }
 
         .directory-row {
@@ -3333,6 +3376,17 @@
         .directory-item {
             color: var(--ink-primary);
             font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .connect-main-card.card-library .directory-item {
+            color: #1F3628;
+        }
+
+        [data-theme="dark"] .connect-main-card.card-library .directory-item {
+            color: #E2ECE4;
         }
 
         .directory-tag {
@@ -3390,14 +3444,14 @@
         }
 
         [data-theme="dark"] .btn-sanctuary-ivory {
-            background: rgba(45, 40, 35, 0.7);
-            color: #EDE7DD !important;
-            border-color: rgba(235, 225, 210, 0.2);
+            background: #253328;
+            color: #FAF7F0 !important;
+            border-color: rgba(135, 175, 145, 0.35);
         }
 
         [data-theme="dark"] .btn-sanctuary-ivory:hover {
-            background: rgba(60, 54, 48, 0.9);
-            border-color: #EDE7DD;
+            background: #2E4032;
+            border-color: #A3D4B2;
         }
 
         /* Card 3 Specific: Pin & Mini Map Polaroid */
@@ -4067,13 +4121,22 @@
             <div class="header-controls">
                 <!-- Member Access Entry: Have a Wabi Sabi Code? / Open My Space -->
                 <button type="button" class="nav-member-access-btn" id="openMemberSpaceBtn" title="Enter your private Wabi Sabi Member Code" aria-label="Member Access">
-                    <span class="member-key-icon">🗝️</span>
+                    <span class="member-key-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="7.5" cy="15.5" r="4.5"/>
+                            <path d="M10.7 12.3L20 3m-3 0l3 3m-5 1l2 2"/>
+                        </svg>
+                    </span>
                     <span class="member-btn-label" id="memberBtnLabel">Have a Wabi Sabi Code?</span>
                 </button>
 
                 <!-- Reader Identity & Memory Chip -->
                 <button type="button" class="reader-memory-chip" id="readerMemoryChip" title="Personalize your reading presence & journey" aria-label="Reader Profile">
-                    <span class="reader-chip-leaf">🌿</span>
+                    <span class="reader-chip-leaf" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                            <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/>
+                        </svg>
+                    </span>
                     <span class="reader-chip-name" id="readerChipName">Guest Reader</span>
                 </button>
 
@@ -4123,12 +4186,21 @@
                     <div class="zen-interactive-bar" id="zenInteractiveBar">
                         <!-- Interactive Button 1: Draw Daily Reflection -->
                         <button type="button" class="zen-action-btn zen-action-reflection" id="btnDrawReflection" title="Draw a quiet literary reflection for today" aria-label="Draw Daily Reflection">
-                            <span class="zen-action-icon">✦</span>
+                            <span class="zen-action-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+                                    <path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/>
+                                </svg>
+                            </span>
                             <span class="zen-action-text">
                                 <span class="zen-action-title">Draw Daily Reflection</span>
                                 <span class="zen-action-caption">Contemplation for your quiet hour</span>
                             </span>
-                            <span class="zen-action-arrow">↗</span>
+                            <span class="zen-action-arrow" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="7" y1="17" x2="17" y2="7"></line>
+                                    <polyline points="7 7 17 7 17 17"></polyline>
+                                </svg>
+                            </span>
                         </button>
 
                         <!-- Interactive Button 2: Tea Room Ambience / Soundscape -->
@@ -4454,7 +4526,7 @@
                         <div>
                             <div class="artifact-meta-row">
                                 <span class="ann-meta-pill pill-theme">
-                                    <span>🌿</span>
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 4 13C4 8.5 7.5 5 12 3a9 9 0 0 1 8 5c1 5-3.5 9-8 12Z"/><path d="M11 20c0-4 2-7 6-8"/></svg>
                                     <span>Theme of the Week</span>
                                 </span>
                                 <span class="artifact-vol-tag">VOL. 1</span>
@@ -4465,7 +4537,9 @@
 
                         <!-- Integrated Reading Companion Bar (Preserves Hydration & Testing IDs) -->
                         <div class="theme-selection-pill">
-                            <span class="selection-pill-label">📖 Reading:</span>
+                            <span class="selection-pill-label">
+                                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -2px; margin-right: 4px;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Reading:
+                            </span>
                             <strong id="annReadingTitle" class="selection-pill-title">The Stranger</strong>
                             <span id="annReadingAuthor" class="selection-pill-author">by Albert Camus</span>
                             <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" id="annDriveBtn" class="selection-pill-link" title="Open Book in Drive">Drive ↗</a>
@@ -4493,7 +4567,7 @@
                         <div>
                             <div class="artifact-meta-row">
                                 <span class="ann-meta-pill pill-gathering">
-                                    <span>📍</span>
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                                     <span>Gathering Salon</span>
                                 </span>
                             </div>
@@ -4528,12 +4602,15 @@
                         <div>
                             <div class="gathering-center-divider">
                                 <span class="divider-line"></span>
-                                <span class="divider-pin">📍</span>
+                                <span class="divider-pin" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                </span>
                                 <span class="divider-line"></span>
                             </div>
                             <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" id="annMapsBtn" class="btn-sanctuary-forest">
-                                <span>📍 View Location on Maps</span>
-                                <span>↗</span>
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                <span>View Location on Maps</span>
+                                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                             </a>
                         </div>
                     </div>
@@ -4559,7 +4636,9 @@
                         <div>
                             <div class="inquiry-header-row">
                                 <div class="inquiry-title-group">
-                                    <span style="font-size: 20px;">💬</span>
+                                    <span class="inquiry-icon-wrap" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                    </span>
                                     <h3 class="inquiry-title">Discussion Inquiries</h3>
                                 </div>
                                 <span class="inquiry-cursive-tag">Thoughts for a deeper circle.</span>
@@ -4581,7 +4660,7 @@
                         <!-- Nested Yellow Important Reminders Note -->
                         <div class="nested-reminders-note">
                             <div class="reminders-header">
-                                <span>⚠️</span>
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                                 <span>Important Reminders</span>
                             </div>
                             <div id="annImportantNotes" class="reminders-text">
@@ -4596,7 +4675,7 @@
 
                         <div class="curator-feed-header">
                             <h3 class="curator-feed-title">
-                                <span>📢</span>
+                                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l19-9-9 19-2-8-8-2z"></path></svg>
                                 <span>Curator Notices</span>
                             </h3>
                             <div class="live-indicator">
@@ -4660,7 +4739,7 @@
                     <div class="member-polaroid-card" data-role="Admin" style="--polaroid-rot: -1.8deg;">
                         <div class="polaroid-tape" style="--tape-rot: -1.2deg;"></div>
                         <div class="member-dp-wrap">
-                            <img src="../assets/user_avatar.jpg" alt="Wabi Sabi Admin" class="member-dp-img" onerror="this.src='../assets/user_avatar.jpg'">
+                            <img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'%3E%3Crect width='100' height='100' rx='14' fill='%23273B2B'/%3E%3Crect x='2' y='2' width='96' height='96' rx='12' fill='none' stroke='%233E5642' stroke-width='2' opacity='0.6'/%3E%3Ctext x='50' y='54%25' text-anchor='middle' dominant-baseline='middle' fill='%23FAF7F0' font-family='Georgia, serif' font-size='52' font-weight='600'%3EW%3C/text%3E%3C/svg%3E" alt="Wabi Sabi Admin" class="member-dp-img">
                         </div>
                         <div class="member-name">Wabi Sabi Admin</div>
                         <div class="member-meta-row">
@@ -4674,7 +4753,7 @@
                     <div class="member-polaroid-card" data-role="Member" style="--polaroid-rot: 1.4deg;">
                         <div class="polaroid-tape" style="--tape-rot: 1.5deg;"></div>
                         <div class="member-dp-wrap">
-                            <img src="../assets/avatar_aishwarya.jpg" alt="Akshaya" class="member-dp-img" onerror="this.src='../assets/user_avatar.jpg'">
+                            <img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'%3E%3Crect width='100' height='100' rx='14' fill='%235C4033'/%3E%3Crect x='2' y='2' width='96' height='96' rx='12' fill='none' stroke='%23785645' stroke-width='2' opacity='0.6'/%3E%3Ctext x='50' y='54%25' text-anchor='middle' dominant-baseline='middle' fill='%23FDFBF7' font-family='Georgia, serif' font-size='52' font-weight='600'%3EA%3C/text%3E%3C/svg%3E" alt="Akshaya" class="member-dp-img">
                         </div>
                         <div class="member-name">Akshaya</div>
                         <div class="member-meta-row">
@@ -4688,7 +4767,7 @@
                     <div class="member-polaroid-card" data-role="Member" style="--polaroid-rot: -1.1deg;">
                         <div class="polaroid-tape" style="--tape-rot: -0.8deg;"></div>
                         <div class="member-dp-wrap">
-                            <img src="../assets/avatar_meera.jpg" alt="Vaishnavi" class="member-dp-img" onerror="this.src='../assets/user_avatar.jpg'">
+                            <img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'%3E%3Crect width='100' height='100' rx='14' fill='%233D5A5B'/%3E%3Crect x='2' y='2' width='96' height='96' rx='12' fill='none' stroke='%23537576' stroke-width='2' opacity='0.6'/%3E%3Ctext x='50' y='54%25' text-anchor='middle' dominant-baseline='middle' fill='%23FAF7F0' font-family='Georgia, serif' font-size='52' font-weight='600'%3EV%3C/text%3E%3C/svg%3E" alt="Vaishnavi" class="member-dp-img">
                         </div>
                         <div class="member-name">Vaishnavi</div>
                         <div class="member-meta-row">
@@ -4741,7 +4820,7 @@
                             <button type="button" class="connect-filter-btn connect-filter-pill active" data-filter="all">All</button>
                             <button type="button" class="connect-filter-btn connect-filter-pill" data-filter="online">Online Spaces</button>
                             <button type="button" class="connect-filter-btn connect-filter-pill" data-filter="library">Library</button>
-                            <span class="filter-sep">|</span>
+                            <span class="filter-sep" aria-hidden="true"></span>
                             <button type="button" class="connect-filter-btn connect-filter-pill" data-filter="physical">Physical Gatherings</button>
                             <button type="button" class="connect-filter-btn connect-filter-pill" data-filter="socials">Socials</button>
                         </div>
@@ -4777,7 +4856,7 @@
                 <div class="connect-top-3-grid" id="connectMainCardsGrid">
                     
                     <!-- Inter-card Botanical Branch (Leaning between Card 1 and Card 2) -->
-                    <svg class="inter-card-botanical-branch" viewBox="0 0 60 180" fill="none">
+                    <svg class="inter-card-botanical-branch" viewBox="0 0 60 180" fill="none" aria-hidden="true">
                         <path d="M 12 175 C 24 120, 28 60, 48 5" stroke="#3D5438" stroke-width="2" stroke-linecap="round"/>
                         <path d="M 18 140 C 35 132, 50 142, 45 156 C 30 158, 22 148, 18 140 Z" fill="#5E7D63"/>
                         <path d="M 16 115 C -2 108, -8 122, 2 130 C 12 128, 15 120, 16 115 Z" fill="#6B8E72"/>
@@ -4791,18 +4870,21 @@
                     <!-- Card 1: Community Chat (Vintage Postcard) -->
                     <div class="connect-main-card" data-category="online">
                         <!-- Silver Wire Paperclip at Top -->
-                        <svg class="paperclip-artifact" style="left: 65px; top: -14px;" viewBox="0 0 22 48" fill="none">
+                        <svg class="paperclip-artifact" style="left: 65px; top: -14px;" viewBox="0 0 22 48" fill="none" aria-hidden="true">
                             <path d="M 7 12 L 7 36 C 7 42, 16 42, 16 36 L 16 8 C 16 2, 2 2, 2 8 L 2 38 C 2 47, 21 47, 21 38 L 21 16" stroke="#888" stroke-width="2" stroke-linecap="round" fill="none"/>
                         </svg>
 
                         <div>
                             <div class="connect-card-meta-row">
                                 <span class="ann-meta-pill pill-lounge">
-                                    <span style="color: #D45B45;">●</span>
+                                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #D45B45;"></span>
                                     <span>MAIN LOUNGE</span>
                                 </span>
                                 <span class="connect-meta-status">
-                                    <span style="color: #4A6B53;">👥</span> Always Open
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="color: #4A6B53;" aria-hidden="true">
+                                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                                    </svg>
+                                    <span>Always Open</span>
                                 </span>
                             </div>
                             <h2 class="ann-card-title">Community Chat</h2>
@@ -4813,32 +4895,35 @@
                             <!-- Social Avatars Overlapping Row -->
                             <div class="connect-avatars-row">
                                 <div class="avatar-stack" id="connectAvatarStack">
-                                    <img src="../assets/user_avatar.jpg" alt="Admin" class="stacked-avatar" onerror="this.src='../assets/user_avatar.jpg'">
+                                    <img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'%3E%3Crect width='100' height='100' rx='14' fill='%23273B2B'/%3E%3Crect x='2' y='2' width='96' height='96' rx='12' fill='none' stroke='%233E5642' stroke-width='2' opacity='0.6'/%3E%3Ctext x='50' y='54%25' text-anchor='middle' dominant-baseline='middle' fill='%23FAF7F0' font-family='Georgia, serif' font-size='52' font-weight='600'%3EW%3C/text%3E%3C/svg%3E" alt="Admin" class="stacked-avatar">
                                 </div>
                                 <span class="avatar-count-label" id="connectAvatarCount">3 members</span>
                             </div>
                         </div>
 
                         <a href="https://chat.whatsapp.com" target="_blank" rel="noopener noreferrer" class="btn-sanctuary-forest" id="connectCommunityChatBtn" style="width: 100%; box-sizing: border-box; justify-content: center; padding: 12px 20px;">
-                            <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
-                                <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2z"/>
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                                <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zM17.5 16.3c-.2.6-.9 1.1-1.5 1.2-.4.1-.9.1-2.8-.7-2.3-1-3.8-3.4-3.9-3.5-.1-.2-.9-1.3-.9-2.4 0-1.1.6-1.7.8-1.9.2-.2.5-.3.8-.3.1 0 .2 0 .3.01.2.01.4.03.6.4.2.5.7 1.8.8 1.9.1.2.1.3 0 .5-.1.2-.2.3-.3.5-.1.1-.3.3-.4.4-.2.2-.3.3-.1.7.2.4.9 1.5 2 2.4 1.3 1.2 2.5 1.5 2.8 1.7.4.2.6.1.8-.1.2-.3.9-1.1 1.2-1.4.2-.3.5-.3.8-.2.3.1 2 .9 2.3 1.1.3.2.6.3.6.5 0 .3-.1 1.1-.7 1.7z"/>
                             </svg>
                             <span>Open WhatsApp Group</span>
-                            <span>↗</span>
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="7" y1="17" x2="17" y2="7"></line>
+                                <polyline points="7 7 17 7 17 17"></polyline>
+                            </svg>
                         </a>
                     </div>
 
                     <!-- Card 2: Wabi Sabi Book Drive (Pale Sage Texture) -->
-                    <div class="connect-main-card" data-category="library" style="background: linear-gradient(165deg, #E8EFE5 0%, #DCE6D9 100%); border-color: rgba(90, 120, 95, 0.25);">
+                    <div class="connect-main-card card-library" data-category="library">
                         <div class="card-top-tape" style="--tape-rot: 1.2deg; left: 58%; width: 68px; height: 18px; top: -10px; background: rgba(220, 205, 175, 0.85); box-shadow: 0 1px 4px rgba(0,0,0,0.08);"></div>
 
                         <div>
                             <div class="connect-card-meta-row">
-                                <span class="ann-meta-pill pill-drive" style="background: rgba(255,255,255,0.75); border-color: rgba(60,95,70,0.2);">
-                                    <svg viewBox="0 0 24 24" width="14" height="14" style="vertical-align: middle; margin-right: 4px;">
-                                        <path fill="#F4B400" d="M8.5 3.5h7l6 10.5h-7z"/>
-                                        <path fill="#0F9D58" d="M14.5 14h-13l3.5-6h13z"/>
-                                        <path fill="#4285F4" d="M1.5 14l3.5 6 6.5-11.5-3.5-6z"/>
+                                <span class="ann-meta-pill pill-drive">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" style="vertical-align: middle; margin-right: 4px;" aria-hidden="true">
+                                        <path fill="#FFC107" d="M8.6 3.5h6.8l6.1 10.5h-6.8z"/>
+                                        <path fill="#4CAF50" d="M14.7 14h-12.2l3.4-6h12.2z"/>
+                                        <path fill="#2196F3" d="M2.5 14l3.4 6 6.1-10.5-3.4-6z"/>
                                     </svg>
                                     <span>DIGITAL LIBRARY</span>
                                 </span>
@@ -4849,30 +4934,52 @@
                             </p>
 
                             <!-- Catalog Directory Box -->
-                            <div class="connect-directory-box" style="background: rgba(255,255,255,0.65); border: 1px solid rgba(70,105,80,0.15); border-radius: 6px; padding: 10px 14px; margin: 12px 0 18px; display: flex; flex-direction: column; gap: 8px;">
-                                <div class="directory-row" style="display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
-                                    <span class="directory-item" style="display: flex; align-items: center; gap: 6px;">📁 Books (PDF / EPUB)</span>
-                                    <span class="directory-tag tag-vol" style="background: rgba(120,100,70,0.12); color: #6E5A3D; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 4px;">WS-VOL1</span>
+                            <div class="connect-directory-box">
+                                <div class="directory-row">
+                                    <span class="directory-item">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #D4A340;" aria-hidden="true">
+                                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                                        </svg>
+                                        <span>Books (PDF / EPUB)</span>
+                                    </span>
+                                    <span class="directory-tag tag-vol">WS-VOL1</span>
                                 </div>
-                                <div class="directory-row" style="display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
-                                    <span class="directory-item" style="display: flex; align-items: center; gap: 6px;">📄 Guides & Notes</span>
-                                    <span class="directory-tag tag-vol" style="background: rgba(120,100,70,0.12); color: #6E5A3D; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 4px;">WS-VOL1</span>
+                                <div class="directory-row">
+                                    <span class="directory-item">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #6C8299;" aria-hidden="true">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                                        </svg>
+                                        <span>Guides & Notes</span>
+                                    </span>
+                                    <span class="directory-tag tag-vol">WS-VOL1</span>
                                 </div>
-                                <div class="directory-row" style="display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
-                                    <span class="directory-item" style="display: flex; align-items: center; gap: 6px;">▶ Extra Resources</span>
-                                    <span class="directory-tag tag-lock" style="background: rgba(184,115,51,0.14); color: #8A4E1B; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 4px;">Members Only</span>
+                                <div class="directory-row">
+                                    <span class="directory-item">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #B87333;" aria-hidden="true">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                        </svg>
+                                        <span>Extra Resources</span>
+                                    </span>
+                                    <span class="directory-tag tag-lock">Members Only</span>
                                 </div>
                             </div>
                         </div>
 
-                        <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" class="btn-sanctuary-ivory" id="connectBookDriveBtn" style="width: 100%; box-sizing: border-box; justify-content: center; padding: 12px 20px; background: #FAF8F3; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-                            <svg viewBox="0 0 24 24" width="16" height="16">
-                                <path fill="#F4B400" d="M8.5 3.5h7l6 10.5h-7z"/>
-                                <path fill="#0F9D58" d="M14.5 14h-13l3.5-6h13z"/>
-                                <path fill="#4285F4" d="M1.5 14l3.5 6 6.5-11.5-3.5-6z"/>
+                        <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" class="btn-sanctuary-ivory" id="connectBookDriveBtn" style="width: 100%; box-sizing: border-box; justify-content: center; padding: 12px 20px;">
+                            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                                <path fill="#FFC107" d="M8.6 3.5h6.8l6.1 10.5h-6.8z"/>
+                                <path fill="#4CAF50" d="M14.7 14h-12.2l3.4-6h12.2z"/>
+                                <path fill="#2196F3" d="M2.5 14l3.4 6 6.1-10.5-3.4-6z"/>
                             </svg>
                             <span>Open Book Drive</span>
-                            <span>↗</span>
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="7" y1="17" x2="17" y2="7"></line>
+                                <polyline points="7 7 17 7 17 17"></polyline>
+                            </svg>
                         </a>
                     </div>
 
@@ -4883,7 +4990,9 @@
                         <div>
                             <div class="connect-card-meta-row">
                                 <span class="ann-meta-pill pill-gathering" style="background: rgba(238, 224, 230, 0.7); color: #7B3E54; border-color: rgba(123, 62, 84, 0.2);">
-                                    <span style="color: #A83824;">📍</span>
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="color: #A83824;" aria-hidden="true">
+                                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                    </svg>
                                     <span>PHYSICAL SALON</span>
                                 </span>
                             </div>
@@ -4894,7 +5003,7 @@
                             </p>
 
                             <!-- Mini Polaroid Map Insert -->
-                            <div class="mini-map-polaroid" style="background: #FFFFFF; border: 1px solid rgba(45,40,35,0.1); border-radius: 4px; padding: 6px 6px 8px; margin: 8px 0 16px; box-shadow: 0 3px 10px rgba(45,35,20,0.08);">
+                            <div class="mini-map-polaroid">
                                 <div class="map-polaroid-art" style="width: 100%; height: 86px; border-radius: 2px; overflow: hidden; background: #EFE9DC;">
                                     <svg viewBox="0 0 220 90" class="map-drawing-svg" fill="none" style="width: 100%; height: 100%; display: block;">
                                         <rect width="220" height="90" fill="#EAE5D9"/>
@@ -4924,11 +5033,14 @@
                         </div>
 
                         <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="btn-sanctuary-forest" id="connectMeetingLocationBtn" style="width: 100%; box-sizing: border-box; justify-content: center; padding: 12px 20px;">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
                                 <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/>
                             </svg>
                             <span>Open Location on Maps</span>
-                            <span>↗</span>
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="7" y1="17" x2="17" y2="7"></line>
+                                <polyline points="7 7 17 7 17 17"></polyline>
+                            </svg>
                         </a>
                     </div>
 
@@ -4938,7 +5050,7 @@
                 <div class="connect-platforms-shelf" id="connectPlatformsShelf" data-category="socials">
                     <div class="shelf-header" style="margin-bottom: 20px;">
                         <h3 class="shelf-title" style="font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <rect x="3" y="3" width="7" height="7"></rect>
                                 <rect x="14" y="3" width="7" height="7"></rect>
                                 <rect x="14" y="14" width="7" height="7"></rect>
@@ -4955,7 +5067,7 @@
                             <div class="platform-card-body">
                                 <div class="platform-meta">
                                     <div class="platform-badge-insta">
-                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                             <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                                             <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                                             <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
@@ -4966,13 +5078,18 @@
                                         <p class="platform-desc">Photos, quotes & announcements</p>
                                     </div>
                                 </div>
-                                <div class="platform-arrow-circle">→</div>
+                                <div class="platform-arrow-circle" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </div>
                             </div>
                             <div class="platform-polaroid-doodle">
                                 <div class="mini-polaroid-frame" style="transform: rotate(-3deg);">
                                     <img src="../assets/potted_plant_books.jpg" alt="Cozy reading corner" class="mini-polaroid-photo" onerror="this.src='../assets/auth_still_life.jpg'">
                                 </div>
-                                <svg class="platform-pencil-sketch" viewBox="0 0 36 48" width="34" height="44" fill="none" stroke="#7A6F62" stroke-width="1.2" stroke-linecap="round">
+                                <svg class="platform-pencil-sketch" viewBox="0 0 36 48" width="34" height="44" fill="none" stroke="#7A6F62" stroke-width="1.2" stroke-linecap="round" aria-hidden="true">
                                     <path d="M 18 44 C 18 25, 24 10, 30 4"/>
                                     <path d="M 18 36 C 26 34, 30 28, 28 22 C 20 24, 18 30, 18 36 Z" fill="rgba(122,111,98,0.08)"/>
                                     <path d="M 18 26 C 10 24, 6 18, 8 12 C 16 14, 18 20, 18 26 Z" fill="rgba(122,111,98,0.08)"/>
@@ -4986,8 +5103,8 @@
                             <div class="platform-card-body">
                                 <div class="platform-meta">
                                     <div class="platform-badge-wa">
-                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                                            <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2z"/>
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+                                            <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zM17.5 16.3c-.2.6-.9 1.1-1.5 1.2-.4.1-.9.1-2.8-.7-2.3-1-3.8-3.4-3.9-3.5-.1-.2-.9-1.3-.9-2.4 0-1.1.6-1.7.8-1.9.2-.2.5-.3.8-.3.1 0 .2 0 .3.01.2.01.4.03.6.4.2.5.7 1.8.8 1.9.1.2.1.3 0 .5-.1.2-.2.3-.3.5-.1.1-.3.3-.4.4-.2.2-.3.3-.1.7.2.4.9 1.5 2 2.4 1.3 1.2 2.5 1.5 2.8 1.7.4.2.6.1.8-.1.2-.3.9-1.1 1.2-1.4.2-.3.5-.3.8-.2.3.1 2 .9 2.3 1.1.3.2.6.3.6.5 0 .3-.1 1.1-.7 1.7z"/>
                                         </svg>
                                     </div>
                                     <div>
@@ -4995,13 +5112,18 @@
                                         <p class="platform-desc">Direct notices and meeting alerts</p>
                                     </div>
                                 </div>
-                                <div class="platform-arrow-circle">→</div>
+                                <div class="platform-arrow-circle" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </div>
                             </div>
                             <div class="platform-polaroid-doodle">
                                 <div class="mini-polaroid-frame" style="transform: rotate(-2deg);">
                                     <img src="../assets/space_quiet_readers.jpg" alt="Reading room" class="mini-polaroid-photo" onerror="this.src='../assets/auth_still_life.jpg'">
                                 </div>
-                                <svg class="platform-pencil-sketch" viewBox="0 0 36 48" width="34" height="44" fill="none" stroke="#7A6F62" stroke-width="1.2" stroke-linecap="round">
+                                <svg class="platform-pencil-sketch" viewBox="0 0 36 48" width="34" height="44" fill="none" stroke="#7A6F62" stroke-width="1.2" stroke-linecap="round" aria-hidden="true">
                                     <path d="M 12 44 C 16 30, 22 18, 28 6"/>
                                     <path d="M 15 34 C 23 32, 28 26, 26 20 C 18 22, 16 28, 15 34 Z" fill="rgba(122,111,98,0.08)"/>
                                     <path d="M 18 22 C 10 20, 6 14, 8 8 C 16 10, 18 16, 18 22 Z" fill="rgba(122,111,98,0.08)"/>
@@ -5015,7 +5137,7 @@
                             <div class="platform-card-body">
                                 <div class="platform-meta">
                                     <div class="platform-badge-discord">
-                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
                                             <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
                                         </svg>
                                     </div>
@@ -5024,13 +5146,18 @@
                                         <p class="platform-desc">Nocturnal reading & voice rooms</p>
                                     </div>
                                 </div>
-                                <div class="platform-arrow-circle">→</div>
+                                <div class="platform-arrow-circle" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </div>
                             </div>
                             <div class="platform-polaroid-doodle">
                                 <div class="mini-polaroid-frame" style="transform: rotate(2.5deg);">
                                     <img src="../assets/space_film_sunset.jpg" alt="Nocturnal desk" class="mini-polaroid-photo" onerror="this.src='../assets/auth_still_life.jpg'">
                                 </div>
-                                <svg class="platform-pencil-sketch" viewBox="0 0 36 48" width="34" height="44" fill="none" stroke="#7A6F62" stroke-width="1.3" stroke-linecap="round">
+                                <svg class="platform-pencil-sketch" viewBox="0 0 36 48" width="34" height="44" fill="none" stroke="#7A6F62" stroke-width="1.3" stroke-linecap="round" aria-hidden="true">
                                     <path d="M 24 10 C 13 14, 11 32, 24 40 C 14 36, 12 22, 24 10 Z" fill="rgba(240, 196, 117, 0.18)" stroke="#7A6F62"/>
                                     <circle cx="28" cy="16" r="1" fill="#7A6F62"/>
                                     <circle cx="26" cy="26" r="1.2" fill="#7A6F62"/>
@@ -5138,11 +5265,12 @@
 
     <!-- ====================================================================
          BOTTOM TASKBAR WITH AUTONOMOUS WALKING CAT (MOCHI)
+         Default: OFF (Hidden until explicitly enabled by Admin)
          ==================================================================== -->
-    <div class="bottom-taskbar" id="bottomTaskbar"></div>
+    <div class="bottom-taskbar" id="bottomTaskbar" style="display: none;"></div>
 
-    <div class="living-cat-actor" id="livingCatActor" title="Touch me for Meow!">
-        <div class="cat-speech-bubble" id="catSpeechBubble">“Meooww...” 🐾</div>
+    <div class="living-cat-actor" id="livingCatActor" title="Touch me for Meow!" style="display: none;">
+        <div class="cat-speech-bubble" id="catSpeechBubble">“Meooww...” <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align: -1px;" aria-hidden="true"><ellipse cx="12" cy="16" rx="4.5" ry="3.5"/><circle cx="7" cy="10" r="2"/><circle cx="10.5" cy="7.5" r="1.8"/><circle cx="13.5" cy="7.5" r="1.8"/><circle cx="17" cy="10" r="2"/></svg></div>
         <div class="cat-contact-shadow" id="catContactShadow"></div>
         <img src="../assets/cat_walk1.png" alt="Living ginger tabby cat - Walk Frame 1" class="cat-sprite cat-frame-walk1 active" id="catSpriteWalk1">
         <img src="../assets/cat_walk2.png" alt="Living ginger tabby cat - Walk Frame 2" class="cat-sprite cat-frame-walk2" id="catSpriteWalk2">
@@ -5181,7 +5309,7 @@
 
     <!-- Secret Trigger Button on Taskbar (Default: OFF / Controlled by Admin) -->
     <button class="taskbar-rocket-btn" id="launchRocketBtn" title="Launch a paper airplane ✦" style="display: none;">
-        <span>✈</span>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
         <span>paper thought</span>
     </button>
 
@@ -5205,7 +5333,7 @@
     <aside id="wabiCookieBanner" class="wabi-cookie-banner" role="region" aria-label="Cookie & Privacy Preferences" style="display: none;">
         <div class="wabi-cookie-content">
             <div class="wabi-cookie-header">
-                <span class="wabi-cookie-icon" aria-hidden="true">🌿</span>
+                <span class="wabi-cookie-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 4 13C4 8.5 7.5 5 12 3a9 9 0 0 1 8 5c1 5-3.5 9-8 12Z"/><path d="M11 20c0-4 2-7 6-8"/></svg></span>
                 <span class="wabi-cookie-title">Sanctuary Privacy & Essential Cookies</span>
             </div>
             <p class="wabi-cookie-desc">
@@ -5289,7 +5417,7 @@
                 </div>
 
                 <div style="font-size: 11.5px; color: var(--wabi-ink-secondary); line-height: 1.4;">
-                    🔒 Stored in your private browser memory and local cookie. Zero ad tracking.
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -2px; margin-right: 4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>Stored in your private browser memory and local cookie. Zero ad tracking.
                 </div>
             </div>
 
@@ -5315,7 +5443,9 @@
             </div>
 
             <div style="padding: 4px 12px 20px;">
-                <div style="font-size: 30px; margin-bottom: 12px; line-height: 1;">🗝️</div>
+                <div style="margin-bottom: 12px; line-height: 1; display: flex; justify-content: center;" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="var(--wabi-terracotta, #8E4A38)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"></circle><path d="m21 3-9.5 9.5"></path><path d="m15.5 7.5 3 3"></path><path d="m18.5 4.5 2 2"></path></svg>
+                </div>
                 <h3 id="memberAccessHeading" style="font-family: 'Cinzel', serif; font-size: 21px; font-weight: 700; letter-spacing: 0.8px; color: var(--wabi-ink, #2C2621); margin: 0 0 8px;">
                     Enter your Wabi Sabi Code
                 </h3>
@@ -5357,7 +5487,7 @@
             <div class="reflection-card-margin-area">
                 <div class="reflection-margin-label">
                     <span>Your Margin Contemplation</span>
-                    <span id="reflectionSavedIndicator" style="color: #4A6B53; display: none;">Saved in margin ✓</span>
+                    <span id="reflectionSavedIndicator" style="color: #4A6B53; display: none;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -1px; margin-right: 3px;"><polyline points="20 6 9 17 4 12"></polyline></svg>Saved in margin</span>
                 </div>
                 <textarea id="reflectionMarginInput" class="reflection-margin-input" placeholder="Jot down a fleeting thought, realization or observation..."></textarea>
             </div>
@@ -5367,7 +5497,8 @@
                     <span>⟳ Draw Another</span>
                 </button>
                 <button type="button" id="btnCopyReflection" class="btn-reflection-action" title="Copy reflection to notes">
-                    <span>📋 Copy Quote</span>
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -2px; margin-right: 4px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                    <span>Copy Quote</span>
                 </button>
             </div>
         </div>
@@ -5526,6 +5657,27 @@
             });
         })();
 
+        // Aesthetic First-Alphabet Monogram Generator (Zero photo DPs)
+        function getAlphabetAvatar(name) {
+            const raw = (name || 'Member').trim();
+            const match = raw.match(/[a-zA-Z]/);
+            const letter = match ? match[0].toUpperCase() : (raw.charAt(0) || 'M').toUpperCase();
+            const palettes = [
+                { bg: '#273B2B', text: '#FAF7F0', border: '#3E5642' },
+                { bg: '#5C4033', text: '#FDFBF7', border: '#785645' },
+                { bg: '#3D5A5B', text: '#FAF7F0', border: '#537576' },
+                { bg: '#785434', text: '#FDFBF7', border: '#926943' },
+                { bg: '#3E423A', text: '#FAF7F0', border: '#575C52' },
+                { bg: '#6B3E36', text: '#FDFBF7', border: '#854F45' },
+                { bg: '#4A5B45', text: '#FAF7F0', border: '#60745A' }
+            ];
+            let hash = 0;
+            for (let i = 0; i < raw.length; i++) hash = (hash * 31 + raw.charCodeAt(i)) & 0xffffffff;
+            const p = palettes[Math.abs(hash) % palettes.length];
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><rect width="100" height="100" rx="14" fill="${p.bg}"/><rect x="2" y="2" width="96" height="96" rx="12" fill="none" stroke="${p.border}" stroke-width="2" opacity="0.6"/><text x="50" y="54%" text-anchor="middle" dominant-baseline="middle" fill="${p.text}" font-family="Georgia, serif" font-size="52" font-weight="600">${letter}</text></svg>`;
+            return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+        }
+
         // 4. Hydrate Live Coordination Data from /api/portal
         async function hydratePortalData() {
             let bookDriveUrl = 'https://drive.google.com';
@@ -5650,8 +5802,7 @@
                     communityUrl = connect.links.community_chat_url;
                 }
 
-                // --- Community Directory ---
-                // --- Community Directory & Dynamic Real-Time Counts ---
+                // --- Community Directory & Dynamic Real-Time Counts (Zero Photo DPs -> Vector Monograms) ---
                 if (community.members && Array.isArray(community.members) && community.members.length > 0) {
                     const gridEl = document.getElementById('communityDirectoryGrid');
                     if (gridEl) {
@@ -5661,14 +5812,14 @@
                             const isCurator = (m.role || '').toLowerCase().includes('curator') || (m.role || '').toLowerCase().includes('admin');
                             const roleClass = isCurator ? 'role-curator' :
                                               (m.role || '').toLowerCase().includes('member') ? 'role-member' : 'role-reader';
-                            const avatar = m.avatar_url || '../assets/user_avatar.jpg';
+                            const avatar = getAlphabetAvatar(m.display_name || m.name);
                             const rot = polaroidRotations[idx % polaroidRotations.length];
                             const tapeRot = tapeRotations[idx % tapeRotations.length];
                             return `
                                 <div class="member-polaroid-card" data-role="${escapeHtml(m.role || 'Member')}" style="--polaroid-rot: ${rot};">
                                     <div class="polaroid-tape" style="--tape-rot: ${tapeRot};"></div>
                                     <div class="member-dp-wrap">
-                                        <img src="${avatar}" alt="${escapeHtml(m.name)}" class="member-dp-img" onerror="this.src='../assets/user_avatar.jpg'">
+                                        <img src="${avatar}" alt="${escapeHtml(m.name)}" class="member-dp-img">
                                     </div>
                                     <div class="member-name">${escapeHtml(m.name)}</div>
                                     <div class="member-meta-row">
@@ -5699,7 +5850,7 @@
                     if (avatarStack) {
                         const previewMembers = community.members.slice(0, 5);
                         avatarStack.innerHTML = previewMembers.map(m => `
-                            <img src="${m.avatar_url || '../assets/user_avatar.jpg'}" alt="${escapeHtml(m.name)}" class="stacked-avatar" title="${escapeHtml(m.name)}" onerror="this.src='../assets/user_avatar.jpg'">
+                            <img src="${getAlphabetAvatar(m.display_name || m.name)}" alt="${escapeHtml(m.name)}" class="stacked-avatar" title="${escapeHtml(m.name)}">
                         `).join('');
                     }
                     if (avatarCount) {
@@ -5707,7 +5858,7 @@
                     }
                 }
 
-                // --- Connect Links & Button Customization ---
+                // --- Connect Links & Button Customization (Synchronized Across Entire Site) ---
                 if (connect.links) {
                     const l = connect.links;
                     const chatBtn = document.getElementById('connectCommunityChatBtn');
@@ -5717,30 +5868,51 @@
                     const waBtn = document.getElementById('connectWhatsAppBtn');
                     const discBtn = document.getElementById('connectDiscordBtn');
 
-                    if (chatBtn && l.community_chat_url) {
-                        chatBtn.href = l.community_chat_url;
+                    if (l.community_chat_url) {
                         communityUrl = l.community_chat_url;
-                        if (l.community_chat_label) {
-                            const span = chatBtn.querySelector('span:first-of-type');
-                            if (span) span.textContent = l.community_chat_label;
-                        }
+                        if (chatBtn) chatBtn.href = l.community_chat_url;
                     }
-                    if (driveBtn && l.book_drive_url) {
-                        driveBtn.href = l.book_drive_url;
+                    if (l.community_chat_label && chatBtn) {
+                        const span = chatBtn.querySelector('span:first-of-type') || chatBtn;
+                        if (span) span.textContent = l.community_chat_label;
+                    }
+
+                    if (l.book_drive_url) {
                         bookDriveUrl = l.book_drive_url;
-                        if (l.book_drive_label) {
-                            const span = driveBtn.querySelector('span:first-of-type');
+                        if (driveBtn) driveBtn.href = l.book_drive_url;
+                        const aReadDrive = document.getElementById('annDriveBtn');
+                        if (aReadDrive) aReadDrive.href = l.book_drive_url;
+                    }
+                    if (l.book_drive_label) {
+                        if (driveBtn) {
+                            const span = driveBtn.querySelector('span:first-of-type') || driveBtn;
+                            if (span) span.textContent = l.book_drive_label;
+                        }
+                        const aReadDrive = document.getElementById('annDriveBtn');
+                        if (aReadDrive) {
+                            const span = aReadDrive.querySelector('span:first-of-type') || aReadDrive;
                             if (span) span.textContent = l.book_drive_label;
                         }
                     }
-                    if (locBtn && l.meeting_maps_url) {
-                        locBtn.href = l.meeting_maps_url;
+
+                    if (l.meeting_maps_url) {
                         meetingMapUrl = l.meeting_maps_url;
-                        if (l.meeting_maps_label) {
-                            const span = locBtn.querySelector('span:first-of-type');
+                        if (locBtn) locBtn.href = l.meeting_maps_url;
+                        const aGathMaps = document.getElementById('annMapsBtn');
+                        if (aGathMaps) aGathMaps.href = l.meeting_maps_url;
+                    }
+                    if (l.meeting_maps_label) {
+                        if (locBtn) {
+                            const span = locBtn.querySelector('span:first-of-type') || locBtn;
+                            if (span) span.textContent = l.meeting_maps_label;
+                        }
+                        const aGathMaps = document.getElementById('annMapsBtn');
+                        if (aGathMaps) {
+                            const span = aGathMaps.querySelector('span:first-of-type') || aGathMaps;
                             if (span) span.textContent = l.meeting_maps_label;
                         }
                     }
+
                     if (instaBtn && l.instagram_url) instaBtn.href = l.instagram_url;
                     if (waBtn && l.whatsapp_url) waBtn.href = l.whatsapp_url;
                     if (discBtn && l.discord_url) discBtn.href = l.discord_url;
@@ -5755,11 +5927,18 @@
                     if (sn.community && document.getElementById('noteBodyCommunity')) document.getElementById('noteBodyCommunity').textContent = sn.community;
                 }
 
-                // --- Sanctuary Features (Paper Airplane Animation / Button) ---
+                // --- Sanctuary Features: Paper Airplane & Autonomous Cat (Default: STRICTLY OFF) ---
                 const isPaperPlaneEnabled = Boolean(
-                    portalData.paper_plane_enabled ||
-                    portalData.features?.paper_plane_enabled ||
-                    (portalData.portal && (portalData.portal.paper_plane_enabled || portalData.portal.features?.paper_plane_enabled))
+                    portalData.paper_plane_enabled === true ||
+                    portalData.paper_plane_enabled === 'true' ||
+                    portalData.features?.paper_plane_enabled === true ||
+                    portalData.features?.paper_plane_enabled === 'true' ||
+                    (portalData.portal && (
+                        portalData.portal.paper_plane_enabled === true ||
+                        portalData.portal.paper_plane_enabled === 'true' ||
+                        portalData.portal.features?.paper_plane_enabled === true ||
+                        portalData.portal.features?.paper_plane_enabled === 'true'
+                    ))
                 );
 
                 if (window.setPaperPlaneFeature) {
@@ -5770,36 +5949,69 @@
                     rocketBtn.style.display = isPaperPlaneEnabled ? 'inline-flex' : 'none';
                 }
 
+                const isCatEnabled = Boolean(
+                    portalData.cat_enabled === true ||
+                    portalData.cat_enabled === 'true' ||
+                    portalData.features?.cat_enabled === true ||
+                    portalData.features?.cat_enabled === 'true' ||
+                    (portalData.portal && (
+                        portalData.portal.cat_enabled === true ||
+                        portalData.portal.cat_enabled === 'true' ||
+                        portalData.portal.features?.cat_enabled === true ||
+                        portalData.portal.features?.cat_enabled === 'true'
+                    ))
+                );
+
+                if (window.setCatFeature) {
+                    window.setCatFeature(isCatEnabled);
+                }
+                const livingCat = document.getElementById('livingCatActor');
+                const bottomTaskbar = document.getElementById('bottomTaskbar');
+                if (livingCat) livingCat.style.display = isCatEnabled ? 'block' : 'none';
+                if (bottomTaskbar) bottomTaskbar.style.display = isCatEnabled ? 'flex' : 'none';
+
             } catch (err) {
                 console.warn('Coordination data load notice:', err);
             }
 
-            // Click Handlers for Dashboard Cards & CTAs
+            // Click Handlers for Dashboard Cards & CTAs (Sync dynamically with latest button URLs)
+            window._currentBookDriveUrl = bookDriveUrl;
+            window._currentMeetingMapUrl = meetingMapUrl;
+            window._currentCommunityUrl = communityUrl;
+
             const pickCard = document.getElementById('todaysPickCard');
-            if (pickCard) {
+            if (pickCard && !pickCard.dataset.bound) {
+                pickCard.dataset.bound = 'true';
                 pickCard.addEventListener('click', () => {
-                    if (bookDriveUrl) window.open(bookDriveUrl, '_blank');
+                    const u = window._currentBookDriveUrl || 'https://drive.google.com';
+                    window.open(u, '_blank');
                 });
             }
 
             const salonCard = document.getElementById('happeningSoonCard');
-            if (salonCard) {
+            if (salonCard && !salonCard.dataset.bound) {
+                salonCard.dataset.bound = 'true';
                 salonCard.addEventListener('click', () => {
-                    if (meetingMapUrl) window.open(meetingMapUrl, '_blank');
+                    const u = window._currentMeetingMapUrl || 'https://maps.google.com';
+                    window.open(u, '_blank');
                 });
             }
 
             const getStartedBtn = document.getElementById('getStartedBtn');
-            if (getStartedBtn) {
+            if (getStartedBtn && !getStartedBtn.dataset.bound) {
+                getStartedBtn.dataset.bound = 'true';
                 getStartedBtn.addEventListener('click', () => {
-                    if (bookDriveUrl) window.open(bookDriveUrl, '_blank');
+                    const u = window._currentBookDriveUrl || 'https://drive.google.com';
+                    window.open(u, '_blank');
                 });
             }
 
             const watchIntroBtn = document.getElementById('watchIntroBtn');
-            if (watchIntroBtn) {
+            if (watchIntroBtn && !watchIntroBtn.dataset.bound) {
+                watchIntroBtn.dataset.bound = 'true';
                 watchIntroBtn.addEventListener('click', () => {
-                    if (communityUrl) window.open(communityUrl, '_blank');
+                    const u = window._currentCommunityUrl || 'https://chat.whatsapp.com';
+                    window.open(u, '_blank');
                 });
             }
 
@@ -5935,7 +6147,7 @@
                     try {
                         await navigator.clipboard.writeText(`${item.quote} — ${item.author}`);
                         const oldText = copyBtn.innerHTML;
-                        copyBtn.innerHTML = '<span>Copied ✓</span>';
+                        copyBtn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -2px; margin-right: 4px;"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Copied</span>';
                         setTimeout(() => { copyBtn.innerHTML = oldText; }, 2000);
                     } catch (e) {
                         // Fallback

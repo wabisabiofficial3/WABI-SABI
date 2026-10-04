@@ -61,6 +61,7 @@ router.get('/', (req, res) => {
         };
 
         const paperPlaneEnabled = settings.paper_plane_enabled === true || settings.paper_plane_enabled === 'true';
+        const catEnabled = settings.cat_enabled === true || settings.cat_enabled === 'true';
 
         const flatSettings = {
             current_book: typeof reading === 'string' ? reading : (reading.title || 'The Stranger'),
@@ -72,7 +73,8 @@ router.get('/', (req, res) => {
             meeting_location: gathering.location || 'MRDU Campus',
             meeting_url: connectLinks.meeting_maps_url || gathering.maps_url || 'https://maps.google.com',
             community_url: connectLinks.community_chat_url || 'https://chat.whatsapp.com',
-            paper_plane_enabled: paperPlaneEnabled
+            paper_plane_enabled: paperPlaneEnabled,
+            cat_enabled: catEnabled
         };
 
         return res.json({
@@ -99,9 +101,11 @@ router.get('/', (req, res) => {
                 button_links: connectLinks,
                 sticky_notes: stickyNotes,
                 features: {
-                    paper_plane_enabled: paperPlaneEnabled
+                    paper_plane_enabled: paperPlaneEnabled,
+                    cat_enabled: catEnabled
                 },
                 paper_plane_enabled: paperPlaneEnabled,
+                cat_enabled: catEnabled,
                 updates,
                 current_book: reading,
                 next_meeting: gathering,
@@ -123,9 +127,11 @@ router.get('/', (req, res) => {
                 links: connectLinks
             },
             features: {
-                paper_plane_enabled: paperPlaneEnabled
+                paper_plane_enabled: paperPlaneEnabled,
+                cat_enabled: catEnabled
             },
             paper_plane_enabled: paperPlaneEnabled,
+            cat_enabled: catEnabled,
             sticky_notes: stickyNotes,
             updates,
             current_book: reading,

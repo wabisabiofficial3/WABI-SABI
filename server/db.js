@@ -250,6 +250,10 @@ function seedDefaultSettings() {
             key: 'paper_plane_enabled',
             value: JSON.stringify(false)
         },
+        {
+            key: 'cat_enabled',
+            value: JSON.stringify(false)
+        },
         // Backwards compatibility keys
         {
             key: 'current_book',

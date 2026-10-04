@@ -485,7 +485,7 @@ router.get('/settings', (req, res) => {
  */
 router.put(['/settings', '/features'], (req, res) => {
     try {
-        const { current_book, next_meeting, platform_links, weekly_theme, this_weeks_reading, gathering, discussion_points, important_notes, connect_links, paper_plane_enabled } = req.body || {};
+        const { current_book, next_meeting, platform_links, weekly_theme, this_weeks_reading, gathering, discussion_points, important_notes, connect_links, paper_plane_enabled, cat_enabled } = req.body || {};
 
         if (current_book !== undefined) setSetting('current_book', current_book);
         if (next_meeting !== undefined) setSetting('next_meeting', next_meeting);
@@ -498,6 +498,9 @@ router.put(['/settings', '/features'], (req, res) => {
         if (connect_links !== undefined) setSetting('connect_links', connect_links);
         if (paper_plane_enabled !== undefined) {
             setSetting('paper_plane_enabled', Boolean(paper_plane_enabled));
+        }
+        if (cat_enabled !== undefined) {
+            setSetting('cat_enabled', Boolean(cat_enabled));
         }
         if (req.body && req.body.sticky_notes !== undefined) setSetting('sticky_notes', req.body.sticky_notes);
 

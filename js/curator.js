@@ -228,6 +228,27 @@
         }
     }
 
+    // Aesthetic First-Alphabet Monogram Generator (Zero photo DPs)
+    function getAlphabetAvatar(name) {
+        const raw = (name || 'Member').trim();
+        const match = raw.match(/[a-zA-Z]/);
+        const letter = match ? match[0].toUpperCase() : (raw.charAt(0) || 'M').toUpperCase();
+        const palettes = [
+            { bg: '#273B2B', text: '#FAF7F0', border: '#3E5642' },
+            { bg: '#5C4033', text: '#FDFBF7', border: '#785645' },
+            { bg: '#3D5A5B', text: '#FAF7F0', border: '#537576' },
+            { bg: '#785434', text: '#FDFBF7', border: '#926943' },
+            { bg: '#3E423A', text: '#FAF7F0', border: '#575C52' },
+            { bg: '#6B3E36', text: '#FDFBF7', border: '#854F45' },
+            { bg: '#4A5B45', text: '#FAF7F0', border: '#60745A' }
+        ];
+        let hash = 0;
+        for (let i = 0; i < raw.length; i++) hash = (hash * 31 + raw.charCodeAt(i)) & 0xffffffff;
+        const p = palettes[Math.abs(hash) % palettes.length];
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><rect width="100" height="100" rx="14" fill="${p.bg}"/><rect x="2" y="2" width="96" height="96" rx="12" fill="none" stroke="${p.border}" stroke-width="2" opacity="0.6"/><text x="50" y="54%" text-anchor="middle" dominant-baseline="middle" fill="${p.text}" font-family="Georgia, serif" font-size="52" font-weight="600">${letter}</text></svg>`;
+        return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+    }
+
     // 2. Render Members Directory
     function renderMembers(members) {
         if (members) currentMembersList = members;
@@ -266,11 +287,12 @@
             const displayName = escapeHtml(m.display_name || m.full_name || m.name);
             const handleText = m.handle ? escapeHtml(m.handle) : `@${escapeHtml((m.name || 'member').toLowerCase().replace(/\s+/g, ''))}`;
             const dateJoined = escapeHtml(m.date_joined || 'Autumn 2026');
+            const avatarSrc = getAlphabetAvatar(displayName);
 
             return `
             <div class="curator-member-card" id="member-card-${m.id}">
                 <div class="curator-member-info">
-                    <img src="${m.avatar_url || '/assets/user_avatar.jpg'}" alt="${displayName}" class="curator-member-avatar" onerror="this.src='/assets/user_avatar.jpg'">
+                    <img src="${avatarSrc}" alt="${displayName}" class="curator-member-avatar" style="border-radius: 8px; object-fit: cover;">
                     <div class="curator-member-meta">
                         <div class="curator-member-name-row">
                             <span class="curator-member-name">${displayName}</span>
@@ -289,20 +311,24 @@
                     <a href="/my-space?preview=${m.id}" target="_blank" class="c-btn-action" title="Preview member desk">
                         <span>↗ Space</span>
                     </a>
-                    <button type="button" class="c-btn-action" onclick="window.openEditMemberModal('${m.id}')" title="Edit member portrait">
-                        <span>✎ Edit</span>
+                    <button type="button" class="c-btn-action" onclick="window.openEditMemberModal('${m.id}')" title="Edit member details">
+                        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                        <span>Edit</span>
                     </button>
                     <button type="button" class="c-btn-action" onclick="window.regenerateMemberCode('${m.id}')" title="Regenerate secret code">
-                        <span>🔑</span>
+                        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="5"/><path d="M12 11l9-9M17 6l2 2M19 4l2 2"/></svg>
                     </button>
                     <button type="button" class="c-btn-action" onclick="window.openMemberQrModal('${m.id}')" title="Generate QR card">
-                        <span>🪪</span>
+                        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="13" y2="12"/></svg>
                     </button>
                     <button type="button" class="c-btn-action" onclick="window.toggleMemberStatus('${m.id}', '${isSuspended ? 'active' : 'suspended'}')" title="${isSuspended ? 'Restore access' : 'Suspend access'}">
-                        <span>${isSuspended ? '✓' : '⏸'}</span>
+                        ${isSuspended 
+                            ? '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>'
+                            : '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+                        }
                     </button>
                     <button type="button" class="c-btn-action" style="color: #A23434;" onclick="window.deleteCuratorMember('${m.id}')" title="Remove member">
-                        <span>✕</span>
+                        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
                 </div>
             </div>
@@ -400,24 +426,44 @@
         if (emailInput) emailInput.value = curator.email || 'wabisabiofficial3@gmail.com';
     }
 
-    // 6. Populate Sanctuary Feature Controls (Paper Airplane Option)
+    // 6. Populate Sanctuary Feature Controls (Cat Companion & Paper Airplane Options)
     function populateFeatureControls(settings) {
-        const isPaperPlaneEnabled = Boolean(settings && (settings.paper_plane_enabled === true || settings.paper_plane_enabled === 'true'));
-        const checkbox = document.getElementById('paperPlaneToggleCheckbox');
-        const statusBadge = document.getElementById('paperPlaneStatusBadge');
-        const statusText = document.getElementById('paperPlaneToggleText');
+        if (!settings) return;
 
-        if (checkbox) {
-            checkbox.checked = isPaperPlaneEnabled;
+        if (settings.paper_plane_enabled !== undefined) {
+            const isPaperPlaneEnabled = Boolean(settings.paper_plane_enabled === true || settings.paper_plane_enabled === 'true');
+            const planeCheckbox = document.getElementById('paperPlaneToggleCheckbox');
+            const planeBadge = document.getElementById('paperPlaneStatusBadge');
+            const planeText = document.getElementById('paperPlaneToggleText');
+
+            if (planeCheckbox) planeCheckbox.checked = isPaperPlaneEnabled;
+            if (planeBadge) {
+                planeBadge.textContent = isPaperPlaneEnabled ? 'ON (Active)' : 'OFF (Default)';
+                planeBadge.style.background = isPaperPlaneEnabled ? 'rgba(39, 59, 43, 0.15)' : 'rgba(120, 115, 105, 0.15)';
+                planeBadge.style.color = isPaperPlaneEnabled ? 'var(--moss-dark, #273B2B)' : 'var(--wabi-ink-muted, #7A7264)';
+            }
+            if (planeText) {
+                planeText.textContent = isPaperPlaneEnabled ? 'ON' : 'OFF';
+                planeText.style.color = isPaperPlaneEnabled ? 'var(--moss-dark, #273B2B)' : 'var(--wabi-ink-muted, #7A7264)';
+            }
         }
-        if (statusBadge) {
-            statusBadge.textContent = isPaperPlaneEnabled ? 'ON (Active)' : 'OFF (Default)';
-            statusBadge.style.background = isPaperPlaneEnabled ? 'rgba(39, 59, 43, 0.15)' : 'rgba(120, 115, 105, 0.15)';
-            statusBadge.style.color = isPaperPlaneEnabled ? 'var(--moss-dark, #273B2B)' : 'var(--wabi-ink-muted, #7A7264)';
-        }
-        if (statusText) {
-            statusText.textContent = isPaperPlaneEnabled ? 'ON' : 'OFF';
-            statusText.style.color = isPaperPlaneEnabled ? 'var(--moss-dark, #273B2B)' : 'var(--wabi-ink-muted, #7A7264)';
+
+        if (settings.cat_enabled !== undefined) {
+            const isCatEnabled = Boolean(settings.cat_enabled === true || settings.cat_enabled === 'true');
+            const catCheckbox = document.getElementById('catToggleCheckbox');
+            const catBadge = document.getElementById('catStatusBadge');
+            const catText = document.getElementById('catToggleText');
+
+            if (catCheckbox) catCheckbox.checked = isCatEnabled;
+            if (catBadge) {
+                catBadge.textContent = isCatEnabled ? 'ON (Active)' : 'OFF (Default)';
+                catBadge.style.background = isCatEnabled ? 'rgba(39, 59, 43, 0.15)' : 'rgba(120, 115, 105, 0.15)';
+                catBadge.style.color = isCatEnabled ? 'var(--moss-dark, #273B2B)' : 'var(--wabi-ink-muted, #7A7264)';
+            }
+            if (catText) {
+                catText.textContent = isCatEnabled ? 'ON' : 'OFF';
+                catText.style.color = isCatEnabled ? 'var(--moss-dark, #273B2B)' : 'var(--wabi-ink-muted, #7A7264)';
+            }
         }
     }
 
@@ -722,7 +768,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast(isEnabled ? '✈️ Paper Airplane feature enabled on portal!' : '✦ Paper Airplane feature turned off (Default)');
+                        showToast(isEnabled ? 'Paper Airplane feature enabled on portal!' : '✦ Paper Airplane feature turned off (Default)');
                     } else {
                         showToast(data.error || 'Failed to update feature setting.', true);
                         e.target.checked = !isEnabled;
@@ -732,6 +778,36 @@
                     showToast('Network error updating feature setting.', true);
                     e.target.checked = !isEnabled;
                     populateFeatureControls({ paper_plane_enabled: !isEnabled });
+                }
+            });
+        }
+
+        // 9b. Sanctuary Feature Controls (Autonomous Cat Companion Toggle)
+        const catToggle = document.getElementById('catToggleCheckbox');
+        if (catToggle) {
+            catToggle.addEventListener('change', async (e) => {
+                const isEnabled = e.target.checked;
+                populateFeatureControls({ cat_enabled: isEnabled });
+
+                try {
+                    const res = await fetch('/api/curator/features', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ cat_enabled: isEnabled })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast(isEnabled ? 'Autonomous Cat companion enabled on portal!' : '✦ Cat companion turned off (Default)');
+                    } else {
+                        showToast(data.error || 'Failed to update cat setting.', true);
+                        e.target.checked = !isEnabled;
+                        populateFeatureControls({ cat_enabled: !isEnabled });
+                    }
+                } catch (err) {
+                    showToast('Network error updating cat setting.', true);
+                    e.target.checked = !isEnabled;
+                    populateFeatureControls({ cat_enabled: !isEnabled });
                 }
             });
         }

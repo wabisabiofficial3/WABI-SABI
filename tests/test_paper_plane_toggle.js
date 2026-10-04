@@ -20,9 +20,11 @@ async function testPaperPlaneToggle() {
     });
 
     assert(portalData.success, 'Portal endpoint must return success');
-    const isDefaultOff = portalData.portal?.features?.paper_plane_enabled === false || portalData.portal?.paper_plane_enabled === false;
-    assert.strictEqual(isDefaultOff, true, 'Paper airplane feature must be DEFAULT OFF');
-    console.log('   ✓ Paper airplane feature is confirmed DEFAULT OFF in public API!');
+    const isPlaneDefaultOff = portalData.portal?.features?.paper_plane_enabled === false || portalData.portal?.paper_plane_enabled === false;
+    const isCatDefaultOff = portalData.portal?.features?.cat_enabled === false || portalData.portal?.cat_enabled === false;
+    assert.strictEqual(isPlaneDefaultOff, true, 'Paper airplane feature must be DEFAULT OFF');
+    assert.strictEqual(isCatDefaultOff, true, 'Autonomous cat companion must be DEFAULT OFF');
+    console.log('   ✓ Paper airplane & Autonomous Cat features are confirmed DEFAULT OFF in public API!');
 
     // 2. Authenticate as Admin
     console.log('\n► 2. Authenticating as Admin for Curator Feature Controls...');
@@ -50,8 +52,8 @@ async function testPaperPlaneToggle() {
     assert(cookie, 'Must receive session cookie');
     console.log('   ✓ Admin authenticated successfully.');
 
-    // 3. Test PUT /api/curator/features (Turn ON)
-    console.log('\n► 3. Testing Admin Toggle ON (/api/curator/features)...');
+    // 3. Test PUT /api/curator/features (Turn ON Paper Plane)
+    console.log('\n► 3. Testing Admin Toggle ON (/api/curator/features for Paper Plane)...');
     const turnOnRes = await new Promise((resolve, reject) => {
         const payload = JSON.stringify({ paper_plane_enabled: true });
         const req = http.request({
@@ -79,21 +81,39 @@ async function testPaperPlaneToggle() {
     assert.strictEqual(turnOnRes.body.settings.paper_plane_enabled, true, 'Settings must reflect paper_plane_enabled = true');
     console.log('   ✓ Successfully turned ON paper plane feature in Admin Account!');
 
-    // Verify Public Portal after turning ON
-    const portalOn = await new Promise((resolve, reject) => {
-        http.get('http://localhost:3000/api/portal', (res) => {
+    // 4. Test PUT /api/curator/features (Turn ON Cat Companion)
+    console.log('\n► 4. Testing Admin Toggle ON (/api/curator/features for Cat Companion)...');
+    const turnOnCatRes = await new Promise((resolve, reject) => {
+        const payload = JSON.stringify({ cat_enabled: true });
+        const req = http.request({
+            hostname: 'localhost',
+            port: 3000,
+            path: '/api/curator/features',
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(payload),
+                'Cookie': cookie
+            }
+        }, (res) => {
             let body = '';
             res.on('data', d => body += d);
-            res.on('end', () => resolve(JSON.parse(body)));
-        }).on('error', reject);
+            res.on('end', () => resolve({ status: res.statusCode, body: JSON.parse(body) }));
+        });
+        req.on('error', reject);
+        req.write(payload);
+        req.end();
     });
-    assert.strictEqual(portalOn.portal.features.paper_plane_enabled, true, 'Public portal must reflect ON state');
-    console.log('   ✓ Public portal immediately reflects ON state!');
 
-    // 4. Test PUT /api/curator/features (Turn back OFF - Default)
-    console.log('\n► 4. Testing Admin Toggle back OFF (Default)...');
+    assert.strictEqual(turnOnCatRes.status, 200, 'Cat feature update must succeed');
+    assert.strictEqual(turnOnCatRes.body.success, true);
+    assert.strictEqual(turnOnCatRes.body.settings.cat_enabled, true, 'Settings must reflect cat_enabled = true');
+    console.log('   ✓ Successfully turned ON cat companion feature in Admin Account!');
+
+    // 5. Test PUT /api/curator/features (Turn back OFF - Defaults)
+    console.log('\n► 5. Testing Admin Toggle back OFF for both (Default)...');
     const turnOffRes = await new Promise((resolve, reject) => {
-        const payload = JSON.stringify({ paper_plane_enabled: false });
+        const payload = JSON.stringify({ paper_plane_enabled: false, cat_enabled: false });
         const req = http.request({
             hostname: 'localhost',
             port: 3000,
@@ -116,7 +136,8 @@ async function testPaperPlaneToggle() {
 
     assert.strictEqual(turnOffRes.status, 200);
     assert.strictEqual(turnOffRes.body.settings.paper_plane_enabled, false, 'Settings must reflect paper_plane_enabled = false');
-    console.log('   ✓ Successfully restored paper plane feature to DEFAULT OFF!');
+    assert.strictEqual(turnOffRes.body.settings.cat_enabled, false, 'Settings must reflect cat_enabled = false');
+    console.log('   ✓ Successfully restored both features to DEFAULT OFF!');
 
     // 5. Headless Browser Verification of UI in Curator Atelier and Public Portal
     console.log('\n► 5. Verifying UI Controls in Headless Edge...');
@@ -164,24 +185,35 @@ async function testPaperPlaneToggle() {
         await send('Runtime.enable');
         await send('Page.enable');
 
-        // Check Public Portal DOM state for rocket button
+        // Check Public Portal DOM state for rocket button and cat actor
         const homeCheck = await send('Runtime.evaluate', {
             expression: `(() => {
                 const btn = document.getElementById('launchRocketBtn');
                 const engine = window.wabiSabiRocket;
+                const catActor = document.getElementById('livingCatActor');
+                const taskbar = document.getElementById('bottomTaskbar');
+                const catEngine = window.wabiSabiCat;
                 return {
                     btnExists: !!btn,
                     btnDisplay: btn ? window.getComputedStyle(btn).display : 'none',
-                    engineEnabled: engine ? engine.enabled : false
+                    engineEnabled: engine ? engine.enabled : false,
+                    catActorExists: !!catActor,
+                    catActorDisplay: catActor ? window.getComputedStyle(catActor).display : 'none',
+                    taskbarExists: !!taskbar,
+                    taskbarDisplay: taskbar ? window.getComputedStyle(taskbar).display : 'none',
+                    catEngineEnabled: catEngine ? catEngine.enabled : false
                 };
             })()`,
             returnByValue: true
         });
 
         console.log('   Public Portal DOM Check (Default):', homeCheck.result.value);
-        assert.strictEqual(homeCheck.result.value.btnDisplay, 'none', 'Button must be hidden by default');
+        assert.strictEqual(homeCheck.result.value.btnDisplay, 'none', 'Rocket button must be hidden by default');
         assert.strictEqual(homeCheck.result.value.engineEnabled, false, 'Rocket engine must be disabled by default');
-        console.log('   ✓ Public portal rocket button & engine are strictly disabled by default!');
+        assert.strictEqual(homeCheck.result.value.catActorDisplay, 'none', 'Cat actor must be hidden by default');
+        assert.strictEqual(homeCheck.result.value.taskbarDisplay, 'none', 'Taskbar must be hidden by default');
+        assert.strictEqual(homeCheck.result.value.catEngineEnabled, false, 'Cat engine must be disabled by default');
+        console.log('   ✓ Public portal rocket button & cat actor are strictly disabled by default!');
 
         // Now set cookie in browser and open Curator Studio
         await send('Network.enable');
@@ -200,21 +232,29 @@ async function testPaperPlaneToggle() {
                 const checkbox = document.getElementById('paperPlaneToggleCheckbox');
                 const statusBadge = document.getElementById('paperPlaneStatusBadge');
                 const statusText = document.getElementById('paperPlaneToggleText');
+                const catCheckbox = document.getElementById('catToggleCheckbox');
+                const catBadge = document.getElementById('catStatusBadge');
                 return {
                     checkboxExists: !!checkbox,
                     checked: checkbox ? checkbox.checked : null,
                     badgeText: statusBadge ? statusBadge.textContent.trim() : null,
-                    text: statusText ? statusText.textContent.trim() : null
+                    text: statusText ? statusText.textContent.trim() : null,
+                    catCheckboxExists: !!catCheckbox,
+                    catChecked: catCheckbox ? catCheckbox.checked : null,
+                    catBadgeText: catBadge ? catBadge.textContent.trim() : null
                 };
             })()`,
             returnByValue: true
         });
 
         console.log('   Curator Studio Pillar 5 Feature Controls Check:', curatorCheck.result.value);
-        assert.strictEqual(curatorCheck.result.value.checkboxExists, true, 'Toggle checkbox must exist in Curator Studio');
-        assert.strictEqual(curatorCheck.result.value.checked, false, 'Toggle must be unchecked (Default OFF)');
-        assert(curatorCheck.result.value.badgeText.includes('OFF'), 'Badge must say OFF');
-        console.log('   ✓ Curator Studio interactive switch renders properly with Default OFF!');
+        assert.strictEqual(curatorCheck.result.value.checkboxExists, true, 'Plane toggle checkbox must exist in Curator Studio');
+        assert.strictEqual(curatorCheck.result.value.checked, false, 'Plane toggle must be unchecked (Default OFF)');
+        assert(curatorCheck.result.value.badgeText.includes('OFF'), 'Plane badge must say OFF');
+        assert.strictEqual(curatorCheck.result.value.catCheckboxExists, true, 'Cat toggle checkbox must exist in Curator Studio');
+        assert.strictEqual(curatorCheck.result.value.catChecked, false, 'Cat toggle must be unchecked (Default OFF)');
+        assert(curatorCheck.result.value.catBadgeText.includes('OFF'), 'Cat badge must say OFF');
+        console.log('   ✓ Curator Studio interactive switches render properly with Default OFF!');
 
         ws.close();
         edgeProcess.kill();

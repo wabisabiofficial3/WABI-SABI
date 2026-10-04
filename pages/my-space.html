@@ -817,7 +817,7 @@
                 <div class="portrait-stamp">侘寂</div>
                 <div class="portrait-left">
                     <div class="portrait-avatar-wrapper">
-                        <img id="deskAvatar" class="portrait-avatar" src="../assets/user_avatar.jpg" alt="Member Avatar">
+                        <img id="deskAvatar" class="portrait-avatar" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'%3E%3Crect width='100' height='100' rx='50' fill='%235C4033'/%3E%3Ccircle cx='50' cy='50' r='46' fill='none' stroke='%23785645' stroke-width='2' opacity='0.6'/%3E%3Ctext x='50' y='54%25' text-anchor='middle' dominant-baseline='middle' fill='%23FDFBF7' font-family='Georgia, serif' font-size='52' font-weight='600'%3EA%3C/text%3E%3C/svg%3E" alt="Member Avatar">
                         <div class="portrait-status-dot"></div>
                     </div>
                     <div class="portrait-meta">
@@ -838,7 +838,10 @@
                 <!-- 1. Currently Reading -->
                 <div class="desk-module">
                     <div class="module-header">
-                        <h2 class="module-title"><span>📖</span> Currently Reading</h2>
+                        <h2 class="module-title">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -2px; margin-right: 6px;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                            Currently Reading
+                        </h2>
                         <span class="module-tag">Autumn Selection</span>
                     </div>
 
@@ -873,7 +876,10 @@
                 <!-- 2. Personal Notes (Private Reflections) -->
                 <div class="desk-module">
                     <div class="module-header">
-                        <h2 class="module-title"><span>🖋</span> My Private Notes</h2>
+                        <h2 class="module-title">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -2px; margin-right: 6px;"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
+                            My Private Notes
+                        </h2>
                         <span class="module-tag">Margin Reflections</span>
                     </div>
 
@@ -890,7 +896,10 @@
                 <!-- 3. My Shelf (Personal Bookshelf) -->
                 <div class="desk-module">
                     <div class="module-header">
-                        <h2 class="module-title"><span>📚</span> My Shelf</h2>
+                        <h2 class="module-title">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -2px; margin-right: 6px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                            My Shelf
+                        </h2>
                         <span class="module-tag">3 Titles</span>
                     </div>
 
@@ -902,7 +911,10 @@
                 <!-- 4. Next Gathering & Reading Journey -->
                 <div class="desk-module">
                     <div class="module-header">
-                        <h2 class="module-title"><span>🕯</span> Next Gathering & Journey</h2>
+                        <h2 class="module-title">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -2px; margin-right: 6px;"><path d="M12 2c.5 1 2 2.5 2 4.5a2 2 0 1 1-4 0C10 4.5 11.5 3 12 2z"></path><rect x="9" y="10" width="6" height="11" rx="1"></rect><line x1="12" y1="6.5" x2="12" y2="10"></line></svg>
+                            Next Gathering & Journey
+                        </h2>
                         <span class="module-tag">Circle Coordinates</span>
                     </div>
 
@@ -1064,9 +1076,28 @@
                 if (data.member.bio) {
                     document.getElementById('deskMemberBio').textContent = data.member.bio;
                 }
-                if (data.member.avatar_url) {
-                    document.getElementById('deskAvatar').src = data.member.avatar_url;
+                // Aesthetic First-Alphabet Monogram Generator (Zero photo DPs)
+                function getAlphabetAvatar(name) {
+                    const raw = (name || 'Member').trim();
+                    const match = raw.match(/[a-zA-Z]/);
+                    const letter = match ? match[0].toUpperCase() : (raw.charAt(0) || 'M').toUpperCase();
+                    const palettes = [
+                        { bg: '#273B2B', text: '#FAF7F0', border: '#3E5642' },
+                        { bg: '#5C4033', text: '#FDFBF7', border: '#785645' },
+                        { bg: '#3D5A5B', text: '#FAF7F0', border: '#537576' },
+                        { bg: '#785434', text: '#FDFBF7', border: '#926943' },
+                        { bg: '#3E423A', text: '#FAF7F0', border: '#575C52' },
+                        { bg: '#6B3E36', text: '#FDFBF7', border: '#854F45' },
+                        { bg: '#4A5B45', text: '#FAF7F0', border: '#60745A' }
+                    ];
+                    let hash = 0;
+                    for (let i = 0; i < raw.length; i++) hash = (hash * 31 + raw.charCodeAt(i)) & 0xffffffff;
+                    const p = palettes[Math.abs(hash) % palettes.length];
+                    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><rect width="100" height="100" rx="50" fill="${p.bg}"/><circle cx="50" cy="50" r="46" fill="none" stroke="${p.border}" stroke-width="2" opacity="0.6"/><text x="50" y="54%" text-anchor="middle" dominant-baseline="middle" fill="${p.text}" font-family="Georgia, serif" font-size="52" font-weight="600">${letter}</text></svg>`;
+                    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
                 }
+
+                document.getElementById('deskAvatar').src = getAlphabetAvatar(data.member.name || 'Member');
 
                 // Populate Reading
                 const r = data.reading || {};

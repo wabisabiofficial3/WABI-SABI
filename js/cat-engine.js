@@ -193,6 +193,8 @@ class TaskbarCatEngine {
         this.stepTimer = 0;
         this.isInteracting = false;
         this.isTurning = false;
+        this.enabled = false; // Default: OFF as requested by Admin
+        this.animFrameId = null;
 
         this.setupAutoAssetFallbacks();
         this.updateBoundaries();
@@ -201,7 +203,12 @@ class TaskbarCatEngine {
             this.updateBoundaries();
         });
 
-        this.init();
+        // Hide elements by default until explicitly enabled
+        if (this.container) this.container.style.display = 'none';
+        const taskbar = document.getElementById('bottomTaskbar');
+        if (taskbar) taskbar.style.display = 'none';
+
+        this.setupTouchMeow();
     }
 
     setupAutoAssetFallbacks() {
@@ -290,20 +297,55 @@ class TaskbarCatEngine {
         this.container.style.left = `${this.x}px`;
         this.applyDirectionTransform();
         this.setupTouchMeow();
-        this.startWalkLoop();
+        if (this.enabled) {
+            this.startWalkLoop();
+        }
+    }
+
+    enable() {
+        this.enabled = true;
+        if (this.container) this.container.style.display = 'block';
+        const taskbar = document.getElementById('bottomTaskbar');
+        if (taskbar) taskbar.style.display = 'flex';
+        this.setPose('walk1');
+        if (this.container) this.container.style.left = `${this.x}px`;
+        this.applyDirectionTransform();
+        if (!this.animFrameId) {
+            this.startWalkLoop();
+        }
+    }
+
+    disable() {
+        this.enabled = false;
+        if (this.container) this.container.style.display = 'none';
+        const taskbar = document.getElementById('bottomTaskbar');
+        if (taskbar) taskbar.style.display = 'none';
+        if (this.bubble) this.bubble.classList.remove('active');
+        if (this.bubbleTimer) clearTimeout(this.bubbleTimer);
+        if (this.animFrameId) {
+            cancelAnimationFrame(this.animFrameId);
+            this.animFrameId = null;
+        }
     }
 
     setupTouchMeow() {
+        if (this.touchMeowAttached) return;
+        this.touchMeowAttached = true;
         const onTouch = (e) => {
             e.stopPropagation();
-            this.triggerMeow();
+            if (this.enabled) {
+                this.triggerMeow();
+            }
         };
 
-        this.container.addEventListener('click', onTouch);
-        this.container.addEventListener('touchstart', onTouch, { passive: true });
+        if (this.container) {
+            this.container.addEventListener('click', onTouch);
+            this.container.addEventListener('touchstart', onTouch, { passive: true });
+        }
     }
 
     triggerMeow() {
+        if (!this.enabled) return;
         this.sound.playMeow();
         this.isInteracting = true;
 
@@ -333,9 +375,17 @@ class TaskbarCatEngine {
     }
 
     startWalkLoop() {
+        if (this.animFrameId) {
+            cancelAnimationFrame(this.animFrameId);
+            this.animFrameId = null;
+        }
         let lastTime = performance.now();
 
         const loop = (currentTime) => {
+            if (!this.enabled) {
+                this.animFrameId = null;
+                return;
+            }
             const dt = Math.min((currentTime - lastTime) / 1000, 0.1);
             lastTime = currentTime;
 
@@ -369,10 +419,10 @@ class TaskbarCatEngine {
                 this.container.style.left = `${this.x}px`;
             }
 
-            requestAnimationFrame(loop);
+            this.animFrameId = requestAnimationFrame(loop);
         };
 
-        requestAnimationFrame(loop);
+        this.animFrameId = requestAnimationFrame(loop);
     }
 }
 
@@ -491,8 +541,31 @@ class HiddenMotiveRocketEngine {
     }
 }
 
+// Global hook to toggle cat companion feature dynamically
+window.setCatFeature = function(enabled) {
+    window._catFeatureEnabled = Boolean(enabled);
+    if (!window.wabiSabiCat && document.getElementById('livingCatActor')) {
+        bootCatEngine();
+    }
+    if (window.wabiSabiCat) {
+        if (enabled) {
+            window.wabiSabiCat.enable();
+        } else {
+            window.wabiSabiCat.disable();
+        }
+    }
+    const catActor = document.getElementById('livingCatActor');
+    const taskbar = document.getElementById('bottomTaskbar');
+    if (catActor) catActor.style.display = enabled ? 'block' : 'none';
+    if (taskbar) taskbar.style.display = enabled ? 'flex' : 'none';
+};
+
 // Global hook to toggle paper plane feature dynamically
 window.setPaperPlaneFeature = function(enabled) {
+    window._paperPlaneFeatureEnabled = Boolean(enabled);
+    if (!window.wabiSabiRocket && document.getElementById('launchRocketBtn')) {
+        bootCatEngine();
+    }
     if (window.wabiSabiRocket) {
         if (enabled) {
             window.wabiSabiRocket.enable();
@@ -500,6 +573,8 @@ window.setPaperPlaneFeature = function(enabled) {
             window.wabiSabiRocket.disable();
         }
     }
+    const rocketBtn = document.getElementById('launchRocketBtn');
+    if (rocketBtn) rocketBtn.style.display = enabled ? 'inline-flex' : 'none';
 };
 
 // Auto-initialize Cat & Rocket when on community/portal page
@@ -507,6 +582,12 @@ function bootCatEngine() {
     if (document.getElementById('livingCatActor') && !window.wabiSabiCat) {
         window.wabiSabiCat = new TaskbarCatEngine();
         window.wabiSabiRocket = new HiddenMotiveRocketEngine(window.wabiSabiCat);
+        if (window._catFeatureEnabled !== undefined) {
+            window.setCatFeature(window._catFeatureEnabled);
+        }
+        if (window._paperPlaneFeatureEnabled !== undefined) {
+            window.setPaperPlaneFeature(window._paperPlaneFeatureEnabled);
+        }
     }
 }
 
