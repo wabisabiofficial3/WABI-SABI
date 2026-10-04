@@ -36,6 +36,7 @@ node tests/run_all_tests.js
 | [`check_links.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/tests/check_links.js) | **Hyperlink Integrity** | Scans every anchor tag (`<a href>`) across all HTML files to confirm 100% of internal links point to existing files or routes. | All HTML files |
 | [`check_assets.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/tests/check_assets.js) | **Asset Audit** | Validates that every image (`src`), stylesheet (`href`), and script (`src`) referenced in HTML/CSS exists on the local filesystem. | `assets/`, `css/`, `js/` |
 | [`test_wabi_wall.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/tests/test_wabi_wall.js) | **Theme Wall API** | Tests wall post submissions, quote card rendering, and like reactions. | `/api/content/wall`, `server/routes/content.js` |
+| [`test_admin_logo_shortcut.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/tests/test_admin_logo_shortcut.js) | **Admin Logo 5-Tap Shortcut** | Verifies five deliberate clicks on the brand logo open `/sanctuary` while 1-4 clicks and modifier keys maintain normal navigation. | `js/admin-shortcut.js`, `.brand-logo` pages |
 | [`audit_suite.js`](file:///c:/Users/dhanu/OneDrive/Documents/WABI%20SABI/Wabi%20Sabi/tests/audit_suite.js) | **Unified System Audit** | Executes an all-in-one verification report for rapid continuous integration checks. | All subsystems |
 
 ---

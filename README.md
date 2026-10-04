@@ -115,6 +115,7 @@ Wabi Sabi/
 │   ├── wabi-wall.js             # Theme wall masonry & modal submit
 │   ├── curator.js               # Admin review queue & book CMS
 │   ├── cat-engine.js            # Interactive sanctuary companion ("Mochi")
+│   ├── admin-shortcut.js        # 5-tap brand logo shortcut to admin entrance
 │   ├── theme-weeks.js           # Legacy redirect handler
 │   └── vendor/                  # 📦 Third-party engines [README.md inside]
 │       ├── pdf.min.js           # Mozilla PDF.js core library
